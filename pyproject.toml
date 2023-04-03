@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "class0401"
+version = "0.1.0"
+description = ""
+authors = ["KYHSGeekCode <jourhyang123@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+torchvision = "^0.15.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
