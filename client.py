@@ -8,6 +8,50 @@ import time
 from typing import List, Dict, Optional, Any
 
 
+class InitialEnvironment:
+    def __init__(
+        self,
+        initialInventory,
+        initialPosition,
+        initialMobsCommands,
+        imageSizeX,
+        imageSizeY,
+        seed,
+        allowMobSpawn,
+        alwaysNight,
+        alwaysDay,
+        initialWeather,
+    ):
+        self.initialInventory = initialInventory
+        self.initialPosition = initialPosition
+        self.initialMobsCommands = initialMobsCommands
+        self.imageSizeX = imageSizeX
+        self.imageSizeY = imageSizeY
+        self.seed = seed
+        self.allowMobSpawn = allowMobSpawn
+        self.alwaysNight = alwaysNight
+        self.alwaysDay = alwaysDay
+        self.initialWeather = initialWeather
+
+    def to_dict(self) -> Dict[str, Any]:
+        initial_env_dict = {
+            "initialInventory": self.initialInventory,
+            "initialPosition": self.initialPosition,
+            "initialMobsCommands": self.initialMobsCommands,
+            "imageSizeX": self.imageSizeX,
+            "imageSizeY": self.imageSizeY,
+            "seed": self.seed,
+            "allowMobSpawn": self.allowMobSpawn,
+            "alwaysNight": self.alwaysNight,
+            "alwaysDay": self.alwaysDay,
+            "initialWeather": self.initialWeather,
+        }
+        return initial_env_dict
+
+
+# initial_env = InitialEnvironment(["sword", "shield"], [10, 20], ["summon ", "killMob"], 800, 600, 123456, True, False, False, "sunny")
+
+
 def recvall(sock):
     BUFF_SIZE = 1024  # 1 KiB
     data = b""
@@ -69,8 +113,12 @@ def send_action(sock: socket.socket, action_array: List[int]):
     send_payload(sock, {"action": action_array, "command": ""})
 
 
-def send_payload(sock: socket.socket, action_payload):
-    dumped = json.dumps(action_payload)
+def send_initial_environment(sock: socket.socket, environment: InitialEnvironment):
+    send_payload(sock, environment.to_dict())
+
+
+def send_payload(sock: socket.socket, payload):
+    dumped = json.dumps(payload)
     message_bytes = dumped.encode("utf-8")
     base64_bytes = base64.b64encode(message_bytes)
     base64_message = base64_bytes.decode("utf-8")
