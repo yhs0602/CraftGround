@@ -1,17 +1,96 @@
 import base64
 import json
 import random
+import socket
 
 # import pdb
-import socket
 import time
 from typing import List, Dict, Optional, Any
+
+
+class BufferedReader:
+    def __init__(self, sock):
+        self.sock = sock
+        self.buffer = b""
+
+    def readline(self):
+        while b"\n" not in self.buffer:  # 일단 \n이 있거나 더 받을 게 없으면 break
+            chunk = self.sock.recv(1024)
+            if not chunk:
+                break
+            self.buffer += chunk
+        if b"\n" in self.buffer:  # \n이 있으면 그 전까지 잘라서 리턴
+            line, self.buffer = self.buffer.split(b"\n", 1)
+            return line  # \n은 포함하지 않음
+        else:
+            line = self.buffer
+            self.buffer = b""
+            return line
+
+
+BUFFER_SIZE = 1024
+
+
+class JSONSocket:
+    def __init__(self, sock):
+        self.sock = sock
+        self.buffer = b""
+        self.extra = b""
+        self.decoder = json.JSONDecoder()
+
+    def receive_json(self):
+        while True:
+            if self.extra:
+                buffer = self.extra
+                self.extra = b""
+            else:
+                buffer = self.sock.recv(BUFFER_SIZE)
+                if not buffer:
+                    # Connection closed by remote end
+                    raise ValueError("Incomplete JSON object")
+
+            try:
+                obj, index = self.decoder.raw_decode(buffer)
+                self.extra = buffer[index:]  # .strip()
+                return obj
+            except ValueError:
+                # Incomplete JSON object received, continue reading from socket
+                # extra is empty, because we didn't find a valid JSON object yet
+                self.buffer += buffer
+
+    def send_json_as_base64(self, obj):
+        dumped = json.dumps(obj)
+        message_bytes = dumped.encode("utf-8")
+        base64_bytes = base64.b64encode(message_bytes)
+        base64_message = base64_bytes.decode("utf-8")
+        self.sock.sendall(bytes(base64_message + "\n", "utf-8"))
+
+
+class BufferedJsonReader:
+    def __init__(self, sock):
+        self.sock = sock
+        self.buffer = b""
+        self.decoder = json.JSONDecoder()
+
+    def read_one_object(self):
+        while b"\n" not in self.buffer:  # 일단 \n이 있거나 더 받을 게 없으면 break
+            chunk = self.sock.recv(1024)
+            if not chunk:
+                break
+            self.buffer += chunk
+        if b"\n" in self.buffer:  # \n이 있으면 그 전까지 잘라서 리턴
+            line, self.buffer = self.buffer.split(b"\n", 1)
+            return json.loads(line)  # \n은 포함하지 않음
+        else:
+            line = self.buffer
+            self.buffer = b""
+            return json.loads(line)
 
 
 class InitialEnvironment:
     def __init__(
         self,
-        initialInventory,
+        initialInventoryCommands,
         initialPosition,
         initialMobsCommands,
         imageSizeX,
@@ -22,7 +101,7 @@ class InitialEnvironment:
         alwaysDay,
         initialWeather,
     ):
-        self.initialInventory = initialInventory
+        self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
         self.initialMobsCommands = initialMobsCommands
         self.imageSizeX = imageSizeX
@@ -35,7 +114,7 @@ class InitialEnvironment:
 
     def to_dict(self) -> Dict[str, Any]:
         initial_env_dict = {
-            "initialInventory": self.initialInventory,
+            "initialInventoryCommands": self.initialInventoryCommands,
             "initialPosition": self.initialPosition,
             "initialMobsCommands": self.initialMobsCommands,
             "imageSizeX": self.imageSizeX,
@@ -46,10 +125,24 @@ class InitialEnvironment:
             "alwaysDay": self.alwaysDay,
             "initialWeather": self.initialWeather,
         }
-        return initial_env_dict
+        return {k: v for k, v in initial_env_dict.items() if v is not None}
 
 
 # initial_env = InitialEnvironment(["sword", "shield"], [10, 20], ["summon ", "killMob"], 800, 600, 123456, True, False, False, "sunny")
+
+
+def recvline(sock, leftover=b"") -> (List[bytes], bytes):
+    CHUNK_SIZE = 1024  # 1 KiB
+    data = leftover
+    while True:
+        part = sock.recv(CHUNK_SIZE)
+        data += part
+        if b"\n" in part:
+            break
+    lines = data.split(b"\n")
+    leftover = lines[-1]
+    complete_lines = lines[:-1]
+    return (complete_lines, leftover)
 
 
 def recvall(sock):
@@ -69,6 +162,7 @@ def wait_for_server() -> socket.socket:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(("127.0.0.1", 8000))
+            s.settimeout(5)
             return s
         except ConnectionRefusedError:
             print("Waiting for server...")
@@ -109,26 +203,25 @@ def int_to_action(input_act: int):
     return act
 
 
-def send_action(sock: socket.socket, action_array: List[int]):
-    send_payload(sock, {"action": action_array, "command": ""})
+def send_action(sock: JSONSocket, action_array: List[int]):
+    sock.send_json_as_base64({"action": action_array, "command": ""})
 
 
-def send_initial_environment(sock: socket.socket, environment: InitialEnvironment):
-    send_payload(sock, environment.to_dict())
+# def send_initial_environment(sock: socket.socket, environment: InitialEnvironment):
+#     send_payload(sock, environment.to_dict())
 
 
-def send_payload(sock: socket.socket, payload):
-    dumped = json.dumps(payload)
-    message_bytes = dumped.encode("utf-8")
-    base64_bytes = base64.b64encode(message_bytes)
-    base64_message = base64_bytes.decode("utf-8")
-    sock.send(bytes(base64_message + "\n", "utf-8"))
+# def send_payload(sock: socket.socket, payload):
+#     dumped = json.dumps(payload)
+#     message_bytes = dumped.encode("utf-8")
+#     base64_bytes = base64.b64encode(message_bytes)
+#     base64_message = base64_bytes.decode("utf-8")
+#     sock.send(bytes(base64_message + "\n", "utf-8"))
 
 
-def decode_response(sock: socket.socket) -> Optional[Dict[str, Any]]:
-    sock.settimeout(5)
+def decode_response(buffered_reader: BufferedReader) -> Optional[Dict[str, Any]]:
     try:
-        re = recvall(sock)
+        re = buffered_reader.readline()
     except socket.timeout:
         return None
     print(len(re))
@@ -148,17 +241,35 @@ def decode_response(sock: socket.socket) -> Optional[Dict[str, Any]]:
 def main():
     # pdb.set_trace()
     sock: socket.socket = wait_for_server()
+    buffered_reader = BufferedReader(sock)
+    json_socket = JSONSocket(sock)
     img_seq: int = 0
+    # send initial environment
+    initial_env = InitialEnvironment(
+        initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
+        initialPosition=None,  # nullable
+        initialMobsCommands=["minecraft:sheep"],
+        imageSizeX=800,
+        imageSizeY=600,
+        seed=123456,  # nullable
+        allowMobSpawn=True,
+        alwaysDay=False,
+        alwaysNight=False,
+        initialWeather="clear",  # nullable
+    )
+    json_socket.send_json_as_base64(initial_env.to_dict())
+    # send_initial_environment(sock, initial_env)
+
     while True:
         random_action = random.randint(0, 7)  # 0, 1, 2, 3..7
         action_arr = int_to_action(random_action)
 
         # send the action
         print("Sending action...")
-        send_action(sock, action_arr)
+        send_action(json_socket, action_arr)
         # read the response
         print("Reading response...")
-        res = decode_response(sock)
+        res = json_socket.receive_json()
         if res is None:
             # server is not responding
             # send_action(sock, no_op())
