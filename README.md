@@ -9,3 +9,5 @@ https://github.com/KYHSGeekCode/MinecraftEnv
 ![KillZombie](https://raw.githubusercontent.com/KYHSGeekCode/ControlMinecraft/main/output_zombie.gif)
 
 ![Seed](https://raw.githubusercontent.com/KYHSGeekCode/ControlMinecraft/main/output_seed.gif)
+
+![Init env](https://raw.githubusercontent.com/KYHSGeekCode/ControlMinecraft/main/output_init_env.gif)

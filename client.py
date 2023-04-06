@@ -34,29 +34,45 @@ BUFFER_SIZE = 1024
 class JSONSocket:
     def __init__(self, sock):
         self.sock = sock
-        self.buffer = b""
-        self.extra = b""
+        self.buffer = ""
+        self.extra = ""
         self.decoder = json.JSONDecoder()
 
-    def receive_json(self):
+    def receive_json(self, wait=False) -> Optional[Dict[str, Any]]:
         while True:
+            # need more data: from extra or from socket
             if self.extra:
-                buffer = self.extra
-                self.extra = b""
+                # consume extra
+                self.buffer += self.extra
+                self.extra = ""
             else:
-                buffer = self.sock.recv(BUFFER_SIZE)
-                if not buffer:
-                    # Connection closed by remote end
-                    raise ValueError("Incomplete JSON object")
-
+                # consume socket
+                try:
+                    byte_buffer = self.sock.recv(BUFFER_SIZE)
+                    if not byte_buffer:
+                        # Connection closed by remote end
+                        raise ValueError("Incomplete JSON object")
+                    self.buffer += byte_buffer.decode(
+                        "utf-8"
+                    )  # assume only ascii, so that decode never fails
+                except socket.timeout:
+                    if wait:
+                        print("Waiting")
+                        time.sleep(0.01)
+                        continue
+                    else:
+                        return None
+            # extra = "", buffer = "new data"
+            # extra = "", buffer = "data that was in extra"
             try:
-                obj, index = self.decoder.raw_decode(buffer)
-                self.extra = buffer[index:]  # .strip()
+                obj, index = self.decoder.raw_decode(self.buffer)
+                self.extra = self.buffer[index:]  # .strip()
+                self.buffer = ""
                 return obj
             except ValueError:
                 # Incomplete JSON object received, continue reading from socket
                 # extra is empty, because we didn't find a valid JSON object yet
-                self.buffer += buffer
+                continue
 
     def send_json_as_base64(self, obj):
         dumped = json.dumps(obj)
@@ -162,7 +178,7 @@ def wait_for_server() -> socket.socket:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(("127.0.0.1", 8000))
-            s.settimeout(5)
+            s.settimeout(15)
             return s
         except ConnectionRefusedError:
             print("Waiting for server...")
@@ -241,7 +257,7 @@ def decode_response(buffered_reader: BufferedReader) -> Optional[Dict[str, Any]]
 def main():
     # pdb.set_trace()
     sock: socket.socket = wait_for_server()
-    buffered_reader = BufferedReader(sock)
+    # buffered_reader = BufferedReader(sock)
     json_socket = JSONSocket(sock)
     img_seq: int = 0
     # send initial environment
@@ -258,6 +274,7 @@ def main():
         initialWeather="clear",  # nullable
     )
     json_socket.send_json_as_base64(initial_env.to_dict())
+    print("Sent initial environment")
     # send_initial_environment(sock, initial_env)
 
     while True:
@@ -274,10 +291,10 @@ def main():
             # server is not responding
             # send_action(sock, no_op())
             continue
-
         # save this png byte array to a file
+        img = base64.b64decode(res["image"])
         with open(f"{img_seq}.png", "wb") as f:
-            f.write(res["image"])
+            f.write(img)
         img_seq += 1
 
     sock.close()
