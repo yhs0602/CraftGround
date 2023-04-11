@@ -11,3 +11,5 @@ https://github.com/KYHSGeekCode/MinecraftEnv
 ![Seed](https://raw.githubusercontent.com/KYHSGeekCode/ControlMinecraft/main/output_seed.gif)
 
 ![Init env](https://raw.githubusercontent.com/KYHSGeekCode/ControlMinecraft/main/output_init_env.gif)
+
+![yaw env](https://raw.githubusercontent.com/KYHSGeekCode/ControlMinecraft/main/output_yaw.gif)
