@@ -8,6 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 torchvision = "^0.15.1"
+gym = "^0.26.2"
+gymnasium = "^0.28.1"
 
 
 [build-system]

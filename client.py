@@ -49,10 +49,9 @@ def int_to_action(input_act: int):
         act[1] = 1  # 0: noop 1: move right 2: move left
     elif input_act == 7:
         act[1] = 2  # 0: noop 1: move right 2: move left
-    # elif input_act == 6:
-    #     act[3] = 12 - 1  # Camera delta pitch (0: -180, 24: 180)
-    # elif input_act == 7:
-    #     act[3] = 12 + 1  # Camera delta pitch (0: -180, 24: 180)
+    elif input_act == 8:
+        act[5] = 4  # craft
+        act[6] = 331  # iron bar?
     return act
 
 
@@ -84,7 +83,7 @@ def main():
     # send_initial_environment(sock, initial_env)
 
     while True:
-        random_action = random.randint(0, 7)  # 0, 1, 2, 3..7
+        random_action = random.randint(0, 8)
         action_arr = int_to_action(random_action)
 
         # send the action
