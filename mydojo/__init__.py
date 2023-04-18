@@ -4,4 +4,4 @@ from mydojo.MyEnv import MyEnv
 
 def make(**kwargs) -> MyEnv:
     env = InitialEnvironment(**kwargs)
-    return MyEnv()
+    return MyEnv(env)
