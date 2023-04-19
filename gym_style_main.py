@@ -10,8 +10,8 @@ if __name__ == "__main__":
         initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
         initialPosition=None,  # nullable
         initialMobsCommands=["minecraft:sheep"],
-        imageSizeX=800,
-        imageSizeY=449,
+        imageSizeX=400,
+        imageSizeY=225,
         seed=123456,  # nullable
         allowMobSpawn=True,
         alwaysDay=False,
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     epsilon = 1.0
     epsilon_min = 0.01
     epsilon_decay = 0.995
-    max_steps_per_episode = 1000
+    max_steps_per_episode = 100
     update_frequency = 50  # update target network every 100 steps
 
     scores = deque(maxlen=400)

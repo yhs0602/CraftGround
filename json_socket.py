@@ -58,3 +58,6 @@ class JSONSocket:
         base64_bytes = base64.b64encode(message_bytes)
         base64_message = base64_bytes.decode("utf-8")
         self.sock.sendall(bytes(base64_message + "\n", "utf-8"))
+
+    def close(self):
+        self.sock.close()

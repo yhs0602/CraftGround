@@ -107,7 +107,7 @@ class DQNAgent:
     def update_model(self):
         if len(self.replay_buffer) < self.batch_size:
             return
-        # print("Will update model")
+        print("Will update model")
         state, action, next_state, reward, done = self.replay_buffer.sample(
             self.batch_size
         )
