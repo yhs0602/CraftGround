@@ -1,6 +1,8 @@
 import base64
 import io
 import socket
+import subprocess
+from time import sleep
 from typing import Tuple, Optional, Union, List
 
 import gymnasium as gym
@@ -28,12 +30,23 @@ class MyEnv(gym.Env):
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         if not self.json_socket:
+            subprocess.Popen(
+                "./gradlew runClient",
+                cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
+                shell=True,
+            )
             sock: socket.socket = wait_for_server()
             self.json_socket = JSONSocket(sock)
         else:
             self.json_socket.close()
             # wait for server death and restart server
-            input("Please restart the server and press enter")
+            # input("Please restart the server and press enter")
+            sleep(5)
+            subprocess.Popen(
+                "./gradlew runClient",
+                cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
+                shell=True,
+            )
             sock: socket.socket = wait_for_server()
             self.json_socket = JSONSocket(sock)
         self.json_socket.send_json_as_base64(self.initial_env.to_dict())
