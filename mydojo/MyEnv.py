@@ -13,7 +13,7 @@ from gym.core import ActType, ObsType, RenderFrame
 from initial_environment import InitialEnvironment
 from json_socket import JSONSocket
 from .MyActionSpace import MyActionSpace
-from .minecraft import wait_for_server, int_to_action, send_action
+from .minecraft import wait_for_server, int_to_action, send_action, send_respawn
 
 
 class MyEnv(gym.Env):
@@ -82,9 +82,25 @@ class MyEnv(gym.Env):
         # Optionally, you can convert the array to a specific data type, such as uint8
         arr = arr.astype(np.uint8)
 
+        health = res["health"]
+        foodLevel = res["foodLevel"]
+        saturationLevel = res["saturationLevel"]
+        isDead = res["isDead"]
+        inventory = res["inventory"]
+
         reward = 0  # Initialize reward to zero
         done = False  # Initialize done flag to False
         truncated = False  # Initialize truncated flag to False
+
+        if isDead:  #
+            if self.initial_env.isHardCore:
+                reward = -10000000
+                done = True
+            else:  # send respawn packet
+                # pass
+                send_respawn(self.json_socket)
+                res = self.json_socket.receive_json()  # throw away
+
         if action == 0:
             reward = 1  # Reward of 1 for moving forward
 

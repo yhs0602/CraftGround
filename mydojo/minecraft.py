@@ -54,3 +54,7 @@ def int_to_action(input_act: int):
 
 def send_action(sock: JSONSocket, action_array: List[int]):
     sock.send_json_as_base64({"action": action_array, "command": ""})
+
+
+def send_respawn(sock: JSONSocket):
+    sock.send_json_as_base64({"action": no_op(), "command": "respawn"})

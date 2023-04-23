@@ -28,6 +28,7 @@ def main():
         alwaysDay=False,
         alwaysNight=False,
         initialWeather="clear",  # nullable
+        isHardCore=False,
     )
     json_socket.send_json_as_base64(initial_env.to_dict())
     print("Sent initial environment")

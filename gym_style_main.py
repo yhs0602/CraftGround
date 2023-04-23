@@ -9,7 +9,7 @@ if __name__ == "__main__":
     env = mydojo.make(
         initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
         initialPosition=None,  # nullable
-        initialMobsCommands=["minecraft:sheep"],
+        initialMobsCommands=["minecraft:sheep", "minecraft:wither"],
         imageSizeX=400,
         imageSizeY=225,
         seed=123456,  # nullable
@@ -17,6 +17,7 @@ if __name__ == "__main__":
         alwaysDay=False,
         alwaysNight=False,
         initialWeather="clear",  # nullable
+        isHardCore=False,
     )
 
     state_dim = env.observation_space.shape
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     epsilon = 1.0
     epsilon_min = 0.01
     epsilon_decay = 0.995
-    max_steps_per_episode = 100
+    max_steps_per_episode = 400
     update_frequency = 50  # update target network every 100 steps
 
     scores = deque(maxlen=400)
