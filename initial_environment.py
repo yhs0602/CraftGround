@@ -17,6 +17,7 @@ class InitialEnvironment:
         alwaysDay,
         initialWeather,
         isHardCore,
+        isWorldFlat,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
@@ -29,6 +30,7 @@ class InitialEnvironment:
         self.alwaysDay = alwaysDay
         self.initialWeather = initialWeather
         self.isHardCore = isHardCore
+        self.isWorldFlat = isWorldFlat
 
     def to_dict(self) -> Dict[str, Any]:
         initial_env_dict = {
@@ -43,5 +45,6 @@ class InitialEnvironment:
             "alwaysDay": self.alwaysDay,
             "initialWeather": self.initialWeather,
             "isHardCore": self.isHardCore,  # ignored for now
+            "isWorldFlat": self.isWorldFlat,
         }
         return {k: v for k, v in initial_env_dict.items() if v is not None}

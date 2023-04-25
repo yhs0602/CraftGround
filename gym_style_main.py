@@ -52,15 +52,16 @@ if __name__ == "__main__":
     env = mydojo.make(
         initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
         initialPosition=None,  # nullable
-        initialMobsCommands=["minecraft:sheep", "minecraft:wither"],
+        initialMobsCommands=["minecraft:sheep", "minecraft:husk"],
         imageSizeX=400,
         imageSizeY=225,
-        seed=123456,  # nullable
+        seed=12345,  # nullable
         allowMobSpawn=True,
         alwaysDay=False,
         alwaysNight=False,
         initialWeather="clear",  # nullable
         isHardCore=False,
+        isWorldFlat=True,  # superflat world
     )
 
     state_dim = env.observation_space.shape
