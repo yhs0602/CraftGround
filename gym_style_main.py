@@ -120,7 +120,10 @@ if __name__ == "__main__":
         model_path = os.path.join(model_dir, f"model_episode_{episode}.pt")
         agent.save(model_path, epsilon)
         # Delete oldest saved model if there are more than max_saved_models
-        saved_models = sorted(os.listdir(model_dir), key=lambda x: os.path.getctime(os.path.join(model_dir, x)))
+        saved_models = sorted(
+            os.listdir(model_dir),
+            key=lambda x: os.path.getctime(os.path.join(model_dir, x)),
+        )
         while len(saved_models) > max_saved_models:
             oldest_model_path = os.path.join(model_dir, saved_models[0])
             os.remove(oldest_model_path)

@@ -89,6 +89,9 @@ class MyEnv(gym.Env):
         saturationLevel = res["saturationLevel"]
         isDead = res["isDead"]
         inventory = res["inventory"]
+        soundSubtitles = res["soundSubtitles"]
+        # for subtitle in soundSubtitles:
+        #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
 
         reward = 1  # Initialize reward to one
         done = False  # Initialize done flag to False
