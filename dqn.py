@@ -107,7 +107,7 @@ class DQNAgent:
     def update_model(self):
         if len(self.replay_buffer) < self.batch_size:
             return
-        print("Will update model")
+        # print("Will update model")
         state, action, next_state, reward, done = self.replay_buffer.sample(
             self.batch_size
         )
@@ -132,3 +132,17 @@ class DQNAgent:
 
     def add_experience(self, state, action, next_state, reward, done):
         self.replay_buffer.add(state, action, next_state, reward, done)
+
+    def save(self, path, epsilon):
+        state_dict = {
+            "policy_net": self.policy_net.state_dict(),
+            "target_net": self.target_net.state_dict(),
+            "epsilon": epsilon,
+        }
+        torch.save(state_dict, path)
+
+    def load(self, path):
+        state_dict = torch.load(path)
+        self.policy_net.load_state_dict(state_dict["policy_net"])
+        self.target_net.load_state_dict(state_dict["target_net"])
+        return state_dict.get("epsilon", 0)

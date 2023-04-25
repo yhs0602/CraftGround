@@ -34,6 +34,7 @@ class MyEnv(gym.Env):
                 "./gradlew runClient",
                 cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
                 shell=True,
+                stdout=subprocess.DEVNULL,
             )
             sock: socket.socket = wait_for_server()
             self.json_socket = JSONSocket(sock)
@@ -46,6 +47,7 @@ class MyEnv(gym.Env):
                 "./gradlew runClient",
                 cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
                 shell=True,
+                stdout=subprocess.DEVNULL,
             )
             sock: socket.socket = wait_for_server()
             self.json_socket = JSONSocket(sock)
@@ -64,7 +66,7 @@ class MyEnv(gym.Env):
         # send the action
         send_action(self.json_socket, action_arr)
         # read the response
-        print("Sent action and reading response...")
+        # print("Sent action and reading response...")
         res = self.json_socket.receive_json()
         # save this png byte array to a file
         png_img = base64.b64decode(res["image"])  # png byte array
@@ -88,7 +90,7 @@ class MyEnv(gym.Env):
         isDead = res["isDead"]
         inventory = res["inventory"]
 
-        reward = 0  # Initialize reward to zero
+        reward = 1  # Initialize reward to zero
         done = False  # Initialize done flag to False
         truncated = False  # Initialize truncated flag to False
 
@@ -98,11 +100,12 @@ class MyEnv(gym.Env):
                 done = True
             else:  # send respawn packet
                 # pass
+                reward = -1000000
                 send_respawn(self.json_socket)
                 res = self.json_socket.receive_json()  # throw away
 
-        if action == 0:
-            reward = 1  # Reward of 1 for moving forward
+        # if action == 0:
+        #     reward = 1  # Reward of 1 for moving forward
 
         return (
             arr,

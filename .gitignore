@@ -288,3 +288,4 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python
 data/
+saved_models
