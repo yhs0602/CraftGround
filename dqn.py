@@ -145,4 +145,4 @@ class DQNAgent:
         state_dict = torch.load(path)
         self.policy_net.load_state_dict(state_dict["policy_net"])
         self.target_net.load_state_dict(state_dict["target_net"])
-        return state_dict.get("epsilon", 0)
+        return state_dict.get("epsilon", 1)

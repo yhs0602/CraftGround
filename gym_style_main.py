@@ -36,7 +36,7 @@ def load_latest_model(agent, directory):
     # Find the latest saved model file
     list_of_files = glob.glob(os.path.join(directory, "*.pt"))
     if len(list_of_files) == 0:
-        return  # No saved models
+        return 0, 1.0  # No saved models
 
     latest_file = max(list_of_files, key=os.path.getctime)
 
