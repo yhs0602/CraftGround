@@ -90,7 +90,7 @@ class MyEnv(gym.Env):
         isDead = res["isDead"]
         inventory = res["inventory"]
 
-        reward = 1  # Initialize reward to zero
+        reward = 1  # Initialize reward to one
         done = False  # Initialize done flag to False
         truncated = False  # Initialize truncated flag to False
 
@@ -100,7 +100,8 @@ class MyEnv(gym.Env):
                 done = True
             else:  # send respawn packet
                 # pass
-                reward = -1000000
+                reward = -200
+                done = True
                 send_respawn(self.json_socket)
                 res = self.json_socket.receive_json()  # throw away
 
