@@ -131,9 +131,9 @@ class MultiDiscreteDQNAgent:
             state
         )  # [(batch_size, num_actions1), (batch_size, num_actions2), ...]
         q_values = []
-        print(f"{net_res[0].shape=} {action.shape=}")
+        # print(f"{net_res[0].shape=} {action.shape=}")
         for i, n_r in enumerate(net_res):
-            print(f"{action[:,:, i].shape=} {n_r.shape=}")
+            # print(f"{action[:,:, i].shape=} {n_r.shape=}")
             idx = action[:, :, i].to(torch.int64)
             head_q_values = n_r.gather(1, idx).squeeze(1)
             q_values.append(head_q_values)
