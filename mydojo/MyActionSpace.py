@@ -20,3 +20,14 @@ class MyActionSpace(gym.spaces.Discrete):
 
     def __eq__(self, other):
         return self.n == other.n
+
+
+class MultiActionSpace(gym.spaces.MultiDiscrete):
+    def __init__(self, nvec: list[int]):
+        super(MultiActionSpace, self).__init__(nvec)
+
+    # def sample(self, mask: Optional[np.ndarray] = None) -> NDArray[np.integer[Any]]:
+    #     return super(MultiActionSpace, self).sample()
+
+    def __repr__(self):
+        return "MultiActionSpace(%d)" % self.nvec

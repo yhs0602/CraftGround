@@ -12,7 +12,7 @@ from gym.core import ActType, ObsType, RenderFrame
 
 from initial_environment import InitialEnvironment
 from json_socket import JSONSocket
-from .MyActionSpace import MyActionSpace
+from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .minecraft import wait_for_server, int_to_action, send_action, send_respawn
 
 
@@ -122,3 +122,76 @@ class MyEnv(gym.Env):
     def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         super(MyEnv, self).render()
         return None
+
+
+class MultiDiscreteEnv(MyEnv):
+    def __init__(self, initial_env: InitialEnvironment):
+        super(MultiDiscreteEnv, self).__init__(initial_env)
+        self.action_space = MultiActionSpace([3, 3, 4, 25, 25, 8, 244, 36])
+        self.observation_space = gym.spaces.Box(
+            low=0,
+            high=255,
+            shape=(3, initial_env.imageSizeX, initial_env.imageSizeY),
+            dtype=np.uint8,
+        )
+        self.initial_env = initial_env
+        self.json_socket = None
+
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
+        assert self.action_space.contains(action)  # Check that action is valid
+
+        # send the action
+        send_action(self.json_socket, action)
+        # read the response
+        # print("Sent action and reading response...")
+        res = self.json_socket.receive_json()
+        # save this png byte array to a file
+        png_img = base64.b64decode(res["image"])  # png byte array
+        # decode png byte array to numpy array
+        # Create a BytesIO object from the byte array
+        bytes_io = io.BytesIO(png_img)
+
+        # Use PIL to open the image from the BytesIO object
+        img = Image.open(bytes_io).convert("RGB")
+
+        # Convert the PIL image to a numpy array
+        arr = np.array(img)
+        arr = np.transpose(arr, (2, 1, 0))
+
+        # Optionally, you can convert the array to a specific data type, such as uint8
+        arr = arr.astype(np.uint8)
+
+        health = res["health"]
+        foodLevel = res["foodLevel"]
+        saturationLevel = res["saturationLevel"]
+        isDead = res["isDead"]
+        inventory = res["inventory"]
+        soundSubtitles = res["soundSubtitles"]
+        # for subtitle in soundSubtitles:
+        #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
+
+        reward = 1  # Initialize reward to one
+        done = False  # Initialize done flag to False
+        truncated = False  # Initialize truncated flag to False
+
+        if isDead:  #
+            if self.initial_env.isHardCore:
+                reward = -10000000
+                done = True
+            else:  # send respawn packet
+                # pass
+                reward = -200
+                done = True
+                send_respawn(self.json_socket)
+                res = self.json_socket.receive_json()  # throw away
+
+        # if action == 0:
+        #     reward = 1  # Reward of 1 for moving forward
+
+        return (
+            arr,
+            reward,
+            done,
+            truncated,
+            {},
+        )
