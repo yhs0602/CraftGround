@@ -56,7 +56,7 @@ if __name__ == "__main__":
         imageSizeX=400,
         imageSizeY=225,
         seed=12345,  # nullable
-        allowMobSpawn=True,
+        allowMobSpawn=False,
         alwaysDay=False,
         alwaysNight=False,
         initialWeather="clear",  # nullable
@@ -140,8 +140,7 @@ if __name__ == "__main__":
         save_score_plot(scores, avg_scores, plot_filename)
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
-        if avg_score >= 195.0 and episode >= 100:
+        if avg_score >= 300.0 and episode >= 100:
             print(f"Solved in {episode} episodes!")
             break
-    env.render()
     env.close()
