@@ -1,6 +1,6 @@
 from typing import Union
 
-from initial_environment import InitialEnvironment
+from mydojo.initial_environment import InitialEnvironment
 from mydojo.MyEnv import MyEnv, MultiDiscreteEnv
 
 

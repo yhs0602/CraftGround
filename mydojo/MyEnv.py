@@ -10,8 +10,8 @@ import numpy as np
 from PIL import Image
 from gym.core import ActType, ObsType, RenderFrame
 
-from initial_environment import InitialEnvironment
-from json_socket import JSONSocket
+from mydojo.initial_environment import InitialEnvironment
+from mydojo.json_socket import JSONSocket
 from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .minecraft import wait_for_server, int_to_action, send_action, send_respawn
 

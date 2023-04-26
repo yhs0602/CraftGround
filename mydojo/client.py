@@ -3,7 +3,7 @@ import random
 import socket
 
 from initial_environment import InitialEnvironment
-from json_socket import JSONSocket
+from mydojo.json_socket import JSONSocket
 from mydojo.minecraft import wait_for_server, int_to_action, send_action
 
 

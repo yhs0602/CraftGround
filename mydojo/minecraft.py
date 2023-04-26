@@ -4,7 +4,7 @@ import socket
 import time
 from typing import List
 
-from json_socket import JSONSocket
+from mydojo.json_socket import JSONSocket
 
 
 def wait_for_server() -> socket.socket:
