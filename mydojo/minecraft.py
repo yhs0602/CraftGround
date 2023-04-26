@@ -58,3 +58,7 @@ def send_action(sock: JSONSocket, action_array: List[int]):
 
 def send_respawn(sock: JSONSocket):
     sock.send_json_as_base64({"action": no_op(), "command": "respawn"})
+
+
+def send_fastreset(sock: JSONSocket):
+    sock.send_json_as_base64({"action": no_op(), "command": "fastreset"})

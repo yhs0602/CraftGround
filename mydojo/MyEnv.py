@@ -13,7 +13,7 @@ from gym.core import ActType, ObsType, RenderFrame
 from mydojo.initial_environment import InitialEnvironment
 from mydojo.json_socket import JSONSocket
 from .MyActionSpace import MyActionSpace, MultiActionSpace
-from .minecraft import wait_for_server, int_to_action, send_action, send_respawn
+from .minecraft import wait_for_server, send_action, send_respawn, send_fastreset
 
 
 class MyEnv(gym.Env):
@@ -28,43 +28,44 @@ class MyEnv(gym.Env):
         self.initial_env = initial_env
         self.json_socket = None
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
-        if not self.json_socket:
-            subprocess.Popen(
-                "./gradlew runClient",
-                cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
-                shell=True,
-                stdout=subprocess.DEVNULL,
-            )
-            sock: socket.socket = wait_for_server()
-            self.json_socket = JSONSocket(sock)
+    def reset(
+        self,
+        fast_reset: bool = True,
+        *,
+        seed: Optional[int] = None,
+        options: Optional[dict] = None
+    ):
+        if not self.json_socket:  # first time
+            self.start_server()
         else:
-            self.json_socket.close()
-            # wait for server death and restart server
-            # input("Please restart the server and press enter")
-            sleep(5)
-            subprocess.Popen(
-                "./gradlew runClient",
-                cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
-                shell=True,
-                stdout=subprocess.DEVNULL,
-            )
-            sock: socket.socket = wait_for_server()
-            self.json_socket = JSONSocket(sock)
-        self.json_socket.send_json_as_base64(self.initial_env.to_dict())
-        print("Sent initial environment")
+            if not fast_reset:
+                self.json_socket.close()
+                # wait for server death and restart server
+                sleep(5)
+                self.start_server()
+            else:
+                send_fastreset(self.json_socket)
         print("Reading response...")
         res = self.json_socket.receive_json()  # throw away
         return np.random.rand(
             3, self.initial_env.imageSizeX, self.initial_env.imageSizeY
         ).astype(np.uint8)
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
-        assert self.action_space.contains(action)  # Check that action is valid
-        action_arr = int_to_action(action)
+    def start_server(self):
+        subprocess.Popen(
+            "./gradlew runClient",
+            cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
+            shell=True,
+            stdout=subprocess.DEVNULL,
+        )
+        sock: socket.socket = wait_for_server()
+        self.json_socket = JSONSocket(sock)
+        self.json_socket.send_json_as_base64(self.initial_env.to_dict())
+        print("Sent initial environment")
 
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
-        send_action(self.json_socket, action_arr)
+        send_action(self.json_socket, action)
         # read the response
         # print("Sent action and reading response...")
         res = self.json_socket.receive_json()
@@ -84,35 +85,22 @@ class MyEnv(gym.Env):
         # Optionally, you can convert the array to a specific data type, such as uint8
         arr = arr.astype(np.uint8)
 
-        health = res["health"]
-        foodLevel = res["foodLevel"]
-        saturationLevel = res["saturationLevel"]
-        isDead = res["isDead"]
-        inventory = res["inventory"]
-        soundSubtitles = res["soundSubtitles"]
+        res["rgb"] = arr
+        # health = res["health"]
+        # foodLevel = res["foodLevel"]
+        # saturationLevel = res["saturationLevel"]
+        # isDead = res["isDead"]
+        # inventory = res["inventory"]
+        # soundSubtitles = res["soundSubtitles"]
         # for subtitle in soundSubtitles:
         #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
 
-        reward = 1  # Initialize reward to one
+        reward = 0  # Initialize reward to one
         done = False  # Initialize done flag to False
         truncated = False  # Initialize truncated flag to False
 
-        if isDead:  #
-            if self.initial_env.isHardCore:
-                reward = -10000000
-                done = True
-            else:  # send respawn packet
-                # pass
-                reward = -200
-                done = True
-                send_respawn(self.json_socket)
-                res = self.json_socket.receive_json()  # throw away
-
-        # if action == 0:
-        #     reward = 1  # Reward of 1 for moving forward
-
         return (
-            arr,
+            res,
             reward,
             done,
             truncated,

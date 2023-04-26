@@ -7,6 +7,8 @@ import mydojo
 from models.dqn import DQNAgent
 import os
 
+from wrappers.EscapeHustWrapper import EscapeHuskWrapper
+
 max_saved_models = 3
 model_dir = "saved_models"
 plot_filename = "figures/scores.png"
@@ -30,6 +32,7 @@ def save_score_plot(scores, avg_scores, filename):
 
     # Save the plot to a file
     plt.savefig(filename)
+    plt.close(fig)
 
 
 def load_latest_model(agent, directory):
@@ -49,25 +52,7 @@ def load_latest_model(agent, directory):
 if __name__ == "__main__":
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
-    env = mydojo.make(
-        initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
-        initialPosition=None,  # nullable
-        initialMobsCommands=[
-            "minecraft:sheep",
-            "minecraft:husk ~10 ~ ~ {HandItems:[{Count:1,id:wooden_shovel},{}]}",
-        ],
-        imageSizeX=64,
-        imageSizeY=64,
-        visibleSizeX=400,
-        visibleSizeY=225,
-        seed=12345,  # nullable
-        allowMobSpawn=False,
-        alwaysDay=False,
-        alwaysNight=False,
-        initialWeather="clear",  # nullable
-        isHardCore=False,
-        isWorldFlat=True,  # superflat world
-    )
+    env = EscapeHuskWrapper()
 
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
@@ -103,7 +88,7 @@ if __name__ == "__main__":
     avg_scores = []
 
     for episode in range(initial_epsiode, num_episodes):
-        state = env.reset()
+        state = env.reset(fast_reset=True)
         episode_reward = 0
 
         for step in range(max_steps_per_episode):
