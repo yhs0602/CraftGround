@@ -52,7 +52,10 @@ if __name__ == "__main__":
     env = mydojo.make(
         initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
         initialPosition=None,  # nullable
-        initialMobsCommands=["minecraft:sheep", "minecraft:husk"],
+        initialMobsCommands=[
+            "minecraft:sheep",
+            "minecraft:husk ~10 ~ ~ {HandItems:[{Count:1,id:wooden_shovel},{}]}",
+        ],
         imageSizeX=64,
         imageSizeY=64,
         visibleSizeX=400,
