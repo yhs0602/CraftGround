@@ -53,8 +53,10 @@ if __name__ == "__main__":
         initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
         initialPosition=None,  # nullable
         initialMobsCommands=["minecraft:sheep", "minecraft:husk"],
-        imageSizeX=400,
-        imageSizeY=225,
+        imageSizeX=64,
+        imageSizeY=64,
+        visibleSizeX=400,
+        visibleSizeY=225,
         seed=12345,  # nullable
         allowMobSpawn=False,
         alwaysDay=False,
@@ -79,7 +81,7 @@ if __name__ == "__main__":
         state_dim, action_dim, buffer_size, batch_size, gamma, learning_rate
     )
 
-    fresh_run = False
+    fresh_run = True
 
     initial_epsiode = 0
     epsilon = 1.0

@@ -18,6 +18,8 @@ class InitialEnvironment:
         initialWeather,
         isHardCore,
         isWorldFlat,
+        visibleSizeX=None,
+        visibleSizeY=None,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
@@ -31,6 +33,8 @@ class InitialEnvironment:
         self.initialWeather = initialWeather
         self.isHardCore = isHardCore
         self.isWorldFlat = isWorldFlat
+        self.visibleSizeX = imageSizeX if visibleSizeX is None else visibleSizeX
+        self.visibleSizeY = imageSizeY if visibleSizeY is None else visibleSizeY
 
     def to_dict(self) -> Dict[str, Any]:
         initial_env_dict = {
@@ -46,5 +50,7 @@ class InitialEnvironment:
             "initialWeather": self.initialWeather,
             "isHardCore": self.isHardCore,  # ignored for now
             "isWorldFlat": self.isWorldFlat,
+            "visibleSizeX": self.visibleSizeX,
+            "visibleSizeY": self.visibleSizeY,
         }
         return {k: v for k, v in initial_env_dict.items() if v is not None}
