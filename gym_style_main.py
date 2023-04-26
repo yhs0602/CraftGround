@@ -4,7 +4,7 @@ from collections import deque
 import numpy as np
 
 import mydojo
-from dqn import DQNAgent
+from models.dqn import DQNAgent
 import os
 
 max_saved_models = 3

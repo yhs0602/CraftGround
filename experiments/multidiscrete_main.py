@@ -1,17 +1,15 @@
 import glob
+import os
 from collections import deque
 
 import numpy as np
 
 import mydojo
-from dqn import DQNAgent
-import os
-
 from multi_discrete_dqn import MultiDiscreteDQNAgent
 
 max_saved_models = 3
 model_dir = "saved_models_discrete"
-plot_filename = "figures/scores_discrete.png"
+plot_filename = "../figures/scores_discrete.png"
 
 import matplotlib.pyplot as plt
 
