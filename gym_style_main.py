@@ -9,7 +9,7 @@ import os
 
 max_saved_models = 3
 model_dir = "saved_models"
-plot_filename = "scores.png"
+plot_filename = "figures/scores.png"
 
 import matplotlib.pyplot as plt
 

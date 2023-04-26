@@ -11,7 +11,7 @@ from multi_discrete_dqn import MultiDiscreteDQNAgent
 
 max_saved_models = 3
 model_dir = "saved_models_discrete"
-plot_filename = "scores_discrete.png"
+plot_filename = "figures/scores_discrete.png"
 
 import matplotlib.pyplot as plt
 
