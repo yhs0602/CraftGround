@@ -30,7 +30,7 @@ class EscapeHuskWrapper(gym.Wrapper):
             isWorldFlat=True,  # superflat world
         )
         super(EscapeHuskWrapper, self).__init__(self.env)
-        self.action_space = gym.spaces.Discrete(6)
+        self.action_space = gym.spaces.Discrete(4)
         initial_env = self.env.initial_env
         self.observation_space = gym.spaces.Box(
             low=0,

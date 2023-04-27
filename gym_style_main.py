@@ -67,7 +67,7 @@ if __name__ == "__main__":
         state_dim, action_dim, buffer_size, batch_size, gamma, learning_rate
     )
 
-    fresh_run = True
+    fresh_run = False
 
     initial_epsiode = 0
     epsilon = 1.0
@@ -128,7 +128,7 @@ if __name__ == "__main__":
         save_score_plot(scores, avg_scores, plot_filename)
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
-        if avg_score >= 300.0 and episode >= 100:
+        if avg_score >= 380.0 and episode >= 100:
             print(f"Solved in {episode} episodes!")
             break
     env.close()
