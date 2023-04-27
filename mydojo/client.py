@@ -39,10 +39,10 @@ def main():
         action_arr = int_to_action(random_action)
 
         # send the action
-        print("Sending action...")
+        # print("Sending action...")
         send_action(json_socket, action_arr)
         # read the response
-        print("Reading response...")
+        # print("Reading response...")
         res = json_socket.receive_json()
         if res is None:
             # server is not responding

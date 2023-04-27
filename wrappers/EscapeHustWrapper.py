@@ -56,7 +56,7 @@ class EscapeHuskWrapper(gym.Wrapper):
                 reward = -200
                 terminated = True
                 # send_respawn(self.json_socket)
-                print("Dead!!!!!")
+                # print("Dead!!!!!")
                 # res = self.json_socket.receive_json()  # throw away
         return obs["rgb"], reward, terminated, truncated, info  # , done: deprecated
 

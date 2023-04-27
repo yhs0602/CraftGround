@@ -45,8 +45,8 @@ class MyEnv(gym.Env):
                 self.start_server()
             else:
                 send_fastreset(self.json_socket)
-                print("Sent fast reset")
-        print("Reading response...")
+                # print("Sent fast reset")
+        # print("Reading response...")
         res = self.json_socket.receive_json()  # throw away
         return np.random.rand(
             3, self.initial_env.imageSizeX, self.initial_env.imageSizeY
@@ -57,7 +57,7 @@ class MyEnv(gym.Env):
             "./gradlew runClient",
             cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
             shell=True,
-            # stdout=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
         )
         sock: socket.socket = wait_for_server()
         self.json_socket = JSONSocket(sock)
