@@ -43,22 +43,22 @@ class EscapeHuskWrapper(gym.Wrapper):
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         action_arr = int_to_action(action)
-        obs, reward, done, truncated, info = self.env.step(action_arr)
+        obs, reward, terminated, truncated, info = self.env.step(action_arr)
         isDead = obs["isDead"]
 
         reward = 1  # initial reward
         if isDead:  #
             if self.initial_env.isHardCore:
                 reward = -10000000
-                done = True
+                terminated = True
             else:  # send respawn packet
                 # pass
                 reward = -200
-                done = True
-                send_respawn(self.json_socket)
-                res = self.json_socket.receive_json()  # throw away
-
-        return obs["rgb"], reward, truncated, done, info
+                terminated = True
+                # send_respawn(self.json_socket)
+                print("Dead!!!!!")
+                # res = self.json_socket.receive_json()  # throw away
+        return obs["rgb"], reward, terminated, truncated, info  # , done: deprecated
 
     def reset(self, fast_reset: bool = True) -> WrapperObsType:
         obs = self.env.reset(fast_reset=fast_reset)

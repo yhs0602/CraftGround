@@ -1,12 +1,10 @@
 import glob
+import os
 from collections import deque
 
 import numpy as np
 
-import mydojo
 from models.dqn import DQNAgent
-import os
-
 from wrappers.EscapeHustWrapper import EscapeHuskWrapper
 
 max_saved_models = 3
@@ -93,16 +91,16 @@ if __name__ == "__main__":
 
         for step in range(max_steps_per_episode):
             action = agent.select_action(state, epsilon)
-            next_state, reward, done, truncated, info = env.step(action)
+            next_state, reward, terminated, truncated, info = env.step(action)
             episode_reward += reward
 
-            agent.add_experience(state, action, next_state, reward, done)
+            agent.add_experience(state, action, next_state, reward, terminated)
             agent.update_model()
 
             if step % update_frequency == 0:
                 agent.update_target_model()  # important!
 
-            if done:
+            if terminated:
                 break
 
             state = next_state

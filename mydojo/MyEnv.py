@@ -45,6 +45,7 @@ class MyEnv(gym.Env):
                 self.start_server()
             else:
                 send_fastreset(self.json_socket)
+                print("Sent fast reset")
         print("Reading response...")
         res = self.json_socket.receive_json()  # throw away
         return np.random.rand(
@@ -56,7 +57,7 @@ class MyEnv(gym.Env):
             "./gradlew runClient",
             cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
             shell=True,
-            stdout=subprocess.DEVNULL,
+            # stdout=subprocess.DEVNULL,
         )
         sock: socket.socket = wait_for_server()
         self.json_socket = JSONSocket(sock)
@@ -170,8 +171,8 @@ class MultiDiscreteEnv(MyEnv):
                 # pass
                 reward = -200
                 done = True
-                send_respawn(self.json_socket)
-                res = self.json_socket.receive_json()  # throw away
+                # send_respawn(self.json_socket)
+                # res = self.json_socket.receive_json()  # throw away
 
         # if action == 0:
         #     reward = 1  # Reward of 1 for moving forward
