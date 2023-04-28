@@ -1,4 +1,5 @@
 import socket
+import struct
 
 # import pdb
 import time
@@ -58,17 +59,25 @@ def send_action(sock: JSONSocket, action_array: List[int]):
 
 
 def send_action2(sock: socket.socket, action_array: List[int]):
-    action_space = action_space_pb2.ActionSpace()
+    print("Sending action")
+    action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(action_array)
     action_space.command = ""
-    sock.sendall(action_space.SerializeToString())
+    v = action_space.SerializeToString()
+    sock.send(struct.pack("<I", len(v)))
+    sock.sendall(v)
+    print("Sent action")
 
 
 def send_command(sock: socket.socket, command: str):
-    action_space = action_space_pb2.ActionSpace()
+    print("Sending command")
+    action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(no_op())
     action_space.command = command
-    sock.sendall(action_space.SerializeToString())
+    v = action_space.SerializeToString()
+    sock.send(struct.pack("<I", len(v)))
+    sock.sendall(v)
+    print("Sent command")
 
 
 def send_fastreset2(sock: socket.socket):

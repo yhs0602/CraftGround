@@ -13,6 +13,7 @@ from gym.core import ActType, ObsType, RenderFrame
 
 from mydojo.initial_environment import InitialEnvironment
 from .MyActionSpace import MyActionSpace, MultiActionSpace
+from .buffered_socket import BufferedSocket
 from .minecraft import wait_for_server, send_action2, send_fastreset2, send_action
 from .proto import observation_space_pb2, initial_environment_pb2
 
@@ -28,13 +29,14 @@ class MyEnv(gym.Env):
         )
         self.initial_env = initial_env
         self.sock = None
+        self.buffered_socket = None
 
     def reset(
-            self,
-            fast_reset: bool = True,
-            *,
-            seed: Optional[int] = None,
-            options: Optional[dict] = None
+        self,
+        fast_reset: bool = True,
+        *,
+        seed: Optional[int] = None,
+        options: Optional[dict] = None
     ):
         if not self.sock:  # first time
             self.start_server()
@@ -63,18 +65,27 @@ class MyEnv(gym.Env):
         sock: socket.socket = wait_for_server()
         self.sock = sock
         self.send_initial_env()
+        self.buffered_socket = BufferedSocket(self.sock)
         # self.json_socket.send_json_as_base64(self.initial_env.to_dict())
         print("Sent initial environment")
 
     def read_one_observation(self) -> ObsType:
-        data_len = struct.unpack("<I", self.sock.recv(4))[0]
-        data = self.sock.recv(data_len)
-        observation_space = observation_space_pb2.ObservationSpace()
-        return observation_space.ParseFromString(data)
+        print("Reading observation size...")
+        data_len_bytes = self.buffered_socket.read(4, True)
+        print("Reading observation...")
+        data_len = struct.unpack("<I", data_len_bytes)[0]
+        data_bytes = self.buffered_socket.read(data_len, True)
+        observation_space = observation_space_pb2.ObservationSpaceMessage()
+        print("Parsing observation...")
+        observation_space.ParseFromString(data_bytes)
+        print("Parsed observation...")
+        return observation_space
 
     def send_initial_env(self):
         initial_env = initial_environment_pb2.InitialEnvironmentMessage()
-        initial_env.initialInventoryCommands.extend(self.initial_env.initialInventoryCommands)
+        initial_env.initialInventoryCommands.extend(
+            self.initial_env.initialInventoryCommands
+        )
         if self.initial_env.initialPosition is not None:
             initial_env.initialPosition.extend(self.initial_env.initialPosition)
         initial_env.initialMobsCommands.extend(self.initial_env.initialMobsCommands)
@@ -88,7 +99,9 @@ class MyEnv(gym.Env):
         initial_env.isWorldFlat = self.initial_env.isWorldFlat
         initial_env.visibleSizeX = self.initial_env.visibleSizeX
         initial_env.visibleSizeY = self.initial_env.visibleSizeY
-        print("Sending initial environment... ", )
+        print(
+            "Sending initial environment... ",
+        )
         v = initial_env.SerializeToString()
         print(base64.b64encode(v).decode())
         self.sock.send(struct.pack("<I", len(v)))
@@ -116,7 +129,6 @@ class MyEnv(gym.Env):
         # Optionally, you can convert the array to a specific data type, such as uint8
         arr = arr.astype(np.uint8)
 
-        res.rgb = arr
         # health = res["health"]
         # foodLevel = res["foodLevel"]
         # saturationLevel = res["saturationLevel"]
@@ -131,7 +143,7 @@ class MyEnv(gym.Env):
         truncated = False  # Initialize truncated flag to False
 
         return (
-            res,
+            {"obs": res, "rgb": arr},
             reward,
             done,
             truncated,
