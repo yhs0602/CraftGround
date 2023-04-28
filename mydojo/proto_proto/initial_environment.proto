@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+message InitialEnvironmentMessage {
+  repeated string initialInventoryCommands = 1;
+  repeated int32 initialPosition = 2;
+  repeated string initialMobsCommands = 3;
+  int32 imageSizeX = 4;
+  int32 imageSizeY = 5;
+  int64 seed = 6;
+  bool allowMobSpawn = 7;
+  bool alwaysNight = 8;
+  bool alwaysDay = 9;
+  string initialWeather = 10;
+  bool isWorldFlat = 11;
+  int32 visibleSizeX = 12;
+  int32 visibleSizeY = 13;
+}

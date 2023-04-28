@@ -5,6 +5,7 @@ import time
 from typing import List
 
 from mydojo.json_socket import JSONSocket
+from mydojo.proto import action_space_pb2
 
 
 def wait_for_server() -> socket.socket:
@@ -54,6 +55,28 @@ def int_to_action(input_act: int):
 
 def send_action(sock: JSONSocket, action_array: List[int]):
     sock.send_json_as_base64({"action": action_array, "command": ""})
+
+
+def send_action2(sock: socket.socket, action_array: List[int]):
+    action_space = action_space_pb2.ActionSpace()
+    action_space.action.extend(action_array)
+    action_space.command = ""
+    sock.sendall(action_space.SerializeToString())
+
+
+def send_command(sock: socket.socket, command: str):
+    action_space = action_space_pb2.ActionSpace()
+    action_space.action.extend(no_op())
+    action_space.command = command
+    sock.sendall(action_space.SerializeToString())
+
+
+def send_fastreset2(sock: socket.socket):
+    send_command(sock, "fastreset")
+
+
+def send_respawn2(sock: socket.socket):
+    send_command(sock, "respawn")
 
 
 def send_respawn(sock: JSONSocket):
