@@ -53,7 +53,7 @@ message SoundEntry {
 }
 
 message ObservationSpaceMessage {
-  string image = 1;
+  bytes image = 1;
   double x = 2;
   double y = 3;
   double z = 4;

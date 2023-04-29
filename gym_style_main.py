@@ -113,7 +113,9 @@ if __name__ == "__main__":
             sum_time += elapsed_time
             num_steps += 1
 
-        print(f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time/num_steps:.5f} seconds")
+        print(
+            f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time/num_steps:.5f} seconds"
+        )
         # Save the agent's model
         model_path = os.path.join(model_dir, f"model_episode_{episode}.pt")
         agent.save(model_path, epsilon)

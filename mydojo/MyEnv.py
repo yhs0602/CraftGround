@@ -113,8 +113,7 @@ class MyEnv(gym.Env):
         # read the response
         # print("Sent action and reading response...")
         res = self.read_one_observation()
-        # save this png byte array to a file
-        png_img = base64.b64decode(res.image)  # png byte array
+        png_img = res.image  # png byte array
         # decode png byte array to numpy array
         # Create a BytesIO object from the byte array
         bytes_io = io.BytesIO(png_img)
