@@ -1,5 +1,6 @@
 import glob
 import os
+import time
 from collections import deque
 
 import numpy as np
@@ -89,7 +90,10 @@ if __name__ == "__main__":
         state = env.reset(fast_reset=True)
         episode_reward = 0
 
+        sum_time = 0
+        num_steps = 0
         for step in range(max_steps_per_episode):
+            start_time = time.time()
             action = agent.select_action(state, epsilon)
             next_state, reward, terminated, truncated, info = env.step(action)
             episode_reward += reward
@@ -104,7 +108,12 @@ if __name__ == "__main__":
                 break
 
             state = next_state
+            elapsed_time = time.time() - start_time
+            # print(f"Step {step} took {elapsed_time:.5f} seconds")
+            sum_time += elapsed_time
+            num_steps += 1
 
+        print(f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time / num_steps:.5f} seconds")
         # Save the agent's model
         model_path = os.path.join(model_dir, f"model_episode_{episode}.pt")
         agent.save(model_path, epsilon)
