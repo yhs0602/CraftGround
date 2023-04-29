@@ -8,7 +8,7 @@ class BufferedSocket:
         self.buffer = b""
 
     def read(self, n: int, wait=False) -> bytes:
-        print("Reading", n, "bytes")
+        # print("Reading", n, "bytes")
         if n == 0:
             return b""
         data = self.buffer
@@ -20,7 +20,7 @@ class BufferedSocket:
                 data += chunk
             except socket.timeout:
                 if wait:  # wait for more data
-                    print("Waiting")
+                    # print("Waiting")
                     time.sleep(0.01)
                     continue
                 else:

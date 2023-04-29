@@ -59,25 +59,25 @@ def send_action(sock: JSONSocket, action_array: List[int]):
 
 
 def send_action2(sock: socket.socket, action_array: List[int]):
-    print("Sending action")
+    # print("Sending action")
     action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(action_array)
     action_space.command = ""
     v = action_space.SerializeToString()
     sock.send(struct.pack("<I", len(v)))
     sock.sendall(v)
-    print("Sent action")
+    # print("Sent action")
 
 
 def send_command(sock: socket.socket, command: str):
-    print("Sending command")
+    # print("Sending command")
     action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(no_op())
     action_space.command = command
     v = action_space.SerializeToString()
     sock.send(struct.pack("<I", len(v)))
     sock.sendall(v)
-    print("Sent command")
+    # print("Sent command")
 
 
 def send_fastreset2(sock: socket.socket):

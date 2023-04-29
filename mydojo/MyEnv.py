@@ -49,7 +49,7 @@ class MyEnv(gym.Env):
             else:
                 send_fastreset2(self.sock)
                 # print("Sent fast reset")
-        print("Reading response...")
+        # print("Reading response...")
         res = self.read_one_observation()  # throw away
         return np.random.rand(
             3, self.initial_env.imageSizeX, self.initial_env.imageSizeY
@@ -60,7 +60,7 @@ class MyEnv(gym.Env):
             "./gradlew runClient",
             cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
             shell=True,
-            # stdout=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
         )
         sock: socket.socket = wait_for_server()
         self.sock = sock
@@ -70,15 +70,15 @@ class MyEnv(gym.Env):
         print("Sent initial environment")
 
     def read_one_observation(self) -> ObsType:
-        print("Reading observation size...")
+        # print("Reading observation size...")
         data_len_bytes = self.buffered_socket.read(4, True)
-        print("Reading observation...")
+        # print("Reading observation...")
         data_len = struct.unpack("<I", data_len_bytes)[0]
         data_bytes = self.buffered_socket.read(data_len, True)
         observation_space = observation_space_pb2.ObservationSpaceMessage()
-        print("Parsing observation...")
+        # print("Parsing observation...")
         observation_space.ParseFromString(data_bytes)
-        print("Parsed observation...")
+        # print("Parsed observation...")
         return observation_space
 
     def send_initial_env(self):
@@ -99,11 +99,11 @@ class MyEnv(gym.Env):
         initial_env.isWorldFlat = self.initial_env.isWorldFlat
         initial_env.visibleSizeX = self.initial_env.visibleSizeX
         initial_env.visibleSizeY = self.initial_env.visibleSizeY
-        print(
-            "Sending initial environment... ",
-        )
+        # print(
+        #     "Sending initial environment... ",
+        # )
         v = initial_env.SerializeToString()
-        print(base64.b64encode(v).decode())
+        # print(base64.b64encode(v).decode())
         self.sock.send(struct.pack("<I", len(v)))
         self.sock.sendall(v)
 
