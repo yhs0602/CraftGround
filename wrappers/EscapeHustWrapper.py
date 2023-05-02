@@ -1,3 +1,4 @@
+from collections import deque
 from typing import SupportsFloat, Any
 
 import gymnasium as gym
@@ -5,7 +6,8 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
 import mydojo
-from mydojo.minecraft import int_to_action, send_respawn
+from mydojo.minecraft import int_to_action
+from wrapper_runner import WrapperRunner
 
 
 class EscapeHuskWrapper(gym.Wrapper):
@@ -15,9 +17,9 @@ class EscapeHuskWrapper(gym.Wrapper):
             initialPosition=None,  # nullable
             initialMobsCommands=[
                 "minecraft:sheep",
-                "minecraft:husk ~10 ~ ~ {HandItems:[{Count:1,id:wooden_shovel},{}]}",
+                "minecraft:husk ~5 ~ ~ {HandItems:[{Count:1,id:wooden_shovel},{}]}",
             ],
-            imageSizeX=64,
+            imageSizeX=114,
             imageSizeY=64,
             visibleSizeX=400,
             visibleSizeY=225,
@@ -38,6 +40,7 @@ class EscapeHuskWrapper(gym.Wrapper):
             shape=(3, initial_env.imageSizeX, initial_env.imageSizeY),
             dtype=np.uint8,
         )
+        self.health_deque = deque(maxlen=2)
 
     def step(
         self, action: WrapperActType
@@ -47,8 +50,13 @@ class EscapeHuskWrapper(gym.Wrapper):
         rgb = obs["rgb"]
         obs = obs["obs"]
         is_dead = obs.is_dead
+        self.health_deque.append(obs.health)
+
+        is_hit = self.health_deque[0] > self.health_deque[1]
 
         reward = 1  # initial reward
+        if is_hit:
+            reward = -5  # penalty
         if is_dead:  #
             if self.initial_env.isHardCore:
                 reward = -10000000
@@ -64,4 +72,22 @@ class EscapeHuskWrapper(gym.Wrapper):
 
     def reset(self, fast_reset: bool = True) -> WrapperObsType:
         obs = self.env.reset(fast_reset=fast_reset)
+        self.health_deque.clear()
+        self.health_deque.append(20)
         return obs
+
+
+def main():
+    env = EscapeHuskWrapper()
+    buffer_size = 1000000
+    batch_size = 20
+    gamma = 0.95
+    learning_rate = 0.001
+    runner = WrapperRunner(
+        env, "EscapeHuskWrapper", buffer_size, batch_size, gamma, learning_rate
+    )
+    runner.run_wrapper()
+
+
+if __name__ == "__main__":
+    main()
