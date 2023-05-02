@@ -7,6 +7,7 @@ import numpy as np
 
 from models.dqn import DQNAgent
 from wrappers.EscapeHustWrapper import EscapeHuskWrapper
+import wandb
 
 max_saved_models = 3
 model_dir = "saved_models"
@@ -64,6 +65,20 @@ if __name__ == "__main__":
     gamma = 0.95
     learning_rate = 0.001
 
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="mydojo",
+        # track hyperparameters and run metadata
+        config={
+            "architecture": "DQNAgent",
+            "hidden_dim": hidden_dim,
+            "buffer_size": buffer_size,
+            "batch_size": batch_size,
+            "gamma": gamma,
+            "learning_rate": learning_rate,
+        },
+    )
+
     agent = DQNAgent(
         state_dim, action_dim, buffer_size, batch_size, gamma, learning_rate
     )
@@ -113,7 +128,9 @@ if __name__ == "__main__":
             sum_time += elapsed_time
             num_steps += 1
 
-        print(f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time / num_steps:.5f} seconds")
+        print(
+            f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time / num_steps:.5f} seconds"
+        )
         # Save the agent's model
         model_path = os.path.join(model_dir, f"model_episode_{episode}.pt")
         agent.save(model_path, epsilon)
@@ -134,6 +151,15 @@ if __name__ == "__main__":
         print(
             f"Episode {episode}: score={episode_reward:.2f}, avg_score={avg_score:.2f}, eps={epsilon:.2f}"
         )
+        wandb.log(
+            {
+                "episode": episode,
+                "score": episode_reward,
+                "avg_score": avg_score,
+                "epsilon": epsilon,
+            }
+        )
+
         save_score_plot(scores, avg_scores, plot_filename)
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
@@ -141,3 +167,4 @@ if __name__ == "__main__":
             print(f"Solved in {episode} episodes!")
             break
     env.close()
+    wandb.finish()

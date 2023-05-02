@@ -12,6 +12,7 @@ gym = "^0.26.2"
 gymnasium = "^0.28.1"
 matplotlib = "^3.7.1"
 wandb = "^0.15.0"
+protobuf = "^4.22.3"
 
 
 [build-system]

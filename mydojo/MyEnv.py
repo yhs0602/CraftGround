@@ -1,6 +1,7 @@
 import base64
 import io
 import socket
+import struct
 import subprocess
 from time import sleep
 from typing import Tuple, Optional, Union, List
@@ -11,9 +12,10 @@ from PIL import Image
 from gym.core import ActType, ObsType, RenderFrame
 
 from mydojo.initial_environment import InitialEnvironment
-from mydojo.json_socket import JSONSocket
 from .MyActionSpace import MyActionSpace, MultiActionSpace
-from .minecraft import wait_for_server, send_action, send_respawn, send_fastreset
+from .buffered_socket import BufferedSocket
+from .minecraft import wait_for_server, send_action2, send_fastreset2, send_action
+from .proto import observation_space_pb2, initial_environment_pb2
 
 
 class MyEnv(gym.Env):
@@ -26,7 +28,8 @@ class MyEnv(gym.Env):
             dtype=np.uint8,
         )
         self.initial_env = initial_env
-        self.json_socket = None
+        self.sock = None
+        self.buffered_socket = None
 
     def reset(
         self,
@@ -35,19 +38,19 @@ class MyEnv(gym.Env):
         seed: Optional[int] = None,
         options: Optional[dict] = None
     ):
-        if not self.json_socket:  # first time
+        if not self.sock:  # first time
             self.start_server()
         else:
             if not fast_reset:
-                self.json_socket.close()
+                self.sock.close()
                 # wait for server death and restart server
                 sleep(5)
                 self.start_server()
             else:
-                send_fastreset(self.json_socket)
+                send_fastreset2(self.sock)
                 # print("Sent fast reset")
         # print("Reading response...")
-        res = self.json_socket.receive_json()  # throw away
+        res = self.read_one_observation()  # throw away
         return np.random.rand(
             3, self.initial_env.imageSizeX, self.initial_env.imageSizeY
         ).astype(np.uint8)
@@ -60,18 +63,57 @@ class MyEnv(gym.Env):
             stdout=subprocess.DEVNULL,
         )
         sock: socket.socket = wait_for_server()
-        self.json_socket = JSONSocket(sock)
-        self.json_socket.send_json_as_base64(self.initial_env.to_dict())
+        self.sock = sock
+        self.send_initial_env()
+        self.buffered_socket = BufferedSocket(self.sock)
+        # self.json_socket.send_json_as_base64(self.initial_env.to_dict())
         print("Sent initial environment")
+
+    def read_one_observation(self) -> ObsType:
+        # print("Reading observation size...")
+        data_len_bytes = self.buffered_socket.read(4, True)
+        # print("Reading observation...")
+        data_len = struct.unpack("<I", data_len_bytes)[0]
+        data_bytes = self.buffered_socket.read(data_len, True)
+        observation_space = observation_space_pb2.ObservationSpaceMessage()
+        # print("Parsing observation...")
+        observation_space.ParseFromString(data_bytes)
+        # print("Parsed observation...")
+        return observation_space
+
+    def send_initial_env(self):
+        initial_env = initial_environment_pb2.InitialEnvironmentMessage()
+        initial_env.initialInventoryCommands.extend(
+            self.initial_env.initialInventoryCommands
+        )
+        if self.initial_env.initialPosition is not None:
+            initial_env.initialPosition.extend(self.initial_env.initialPosition)
+        initial_env.initialMobsCommands.extend(self.initial_env.initialMobsCommands)
+        initial_env.imageSizeX = self.initial_env.imageSizeX
+        initial_env.imageSizeY = self.initial_env.imageSizeY
+        initial_env.seed = self.initial_env.seed
+        initial_env.allowMobSpawn = self.initial_env.allowMobSpawn
+        initial_env.alwaysNight = self.initial_env.alwaysNight
+        initial_env.alwaysDay = self.initial_env.alwaysDay
+        initial_env.initialWeather = self.initial_env.initialWeather
+        initial_env.isWorldFlat = self.initial_env.isWorldFlat
+        initial_env.visibleSizeX = self.initial_env.visibleSizeX
+        initial_env.visibleSizeY = self.initial_env.visibleSizeY
+        # print(
+        #     "Sending initial environment... ",
+        # )
+        v = initial_env.SerializeToString()
+        # print(base64.b64encode(v).decode())
+        self.sock.send(struct.pack("<I", len(v)))
+        self.sock.sendall(v)
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
-        send_action(self.json_socket, action)
+        send_action2(self.sock, action)
         # read the response
         # print("Sent action and reading response...")
-        res = self.json_socket.receive_json()
-        # save this png byte array to a file
-        png_img = base64.b64decode(res["image"])  # png byte array
+        res = self.read_one_observation()
+        png_img = res.image  # png byte array
         # decode png byte array to numpy array
         # Create a BytesIO object from the byte array
         bytes_io = io.BytesIO(png_img)
@@ -86,7 +128,6 @@ class MyEnv(gym.Env):
         # Optionally, you can convert the array to a specific data type, such as uint8
         arr = arr.astype(np.uint8)
 
-        res["rgb"] = arr
         # health = res["health"]
         # foodLevel = res["foodLevel"]
         # saturationLevel = res["saturationLevel"]
@@ -101,7 +142,7 @@ class MyEnv(gym.Env):
         truncated = False  # Initialize truncated flag to False
 
         return (
-            res,
+            {"obs": res, "rgb": arr},
             reward,
             done,
             truncated,
@@ -113,6 +154,7 @@ class MyEnv(gym.Env):
         return None
 
 
+# Deprecated
 class MultiDiscreteEnv(MyEnv):
     def __init__(self, initial_env: InitialEnvironment):
         super(MultiDiscreteEnv, self).__init__(initial_env)
@@ -124,7 +166,6 @@ class MultiDiscreteEnv(MyEnv):
             dtype=np.uint8,
         )
         self.initial_env = initial_env
-        self.json_socket = None
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         assert self.action_space.contains(action)  # Check that action is valid

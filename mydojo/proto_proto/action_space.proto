@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message ActionSpaceMessage {
+  repeated int32 action = 1;
+  string command = 2;
+}

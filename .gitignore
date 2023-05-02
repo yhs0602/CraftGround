@@ -290,3 +290,4 @@ pyrightconfig.json
 data/
 saved_models_400
 *.pt
+wandb/

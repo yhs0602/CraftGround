@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+message ItemStack {
+  int32 raw_id = 1;
+  string translation_key = 2;
+  int32 count = 3;
+  int32 durability = 4;
+  int32 max_durability = 5;
+}
+
+message BlockInfo {
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+  string translation_key = 4;
+}
+
+message EntityInfo {
+  string unique_name = 1;
+  string translation_key = 2;
+  double x = 3;
+  double y = 4;
+  double z = 5;
+  double yaw = 6;
+  double pitch = 7;
+  double health = 8;
+}
+
+message HitResult {
+  enum Type {
+    MISS = 0;
+    BLOCK = 1;
+    ENTITY = 2;
+  }
+
+  Type type = 1;
+  BlockInfo target_block = 2;
+  EntityInfo target_entity = 3;
+}
+
+message StatusEffect {
+  string translation_key = 1;
+  int32 duration = 2;
+  int32 amplifier = 3;
+}
+
+message SoundEntry {
+  string translate_key = 1;
+  int64 age = 2;
+  double x = 3;
+  double y = 4;
+  double z = 5;
+}
+
+message ObservationSpaceMessage {
+  bytes image = 1;
+  double x = 2;
+  double y = 3;
+  double z = 4;
+  double yaw = 5;
+  double pitch = 6;
+  double health = 7;
+  double food_level = 8;
+  double saturation_level = 9;
+  bool is_dead = 10;
+  repeated ItemStack inventory = 11;
+  HitResult raycast_result = 12;
+  repeated SoundEntry sound_subtitles = 13;
+  repeated StatusEffect status_effects = 14;
+}

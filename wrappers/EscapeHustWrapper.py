@@ -1,3 +1,4 @@
+from collections import deque
 from typing import SupportsFloat, Any
 
 import gymnasium as gym
@@ -5,7 +6,8 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
 import mydojo
-from mydojo.minecraft import int_to_action, send_respawn
+from mydojo.minecraft import int_to_action
+from wrapper_runner import WrapperRunner
 
 
 class EscapeHuskWrapper(gym.Wrapper):
@@ -15,9 +17,9 @@ class EscapeHuskWrapper(gym.Wrapper):
             initialPosition=None,  # nullable
             initialMobsCommands=[
                 "minecraft:sheep",
-                "minecraft:husk ~10 ~ ~ {HandItems:[{Count:1,id:wooden_shovel},{}]}",
+                "minecraft:husk ~5 ~ ~ {HandItems:[{Count:1,id:wooden_shovel},{}]}",
             ],
-            imageSizeX=64,
+            imageSizeX=114,
             imageSizeY=64,
             visibleSizeX=400,
             visibleSizeY=225,
@@ -38,16 +40,24 @@ class EscapeHuskWrapper(gym.Wrapper):
             shape=(3, initial_env.imageSizeX, initial_env.imageSizeY),
             dtype=np.uint8,
         )
+        self.health_deque = deque(maxlen=2)
 
     def step(
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         action_arr = int_to_action(action)
         obs, reward, terminated, truncated, info = self.env.step(action_arr)
-        isDead = obs["isDead"]
+        rgb = obs["rgb"]
+        obs = obs["obs"]
+        is_dead = obs.is_dead
+        self.health_deque.append(obs.health)
+
+        is_hit = self.health_deque[0] > self.health_deque[1]
 
         reward = 1  # initial reward
-        if isDead:  #
+        if is_hit:
+            reward = -5  # penalty
+        if is_dead:  #
             if self.initial_env.isHardCore:
                 reward = -10000000
                 terminated = True
@@ -58,8 +68,26 @@ class EscapeHuskWrapper(gym.Wrapper):
                 # send_respawn(self.json_socket)
                 # print("Dead!!!!!")
                 # res = self.json_socket.receive_json()  # throw away
-        return obs["rgb"], reward, terminated, truncated, info  # , done: deprecated
+        return rgb, reward, terminated, truncated, info  # , done: deprecated
 
     def reset(self, fast_reset: bool = True) -> WrapperObsType:
         obs = self.env.reset(fast_reset=fast_reset)
+        self.health_deque.clear()
+        self.health_deque.append(20)
         return obs
+
+
+def main():
+    env = EscapeHuskWrapper()
+    buffer_size = 1000000
+    batch_size = 20
+    gamma = 0.95
+    learning_rate = 0.001
+    runner = WrapperRunner(
+        env, "EscapeHuskWrapper", buffer_size, batch_size, gamma, learning_rate
+    )
+    runner.run_wrapper()
+
+
+if __name__ == "__main__":
+    main()
