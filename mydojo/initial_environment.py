@@ -21,6 +21,9 @@ class InitialEnvironment:
         visibleSizeX=None,
         visibleSizeY=None,
         initialExtraCommands=None,
+        killedStatKeys=None,
+        minedStatKeys=None,
+        miscStatKeys=None,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
@@ -37,6 +40,9 @@ class InitialEnvironment:
         self.visibleSizeX = imageSizeX if visibleSizeX is None else visibleSizeX
         self.visibleSizeY = imageSizeY if visibleSizeY is None else visibleSizeY
         self.initialExtraCommands = initialExtraCommands
+        self.killedStatKeys = killedStatKeys
+        self.minedStatKeys = minedStatKeys
+        self.miscStatKeys = miscStatKeys
 
     def to_dict(self) -> Dict[str, Any]:
         initial_env_dict = {
@@ -55,5 +61,8 @@ class InitialEnvironment:
             "visibleSizeX": self.visibleSizeX,
             "visibleSizeY": self.visibleSizeY,
             "initialExtraCommands": self.initialExtraCommands,
+            "killedStatKeys": self.killedStatKeys,
+            "minedStatKeys": self.minedStatKeys,
+            "miscStatKeys": self.miscStatKeys,
         }
         return {k: v for k, v in initial_env_dict.items() if v is not None}

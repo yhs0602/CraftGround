@@ -67,4 +67,7 @@ message ObservationSpaceMessage {
   HitResult raycast_result = 12;
   repeated SoundEntry sound_subtitles = 13;
   repeated StatusEffect status_effects = 14;
+  map<string, int32> killed_statistics = 15;
+  map<string, int32> mined_statistics = 16;
+  map<string, int32> misc_statistics = 17;
 }

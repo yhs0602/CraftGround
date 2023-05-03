@@ -45,6 +45,7 @@ class EscapeHuskWrapper(gym.Wrapper):
         )
         self.health_deque = deque(maxlen=2)
         self.weapon_deque = deque(maxlen=2)
+        self.kill_deque = deque(maxlen=2)
 
     def step(
         self, action: WrapperActType
@@ -59,14 +60,22 @@ class EscapeHuskWrapper(gym.Wrapper):
             durability = obs.inventory[0].durability
             self.weapon_deque.append(durability)
 
+        if len(self.kill_deque) == 0:
+            self.kill_deque.append(0)
+        self.kill_deque.append(obs.killed_statistics["minecraft:husk"])
+
         is_hit = self.health_deque[0] > self.health_deque[1]
         had_hit = self.weapon_deque[0] > self.weapon_deque[1]  # durability decreased
+        had_killed = self.kill_deque[0] > self.kill_deque[1]
 
         reward = 1  # initial reward
         if is_hit:
             reward = -5  # penalty
         if had_hit:
             reward += 10  # bonus
+        if had_killed:
+            reward += 200  # bonus
+            terminated = True
         if is_dead:  #
             if self.initial_env.isHardCore:
                 reward = -10000000
@@ -84,6 +93,8 @@ class EscapeHuskWrapper(gym.Wrapper):
         obs = self.env.reset(fast_reset=fast_reset)
         self.health_deque.clear()
         self.health_deque.append(20)
+        self.weapon_deque.clear()
+        self.weapon_deque.append(1562)
         return obs
 
 

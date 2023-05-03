@@ -103,6 +103,12 @@ class MyEnv(gym.Env):
             initial_env.initialExtraCommands.extend(
                 self.initial_env.initialExtraCommands
             )
+        if self.initial_env.killedStatKeys is not None:
+            initial_env.killedStatKeys.extend(self.initial_env.killedStatKeys)
+        if self.initial_env.minedStatKeys is not None:
+            initial_env.minedStatKeys.extend(self.initial_env.minedStatKeys)
+        if self.initial_env.miscStatKeys is not None:
+            initial_env.miscStatKeys.extend(self.initial_env.miscStatKeys)
         # print(
         #     "Sending initial environment... ",
         # )

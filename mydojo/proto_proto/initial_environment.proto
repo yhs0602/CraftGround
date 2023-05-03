@@ -15,4 +15,7 @@ message InitialEnvironmentMessage {
   int32 visibleSizeX = 12;
   int32 visibleSizeY = 13;
   repeated string initialExtraCommands = 14;
+  repeated string killedStatKeys = 15;
+  repeated string minedStatKeys = 16;
+  repeated string miscStatKeys = 17;
 }
