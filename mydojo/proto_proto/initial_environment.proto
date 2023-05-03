@@ -14,4 +14,5 @@ message InitialEnvironmentMessage {
   bool isWorldFlat = 11;
   int32 visibleSizeX = 12;
   int32 visibleSizeY = 13;
+  repeated string initialExtraCommands = 14;
 }

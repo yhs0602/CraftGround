@@ -40,7 +40,7 @@ class WrapperRunner:
         self.gamma = gamma
         self.learning_rate = learning_rate
         self.model_dir = os.path.join(wandb.run.dir, env_name)
-        self.local_plot_filename = os.path.join("figures", f"{env_name}.png")
+        self.local_plot_filename = os.path.join(self.model_dir, f"{env_name}.png")
         self.max_saved_models = max_saved_models
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)

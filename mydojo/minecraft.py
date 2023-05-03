@@ -30,25 +30,30 @@ def no_op() -> List[int]:
 
 def int_to_action(input_act: int):
     act = no_op()
-    if input_act == 0:
+    if input_act == 0:  # go forward
         act[0] = 1  # 0: noop 1: forward 2 : back
-    elif input_act == 1:
-        act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
-    elif input_act == 2:
-        act[0] = 2  # go backward
-    elif input_act == 3:
-        act[4] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
-    elif input_act == 4:
-        act[2] = 1  # 0: noop 1: jump 2: sneak 3: sprint
-    elif input_act == 5:
-        act[
-            5
-        ] = 3  # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
-    elif input_act == 6:
+    elif input_act == 1:  # go backward
+        act[0] = 2  # 0: noop 1: forward 2 : back
+    elif input_act == 2:  # move right
         act[1] = 1  # 0: noop 1: move right 2: move left
-    elif input_act == 7:
+    elif input_act == 3:  # move left
         act[1] = 2  # 0: noop 1: move right 2: move left
-    elif input_act == 8:
+    elif input_act == 4:  # Turn left
+        act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
+    elif input_act == 5:  # Turn right
+        act[0] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
+    elif input_act == 6:  # Jump
+        act[2] = 1  # 0: noop 1: jump 2: sneak 3: sprint
+    elif input_act == 7:  # Attack
+        act[5] = 3
+        # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
+    elif input_act == 8:  # Look up
+        act[3] = 12 + 1  # Camera delta pitch (0: -180, 24: 180)
+    elif input_act == 9:  # Look down
+        act[3] = 12 - 1  # Camera delta pitch (0: -180, 24: 180)
+    elif input_act == 10:
+        act[5] = 1  # use
+    elif input_act == 11:
         act[5] = 4  # craft
         act[6] = 331  # iron bar?
     return act

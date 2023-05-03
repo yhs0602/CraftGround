@@ -99,6 +99,10 @@ class MyEnv(gym.Env):
         initial_env.isWorldFlat = self.initial_env.isWorldFlat
         initial_env.visibleSizeX = self.initial_env.visibleSizeX
         initial_env.visibleSizeY = self.initial_env.visibleSizeY
+        if self.initial_env.initialExtraCommands is not None:
+            initial_env.initialExtraCommands.extend(
+                self.initial_env.initialExtraCommands
+            )
         # print(
         #     "Sending initial environment... ",
         # )
