@@ -51,6 +51,13 @@ class EscapeHuskWrapper(gym.Wrapper):
         rgb = obs["rgb"]
         obs = obs["obs"]
         is_dead = obs.is_dead
+        visible_entities = obs.visible_entities
+        if len(visible_entities) > 0:
+            for entity in visible_entities:
+                print(entity)
+        else:
+            print("No visible entities")
+
         self.health_deque.append(obs.health)
 
         is_hit = self.health_deque[0] > self.health_deque[1]
@@ -81,10 +88,10 @@ class EscapeHuskWrapper(gym.Wrapper):
 def main():
     env = EscapeHuskWrapper()
     buffer_size = 1000000
-    batch_size = 128
-    gamma = 0.95
-    learning_rate = 0.001
-    update_freq = 200
+    batch_size = 256
+    gamma = 0.99
+    learning_rate = 0.0005
+    update_freq = 25
     runner = WrapperRunner(
         env,
         "EscapeHuskWrapper-6Actions",
