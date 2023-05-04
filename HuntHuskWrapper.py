@@ -69,10 +69,15 @@ class EscapeHuskWrapper(gym.Wrapper):
         had_killed = self.kill_deque[0] > self.kill_deque[1]
 
         reward = 1  # initial reward
+        if obs.pitch == -90 and action == 8:  # looking up and trying to look down
+            reward = -1000  # invalid action
+        if obs.pitch == 90 and action == 9:  # looking down and trying to look up
+            reward = -1000  # invalid action
+
         if is_hit:
-            reward = -5  # penalty
+            reward = -20  # penalty
         if had_hit:
-            reward += 10  # bonus
+            reward += 50  # bonus
         if had_killed:
             reward += 200  # bonus
             terminated = True
@@ -101,11 +106,20 @@ class EscapeHuskWrapper(gym.Wrapper):
 def main():
     env = EscapeHuskWrapper()
     buffer_size = 1000000
-    batch_size = 20
-    gamma = 0.95
+    batch_size = 128
+    gamma = 0.96
     learning_rate = 0.001
     runner = WrapperRunner(
-        env, "HuntHuskWrapper", buffer_size, batch_size, gamma, learning_rate
+        env,
+        "HuntHuskWrapper",
+        buffer_size,
+        batch_size,
+        gamma,
+        learning_rate,
+        epsilon_decay=0.996,
+        max_steps_per_episode=400,
+        solved_criterion=lambda avg_score, episode: avg_score >= 750.0
+        and episode >= 100,
     )
     runner.run_wrapper()
 

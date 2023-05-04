@@ -19,11 +19,19 @@ class WrapperRunner:
         batch_size,
         gamma,
         learning_rate,
-        max_saved_models=3,
+        max_saved_models=2,
+        max_steps_per_episode=400,
+        num_episodes=1000,
+        update_frequency=100,
+        epsilon_min=0.01,
+        epsilon_decay=0.995,
+        solved_criterion=lambda avg_score, episode: avg_score >= 390.0
+        and episode >= 100,
     ):
         wandb.init(
             # set the wandb project where this run will be logged
             project="mydojo",
+            entity="jourhyang123",
             # track hyperparameters and run metadata
             config={
                 "environment": env_name,
@@ -32,6 +40,11 @@ class WrapperRunner:
                 "batch_size": batch_size,
                 "gamma": gamma,
                 "learning_rate": learning_rate,
+                "max_steps_per_episode": max_steps_per_episode,
+                "num_episodes": num_episodes,
+                "update_frequency": update_frequency,
+                "epsilon_min": epsilon_min,
+                "epsilon_decay": epsilon_decay,
             },
         )
         self.env = env
@@ -39,6 +52,12 @@ class WrapperRunner:
         self.batch_size = batch_size
         self.gamma = gamma
         self.learning_rate = learning_rate
+        self.max_steps_per_episode = max_steps_per_episode
+        self.num_episodes = num_episodes
+        self.update_frequency = update_frequency
+        self.epsilon_min = epsilon_min
+        self.epsilon_decay = epsilon_decay
+        self.solved_criterion = solved_criterion
         self.model_dir = os.path.join(wandb.run.dir, env_name)
         self.local_plot_filename = os.path.join(self.model_dir, f"{env_name}.png")
         self.max_saved_models = max_saved_models
@@ -108,22 +127,16 @@ class WrapperRunner:
         if not fresh_run:
             initial_epsiode, epsilon = self.load_latest_model(agent)
 
-        num_episodes = 1000
-        epsilon_min = 0.01
-        epsilon_decay = 0.995
-        max_steps_per_episode = 400
-        update_frequency = 50  # update target network every 100 steps
-
         recent_scores = deque(maxlen=30)
         scores = []
         avg_scores = []
-        for episode in range(initial_epsiode, num_episodes):
+        for episode in range(initial_epsiode, self.num_episodes):
             state = self.env.reset(fast_reset=True)
             episode_reward = 0
 
             sum_time = 0
             num_steps = 0
-            for step in range(max_steps_per_episode):
+            for step in range(self.max_steps_per_episode):
                 start_time = time.time()
                 action = agent.select_action(state, epsilon)
                 next_state, reward, terminated, truncated, info = self.env.step(action)
@@ -132,7 +145,7 @@ class WrapperRunner:
                 agent.add_experience(state, action, next_state, reward, terminated)
                 agent.update_model()
 
-                if step % update_frequency == 0:
+                if step % self.update_frequency == 0:
                     agent.update_target_model()  # important!
 
                 if terminated:
@@ -167,9 +180,9 @@ class WrapperRunner:
             )
 
             self.save_score_plot(scores, avg_scores)
-            epsilon = max(epsilon_min, epsilon_decay * epsilon)
+            epsilon = max(self.epsilon_min, self.epsilon_decay * epsilon)
 
-            if avg_score >= 390.0 and episode >= 100:
+            if self.solved_criterion(avg_score, episode):
                 print(f"Solved in {episode} episodes!")
                 break
 

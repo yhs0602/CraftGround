@@ -17,12 +17,13 @@ class EscapeHuskWrapper(gym.Wrapper):
             initialPosition=None,  # nullable
             initialMobsCommands=[
                 # "minecraft:sheep",
-                "minecraft:husk ~5 ~ ~ {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                # player looks at south (positive Z) when spawn
             ],
             imageSizeX=114,
             imageSizeY=64,
-            visibleSizeX=400,
-            visibleSizeY=225,
+            visibleSizeX=114,
+            visibleSizeY=64,
             seed=12345,  # nullable
             allowMobSpawn=False,
             alwaysDay=True,
@@ -32,7 +33,7 @@ class EscapeHuskWrapper(gym.Wrapper):
             isWorldFlat=True,  # superflat world
         )
         super(EscapeHuskWrapper, self).__init__(self.env)
-        self.action_space = gym.spaces.Discrete(4)
+        self.action_space = gym.spaces.Discrete(6)
         initial_env = self.env.initial_env
         self.observation_space = gym.spaces.Box(
             low=0,
@@ -56,7 +57,7 @@ class EscapeHuskWrapper(gym.Wrapper):
 
         reward = 1  # initial reward
         if is_hit:
-            reward = -5  # penalty
+            reward = -20  # penalty
         if is_dead:  #
             if self.initial_env.isHardCore:
                 reward = -10000000
@@ -80,11 +81,20 @@ class EscapeHuskWrapper(gym.Wrapper):
 def main():
     env = EscapeHuskWrapper()
     buffer_size = 1000000
-    batch_size = 20
+    batch_size = 128
     gamma = 0.95
     learning_rate = 0.001
+    update_freq = 200
     runner = WrapperRunner(
-        env, "EscapeHuskWrapper", buffer_size, batch_size, gamma, learning_rate
+        env,
+        "EscapeHuskWrapper-6Actions",
+        buffer_size,
+        batch_size,
+        gamma,
+        learning_rate,
+        update_frequency=update_freq,
+        solved_criterion=lambda avg_score, episode: avg_score >= 390.0
+        and episode >= 100,
     )
     runner.run_wrapper()
 

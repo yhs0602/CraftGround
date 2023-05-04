@@ -1595,14 +1595,14 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "wandb"
-version = "0.15.0"
+version = "0.15.1"
 description = "A CLI and library for interacting with the Weights and Biases API."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "wandb-0.15.0-py3-none-any.whl", hash = "sha256:d828e2972fdd647b844b62aea30b6bbf09de8bb1ec3eca2f504fc9ab4dc67bf3"},
-    {file = "wandb-0.15.0.tar.gz", hash = "sha256:b896d4043b45407d09a43ba5348da0b1b9f425a2591f45307f633d3b88d26ebf"},
+    {file = "wandb-0.15.1-py3-none-any.whl", hash = "sha256:0c49d3c5881ed6c4b0752ba6b069ecfed28df9459fb0f59fc93f1b6ceda94bcb"},
+    {file = "wandb-0.15.1.tar.gz", hash = "sha256:8e92574c01d3d1d4f879a33bb8af54f0dbfb07fc00b1e2ec1070ce31839c7b14"},
 ]
 
 [package.dependencies]
@@ -1626,7 +1626,7 @@ typing-extensions = {version = "*", markers = "python_version < \"3.10\""}
 [package.extras]
 async = ["httpx (>=0.22.0)"]
 aws = ["boto3"]
-azure = ["azure-storage-blob"]
+azure = ["azure-identity", "azure-storage-blob"]
 gcp = ["google-cloud-storage"]
 grpc = ["grpcio (>=1.27.2)"]
 kubeflow = ["google-cloud-storage", "kubernetes", "minio", "sh"]
