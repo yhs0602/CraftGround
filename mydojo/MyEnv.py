@@ -60,7 +60,7 @@ class MyEnv(gym.Env):
             "./gradlew runClient",
             cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
             shell=True,
-            stdout=subprocess.DEVNULL,
+            # stdout=subprocess.DEVNULL,
         )
         sock: socket.socket = wait_for_server()
         self.sock = sock

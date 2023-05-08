@@ -15,10 +15,7 @@ class WrapperRunner:
         self,
         env,
         env_name,
-        buffer_size,
-        batch_size,
-        gamma,
-        learning_rate,
+        agent,
         max_saved_models=2,
         max_steps_per_episode=400,
         num_episodes=1000,
@@ -28,30 +25,25 @@ class WrapperRunner:
         solved_criterion=lambda avg_score, episode: avg_score >= 390.0
         and episode >= 100,
     ):
+        config = {
+            "environment": env_name,
+            "architecture": "DQNAgent",
+            "max_steps_per_episode": max_steps_per_episode,
+            "num_episodes": num_episodes,
+            "update_frequency": update_frequency,
+            "epsilon_min": epsilon_min,
+            "epsilon_decay": epsilon_decay,
+        }
+        config.update(agent.config)
         wandb.init(
             # set the wandb project where this run will be logged
             project="mydojo",
             entity="jourhyang123",
             # track hyperparameters and run metadata
-            config={
-                "environment": env_name,
-                "architecture": "DQNAgent",
-                "buffer_size": buffer_size,
-                "batch_size": batch_size,
-                "gamma": gamma,
-                "learning_rate": learning_rate,
-                "max_steps_per_episode": max_steps_per_episode,
-                "num_episodes": num_episodes,
-                "update_frequency": update_frequency,
-                "epsilon_min": epsilon_min,
-                "epsilon_decay": epsilon_decay,
-            },
+            config=config,
         )
         self.env = env
-        self.buffer_size = buffer_size
-        self.batch_size = batch_size
-        self.gamma = gamma
-        self.learning_rate = learning_rate
+        self.agent = agent
         self.max_steps_per_episode = max_steps_per_episode
         self.num_episodes = num_episodes
         self.update_frequency = update_frequency
@@ -109,23 +101,13 @@ class WrapperRunner:
             saved_models.pop(0)
 
     def run_wrapper(self):
-        state_dim = self.env.observation_space.shape
-        action_dim = self.env.action_space.n
 
-        agent = DQNAgent(
-            state_dim,
-            action_dim,
-            self.buffer_size,
-            self.batch_size,
-            self.gamma,
-            self.learning_rate,
-        )
         fresh_run = True
         initial_epsiode = 0
         epsilon = 1.0
 
         if not fresh_run:
-            initial_epsiode, epsilon = self.load_latest_model(agent)
+            initial_epsiode, epsilon = self.load_latest_model(self.agent)
 
         recent_scores = deque(maxlen=30)
         scores = []
@@ -138,15 +120,15 @@ class WrapperRunner:
             num_steps = 0
             for step in range(self.max_steps_per_episode):
                 start_time = time.time()
-                action = agent.select_action(state, epsilon)
+                action = self.agent.select_action(state, epsilon)
                 next_state, reward, terminated, truncated, info = self.env.step(action)
                 episode_reward += reward
 
-                agent.add_experience(state, action, next_state, reward, terminated)
-                agent.update_model()
+                self.agent.add_experience(state, action, next_state, reward, terminated)
+                self.agent.update_model()
 
                 if step % self.update_frequency == 0:
-                    agent.update_target_model()  # important!
+                    self.agent.update_target_model()  # important!
 
                 if terminated:
                     break
@@ -161,7 +143,7 @@ class WrapperRunner:
                 f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time / num_steps:.5f} seconds"
             )
             # Save the agent's model
-            self.save_model(episode, agent, epsilon)
+            self.save_model(episode, self.agent, epsilon)
 
             scores.append(episode_reward)
             recent_scores.append(episode_reward)

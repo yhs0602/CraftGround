@@ -6,6 +6,7 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
 import mydojo
+from models.dqn import DQNAgent
 from mydojo.minecraft import int_to_action
 from wrapper_runner import WrapperRunner
 
@@ -109,13 +110,20 @@ def main():
     gamma = 0.99
     learning_rate = 0.0005
     update_freq = 25
-    runner = WrapperRunner(
-        env,
-        "EscapeHuskWrapper-6Actions-distance",
+    state_dim = env.observation_space.shape
+    action_dim = env.action_space.n
+    agent = DQNAgent(
+        state_dim,
+        action_dim,
         buffer_size,
         batch_size,
         gamma,
         learning_rate,
+    )
+    runner = WrapperRunner(
+        env,
+        "EscapeHuskWrapper-6Actions-distance",
+        agent=agent,
         update_frequency=update_freq,
         solved_criterion=lambda avg_score, episode: avg_score >= 390.0
         and episode >= 100,

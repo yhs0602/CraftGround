@@ -80,7 +80,10 @@ class DQNAgent:
         gamma=0.99,
         learning_rate=0.001,
     ):
+        self.state_dim = state_dim
         self.action_dim = action_dim
+        self.buffer_size = buffer_size
+        self.learning_rate = learning_rate
         self.gamma = gamma
         self.policy_net = DQN(state_dim, action_dim).to(device)
         self.target_net = DQN(state_dim, action_dim).to(device)
@@ -146,3 +149,55 @@ class DQNAgent:
         self.policy_net.load_state_dict(state_dict["policy_net"])
         self.target_net.load_state_dict(state_dict["target_net"])
         return state_dict.get("epsilon", 1)
+
+    @property
+    def config(self):
+        return {
+            "state_dim": self.state_dim,
+            "action_dim": self.action_dim,
+            "buffer_size": self.buffer_size,
+            "learning_rage": self.learning_rate,
+            "gamma": self.gamma,
+            "batch_size": self.batch_size,
+            "optimizer": self.optimizer,
+            "loss_fn": self.loss_fn,
+        }
+
+
+class SoundDQN(nn.Module):
+    def __init__(self, input_shape, num_actions):
+        super(SoundDQN, self).__init__()
+        self.fc1 = nn.Linear(input_shape[0], 64)
+        self.fc2 = nn.Linear(64, num_actions)
+
+    def forward(self, x):
+        x = nn.functional.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+
+class DQNSoundAgent(DQNAgent):
+    def __init__(
+        self,
+        state_dim,
+        action_dim,
+        buffer_size=100000,
+        batch_size=32,
+        gamma=0.99,
+        learning_rate=0.001,
+    ):
+        self.state_dim = state_dim
+        self.action_dim = action_dim
+        self.buffer_size = buffer_size
+        self.learning_rate = learning_rate
+        self.gamma = gamma
+        self.policy_net = SoundDQN(state_dim, action_dim).to(device)
+        self.target_net = SoundDQN(state_dim, action_dim).to(device)
+        self.target_net.load_state_dict(self.policy_net.state_dict())
+        self.target_net.eval()
+
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
+        self.loss_fn = nn.MSELoss()
+
+        self.replay_buffer = ReplayBuffer(buffer_size)
+        self.batch_size = batch_size

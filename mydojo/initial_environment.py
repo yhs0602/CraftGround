@@ -1,5 +1,4 @@
 # import pdb
-from typing import Dict, Any
 
 
 # initial_env = InitialEnvironment(["sword", "shield"], [10, 20], ["summon ", "killMob"], 800, 600, 123456, True, False, False, "sunny")
@@ -24,6 +23,7 @@ class InitialEnvironment:
         killedStatKeys=None,
         minedStatKeys=None,
         miscStatKeys=None,
+        obs_keys=None,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
@@ -43,26 +43,4 @@ class InitialEnvironment:
         self.killedStatKeys = killedStatKeys
         self.minedStatKeys = minedStatKeys
         self.miscStatKeys = miscStatKeys
-
-    def to_dict(self) -> Dict[str, Any]:
-        initial_env_dict = {
-            "initialInventoryCommands": self.initialInventoryCommands,
-            "initialPosition": self.initialPosition,
-            "initialMobsCommands": self.initialMobsCommands,
-            "imageSizeX": self.imageSizeX,
-            "imageSizeY": self.imageSizeY,
-            "seed": self.seed,
-            "allowMobSpawn": self.allowMobSpawn,
-            "alwaysNight": self.alwaysNight,
-            "alwaysDay": self.alwaysDay,
-            "initialWeather": self.initialWeather,
-            "isHardCore": self.isHardCore,  # ignored for now
-            "isWorldFlat": self.isWorldFlat,
-            "visibleSizeX": self.visibleSizeX,
-            "visibleSizeY": self.visibleSizeY,
-            "initialExtraCommands": self.initialExtraCommands,
-            "killedStatKeys": self.killedStatKeys,
-            "minedStatKeys": self.minedStatKeys,
-            "miscStatKeys": self.miscStatKeys,
-        }
-        return {k: v for k, v in initial_env_dict.items() if v is not None}
+        self.obs_keys = obs_keys

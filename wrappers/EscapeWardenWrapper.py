@@ -5,24 +5,25 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
 import mydojo
+from models.dqn import DQNAgent
 from mydojo.minecraft import int_to_action
 from wrapper_runner import WrapperRunner
 
 
-class EscapeHuskWrapper(gym.Wrapper):
+class EscapeWardenWrapper(gym.Wrapper):
     def __init__(self):
         self.env = mydojo.make(
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[
                 # "minecraft:sheep",
-                "minecraft:warden ~ ~ ~15",
+                "minecraft:warden ~ ~ ~5",
                 # player looks at south (positive Z) when spawn
             ],
-            imageSizeX=228,
-            imageSizeY=128,
-            visibleSizeX=228,
-            visibleSizeY=128,
+            imageSizeX=114,
+            imageSizeY=64,
+            visibleSizeX=114,
+            visibleSizeY=64,
             seed=12345,  # nullable
             allowMobSpawn=False,
             alwaysDay=True,
@@ -31,7 +32,7 @@ class EscapeHuskWrapper(gym.Wrapper):
             isHardCore=False,
             isWorldFlat=True,  # superflat world
         )
-        super(EscapeHuskWrapper, self).__init__(self.env)
+        super(EscapeWardenWrapper, self).__init__(self.env)
         self.action_space = gym.spaces.Discrete(6)
         initial_env = self.env.initial_env
         self.observation_space = gym.spaces.Box(
@@ -71,21 +72,29 @@ class EscapeHuskWrapper(gym.Wrapper):
 
 
 def main():
-    env = EscapeHuskWrapper()
+    env = EscapeWardenWrapper()
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
     learning_rate = 0.0005
     update_freq = 25
-    runner = WrapperRunner(
-        env,
-        "EscapeWarden15-6Actions",
+    state_dim = env.observation_space.shape
+    action_dim = env.action_space.n
+    agent = DQNAgent(
+        state_dim,
+        action_dim,
         buffer_size,
         batch_size,
         gamma,
         learning_rate,
+    )
+    runner = WrapperRunner(
+        env,
+        "EscapeWarden15-6Actions",
+        agent=agent,
+        max_steps_per_episode=1000,
         update_frequency=update_freq,
-        solved_criterion=lambda avg_score, episode: avg_score >= 390.0
+        solved_criterion=lambda avg_score, episode: avg_score >= 950.0
         and episode >= 100,
     )
     runner.run_wrapper()
