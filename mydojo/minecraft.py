@@ -5,6 +5,7 @@ import struct
 import time
 from typing import List
 
+import mydojo.MyEnv as MyEnv
 from mydojo.json_socket import JSONSocket
 from mydojo.proto import action_space_pb2
 
@@ -64,7 +65,7 @@ def send_action(sock: JSONSocket, action_array: List[int]):
 
 
 def send_action2(sock: socket.socket, action_array: List[int]):
-    # print("Sending action")
+    MyEnv.print_with_time("Sending action")
     action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(action_array)
     action_space.command = ""

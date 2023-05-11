@@ -8,6 +8,7 @@ import numpy as np
 
 import wandb
 from models.dqn import DQNAgent
+from mydojo.MyEnv import print_with_time
 
 
 class WrapperRunner:
@@ -114,6 +115,7 @@ class WrapperRunner:
         avg_scores = []
         for episode in range(initial_epsiode, self.num_episodes):
             state = self.env.reset(fast_reset=True)
+            print_with_time("Finished resetting the environment")
             episode_reward = 0
 
             sum_time = 0
@@ -139,6 +141,8 @@ class WrapperRunner:
                 sum_time += elapsed_time
                 num_steps += 1
 
+            if num_steps == 0:
+                num_steps = 1
             print(
                 f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time / num_steps:.5f} seconds"
             )

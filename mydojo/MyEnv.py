@@ -3,6 +3,7 @@ import io
 import socket
 import struct
 import subprocess
+from datetime import datetime
 from time import sleep
 from typing import Tuple, Optional, Union, List
 
@@ -16,6 +17,7 @@ from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
 from .minecraft import wait_for_server, send_action2, send_fastreset2, send_action
 from .proto import observation_space_pb2, initial_environment_pb2
+import time
 
 
 class MyEnv(gym.Env):
@@ -36,7 +38,7 @@ class MyEnv(gym.Env):
         fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
-        options: Optional[dict] = None
+        options: Optional[dict] = None,
     ):
         if not self.sock:  # first time
             self.start_server()
@@ -48,12 +50,44 @@ class MyEnv(gym.Env):
                 self.start_server()
             else:
                 send_fastreset2(self.sock)
-                # print("Sent fast reset")
-        # print("Reading response...")
-        res = self.read_one_observation()  # throw away
-        return np.random.rand(
-            3, self.initial_env.imageSizeX, self.initial_env.imageSizeY
-        ).astype(np.uint8)
+                print_with_time("Sent fast reset")
+        print_with_time("Reading response...")
+        siz, res = self.read_one_observation()
+        print_with_time(f"Got response with size {siz}")
+        arr, done, reward, truncated = self.convert_observation(res)
+
+        return (
+            {"obs": res, "rgb": arr},
+            reward,
+            done,
+            truncated,
+            {},
+        )
+
+    def convert_observation(self, res):
+        png_img = res.image  # png byte array
+        # decode png byte array to numpy array
+        # Create a BytesIO object from the byte array
+        bytes_io = io.BytesIO(png_img)
+        # Use PIL to open the image from the BytesIO object
+        img = Image.open(bytes_io).convert("RGB")
+        # Convert the PIL image to a numpy array
+        arr = np.array(img)
+        arr = np.transpose(arr, (2, 1, 0))
+        # Optionally, you can convert the array to a specific data type, such as uint8
+        arr = arr.astype(np.uint8)
+        # health = res["health"]
+        # foodLevel = res["foodLevel"]
+        # saturationLevel = res["saturationLevel"]
+        # isDead = res["isDead"]
+        # inventory = res["inventory"]
+        # soundSubtitles = res["soundSubtitles"]
+        # for subtitle in soundSubtitles:
+        #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
+        reward = 0  # Initialize reward to one
+        done = False  # Initialize done flag to False
+        truncated = False  # Initialize truncated flag to False
+        return arr, done, reward, truncated
 
     def start_server(self):
         subprocess.Popen(
@@ -67,9 +101,9 @@ class MyEnv(gym.Env):
         self.send_initial_env()
         self.buffered_socket = BufferedSocket(self.sock)
         # self.json_socket.send_json_as_base64(self.initial_env.to_dict())
-        print("Sent initial environment")
+        print_with_time(f"Sent initial environment")
 
-    def read_one_observation(self) -> ObsType:
+    def read_one_observation(self) -> (int, ObsType):
         # print("Reading observation size...")
         data_len_bytes = self.buffered_socket.read(4, True)
         # print("Reading observation...")
@@ -79,7 +113,7 @@ class MyEnv(gym.Env):
         # print("Parsing observation...")
         observation_space.ParseFromString(data_bytes)
         # print("Parsed observation...")
-        return observation_space
+        return data_len, observation_space
 
     def send_initial_env(self):
         initial_env = initial_environment_pb2.InitialEnvironmentMessage()
@@ -121,35 +155,9 @@ class MyEnv(gym.Env):
         # send the action
         send_action2(self.sock, action)
         # read the response
-        # print("Sent action and reading response...")
-        res = self.read_one_observation()
-        png_img = res.image  # png byte array
-        # decode png byte array to numpy array
-        # Create a BytesIO object from the byte array
-        bytes_io = io.BytesIO(png_img)
-
-        # Use PIL to open the image from the BytesIO object
-        img = Image.open(bytes_io).convert("RGB")
-
-        # Convert the PIL image to a numpy array
-        arr = np.array(img)
-        arr = np.transpose(arr, (2, 1, 0))
-
-        # Optionally, you can convert the array to a specific data type, such as uint8
-        arr = arr.astype(np.uint8)
-
-        # health = res["health"]
-        # foodLevel = res["foodLevel"]
-        # saturationLevel = res["saturationLevel"]
-        # isDead = res["isDead"]
-        # inventory = res["inventory"]
-        # soundSubtitles = res["soundSubtitles"]
-        # for subtitle in soundSubtitles:
-        #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
-
-        reward = 0  # Initialize reward to one
-        done = False  # Initialize done flag to False
-        truncated = False  # Initialize truncated flag to False
+        print_with_time("Sent action and reading response...")
+        siz, res = self.read_one_observation()
+        arr, done, reward, truncated = self.convert_observation(res)
 
         return (
             {"obs": res, "rgb": arr},
@@ -235,3 +243,8 @@ class MultiDiscreteEnv(MyEnv):
             truncated,
             {},
         )
+
+
+def print_with_time(*args, **kwargs):
+    time_str = datetime.now().strftime("%H:%M:%S.%f")
+    print(f"[{time_str}]", *args, **kwargs)

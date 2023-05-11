@@ -17,7 +17,7 @@ class EscapeWardenBySoundWrapper(gym.Wrapper):
             initialPosition=None,  # nullable
             initialMobsCommands=[
                 # "minecraft:sheep",
-                "minecraft:warden ~ ~ ~5",
+                "minecraft:warden ~ ~ ~4",
                 # player looks at south (positive Z) when spawn
             ],
             imageSizeX=114,
@@ -172,9 +172,9 @@ def main():
         env,
         "EscapeWardenSound-6Actions",
         agent=agent,
-        max_steps_per_episode=1000,
+        max_steps_per_episode=1200,
         update_frequency=update_freq,
-        solved_criterion=lambda avg_score, episode: avg_score >= 950.0
+        solved_criterion=lambda avg_score, episode: avg_score >= 1150.0
         and episode >= 100,
     )
     runner.run_wrapper()
