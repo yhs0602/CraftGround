@@ -92,11 +92,3 @@ def send_fastreset2(sock: socket.socket):
 
 def send_respawn2(sock: socket.socket):
     send_command(sock, "respawn")
-
-
-def send_respawn(sock: JSONSocket):
-    sock.send_json_as_base64({"action": no_op(), "command": "respawn"})
-
-
-def send_fastreset(sock: JSONSocket):
-    sock.send_json_as_base64({"action": no_op(), "command": "fastreset"})

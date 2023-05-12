@@ -17,7 +17,6 @@ from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
 from .minecraft import wait_for_server, send_action2, send_fastreset2, send_action
 from .proto import observation_space_pb2, initial_environment_pb2
-import time
 
 
 class MyEnv(gym.Env):
@@ -39,7 +38,7 @@ class MyEnv(gym.Env):
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
-    ):
+    ) -> ObsType:
         if not self.sock:  # first time
             self.start_server()
         else:
@@ -56,13 +55,7 @@ class MyEnv(gym.Env):
         print_with_time(f"Got response with size {siz}")
         arr, done, reward, truncated = self.convert_observation(res)
 
-        return (
-            {"obs": res, "rgb": arr},
-            reward,
-            done,
-            truncated,
-            {},
-        )
+        return {"obs": res, "rgb": arr}
 
     def convert_observation(self, res):
         png_img = res.image  # png byte array
@@ -94,7 +87,7 @@ class MyEnv(gym.Env):
             "./gradlew runClient",
             cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
             shell=True,
-            # stdout=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
         )
         sock: socket.socket = wait_for_server()
         self.sock = sock
@@ -159,17 +152,12 @@ class MyEnv(gym.Env):
         siz, res = self.read_one_observation()
         arr, done, reward, truncated = self.convert_observation(res)
 
-        return (
-            {"obs": res, "rgb": arr},
-            reward,
-            done,
-            truncated,
-            {},
-        )
+        return {"obs": res, "rgb": arr}, reward, done, truncated, {}
 
-    def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
-        super(MyEnv, self).render()
-        return None
+
+def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
+    super(MyEnv, self).render()
+    return None
 
 
 # Deprecated
@@ -246,5 +234,6 @@ class MultiDiscreteEnv(MyEnv):
 
 
 def print_with_time(*args, **kwargs):
+    return  # disable
     time_str = datetime.now().strftime("%H:%M:%S.%f")
     print(f"[{time_str}]", *args, **kwargs)
