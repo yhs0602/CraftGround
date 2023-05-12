@@ -10,11 +10,11 @@ from mydojo.json_socket import JSONSocket
 from mydojo.proto import action_space_pb2
 
 
-def wait_for_server() -> socket.socket:
+def wait_for_server(port: int) -> socket.socket:
     while True:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(("127.0.0.1", 8000))
+            s.connect(("127.0.0.1", port))
             s.settimeout(30)
             return s
         except ConnectionRefusedError:

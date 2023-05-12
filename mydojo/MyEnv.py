@@ -1,5 +1,6 @@
 import base64
 import io
+import os
 import socket
 import struct
 import subprocess
@@ -82,14 +83,17 @@ class MyEnv(gym.Env):
         truncated = False  # Initialize truncated flag to False
         return arr, done, reward, truncated
 
-    def start_server(self):
+    def start_server(self, port=8000):
+        my_env = os.environ.copy()
+        my_env["PORT"] = str(port)
         subprocess.Popen(
             "./gradlew runClient",
             cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
             shell=True,
             stdout=subprocess.DEVNULL,
+            env=my_env,
         )
-        sock: socket.socket = wait_for_server()
+        sock: socket.socket = wait_for_server(port)
         self.sock = sock
         self.send_initial_env()
         self.buffered_socket = BufferedSocket(self.sock)

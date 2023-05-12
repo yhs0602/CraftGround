@@ -23,8 +23,8 @@ class EscapeHuskWithDarknessWrapper(gym.Wrapper):
             ],
             imageSizeX=114,
             imageSizeY=64,
-            visibleSizeX=342,
-            visibleSizeY=192,
+            visibleSizeX=114,
+            visibleSizeY=64,
             seed=12345,  # nullable
             allowMobSpawn=False,
             alwaysDay=True,
