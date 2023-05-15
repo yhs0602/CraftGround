@@ -32,6 +32,7 @@ class MyEnv(gym.Env):
         self.initial_env = initial_env
         self.sock = None
         self.buffered_socket = None
+        self.last_rgb_frame = None
 
     def reset(
         self,
@@ -41,13 +42,13 @@ class MyEnv(gym.Env):
         options: Optional[dict] = None,
     ) -> ObsType:
         if not self.sock:  # first time
-            self.start_server()
+            self.start_server(port=8000)
         else:
             if not fast_reset:
                 self.sock.close()
                 # wait for server death and restart server
                 sleep(5)
-                self.start_server()
+                self.start_server(port=8000)
             else:
                 send_fastreset2(self.sock)
                 print_with_time("Sent fast reset")
@@ -66,8 +67,8 @@ class MyEnv(gym.Env):
         # Use PIL to open the image from the BytesIO object
         img = Image.open(bytes_io).convert("RGB")
         # Convert the PIL image to a numpy array
-        arr = np.array(img)
-        arr = np.transpose(arr, (2, 1, 0))
+        self.last_rgb_frame = np.array(img)
+        arr = np.transpose(self.last_rgb_frame, (2, 1, 0))
         # Optionally, you can convert the array to a specific data type, such as uint8
         arr = arr.astype(np.uint8)
         # health = res["health"]
@@ -158,10 +159,17 @@ class MyEnv(gym.Env):
 
         return {"obs": res, "rgb": arr}, reward, done, truncated, {}
 
+    def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
+        # print("Rendering...")
+        return self.last_rgb_frame
 
-def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
-    super(MyEnv, self).render()
-    return None
+    @property
+    def render_mode(self) -> Optional[str]:
+        return "rgb_array"
+
+    def close(self):
+        self.sock.close()
+        self.buffered_socket.close()
 
 
 # Deprecated

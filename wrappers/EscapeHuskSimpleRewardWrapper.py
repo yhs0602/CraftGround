@@ -11,10 +11,10 @@ from mydojo.minecraft import int_to_action
 from wrapper_runner import WrapperRunner
 
 
-class EscapeHuskWrapper(gym.Wrapper):
+class EscapeHuskSimpleRewardWrapper(gym.Wrapper):
     def __init__(self):
         self.env = mydojo.make(
-            initialInventoryCommands=["minecraft:diamond_sword", "minecraft:shield"],
+            initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[
                 # "minecraft:sheep",
@@ -33,7 +33,7 @@ class EscapeHuskWrapper(gym.Wrapper):
             isHardCore=False,
             isWorldFlat=True,  # superflat world
         )
-        super(EscapeHuskWrapper, self).__init__(self.env)
+        super(EscapeHuskSimpleRewardWrapper, self).__init__(self.env)
         self.action_space = gym.spaces.Discrete(6)
         initial_env = self.env.initial_env
         self.observation_space = gym.spaces.Box(
@@ -53,42 +53,22 @@ class EscapeHuskWrapper(gym.Wrapper):
         rgb = obs["rgb"]
         obs = obs["obs"]
         is_dead = obs.is_dead
-        visible_entities = obs.visible_entities
-        if len(visible_entities) > 0:
-            zombie_entity = visible_entities[0]
-            distance = (
-                (obs.x - zombie_entity.x) ** 2
-                + (obs.y - zombie_entity.y) ** 2
-                + (obs.z - zombie_entity.z) ** 2
-            )
-            self.distance_deque.append(distance)
-        else:
-            self.distance_deque.append(self.distance_deque[0])
-        # else:
-        #     print("No visible entities")
 
         self.health_deque.append(obs.health)
 
         is_hit = self.health_deque[0] > self.health_deque[1]
-        is_further = self.distance_deque[0] < self.distance_deque[1]
-        is_same = self.distance_deque[0] == self.distance_deque[1]
 
         reward = 1  # initial reward
-        if is_further:
-            reward = 10  # reward for moving away
-        elif is_same:
-            reward = 1
-        else:
-            reward = -10  # penalty for moving closer
-        if is_hit:
-            reward = -20  # penalty
+
+        # if is_hit:
+        #     reward = -30  # penalty
         if is_dead:  #
             if self.initial_env.isHardCore:
                 reward = -10000000
                 terminated = True
             else:  # send respawn packet
                 # pass
-                reward = -200
+                # reward = -200
                 terminated = True
                 # send_respawn(self.json_socket)
                 # print("Dead!!!!!")
@@ -100,15 +80,15 @@ class EscapeHuskWrapper(gym.Wrapper):
         self.health_deque.clear()
         self.health_deque.append(20)
         self.distance_deque.append(25)  # start distance: 5
-        return obs
+        return obs["rgb"]
 
 
 def main():
-    env = EscapeHuskWrapper()
+    env = EscapeHuskSimpleRewardWrapper()
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
-    learning_rate = 0.0005
+    learning_rate = 0.001
     update_freq = 25
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
@@ -122,13 +102,16 @@ def main():
     )
     runner = WrapperRunner(
         env,
-        "EscapeHuskWrapper-6Actions-distance",
+        "EscapeHuskWrapper-6Actions-Simple",
         agent=agent,
         update_frequency=update_freq,
-        solved_criterion=lambda avg_score, episode: avg_score >= 390.0
+        max_steps_per_episode=400,
+        num_episodes=3000,
+        epsilon_decay=0.999,
+        solved_criterion=lambda avg_score, episode: avg_score >= 380.0
         and episode >= 100,
     )
-    runner.run_wrapper()
+    runner.run_wrapper(record_video=True)
 
 
 if __name__ == "__main__":

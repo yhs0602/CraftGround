@@ -9,6 +9,7 @@ import numpy as np
 import wandb
 from models.dqn import DQNAgent
 from mydojo.MyEnv import print_with_time
+from gymnasium.wrappers.monitoring.video_recorder import VideoRecorder
 
 
 class WrapperRunner:
@@ -42,6 +43,7 @@ class WrapperRunner:
             entity="jourhyang123",
             # track hyperparameters and run metadata
             config=config,
+            resume=False,
         )
         self.env = env
         self.agent = agent
@@ -101,19 +103,24 @@ class WrapperRunner:
             os.remove(oldest_model_path)
             saved_models.pop(0)
 
-    def run_wrapper(self):
-
-        fresh_run = True
+    def run_wrapper(self, record_video=False):
+        if record_video:
+            wandb.gym.monitor()
         initial_epsiode = 0
         epsilon = 1.0
 
-        if not fresh_run:
+        if wandb.run.resumed:
             initial_epsiode, epsilon = self.load_latest_model(self.agent)
 
         recent_scores = deque(maxlen=30)
         scores = []
         avg_scores = []
         for episode in range(initial_epsiode, self.num_episodes):
+            recording_video = False
+            if episode % 100 == 0 and record_video:
+                recording_video = True
+                video_recorder = VideoRecorder(self.env, f"video{episode}.mp4")
+
             state = self.env.reset(fast_reset=True)
             print_with_time("Finished resetting the environment")
             episode_reward = 0
@@ -122,6 +129,9 @@ class WrapperRunner:
             num_steps = 0
             for step in range(self.max_steps_per_episode):
                 start_time = time.time()
+                if recording_video:
+                    video_recorder.capture_frame()
+
                 action = self.agent.select_action(state, epsilon)
                 next_state, reward, terminated, truncated, info = self.env.step(action)
                 episode_reward += reward
@@ -156,6 +166,9 @@ class WrapperRunner:
             print(
                 f"Episode {episode}: score={episode_reward:.2f}, avg_score={avg_score:.2f}, eps={epsilon:.2f}"
             )
+            if recording_video:
+                video_recorder.close()
+
             wandb.log(
                 {
                     "episode": episode,

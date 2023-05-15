@@ -291,3 +291,5 @@ data/
 saved_models_400
 *.pt
 wandb/
+*.json
+*.mp4
