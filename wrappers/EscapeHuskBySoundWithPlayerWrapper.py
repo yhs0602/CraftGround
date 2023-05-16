@@ -90,7 +90,7 @@ def main():
     env = EscapeHuskBySoundWithPlayerWrapper()
     buffer_size = 1000000
     batch_size = 256
-    gamma = 0.99
+    gamma = 0.999
     learning_rate = 0.001
     update_freq = 25
     hidden_dim = 16
