@@ -167,9 +167,9 @@ class MyEnv(gym.Env):
     def render_mode(self) -> Optional[str]:
         return "rgb_array"
 
-    def close(self):
-        self.sock.close()
-        self.buffered_socket.close()
+    # def close(self):
+    #     self.sock.close()
+    #     self.buffered_socket.close()
 
 
 # Deprecated

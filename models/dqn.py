@@ -16,15 +16,17 @@ else:
 
 # Define the DQN class with a CNN architecture
 class DQN(nn.Module):
-    def __init__(self, input_shape, num_actions):
+    def __init__(
+        self, input_shape, num_actions, kernel_size=5, stride=2, hidden_dim=512
+    ):
         super(DQN, self).__init__()
         self.conv1 = nn.Conv2d(
-            input_shape[0], 16, kernel_size=5, stride=2
+            input_shape[0], 16, kernel_size=kernel_size, stride=stride
         )  # (210, 160, 3), permuted to (3, 210, 160)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=5, stride=2)
-        self.fc1 = nn.Linear(self.get_conv_output(input_shape), 512)
-        self.fc2 = nn.Linear(512, num_actions)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=kernel_size, stride=stride)
+        self.conv3 = nn.Conv2d(32, 64, kernel_size=kernel_size, stride=stride)
+        self.fc1 = nn.Linear(self.get_conv_output(input_shape), hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, num_actions)
 
     def forward(self, x):
         x = x.float() / 255.0
@@ -165,10 +167,10 @@ class DQNAgent:
 
 
 class SoundDQN(nn.Module):
-    def __init__(self, input_shape, num_actions):
+    def __init__(self, input_shape, num_actions, hidden_dim=32):
         super(SoundDQN, self).__init__()
-        self.fc1 = nn.Linear(input_shape[0], 64)
-        self.fc2 = nn.Linear(64, num_actions)
+        self.fc1 = nn.Linear(input_shape[0], hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, num_actions)
 
     def forward(self, x):
         x = nn.functional.relu(self.fc1(x))
@@ -181,6 +183,7 @@ class DQNSoundAgent(DQNAgent):
         self,
         state_dim,
         action_dim,
+        hidden_dim=32,
         buffer_size=100000,
         batch_size=32,
         gamma=0.99,
@@ -188,11 +191,12 @@ class DQNSoundAgent(DQNAgent):
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim
+        self.hidden_dim = hidden_dim
         self.buffer_size = buffer_size
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.policy_net = SoundDQN(state_dim, action_dim).to(device)
-        self.target_net = SoundDQN(state_dim, action_dim).to(device)
+        self.policy_net = SoundDQN(state_dim, action_dim, hidden_dim).to(device)
+        self.target_net = SoundDQN(state_dim, action_dim, hidden_dim).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
@@ -201,3 +205,17 @@ class DQNSoundAgent(DQNAgent):
 
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.batch_size = batch_size
+
+    @property
+    def config(self):
+        return {
+            "state_dim": self.state_dim,
+            "action_dim": self.action_dim,
+            "hidden_dim": self.hidden_dim,
+            "buffer_size": self.buffer_size,
+            "learning_rage": self.learning_rate,
+            "gamma": self.gamma,
+            "batch_size": self.batch_size,
+            "optimizer": self.optimizer,
+            "loss_fn": self.loss_fn,
+        }
