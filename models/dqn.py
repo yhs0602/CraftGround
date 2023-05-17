@@ -3,6 +3,7 @@ from collections import deque, namedtuple
 
 import numpy as np
 import torch
+import wandb
 from torch import nn, optim
 from torch.autograd import Variable
 
@@ -12,6 +13,10 @@ elif torch.has_mps:
     device = torch.device("mps")
 else:
     device = torch.device("cpu")
+
+
+def after_wandb_init():
+    wandb.run.log_code(".")
 
 
 # Define the DQN class with a CNN architecture
@@ -77,10 +82,10 @@ class DQNAgent:
         self,
         state_dim,
         action_dim,
-        buffer_size=100000,
-        batch_size=32,
-        gamma=0.99,
-        learning_rate=0.001,
+        buffer_size,
+        batch_size,
+        gamma,
+        learning_rate,
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim
@@ -98,15 +103,17 @@ class DQNAgent:
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.batch_size = batch_size
 
-    def select_action(self, state, epsilon):
-        if np.random.rand() <= epsilon:
+    def select_action(self, state, epsilon, testing: bool):
+        if np.random.rand() <= epsilon and not testing:
             # print("random action")
             return np.random.choice(self.action_dim)
         else:
             # print("policy action")
             state = torch.FloatTensor(state).unsqueeze(0).to(device)
+            self.policy_net.eval()
             with torch.no_grad():
                 q_values = self.policy_net(state)
+            self.policy_net.train()
             return q_values.argmax().item()
 
     def update_model(self):
@@ -167,15 +174,50 @@ class DQNAgent:
 
 
 class SoundDQN(nn.Module):
-    def __init__(self, input_shape, num_actions, hidden_dim=32):
+    def __init__(self, input_shape, num_actions, hidden_dim=128):
         super(SoundDQN, self).__init__()
         self.fc1 = nn.Linear(input_shape[0], hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, num_actions)
+        self.bn1 = nn.BatchNorm1d(hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.bn2 = nn.BatchNorm1d(hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, num_actions)
 
     def forward(self, x):
-        x = nn.functional.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = nn.functional.relu(self.bn1(self.fc1(x)))
+        x = nn.functional.relu(self.bn2(self.fc2(x)))
+        x = self.fc3(x)
+        x = nn.functional.softmax(x, dim=1)
         return x
+
+    # def regularization_loss(self):
+    #     # Calculate the L2 regularization loss for the module's parameters
+    #     l2_loss = torch.tensor(0.0)
+    #     for param in self.parameters():
+    #         l2_loss += torch.norm(param, p=2) ** 2
+    #     return 0.5 * self.weight_decay * l2_loss
+
+    def update_model(self):
+        if len(self.replay_buffer) < self.batch_size:
+            return
+        # print("Will update model")
+        state, action, next_state, reward, done = self.replay_buffer.sample(
+            self.batch_size
+        )
+        state = state.to(device)
+        action = action.to(device)
+        reward = reward.to(device).squeeze(1)
+        next_state = next_state.to(device)
+        done = done.to(device).squeeze(1)
+
+        q_values = self.policy_net(state).gather(1, action.to(torch.int64)).squeeze(1)
+        next_q_values = self.target_net(next_state).max(1)[0]
+        expected_q_values = reward + (1 - done) * self.gamma * next_q_values
+
+        loss = self.loss_fn(q_values, expected_q_values.detach())
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
 
 class DQNSoundAgent(DQNAgent):
@@ -183,11 +225,11 @@ class DQNSoundAgent(DQNAgent):
         self,
         state_dim,
         action_dim,
-        hidden_dim=32,
-        buffer_size=100000,
-        batch_size=32,
-        gamma=0.99,
-        learning_rate=0.001,
+        hidden_dim,
+        buffer_size,
+        batch_size,
+        gamma,
+        learning_rate,
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim

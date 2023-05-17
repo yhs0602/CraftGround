@@ -31,6 +31,7 @@ def no_op() -> List[int]:
 
 def int_to_action(input_act: int):
     act = no_op()
+    # no_op하는 action도 넣어볼까? 말까
     if input_act == 0:  # go forward
         act[0] = 1  # 0: noop 1: forward 2 : back
     elif input_act == 1:  # go backward
