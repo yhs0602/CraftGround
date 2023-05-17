@@ -118,9 +118,9 @@ class DQNAgent:
         )
         state = state.to(device)
         action = action.to(device)
-        reward = reward.to(device)
+        reward = reward.to(device).squeeze(1)
         next_state = next_state.to(device)
-        done = done.to(device)
+        done = done.to(device).squeeze(1)
 
         q_values = self.policy_net(state).gather(1, action.to(torch.int64)).squeeze(1)
         next_q_values = self.target_net(next_state).max(1)[0]
