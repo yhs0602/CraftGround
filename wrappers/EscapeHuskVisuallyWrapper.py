@@ -75,7 +75,6 @@ class EscapeHuskVisuallyWrapper(gym.Wrapper):
 
     def reset(self, fast_reset: bool = True) -> WrapperObsType:
         obs = self.env.reset(fast_reset=fast_reset)
-        obs = obs["obs"]
         return obs["rgb"]
 
 
