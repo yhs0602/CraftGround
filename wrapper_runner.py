@@ -159,7 +159,7 @@ class WrapperRunner:
                 self.agent.update_model()
 
                 if step % self.update_frequency == 0:
-                    self.agent.update_target_model()  # important!
+                    self.agent.update_target_model()  # important! FIXME: step ranges from 0 to max_steps_per_episode;
 
                 if terminated:
                     break

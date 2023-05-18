@@ -4,7 +4,9 @@ import numpy as np
 import mydojo
 from models.dqn import DQNSoundAgent
 from wrapper_runner import WrapperRunner
-from wrappers.EscapeHuskBySoundWithPlayerWrapper import EscapeHuskBySoundWithPlayerWrapper
+from wrappers.EscapeHuskBySoundWithPlayerWrapper import (
+    EscapeHuskBySoundWithPlayerWrapper,
+)
 
 
 class EscapeMultipleHuskSoundWrapper(EscapeHuskBySoundWithPlayerWrapper):
@@ -66,15 +68,15 @@ def main():
         env_name="MultipleHuskSound-6-6-yaw",
         agent=agent,
         max_steps_per_episode=400,
-        num_episodes=700,
-        warmup_episodes=100,
-        epsilon_init=0.8,
+        num_episodes=1500,
+        warmup_episodes=0,
+        epsilon_init=1,
         epsilon_min=0.01,
         epsilon_decay=0.99,
         update_frequency=update_freq,
         test_frequency=10,
         solved_criterion=lambda avg_score, episode: avg_score >= 190.0
-                                                    and episode >= 1000,
+        and episode >= 1000,
     )
     runner.run_wrapper(record_video=True)
 
