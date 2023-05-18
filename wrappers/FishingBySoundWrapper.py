@@ -31,7 +31,7 @@ class FishingBySoundWrapper(gym.Wrapper):
             isHardCore=False,
             isWorldFlat=False,  # superflat world
             obs_keys=["sound_subtitles"],
-            miscStatKeys=["minecraft:fish_caught"],
+            miscStatKeys=["fish_caught"],
             initialExtraCommands=["tp @p -25 62 -277 127.2 -6.8"],  # x y z yaw pitch
         )
         super(FishingBySoundWrapper, self).__init__(self.env)
@@ -57,7 +57,7 @@ class FishingBySoundWrapper(gym.Wrapper):
         reward = -0.05  # guide to fish quickly
 
         # check if fish is caught
-        fish_caught = obs.misc_statistics["minecraft:fish_caught"]
+        fish_caught = obs.misc_statistics["fish_caught"]
         self.caught_fish.append(fish_caught)
 
         if self.caught_fish[0] < self.caught_fish[1]:

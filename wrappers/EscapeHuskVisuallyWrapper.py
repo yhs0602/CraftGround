@@ -5,7 +5,7 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
 import mydojo
-from models.dqn import DQNSoundAgent, DQNAgent
+from models.dqn import DQNAgent
 from mydojo.minecraft import int_to_action
 from wrapper_runner import WrapperRunner
 
