@@ -20,11 +20,9 @@ def after_wandb_init():
 
 
 # Define the DQN class with a CNN architecture
-class DQN(nn.Module):
-    def __init__(
-        self, input_shape, num_actions, kernel_size=5, stride=2, hidden_dim=512
-    ):
-        super(DQN, self).__init__()
+class CNNDQN(nn.Module):
+    def __init__(self, input_shape, num_actions, kernel_size, stride, hidden_dim):
+        super(CNNDQN, self).__init__()
         self.conv1 = nn.Conv2d(
             input_shape[0], 16, kernel_size=kernel_size, stride=stride
         )  # (210, 160, 3), permuted to (3, 210, 160)
@@ -82,6 +80,9 @@ class DQNAgent:
         self,
         state_dim,
         action_dim,
+        hidden_dim,
+        kernel_size,
+        stride,
         buffer_size,
         batch_size,
         gamma,
@@ -89,11 +90,18 @@ class DQNAgent:
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim
+        self.hidden_dim = hidden_dim
+        self.kernel_size = kernel_size
+        self.stride = stride
         self.buffer_size = buffer_size
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.policy_net = DQN(state_dim, action_dim).to(device)
-        self.target_net = DQN(state_dim, action_dim).to(device)
+        self.policy_net = CNNDQN(
+            state_dim, action_dim, kernel_size, stride, hidden_dim
+        ).to(device)
+        self.target_net = CNNDQN(
+            state_dim, action_dim, kernel_size, stride, hidden_dim
+        ).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
@@ -164,6 +172,9 @@ class DQNAgent:
         return {
             "state_dim": self.state_dim,
             "action_dim": self.action_dim,
+            "hidden_dim": self.hidden_dim,
+            "kernel_size": self.kernel_size,
+            "stride": self.stride,
             "buffer_size": self.buffer_size,
             "learning_rage": self.learning_rate,
             "gamma": self.gamma,
