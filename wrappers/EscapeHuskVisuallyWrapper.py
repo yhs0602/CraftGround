@@ -12,7 +12,6 @@ from wrapper_runner import WrapperRunner
 
 class EscapeHuskVisuallyWrapper(gym.Wrapper):
     def __init__(self):
-        super().__init__()
         self.env = mydojo.make(
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
@@ -118,7 +117,7 @@ def main():
         update_frequency=update_freq,
         test_frequency=10,
         solved_criterion=lambda avg_score, episode: avg_score >= 190.0
-        and episode >= 300,
+        and episode >= 400,
     )
     runner.run_wrapper(record_video=True)
 
