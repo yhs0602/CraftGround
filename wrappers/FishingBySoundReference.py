@@ -11,7 +11,7 @@ from mydojo.minecraft import no_op
 from wrapper_runner import WrapperRunner
 
 
-class FishingBySoundWrapper(gym.Wrapper):
+class FishingBySoundReferenceWrapper(gym.Wrapper):
     def __init__(self):
         self.env = mydojo.make(
             initialInventoryCommands=[
@@ -34,13 +34,15 @@ class FishingBySoundWrapper(gym.Wrapper):
             miscStatKeys=["fish_caught"],
             initialExtraCommands=["tp @p -25 62 -277 127.2 -6.8"],  # x y z yaw pitch
         )
-        super(FishingBySoundWrapper, self).__init__(self.env)
+        super(FishingBySoundReferenceWrapper, self).__init__(self.env)
         self.action_space = gym.spaces.Discrete(2)  # 0: no op, 1: reel in
         self.observation_space = gym.spaces.Box(
             low=-1, high=1, shape=(5,), dtype=np.float32
         )
         self.caught_fish = deque(maxlen=2)
         self.caught_fish.append(0)
+        self.next_action = 1
+        self.is_fishing = False
 
     def step(
         self, action: WrapperActType
@@ -54,7 +56,12 @@ class FishingBySoundWrapper(gym.Wrapper):
         sound_subtitles = obs.sound_subtitles
         sound_vector = self.encode_sound(sound_subtitles)
 
-        reward = -0  # TODO: guide to fish quickly
+        reward = 0.001 if self.next_action == action else -0.001  # manual guide
+        # TODO: guide to fish quickly
+        if sound_vector[2] == 1 or sound_vector[4] == 1:  # splash or item pickup
+            self.next_action = 1
+        else:
+            self.next_action = 0
 
         # check if fish is caught
         fish_caught = obs.misc_statistics["fish_caught"]
@@ -62,7 +69,7 @@ class FishingBySoundWrapper(gym.Wrapper):
         self.caught_fish.append(fish_caught)
 
         if self.caught_fish[0] < self.caught_fish[1]:
-            reward = 1.0
+            reward += 1.0
             # terminated = True
 
         # Durability
@@ -87,6 +94,7 @@ class FishingBySoundWrapper(gym.Wrapper):
         sound_vector = self.encode_sound(sound_subtitles)
         self.caught_fish = deque(maxlen=2)
         self.caught_fish.append(0)
+        self.next_action = 1
         return np.array(sound_vector, dtype=np.float32)
 
     @staticmethod
@@ -117,7 +125,7 @@ class FishingBySoundWrapper(gym.Wrapper):
 
 
 def main():
-    env = FishingBySoundWrapper()
+    env = FishingBySoundReferenceWrapper()
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
@@ -148,7 +156,7 @@ def main():
         env_name="FishingSound-5-2",
         agent=agent,
         max_steps_per_episode=num_steps_per_episode,
-        num_episodes=3000,
+        num_episodes=1000,
         warmup_episodes=0,
         epsilon_init=1.0,
         epsilon_min=0.01,
