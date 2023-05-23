@@ -1,4 +1,7 @@
+from collections import deque
+
 import gym
+import numpy as np
 import torch
 
 from ppo import PPO
@@ -6,9 +9,11 @@ from ppo import PPO
 
 def main():
     ################################## set device ##################################
-    print("============================================================================================")
+    print(
+        "============================================================================================"
+    )
     if torch.cuda.is_available():
-        device = torch.device('cuda:0')
+        device = torch.device("cuda:0")
         torch.cuda.empty_cache()
     elif torch.has_mps:
         device = torch.device("mps")
@@ -16,11 +21,12 @@ def main():
         device = torch.device("cpu")
     print("Device set to : " + device.type)
     # Create the environment
-    env = gym.make('CartPole-v1', render_mode='human')
+    env = gym.make("CartPole-v1", render_mode="human")
 
     max_ep_len = 1000
     update_timestep = max_ep_len * 4
     max_training_timesteps = int(3e6)
+    rewards = deque(maxlen=100)
 
     # Create and train the PPO agent
     agent = PPO(
@@ -55,11 +61,16 @@ def main():
             if time_step % update_timestep == 0:
                 print("Updating")
                 agent.update()
-            if episode % 10 == 0:
-                env.render()
+            # if episode % 10 == 0:
+            #     print(f"render {episode=}")
+            #     env.render()
             state = next_state
         episode += 1
-        print(f"Episode {episode + 1} completed with reward {total_reward}. with count {time_step}")
+        rewards.append(total_reward)
+        if episode % 10 == 0:
+            print(
+                f"Episode {episode + 1} completed with reward {total_reward}, average reward {np.mean(rewards)}"
+            )
 
     # Evaluate the trained agent
     state, info = env.reset()
@@ -78,6 +89,6 @@ def main():
     env.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     torch.autograd.set_detect_anomaly(True)
     main()
