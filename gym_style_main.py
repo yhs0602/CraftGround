@@ -109,7 +109,7 @@ if __name__ == "__main__":
         num_steps = 0
         for step in range(max_steps_per_episode):
             start_time = time.time()
-            action = agent.select_action(state, epsilon)
+            action = agent.select_action(state, testing=False, epsilon=epsilon)
             next_state, reward, terminated, truncated, info = env.step(action)
             episode_reward += reward
 

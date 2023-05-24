@@ -7,6 +7,8 @@ import wandb
 from torch import nn, optim
 from torch.autograd import Variable
 
+from generic_wrapper_runner import Agent
+
 if torch.cuda.is_available():
     device = torch.device("cuda")
 elif torch.has_mps:
@@ -75,19 +77,20 @@ class ReplayBuffer:
         return state, action, next_state, reward, done  # tuple(map(torch.cat, batch))
 
 
-class DQNAgent:
+class DQNAgent(Agent):
     def __init__(
-        self,
-        state_dim,
-        action_dim,
-        hidden_dim,
-        kernel_size,
-        stride,
-        buffer_size,
-        batch_size,
-        gamma,
-        learning_rate,
+            self,
+            state_dim,
+            action_dim,
+            hidden_dim,
+            kernel_size,
+            stride,
+            buffer_size,
+            batch_size,
+            gamma,
+            learning_rate,
     ):
+        super().__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
@@ -111,7 +114,7 @@ class DQNAgent:
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.batch_size = batch_size
 
-    def select_action(self, state, epsilon, testing: bool):
+    def select_action(self, state, testing, epsilon, **kwargs):
         if np.random.rand() <= epsilon and not testing:
             # print("random action")
             return np.random.choice(self.action_dim)
@@ -233,14 +236,14 @@ class SoundDQN(nn.Module):
 
 class DQNSoundAgent(DQNAgent):
     def __init__(
-        self,
-        state_dim,
-        action_dim,
-        hidden_dim,
-        buffer_size,
-        batch_size,
-        gamma,
-        learning_rate,
+            self,
+            state_dim,
+            action_dim,
+            hidden_dim,
+            buffer_size,
+            batch_size,
+            gamma,
+            learning_rate,
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim
