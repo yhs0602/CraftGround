@@ -5,9 +5,9 @@ import time
 from collections import deque
 
 import numpy as np
+import wandb
 from gymnasium.wrappers.monitoring.video_recorder import VideoRecorder
 
-import wandb
 from mydojo.MyEnv import print_with_time
 
 
@@ -26,34 +26,20 @@ class Agent(abc.ABC):
         pass
 
 
-def x(warmup_episodes,
-      update_frequency,
-      epsilon_init,
-      epsilon_min,
-      epsilon_decay):
-    dqn_config = {
-        "warmup_episodes": warmup_episodes,
-        "update_frequency": update_frequency,
-        "epsilon_init": epsilon_init,
-        "epsilon_min": epsilon_min,
-        "epsilon_decay": epsilon_decay,
-    }
-
-
 class GenericWrapperRunner:
     def __init__(
-            self,
-            env,
-            env_name,
-            agent: Agent,
-            max_steps_per_episode,
-            num_episodes,
-            test_frequency,
-            solved_criterion,
-            after_wandb_init: callable,
-            resume: bool = False,
-            max_saved_models=2,
-            **extra_configs,
+        self,
+        env,
+        env_name,
+        agent: Agent,
+        max_steps_per_episode,
+        num_episodes,
+        test_frequency,
+        solved_criterion,
+        after_wandb_init: callable,
+        resume: bool = False,
+        max_saved_models=2,
+        **extra_configs,
     ):
         config = {
             "environment": env_name,
@@ -146,7 +132,9 @@ class GenericWrapperRunner:
                 action = self.select_action(episode, state, testing)
                 next_state, reward, terminated, truncated, info = self.env.step(action)
                 episode_reward += reward
-                self.after_step(step, state, action, next_state, reward, terminated, truncated, info)
+                self.after_step(
+                    step, state, action, next_state, reward, terminated, truncated, info
+                )
 
                 if terminated:
                     break
@@ -173,7 +161,7 @@ class GenericWrapperRunner:
                 "avg_score": avg_score,
             }
             thing_to_log.update(self.get_extra_log_info())
-            print(' '.join(['{0}={1}'.format(k, v) for k, v in thing_to_log.items()]))
+            print(" ".join(["{0}={1}".format(k, v) for k, v in thing_to_log.items()]))
             if testing:
                 video_recorder.close()
                 wandb.log({"test/score": episode_reward, "test/step": episode})
@@ -198,7 +186,9 @@ class GenericWrapperRunner:
     def select_action(self, episode, state, testing):
         return self.agent.select_action(state, testing)
 
-    def after_step(self, step, state, action, next_state, reward, terminated, truncated, info):
+    def after_step(
+        self, step, state, action, next_state, reward, terminated, truncated, info
+    ):
         pass
 
     def after_episode(self, avg_score):
@@ -206,121 +196,3 @@ class GenericWrapperRunner:
 
     def get_extra_log_info(self):
         return {}
-
-
-class DQNWrapperRunner(GenericWrapperRunner):
-    def __init__(
-            self,
-            env,
-            env_name,
-            agent: 'DQNAgent',
-            max_steps_per_episode,
-            num_episodes,
-            test_frequency,
-            solved_criterion,
-            after_wandb_init: callable,
-            warmup_episodes,
-            update_frequency,
-            epsilon_init,
-            epsilon_min,
-            epsilon_decay,
-            resume: bool = False,
-            max_saved_models=2,
-    ):
-        import models.dqn
-        def after_wandb_init_fn():
-            models.dqn.after_wandb_init()
-            after_wandb_init()
-
-        super().__init__(
-            env,
-            env_name,
-            agent,
-            max_steps_per_episode,
-            num_episodes,
-            test_frequency,
-            solved_criterion,
-            after_wandb_init_fn,
-            resume,
-            max_saved_models,
-            warmup_episodes=warmup_episodes,
-            update_frequency=update_frequency,
-            epsilon_init=epsilon_init,
-            epsilon_min=epsilon_min,
-            epsilon_decay=epsilon_decay,
-        )
-        self.epsilon = epsilon_init
-        self.epsilon_min = epsilon_min
-        self.epsilon_decay = epsilon_decay
-        self.warmup_episodes = warmup_episodes
-        self.update_frequency = update_frequency
-
-    def select_action(self, episode, state, testing):
-        if episode < self.warmup_episodes:
-            action = self.env.action_space.sample()
-        else:
-            action = self.agent.select_action(state, testing, epsilon=self.epsilon)
-        return action
-
-    def after_step(self, step, state, action, next_state, reward, terminated, truncated, info):
-        self.agent.add_experience(state, action, next_state, reward, terminated)
-        self.agent.update_model()
-        if step % self.update_frequency == 0:
-            self.agent.update_target_model()  # important! FIXME: step ranges from 0 to max_steps_per_episode;
-
-    def after_episode(self, episode):
-        if episode >= self.warmup_episodes:
-            self.epsilon = max(self.epsilon_min, self.epsilon_decay * self.epsilon)
-
-    def get_extra_log_info(self):
-        return {
-            "epsilon": self.epsilon
-        }
-
-
-def main():
-    from wrappers.EscapeHuskBySoundWithPlayerWrapper import EscapeHuskBySoundWithPlayerWrapper
-    env = EscapeHuskBySoundWithPlayerWrapper()
-    buffer_size = 1000000
-    batch_size = 256
-    gamma = 0.99
-    learning_rate = 0.0001  # 0.001은 너무 크다
-    update_freq = 1000  # 에피소드 여러 개 하면서 학습하게 1000 이렇게 하고 줄이기
-    hidden_dim = 128  # 128정도 해보기
-    # weight_decay = 0.0001
-    state_dim = env.observation_space.shape
-    action_dim = env.action_space.n
-    from models.dqn import DQNSoundAgent
-    agent = DQNSoundAgent(
-        state_dim,
-        action_dim,
-        hidden_dim,
-        buffer_size,
-        batch_size,
-        gamma,
-        learning_rate,
-        # weight_decay=weight_decay,
-    )
-    runner = DQNWrapperRunner(
-        env,
-        env_name="HuskSound-6-6-yaw",
-        agent=agent,
-        max_steps_per_episode=400,
-        num_episodes=700,
-        test_frequency=10,
-        solved_criterion=lambda avg_score, episode: avg_score >= 190.0
-                                                    and episode >= 300,
-        after_wandb_init=lambda *args: None,
-        warmup_episodes=0,
-        update_frequency=update_freq,
-        epsilon_init=1.0,
-        epsilon_min=0.01,
-        epsilon_decay=0.99,
-        resume=False,
-        max_saved_models=2,
-    )
-    runner.run_wrapper(record_video=True)
-
-
-if __name__ == "__main__":
-    main()

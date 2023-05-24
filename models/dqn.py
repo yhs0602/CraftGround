@@ -7,7 +7,7 @@ import wandb
 from torch import nn, optim
 from torch.autograd import Variable
 
-from generic_wrapper_runner import Agent
+from wrapper_runners.generic_wrapper_runner import Agent
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -79,16 +79,16 @@ class ReplayBuffer:
 
 class DQNAgent(Agent):
     def __init__(
-            self,
-            state_dim,
-            action_dim,
-            hidden_dim,
-            kernel_size,
-            stride,
-            buffer_size,
-            batch_size,
-            gamma,
-            learning_rate,
+        self,
+        state_dim,
+        action_dim,
+        hidden_dim,
+        kernel_size,
+        stride,
+        buffer_size,
+        batch_size,
+        gamma,
+        learning_rate,
     ):
         super().__init__()
         self.state_dim = state_dim
@@ -236,14 +236,14 @@ class SoundDQN(nn.Module):
 
 class DQNSoundAgent(DQNAgent):
     def __init__(
-            self,
-            state_dim,
-            action_dim,
-            hidden_dim,
-            buffer_size,
-            batch_size,
-            gamma,
-            learning_rate,
+        self,
+        state_dim,
+        action_dim,
+        hidden_dim,
+        buffer_size,
+        batch_size,
+        gamma,
+        learning_rate,
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim
