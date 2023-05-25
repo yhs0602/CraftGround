@@ -1,5 +1,12 @@
 syntax = "proto3";
 
+message BlockState {
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+  string block_state = 4; // minecraft:andesite_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]
+}
+
 message InitialEnvironmentMessage {
   repeated string initialInventoryCommands = 1;
   repeated int32 initialPosition = 2;
@@ -18,4 +25,5 @@ message InitialEnvironmentMessage {
   repeated string killedStatKeys = 15;
   repeated string minedStatKeys = 16;
   repeated string miscStatKeys = 17;
+  repeated BlockState initialBlockStates = 18;
 }
