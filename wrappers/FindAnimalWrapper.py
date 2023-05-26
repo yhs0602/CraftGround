@@ -46,7 +46,7 @@ class FindAnimalWrapper(gym.Wrapper):
             initialPosition=None,  # nullable
             initialMobsCommands=[
                 # "minecraft:sheep",
-                "minecraft:sheep ~ ~ ~4",
+                # "minecraft:sheep ~ ~ ~4",
                 # player looks at south (positive Z) when spawn
             ],
             imageSizeX=114,
@@ -62,8 +62,8 @@ class FindAnimalWrapper(gym.Wrapper):
             isWorldFlat=True,  # superflat world
             obs_keys=["sound_subtitles"],
             initialExtraCommands=[
-                "tp @p 0 -58 0",  # tp player
-                "fill ~-5 ~-2 ~-5 ~5 ~2 ~5 minecraft:glass hollow",  # make a cage
+                "tp @p 0 -59 0",  # tp player
+                "fill ~-5 ~-1 ~-5 ~5 ~2 ~5 minecraft:glass hollow",  # make a cage
                 "fill ~-4 ~-1 ~-4 ~-1 ~-1 ~-1 minecraft:acacia_fence outline",  # make a cage
                 "fill ~1 ~-1 ~1 ~4 ~-1 ~4 minecraft:acacia_fence outline",  # make a cage
                 "fill ~-4 ~-1 ~1 ~-1 ~-1 ~4 minecraft:acacia_fence outline",  # make a cage
@@ -73,6 +73,12 @@ class FindAnimalWrapper(gym.Wrapper):
                 "fill ~-3 ~-1 ~2 ~-2 ~-1 ~3 minecraft:air outline",  # make a cage
                 "fill ~2 ~-1 ~-3 ~3 ~-1 ~-2 minecraft:air outline",  # make a cage
                 "fill ~-5 ~2 ~-5 ~5 ~10 ~5 minecraft:air replace",  # make a cage
+                "summon minecraft:sheep ~3 ~ ~3",
+                "summon minecraft:sheep ~3 ~ ~3",
+                "summon minecraft:sheep 3 ~ ~3",
+                "summon minecraft:pig ~-3 ~ ~3",
+                "summon minecraft:pig ~-3 ~ ~3",
+                "summon minecraft:pig -3 ~ ~3",
             ],
         )
         super(FindAnimalWrapper, self).__init__(self.env)
