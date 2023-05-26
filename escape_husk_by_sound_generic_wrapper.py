@@ -1,3 +1,6 @@
+from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+
+
 def main():
     from wrappers.EscapeHuskBySoundWithPlayerWrapper import (
         EscapeHuskBySoundWithPlayerWrapper,
@@ -7,7 +10,7 @@ def main():
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
-    learning_rate = 0.0001  # 0.001은 너무 크다
+    learning_rate = 0.00005  # 0.001은 너무 크다
     update_freq = 1000  # 에피소드 여러 개 하면서 학습하게 1000 이렇게 하고 줄이기
     hidden_dim = 128  # 128정도 해보기
     # weight_decay = 0.0001
@@ -32,8 +35,9 @@ def main():
         max_steps_per_episode=400,
         num_episodes=700,
         test_frequency=10,
-        solved_criterion=lambda avg_score, episode: avg_score >= 190.0
-        and episode >= 300,
+        solved_criterion=lambda avg_score, test_score, episode: avg_score >= 190.0
+        if avg_score is not None
+        else False and episode >= 300,
         after_wandb_init=lambda *args: None,
         warmup_episodes=0,
         update_frequency=update_freq,

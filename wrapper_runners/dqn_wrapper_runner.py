@@ -1,4 +1,4 @@
-from generic_wrapper_runner import GenericWrapperRunner
+from wrapper_runners.generic_wrapper_runner import GenericWrapperRunner
 
 
 class DQNWrapperRunner(GenericWrapperRunner):
@@ -57,15 +57,26 @@ class DQNWrapperRunner(GenericWrapperRunner):
         return action
 
     def after_step(
-        self, step, state, action, next_state, reward, terminated, truncated, info
+        self,
+        step,
+        state,
+        action,
+        next_state,
+        reward,
+        terminated,
+        truncated,
+        info,
+        testing,
     ):
+        if testing:
+            return
         self.agent.add_experience(state, action, next_state, reward, terminated)
         self.agent.update_model()
         if step % self.update_frequency == 0:
             self.agent.update_target_model()  # important! FIXME: step ranges from 0 to max_steps_per_episode;
 
-    def after_episode(self, episode):
-        if episode >= self.warmup_episodes:
+    def after_episode(self, episode, testing: bool):
+        if episode >= self.warmup_episodes and not testing:
             self.epsilon = max(self.epsilon_min, self.epsilon_decay * self.epsilon)
 
     def get_extra_log_info(self):

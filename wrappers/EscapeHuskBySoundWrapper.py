@@ -18,6 +18,8 @@ class EscapeHuskBySoundWrapper(gym.Wrapper):
             initialMobsCommands=[
                 # "minecraft:sheep",
                 "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                "minecraft:husk ~5 ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                "minecraft:husk ~-5 ~ ~-5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
                 # player looks at south (positive Z) when spawn
             ],
             imageSizeX=114,
@@ -103,7 +105,7 @@ def main():
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
-    learning_rate = 0.001
+    learning_rate = 0.0001
     update_freq = 25
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
