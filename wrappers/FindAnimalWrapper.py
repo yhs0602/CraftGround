@@ -1,3 +1,4 @@
+import random
 from typing import SupportsFloat, Any, List
 
 import gymnasium as gym
@@ -41,6 +42,36 @@ def encode_sound(
 
 class FindAnimalWrapper(gym.Wrapper):
     def __init__(self):
+        build_cage_comands = [
+            "tp @p 0 -59 0",  # tp player
+            "fill ~-15 ~-1 ~-15 ~15 ~2 ~15 minecraft:hay_block hollow",  # make a cage
+            "fill ~-14 ~-1 ~-14 ~-11 ~-1 ~-11 minecraft:acacia_fence outline",  # make a cage
+            "fill ~11 ~-1 ~11 ~14 ~-1 ~14 minecraft:acacia_fence outline",  # make a cage
+            "fill ~-14 ~-1 ~11 ~-11 ~-1 ~14 minecraft:acacia_fence outline",  # make a cage
+            "fill ~11 ~-1 ~-14 ~14 ~-1 ~-11 minecraft:acacia_fence outline",  # make a cage
+            "fill ~-13 ~-1 ~-13 ~-12 ~-1 ~-12 minecraft:air outline",  # make a cage
+            "fill ~12 ~-1 ~12 ~13 ~-1 ~13 minecraft:air outline",  # make a cage
+            "fill ~-13 ~-1 ~12 ~-12 ~-1 ~13 minecraft:air outline",  # make a cage
+            "fill ~12 ~-1 ~-13 ~13 ~-1 ~-12 minecraft:air outline",  # make a cage
+            "fill ~-15 ~2 ~-15 ~15 ~10 ~15 minecraft:air replace",  # make a cage
+        ]
+
+        def summon_animal_commands(animal, x, z):
+            return f"summon minecraft:{animal} ~{x} ~ ~{z}"
+
+        coords = [
+            (13, 13),
+            (13, -13),
+            (-13, 13),
+            (-13, -13),
+        ]
+        random.shuffle(coords)
+        summon_animal_commands_list = [
+            summon_animal_commands("sheep", coords[0][0], coords[0][1]),
+            summon_animal_commands("pig", coords[1][0], coords[1][1]),
+            summon_animal_commands("chicken", coords[2][0], coords[2][1]),
+        ] * 3
+
         self.env = mydojo.make(
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
@@ -51,8 +82,8 @@ class FindAnimalWrapper(gym.Wrapper):
             ],
             imageSizeX=114,
             imageSizeY=64,
-            visibleSizeX=114,
-            visibleSizeY=64,
+            visibleSizeX=342,
+            visibleSizeY=192,
             seed=12345,  # nullable
             allowMobSpawn=False,
             alwaysDay=True,
@@ -61,25 +92,7 @@ class FindAnimalWrapper(gym.Wrapper):
             isHardCore=False,
             isWorldFlat=True,  # superflat world
             obs_keys=["sound_subtitles"],
-            initialExtraCommands=[
-                "tp @p 0 -59 0",  # tp player
-                "fill ~-5 ~-1 ~-5 ~5 ~2 ~5 minecraft:glass hollow",  # make a cage
-                "fill ~-4 ~-1 ~-4 ~-1 ~-1 ~-1 minecraft:acacia_fence outline",  # make a cage
-                "fill ~1 ~-1 ~1 ~4 ~-1 ~4 minecraft:acacia_fence outline",  # make a cage
-                "fill ~-4 ~-1 ~1 ~-1 ~-1 ~4 minecraft:acacia_fence outline",  # make a cage
-                "fill ~1 ~-1 ~-4 ~4 ~-1 ~-1 minecraft:acacia_fence outline",  # make a cage
-                "fill ~-3 ~-1 ~-3 ~-2 ~-1 ~-2 minecraft:air outline",  # make a cage
-                "fill ~2 ~-1 ~2 ~3 ~-1 ~3 minecraft:air outline",  # make a cage
-                "fill ~-3 ~-1 ~2 ~-2 ~-1 ~3 minecraft:air outline",  # make a cage
-                "fill ~2 ~-1 ~-3 ~3 ~-1 ~-2 minecraft:air outline",  # make a cage
-                "fill ~-5 ~2 ~-5 ~5 ~10 ~5 minecraft:air replace",  # make a cage
-                "summon minecraft:sheep ~3 ~ ~3",
-                "summon minecraft:sheep ~3 ~ ~3",
-                "summon minecraft:sheep 3 ~ ~3",
-                "summon minecraft:pig ~-3 ~ ~3",
-                "summon minecraft:pig ~-3 ~ ~3",
-                "summon minecraft:pig -3 ~ ~3",
-            ],
+            initialExtraCommands=build_cage_comands + summon_animal_commands_list,
         )
         super(FindAnimalWrapper, self).__init__(self.env)
         self.action_space = gym.spaces.Discrete(6)
@@ -101,7 +114,7 @@ class FindAnimalWrapper(gym.Wrapper):
         reward = 1  # initial reward
         if is_dead:  #
             if self.initial_env.isHardCore:
-                reward = -10000000
+                rewaㅈrd = -10000000
                 terminated = True
             else:  # send respawn packet
                 # pass

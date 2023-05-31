@@ -1,0 +1,200 @@
+% Copyright (c) 2013 Joost van Zwieten
+
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+
+% The above copyright notice and this permission notice shall be included in
+% all copies or substantial portions of the Software.
+
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+% THE SOFTWARE.
+%
+\documentclass{tudelftposter}
+
+% optional, makes QR code clickable
+\usepackage[implicit=false,bookmarks=false]{hyperref}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{diagbox}
+\usepackage{tabularx}
+\usepackage{longtable}
+\lstset{language = C}
+\usepackage{graphicx,changepage}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{kotex}
+\usepackage{xcolor}
+\usepackage{color}
+\usepackage{caption}
+\usepackage{minted}
+\usepackage{svg}
+\usepackage{cclicenses}
+
+
+\usepackage{setspace}
+
+\hypersetup{%
+  colorlinks=true,% hyperlinks will be black
+  linkbordercolor=red,% hyperlink borders will be red
+  pdfborderstyle={/S/U/W 2}% border style will be underline of width 1pt
+}
+
+
+\doublespacing
+\graphicspath{./img/}
+\title{윈도우즈 시스템에서 집중방해요소 차단 기술\\
+\large 네트워크 패킷(packet) 차단과 프로세스 제어}
+
+\addauthornote{mail}[@]{\ttfamily yhs0602@snu.ac.kr}
+% \addauthornote{diam}{Delft Institute of Applied Mathematics, TU Delft}
+% \addauthornote{tp}{Department of Theoretical Physics, TU Delft}
+
+% \addauthor[mail,diam]{J.F. Nash}
+% \addauthor[diam,tp]{C.F. Gau{\ss}}
+\addauthor{2019-13674 양현서}
+% \addauthor[tp]{R.P. Feynman}
+
+% \addfootimage(c:right column.center)[Delft Institute of Applied Mathematics]{tudelft}
+% \ifqrcodessupported
+%   % NOTE: compile this document with lualatex instead of pdflatex
+%   \addfootqrcode(l:left column.left)[tudelft-poster repository]{http://github.com/joostvanzwieten/tudelft-poster}
+% \else
+%   \addfootobject*(l:left column.left)[research web page]{%
+%     \begin{tikzpicture}
+%       \node[red,draw,inner sep=1ex] {%
+%         \begin{minipage}{15cm}
+%           \footnotesize%
+%           Please compile this document with lualatex to see a QR code here:\\
+%           \null\texttt{\quad lualatex \jobname}
+%         \end{minipage}};
+%     \end{tikzpicture}}
+% \fi
+
+\begin{document}
+
+% \SetSerifFonts{gt}{gt}
+% \SetSansFonts{mj}{mj}
+\section{서론}
+\subsection{연구 주제}
+윈도우 환경에서 온라인 학습 집중 보조를 위해 필요한 네트워크 패킷(packet) 차단과 프로세스 제어 기술을 연구한다.
+
+\subsection{연구 동기 및 목적}
+\begin{enumerate}
+  \item 온라인 수업이 증가하면서 집중을 도와주는 솔루션의 개발이 절실하나, 소수의 솔루션만이 제공되어 소비자의 선택의 폭이 좁다.
+  \item 집중방해요소 차단 솔루션을 구현하려면 특수 권한 접근을 위해 NT 레거시 드라이버 개발이 필수적이지만 이를 구현하기 위한 기술인 DDK(Driver Development Kit)는 진입 장벽이 높다.
+\end{enumerate}
+이에 따라 집중방해요소 차단 솔루션을 제작할 때 필요한 부분을 집중적으로 연구하는 것이 이 연구의 목적이다.
+
+\section{이론적 배경}
+\subsection{API(Application Programming Inverface)}
+API란 응용프로그램이 특별한 기능을 사용할 수 있도록 운영체제가 제공하는 기능의 집합이다.
+\subsection{보호 링과 윈도우 드라이버 모델}
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=.23\textwidth]{Priv_rings}
+%   \caption{특권 레벨이 높은 작업을 하기 위해서는 디바이스 드라이버가 필요하다. \bysa}
+%   \label{fig:test}
+% \end{figure}
+높은 특권을 가진 링 0에서 동작하는 프로그램을 개발하기 위해서는 DDK라는 특별한 API를 사용하여야 하며, 윈도우 드라이버 모델이 이러한 API를 제공한다.
+
+\subsection{WFP(Windows Filtering Platform)}
+WFP는 네트워크 필터링 기능을 제공하는 응용 프로그램을 만들기 쉽도록 윈도우가 제공하는 API의 모음이다.
+
+\subsection{콜백함수}
+콜백함수란 특정 사건이 발생했을 때 실행하게 설정하는 개발자가 정의한 코드이다.
+
+\section{연구 방법}
+\begin{enumerate}
+  \item 윈도우 디바이스 드라이버를 개발하는 방법 연구 : 윈도우 디바이스 드라이버를 개발하기 위한 지식이 담긴 도서(윈도우 디바이스 드라이버)를 조사하여 정리한다. 기본적인 기능을 가진 윈도우 디바이스 드라이버를 생성하여 제어하는 방법을 실험하고 정리한다.
+  \item 방화벽 개발 관련 정보를 참고하여 네트워크 필터링 방법 연구: 네트워크 패킷(packet) 필터링을 구현한 라이브러리를 조사하여 구현을 분석하거나 해당 라이브러리를 이용하는 방법을 연구하고 테스트한다.
+  \item 백신 개발 관련 정보를 참고하여 프로세스 필터링 방법 연구: 오픈 소스 백신 소프트웨어의 소소 크도나 Windows API 문서를 참조하여 프로세스 필터링 프로그램을 개발하여 테스트한다.
+\end{enumerate}
+
+\section{연구 결과}
+연구 결과, 다음과 같이 구성하여 개발하면 네트워크 패킷 차단 및 프로세스 제어 기능을 구현할 수 있다는 결론을 내려 예시 응용 프로그램을 개발하였다.
+\subsection{구조도}
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=.3\textwidth]{result_revised}
+%   \caption{연구 결과 시스템 개념도.}
+%   \label{fig:result}
+% \end{figure}
+
+\begin{enumerate}
+  \item \href{https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol}{DeviceIoControl} (마셜링 이용) 프로세스 차단 목록 관리
+  \item \href{https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine}{PsSetCreateProcessNotifyRoutine}으로 콜백 함수 등록
+  \item 프로세스 실행 시 운영체제가 콜백 함수 호출
+  \item 드라이버가 차단 목록에 의해 프로세스 실행 허용/차단
+  \item 네트워크 감시 기능 실행/중지, 차단 사이트 관리
+  \item \href{https://reqrypt.org/windivert.html}{WinDivert} 라이브러리 이용
+  \item WinDivert 드라이버 로드 및 제어
+  \item \href{https://docs.microsoft.com/ko-kr/windows/win32/fwp/windows-filtering-platform-start-page}{Windows 필터링 플랫폼}에 WinDivert.sys 드라이버 등록
+  \item 네이티브 네트워크 API 호출
+\end{enumerate}
+
+다음은 프로그램 실행 결과이다. 예시의 의도대로 메모장 실행이 차단되는 것을 볼 수 있다.
+
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=.35\textwidth]{block}
+%   \caption{디바이스 드라이버가 메모장 실행을 차단한 모습. 메모장 프로세스는 생성되지 않으며, 메모장 실행이 차단되었다는 로그가 출력된다.}
+%   \label{fig:block}
+% \end{figure}
+
+\subsection{연구 결과 소스 코드 저장소}
+\href{https://github.com/KYHSGeekCode/Self-Protecting-Driver}{Github}에서 본 포스터의 소스 코드를 탐색할 수 있다. 해당 저장소의 주소는 다음과 같다.
+\href{https://github.com/KYHSGeekCode/Self-Protecting-Driver}{https://github.com/KYHSGeekCode/Self-Protecting-Driver}
+% \subsection{네트워크 패킷 차단}
+% 네트워크 패킷을 중간에서 감시하기 위해서 IP Filter driver를 후킹하는 방법이 있다. WinDivert 라이브러리가 해당 기능을 구현하였다. Windows Filtering Platform (WFP)를 이용하여 
+% FwpmSubLayerAdd0
+% \subsection{프로세스 생성 제어}
+% \subsubsection{콜백함수 등록}
+% \lstinline{PsSetCreateProcessNotifyRoutineEx} 함수를 이용하면 윈도우즈 시스템 내에서 프로세스가 생성될 때 실행할 콜백함수를 설정할 수 있다. \lstinline{DriverEntty}에서 호출되는 \lstinline{InstallProcessProtect} 함수에서는 이 함수를 이용하여 콜백함수를 등록한다.
+% \lstinline{대상 프로세스 탐지}
+% \lstinline[breaklines=true]{VOID ProcessNotifyCallbackEx(PEPROCESS  Process, HANDLE  ProcessId,	PPS_CREATE_NOTIFY_INFO CreateInfo)} 함수에서는 등록된 프로세스 경로 패턴과 현재 실행되려하는 프로세스의 경로를 비교하여 차단과 허용 여부를 결정한다. 이 떄 \lstinline{FsRtlIsNameInExpression}함수를 이용한다. 이 함수를 사용할 때의 주의점은 ignorecase일 경우 패턴이 대문자여야 한다는 것이다.
+% 이제 차단하거나 허용할 프로세스 리스트를 관리하는 것에 초점을 맞추어 보자. 프로그램 실행 중에 언제든지 차단/허용 목록이 추가되거나 제거될 수 있다. 따라서 리스트 자료구조를 사용한다. 커널 레벨에서 동적 메모리 할당은 까다로운 작업이지만, ExAllocatePoolZero함수를 이용하여 메모리를 할당받을 수 있다. IRQL이 낮은 레벨인가 아무튼 잘 된다. 이 메모리를 해제할 때는 ExFreePool을 이용하면 된다. 또한 \lstinline{CONTAINING_RECORD} 사용법도 눈여겨보면 좋을 것이다.
+
+\section{한계점 및 논의}
+\subsection{HTTPS}
+HTTPS 환경에서는 패킷이 암호화되기 때문에 패킷을 감시하는 것만으로는 사용자가 접근하는 URL정보를 얻어오기 어렵다. 이 문제를 해결한다면 한 단계 더 나아갈 수 있을 것이다.
+
+\section{시사점}
+이 연구는 타 분야에 비해 자료를 이해하기 어려운 DDK를 이용한 NT 레거시 윈도우 디바이스 개발이라는 분야에 유용한 예시를 제공하며, 이 연구를 통해 작성한 구현을 이용하여 비대면 강의 시 학생들의 집중을 도와주는 솔루션을 만드는 데 큰 도움을 준다는 데서 의의가 있다.
+\bibliographystyle{unsrt}
+\begin{thebibliography}{1}
+    \bibitem{WDD2009}
+    이봉석, 『윈도우 디바이스 드라이버』, {\em 한빛미디어}, 2009.
+\end{thebibliography}
+
+
+\end{document}
+% \begin{equation}
+  %   \int_\Omega v_i \left(
+  %     u_{i,t} + u_j u_{i,j} + p_{,i} - R^{-1} u_{i,jj}
+  %   \right) =
+  %   \int_\Omega v_i f_i.
+  % \end{equation}
+  % \experimentalblockright{%
+%   SPAM:
+%   Nulla malesuada porttitor diam. Donec felis erat, congue non, volutpat at,
+%   tincidunt tristique, libero.}
+
+% vim: tw=80:ts=2:sts=2:sw=2:et:fdm=marker:fmr=[[[,]]]
+

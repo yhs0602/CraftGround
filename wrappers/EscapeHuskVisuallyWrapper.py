@@ -103,20 +103,23 @@ def main():
         learning_rate,
         # weight_decay=weight_decay,
     )
-    runner = WrapperRunner(
+    from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+
+    runner = DQNWrapperRunner(
         env,
         env_name="HuskVis-6",
         agent=agent,
         max_steps_per_episode=400,
         num_episodes=3000,
+        test_frequency=10,
+        solved_criterion=lambda avg_score, test_score, episode: False,  # avg_score >= 190.0              and episode >= 400,
+        after_wandb_init=lambda *args: None,
         warmup_episodes=0,
+        update_frequency=update_freq,
         epsilon_init=1.0,
         epsilon_min=0.01,
         epsilon_decay=0.99,
-        update_frequency=update_freq,
-        test_frequency=10,
-        solved_criterion=lambda avg_score, episode: avg_score >= 190.0
-        and episode >= 400,
+        resume=False,
     )
     runner.run_wrapper(record_video=True)
 
