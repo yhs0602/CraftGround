@@ -6,7 +6,7 @@ class PPOWrapperRunner(GenericWrapperRunner):
         self,
         env,
         env_name,
-        agent: "DQNAgent",
+        agent: "PPOAgent",
         max_steps_per_episode,
         num_episodes,
         test_frequency,
@@ -32,17 +32,7 @@ class PPOWrapperRunner(GenericWrapperRunner):
             after_wandb_init_fn,
             resume,
             max_saved_models,
-            warmup_episodes=warmup_episodes,
-            update_frequency=update_frequency,
-            epsilon_init=epsilon_init,
-            epsilon_min=epsilon_min,
-            epsilon_decay=epsilon_decay,
         )
-        self.epsilon = epsilon_init
-        self.epsilon_min = epsilon_min
-        self.epsilon_decay = epsilon_decay
-        self.warmup_episodes = warmup_episodes
-        self.update_frequency = update_frequency
 
     def select_action(self, episode, state, testing):
         if episode < self.warmup_episodes:
@@ -59,7 +49,7 @@ class PPOWrapperRunner(GenericWrapperRunner):
         if step % self.update_frequency == 0:
             self.agent.update_target_model()  # important! FIXME: step ranges from 0 to max_steps_per_episode;
 
-    def after_episode(self, episode):
+    def after_episode(self, episode, testing: bool):
         if episode >= self.warmup_episodes:
             self.epsilon = max(self.epsilon_min, self.epsilon_decay * self.epsilon)
 

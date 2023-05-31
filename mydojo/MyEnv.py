@@ -33,6 +33,7 @@ class MyEnv(gym.Env):
         self.sock = None
         self.buffered_socket = None
         self.last_rgb_frame = None
+        self.last_action = None
 
     def reset(
         self,
@@ -151,6 +152,7 @@ class MyEnv(gym.Env):
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
+        self.last_action = action
         send_action2(self.sock, action)
         # read the response
         print_with_time("Sent action and reading response...")
@@ -161,6 +163,7 @@ class MyEnv(gym.Env):
 
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
         # print("Rendering...")
+
         return self.last_rgb_frame
 
     @property

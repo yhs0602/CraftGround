@@ -113,85 +113,143 @@ class GenericWrapperRunner:
         recent_scores = deque(maxlen=30)
         scores = []
         avg_scores = []
+        avg_score = None
+        test_score = None
         for episode in range(initial_episode, self.num_episodes):
-            self.before_episode(episode)
             testing = episode % self.test_frequency == 0
-            if testing and record_video:
-                video_recorder = VideoRecorder(self.env, f"video{episode}.mp4")
-
-            state = self.env.reset(fast_reset=True)
-            print_with_time("Finished resetting the environment")
-            episode_reward = 0
-            sum_time = 0
-            num_steps = 0
-            for step in range(self.max_steps_per_episode):
-                start_time = time.time()
-                if testing and record_video:
-                    video_recorder.capture_frame()
-
-                action = self.select_action(episode, state, testing)
-                next_state, reward, terminated, truncated, info = self.env.step(action)
-                episode_reward += reward
-                self.after_step(
-                    step, state, action, next_state, reward, terminated, truncated, info
-                )
-
-                if terminated:
-                    break
-
-                state = next_state
-                elapsed_time = time.time() - start_time
-                # print(f"Step {step} took {elapsed_time:.5f} seconds")
-                sum_time += elapsed_time
-                num_steps += 1
-
-            if num_steps == 0:
-                num_steps = 1
-            print(
-                f"Seconds per episode{episode}: {sum_time}/{num_steps}={sum_time / num_steps:.5f} seconds"
-            )
-
-            scores.append(episode_reward)
-            recent_scores.append(episode_reward)
-            avg_score = np.mean(recent_scores)
-            avg_scores.append(avg_score)
-            thing_to_log = {
-                "episode": episode,
-                "score": episode_reward,
-                "avg_score": avg_score,
-            }
-            thing_to_log.update(self.get_extra_log_info())
-            print(" ".join(["{0}={1}".format(k, v) for k, v in thing_to_log.items()]))
+            self.before_episode(episode, testing)
             if testing:
-                video_recorder.close()
-                wandb.log({"test/score": episode_reward, "test/step": episode})
+                test_score, num_steps, time_took, video_recorder = self.test_agent(
+                    episode, record_video
+                )
             else:
+                episode_reward, num_steps, time_took = self.train_agent(episode)
+                if num_steps == 0:
+                    num_steps = 1
+                scores.append(episode_reward)
+                recent_scores.append(episode_reward)
+                avg_score = np.mean(recent_scores)
+                avg_scores.append(avg_score)
+                thing_to_log = {
+                    "episode": episode,
+                    "score": episode_reward,
+                    "avg_score": avg_score,
+                }
+                thing_to_log.update(self.get_extra_log_info())
+                print(
+                    " ".join(["{0}={1}".format(k, v) for k, v in thing_to_log.items()])
+                )
                 wandb.log(thing_to_log)
 
-            self.after_episode(episode)
+            print(
+                f"Seconds per episode{episode}: {time_took}/{num_steps}={time_took / num_steps:.5f} seconds"
+            )
 
-            if self.solved_criterion(avg_score, episode):
+            self.after_episode(episode, testing)
+            if self.solved_criterion(avg_score, test_score, episode):
                 print(f"Solved in {episode} episodes!")
                 break
 
         self.env.close()
         wandb.finish()
 
+    def train_agent(self, episode):
+        state = self.env.reset(fast_reset=True)
+        print_with_time("Finished resetting the environment")
+        episode_reward = 0
+        sum_time = 0
+        num_steps = 0
+        for step in range(self.max_steps_per_episode):
+            start_time = time.time()
+            action = self.select_action(episode, state, False)
+            next_state, reward, terminated, truncated, info = self.env.step(action)
+            episode_reward += reward
+            self.after_step(
+                step,
+                state,
+                action,
+                next_state,
+                reward,
+                terminated,
+                truncated,
+                info,
+                False,
+            )
+
+            if terminated:
+                break
+
+            state = next_state
+            elapsed_time = time.time() - start_time
+            # print(f"Step {step} took {elapsed_time:.5f} seconds")
+            sum_time += elapsed_time
+            num_steps += 1
+        return episode_reward, num_steps, sum_time
+
+    def test_agent(self, episode, record_video):
+        if record_video:
+            video_recorder = VideoRecorder(self.env, f"video{episode}.mp4")
+        state = self.env.reset(fast_reset=True)
+        print_with_time("Finished resetting the environment")
+        episode_reward = 0
+        time_took = 0
+        num_steps = 0
+        for step in range(self.max_steps_per_episode):
+            start_time = time.time()
+            if record_video:
+                video_recorder.capture_frame()
+            action = self.select_action(episode, state, True)
+            # print(f"{state=}, {action=}")
+            next_state, reward, terminated, truncated, info = self.env.step(action)
+            episode_reward += reward
+            self.after_step(
+                step,
+                state,
+                action,
+                next_state,
+                reward,
+                terminated,
+                truncated,
+                info,
+                True,
+            )
+
+            if terminated:
+                break
+            state = next_state
+            elapsed_time = time.time() - start_time
+            # print(f"Step {step} took {elapsed_time:.5f} seconds")
+            time_took += elapsed_time
+            num_steps += 1
+        if record_video:
+            video_recorder.close()
+        wandb.log({"test/score": episode_reward, "test/step": episode})
+        return episode_reward, num_steps, time_took, video_recorder
+
     def before_training(self):
         pass
 
-    def before_episode(self, episode):
+    def before_episode(self, episode, testing: bool):
         pass
 
     def select_action(self, episode, state, testing):
         return self.agent.select_action(state, testing)
 
     def after_step(
-        self, step, state, action, next_state, reward, terminated, truncated, info
+        self,
+        step,
+        state,
+        action,
+        next_state,
+        reward,
+        terminated,
+        truncated,
+        info,
+        testing: bool,
     ):
         pass
 
-    def after_episode(self, avg_score):
+    def after_episode(self, episode, testing: bool):
         pass
 
     def get_extra_log_info(self):

@@ -114,7 +114,8 @@ class DQNAgent(Agent):
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.batch_size = batch_size
 
-    def select_action(self, state, testing, epsilon, **kwargs):
+    def select_action(self, state, testing, **kwargs):
+        epsilon = kwargs["epsilon"]
         if np.random.rand() <= epsilon and not testing:
             # print("random action")
             return np.random.choice(self.action_dim)
