@@ -6,7 +6,7 @@ def main():
         EscapeHuskBySoundWithPlayerWrapper,
     )
 
-    env = EscapeHuskBySoundWithPlayerWrapper()
+    env = EscapeHuskBySoundWithPlayerWrapper(verbose=True)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99

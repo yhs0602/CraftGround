@@ -11,8 +11,8 @@ from wrappers.EscapeHuskBySoundWrapper import EscapeHuskBySoundWrapper
 
 
 class EscapeHuskBySoundWithPlayerWrapper(EscapeHuskBySoundWrapper):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, verbose=False, env_path=None):
+        super().__init__(verbose, env_path)
         self.observation_space = gym.spaces.Box(
             low=-1, high=1, shape=(6,), dtype=np.float32
         )
