@@ -21,7 +21,7 @@ from .proto import observation_space_pb2, initial_environment_pb2
 
 
 class MyEnv(gym.Env):
-    def __init__(self, initial_env: InitialEnvironment):
+    def __init__(self, initial_env: InitialEnvironment, verbose=False, env_path=None):
         self.action_space = MyActionSpace(6)
         self.observation_space = gym.spaces.Box(
             low=0,
@@ -34,6 +34,16 @@ class MyEnv(gym.Env):
         self.buffered_socket = None
         self.last_rgb_frame = None
         self.last_action = None
+        self.verbose = verbose
+        if env_path is None:
+            self.env_path = os.path.join(
+                os.path.dirname(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                ),
+                "minecraft_env",
+            )
+        else:
+            self.env_path = env_path
 
     def reset(
         self,
@@ -90,9 +100,9 @@ class MyEnv(gym.Env):
         my_env["PORT"] = str(port)
         subprocess.Popen(
             "./gradlew runClient",
-            cwd="/Users/yanghyeonseo/gitprojects/minecraft_env",
+            cwd=self.env_path,
             shell=True,
-            stdout=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL if not self.verbose else None,
             env=my_env,
         )
         sock: socket.socket = wait_for_server(port)
