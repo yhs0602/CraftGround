@@ -59,6 +59,7 @@ class DQNWrapperRunner(GenericWrapperRunner):
     def after_step(
         self,
         step,
+        accum_steps,
         state,
         action,
         next_state,
@@ -72,7 +73,8 @@ class DQNWrapperRunner(GenericWrapperRunner):
             return
         self.agent.add_experience(state, action, next_state, reward, terminated)
         self.agent.update_model()
-        if step % self.update_frequency == 0:
+        if accum_steps % self.update_frequency == 0:
+            print(f"{accum_steps=}, {step=}, {self.update_frequency=}")
             self.agent.update_target_model()  # important! FIXME: step ranges from 0 to max_steps_per_episode;
 
     def after_episode(self, episode, testing: bool):

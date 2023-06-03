@@ -201,7 +201,6 @@ class SoundDQN(nn.Module):
         x = nn.functional.relu(self.bn1(self.fc1(x)))
         x = nn.functional.relu(self.bn2(self.fc2(x)))
         x = self.fc3(x)
-        x = nn.functional.softmax(x, dim=1)
         return x
 
     # def regularization_loss(self):

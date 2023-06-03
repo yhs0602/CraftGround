@@ -115,6 +115,7 @@ class GenericWrapperRunner:
         avg_scores = []
         avg_score = None
         test_score = None
+        accum_steps = 0
         for episode in range(initial_episode, self.num_episodes):
             testing = episode % self.test_frequency == 0
             self.before_episode(episode, testing)
@@ -123,7 +124,9 @@ class GenericWrapperRunner:
                     episode, record_video
                 )
             else:
-                episode_reward, num_steps, time_took = self.train_agent(episode)
+                episode_reward, num_steps, accum_steps, time_took = self.train_agent(
+                    episode, accum_steps
+                )
                 if num_steps == 0:
                     num_steps = 1
                 scores.append(episode_reward)
@@ -153,7 +156,7 @@ class GenericWrapperRunner:
         self.env.close()
         wandb.finish()
 
-    def train_agent(self, episode):
+    def train_agent(self, episode, accum_steps):
         state = self.env.reset(fast_reset=True)
         print_with_time("Finished resetting the environment")
         episode_reward = 0
@@ -164,8 +167,11 @@ class GenericWrapperRunner:
             action = self.select_action(episode, state, False)
             next_state, reward, terminated, truncated, info = self.env.step(action)
             episode_reward += reward
+            accum_steps += 1
+            num_steps += 1
             self.after_step(
                 step,
+                accum_steps,
                 state,
                 action,
                 next_state,
@@ -175,7 +181,6 @@ class GenericWrapperRunner:
                 info,
                 False,
             )
-
             if terminated:
                 break
 
@@ -183,8 +188,7 @@ class GenericWrapperRunner:
             elapsed_time = time.time() - start_time
             # print(f"Step {step} took {elapsed_time:.5f} seconds")
             sum_time += elapsed_time
-            num_steps += 1
-        return episode_reward, num_steps, sum_time
+        return episode_reward, num_steps, accum_steps, sum_time
 
     def test_agent(self, episode, record_video):
         if record_video:
@@ -203,6 +207,7 @@ class GenericWrapperRunner:
             next_state, reward, terminated, truncated, info = self.env.step(action)
             episode_reward += reward
             self.after_step(
+                step,
                 step,
                 state,
                 action,
@@ -238,6 +243,7 @@ class GenericWrapperRunner:
     def after_step(
         self,
         step,
+        accum_steps,
         state,
         action,
         next_state,
