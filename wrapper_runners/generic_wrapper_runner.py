@@ -9,6 +9,7 @@ import wandb
 from gymnasium.wrappers.monitoring.video_recorder import VideoRecorder
 
 from mydojo.MyEnv import print_with_time
+from dotenv import load_dotenv
 
 
 class Agent(abc.ABC):
@@ -51,6 +52,7 @@ class GenericWrapperRunner:
 
         config.update(agent.config)
         config.update(extra_configs)
+        load_dotenv()
         wandb.init(
             # set the wandb project where this run will be logged
             project="mydojo",
