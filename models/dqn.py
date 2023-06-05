@@ -265,6 +265,7 @@ class DQNSoundAgent(DQNAgent):
     @property
     def config(self):
         return {
+            "architecture": "DQN sound w bn",
             "state_dim": self.state_dim,
             "action_dim": self.action_dim,
             "hidden_dim": self.hidden_dim,

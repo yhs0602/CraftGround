@@ -44,7 +44,6 @@ class GenericWrapperRunner:
     ):
         config = {
             "environment": env_name,
-            "architecture": "DQNAgent",
             "max_steps_per_episode": max_steps_per_episode,
             "num_episodes": num_episodes,
             "test_frequency": test_frequency,
@@ -113,9 +112,12 @@ class GenericWrapperRunner:
         self.before_training()
 
         recent_scores = deque(maxlen=30)
+        recent_test_scores = deque(maxlen=10)
         scores = []
         avg_scores = []
+        avg_test_scores = []
         avg_score = None
+        avg_test_score = None
         test_score = None
         accum_steps = 0
         for episode in range(initial_episode, self.num_episodes):
@@ -125,6 +127,9 @@ class GenericWrapperRunner:
                 test_score, num_steps, time_took, video_recorder = self.test_agent(
                     episode, record_video
                 )
+                recent_test_scores.append(test_score)
+                avg_test_score = np.mean(recent_test_scores)
+                avg_test_scores.append(avg_test_score)
             else:
                 episode_reward, num_steps, accum_steps, time_took = self.train_agent(
                     episode, accum_steps
@@ -151,7 +156,7 @@ class GenericWrapperRunner:
             )
 
             self.after_episode(episode, testing)
-            if self.solved_criterion(avg_score, test_score, episode):
+            if self.solved_criterion(avg_score, test_score, avg_test_score, episode):
                 print(f"Solved in {episode} episodes!")
                 break
 

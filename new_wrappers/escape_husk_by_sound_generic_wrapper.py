@@ -6,7 +6,7 @@ def main():
         EscapeHuskBySoundWithPlayerWrapper,
     )
 
-    env = EscapeHuskBySoundWithPlayerWrapper(verbose=True)
+    env = EscapeHuskBySoundWithPlayerWrapper(verbose=False)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
@@ -35,7 +35,9 @@ def main():
         max_steps_per_episode=400,
         num_episodes=2000,
         test_frequency=20,
-        solved_criterion=lambda avg_score, test_score, episode: avg_score >= 195.0
+        solved_criterion=lambda avg_score, test_score, avg_test_score, episode: avg_score
+        >= 195.0
+        and avg_test_score >= 195.0
         and episode >= 1000
         and test_score == 200.0
         if avg_score is not None
