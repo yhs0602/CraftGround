@@ -244,19 +244,23 @@ class DQNSoundAgent(DQNAgent):
         batch_size,
         gamma,
         learning_rate,
+        weight_decay,
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
         self.buffer_size = buffer_size
         self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
         self.gamma = gamma
         self.policy_net = SoundDQN(state_dim, action_dim, hidden_dim).to(device)
         self.target_net = SoundDQN(state_dim, action_dim, hidden_dim).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
+        self.optimizer = optim.Adam(
+            self.policy_net.parameters(), lr=learning_rate, weight_decay=weight_decay
+        )
         self.loss_fn = nn.MSELoss()
 
         self.replay_buffer = ReplayBuffer(buffer_size)
@@ -275,4 +279,5 @@ class DQNSoundAgent(DQNAgent):
             "batch_size": self.batch_size,
             "optimizer": self.optimizer,
             "loss_fn": self.loss_fn,
+            "weight_decay": self.weight_decay,
         }

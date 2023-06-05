@@ -108,6 +108,7 @@ def main():
     learning_rate = 0.00003  # 0.001은 너무 크다
     update_freq = 2000  # 에피소드 여러 개 하면서 학습하게 1000 이렇게 하고 줄이기
     hidden_dim = 128  # 128정도 해보기
+    weight_decay = 1e-5
     # weight_decay = 0.0001
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
@@ -121,11 +122,11 @@ def main():
         batch_size,
         gamma,
         learning_rate,
-        # weight_decay=weight_decay,
+        weight_decay,
     )
     runner = DQNWrapperRunner(
         env,
-        env_name="1husk-sound_tri_angle",
+        env_name="1husk-sound_tri_angle-decay",
         agent=agent,
         max_steps_per_episode=400,
         num_episodes=2000,
