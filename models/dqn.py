@@ -89,6 +89,7 @@ class DQNAgent(Agent):
         batch_size,
         gamma,
         learning_rate,
+        weight_decay,
     ):
         super().__init__()
         self.state_dim = state_dim
@@ -98,6 +99,7 @@ class DQNAgent(Agent):
         self.stride = stride
         self.buffer_size = buffer_size
         self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
         self.gamma = gamma
         self.policy_net = CNNDQN(
             state_dim, action_dim, kernel_size, stride, hidden_dim
@@ -108,7 +110,9 @@ class DQNAgent(Agent):
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
+        self.optimizer = optim.Adam(
+            self.policy_net.parameters(), lr=learning_rate, weight_decay=weight_decay
+        )
         self.loss_fn = nn.MSELoss()
 
         self.replay_buffer = ReplayBuffer(buffer_size)
@@ -180,7 +184,8 @@ class DQNAgent(Agent):
             "kernel_size": self.kernel_size,
             "stride": self.stride,
             "buffer_size": self.buffer_size,
-            "learning_rage": self.learning_rate,
+            "learning_rate": self.learning_rate,
+            "weight_decay": self.weight_decay,
             "gamma": self.gamma,
             "batch_size": self.batch_size,
             "optimizer": self.optimizer,
