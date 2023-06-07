@@ -79,11 +79,19 @@ class Escape1HuskTriAngleWrapper(gym.Wrapper):
             if sound.x - x < -16 or sound.y - y < -16:
                 continue
             if sound.translate_key == "subtitles.entity.husk.ambient":
-                sound_vector[0] = (sound.x - x) / 16
-                sound_vector[1] = (sound.y - y) / 16
+                # normalize
+                dx = sound.x - x
+                dy = sound.y - y
+                distance = math.sqrt(dx * dx + dy * dy)
+                sound_vector[0] = dx / distance
+                sound_vector[1] = dy / distance
             elif sound.translate_key == "subtitles.block.generic.footsteps":
-                sound_vector[2] = (sound.x - x) / 16
-                sound_vector[3] = (sound.y - y) / 16
+                # normalize
+                dx = sound.x - x
+                dy = sound.y - y
+                distance = math.sqrt(dx * dx + dy * dy)
+                sound_vector[2] = dx / distance
+                sound_vector[3] = dy / distance
             elif sound.translate_key == "subtitles.entity.player.hurt":
                 sound_vector[4] = 1
         # Trigonometric encoding
@@ -105,8 +113,8 @@ def main():
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
-    learning_rate = 0.00001  # 0.001은 너무 크다
-    update_freq = 2400  # 에피소드 여러 개 하면서 학습하게 1000 이렇게 하고 줄이기
+    learning_rate = 0.00003  # 0.001은 너무 크다
+    update_freq = 2000  # 에피소드 여러 개 하면서 학습하게 1000 이렇게 하고 줄이기
     hidden_dim = 128  # 128정도 해보기
     weight_decay = 1e-5
     # weight_decay = 0.0001
@@ -126,7 +134,7 @@ def main():
     )
     runner = DQNWrapperRunner(
         env,
-        env_name="husk-sound-fixed",
+        env_name="1husk-sound_tri_angle-decay",
         agent=agent,
         max_steps_per_episode=400,
         num_episodes=2000,
