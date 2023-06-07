@@ -193,6 +193,41 @@ class DQNAgent(Agent):
         }
 
 
+class DDQNAgent(DQNAgent):
+    def update_model(self):
+        if len(self.replay_buffer) < self.batch_size:
+            return
+        # print("Will update model")
+        state, action, next_state, reward, done = self.replay_buffer.sample(
+            self.batch_size
+        )
+        state = state.to(device)
+        action = action.to(device)
+        reward = reward.to(device).squeeze(1)
+        next_state = next_state.to(device)
+        done = done.to(device).squeeze(1)
+
+        q_values = self.policy_net(state).gather(1, action.to(torch.int64)).squeeze(1)
+
+        next_q_values = self.policy_net(next_state).detach()
+
+        next_actions = next_q_values.max(1)[1]
+
+        next_q_target_values = self.target_net(next_state).detach()
+
+        next_q_values = next_q_target_values.gather(
+            1, next_actions.unsqueeze(1)
+        ).squeeze(1)
+
+        expected_q_values = reward + (1 - done) * self.gamma * next_q_values
+
+        loss = self.loss_fn(q_values, expected_q_values.detach())
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+
 class SoundDQN(nn.Module):
     def __init__(self, input_shape, num_actions, hidden_dim=128):
         super(SoundDQN, self).__init__()

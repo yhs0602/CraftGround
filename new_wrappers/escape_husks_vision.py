@@ -80,17 +80,19 @@ def main():
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
-    learning_rate = 0.0001  # 0.001은 너무 크다
+    learning_rate = 0.000004  # 0.001은 너무 크다
     update_freq = 2000  # 에피소드 여러 개 하면서 학습하게 1000 이렇게 하고 줄이기
     hidden_dim = 128  # 128정도 해보기
-    weight_decay = 1e-5
+    weight_decay = 1e-6
     kernel_size = 5
     stride = 2
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
     from models.dqn import DQNAgent
 
-    agent = DQNAgent(
+    from models.dqn import DDQNAgent
+
+    agent = DDQNAgent(
         state_dim,
         action_dim,
         hidden_dim,
@@ -104,7 +106,7 @@ def main():
     )
     runner = DQNWrapperRunner(
         env,
-        env_name="husk-vision-decay",
+        env_name="husks-vision-decay-ddqn",
         agent=agent,
         max_steps_per_episode=400,
         num_episodes=4000,
@@ -121,7 +123,7 @@ def main():
         update_frequency=update_freq,
         epsilon_init=1.0,
         epsilon_min=0.05,
-        epsilon_decay=0.999,
+        epsilon_decay=0.99,
         resume=False,
         max_saved_models=2,
     )
