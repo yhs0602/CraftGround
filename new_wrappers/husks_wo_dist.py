@@ -10,7 +10,7 @@ from mydojo.minecraft import int_to_action
 from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
 
 
-class HuskSoundWrapper(gym.Wrapper):
+class HusksSoundWrapper(gym.Wrapper):
     def __init__(self, verbose=False, env_path=None):
         self.env = mydojo.make(
             verbose=verbose,
@@ -20,6 +20,8 @@ class HuskSoundWrapper(gym.Wrapper):
             initialMobsCommands=[
                 # "minecraft:sheep",
                 "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                "minecraft:husk ~5 ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                "minecraft:husk ~-5 ~ ~-5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
                 # player looks at south (positive Z) when spawn
             ],
             imageSizeX=114,
@@ -109,7 +111,7 @@ class HuskSoundWrapper(gym.Wrapper):
 
 
 def main():
-    env = HuskSoundWrapper(verbose=False)
+    env = HusksSoundWrapper(verbose=False)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
@@ -134,7 +136,7 @@ def main():
     )
     runner = DQNWrapperRunner(
         env,
-        env_name="husk_wo_dist",
+        env_name="husks_wo_dist",
         agent=agent,
         max_steps_per_episode=400,
         num_episodes=2000,
