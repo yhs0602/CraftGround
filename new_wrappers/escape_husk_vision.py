@@ -83,14 +83,12 @@ def main():
     hidden_dim = 128  # 128정도 해보기
     weight_decay = 1e-6
     kernel_size = 5
-    stride = 2
+    stride = 1
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
     from models.dqn import DQNAgent
 
-    from models.dqn import DDQNAgent
-
-    agent = DDQNAgent(
+    agent = DQNAgent(
         state_dim,
         action_dim,
         hidden_dim,
@@ -104,7 +102,7 @@ def main():
     )
     runner = DQNWrapperRunner(
         env,
-        env_name="husk-vision-decay-ddqn",
+        env_name="husk-vision",
         agent=agent,
         max_steps_per_episode=400,
         num_episodes=4000,
