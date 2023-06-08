@@ -36,8 +36,9 @@ def encode_sound(sound_subtitles: List, x: float, y: float, yaw: float) -> List[
                 dx = sound.x - x
                 dy = sound.y - y
                 distance = math.sqrt(dx * dx + dy * dy)
-                sound_vector[idx * 2] = dx / distance
-                sound_vector[idx * 2 + 1] = dy / distance
+                if distance > 0:
+                    sound_vector[idx * 2] = dx / distance
+                    sound_vector[idx * 2 + 1] = dy / distance
             elif translation_key == "subtitles.entity.player.hurt":
                 sound_vector[-1] = 1  # player hurt sound
 
@@ -54,6 +55,7 @@ class HuskWithNoiseSoundWrapper(gym.Wrapper):
         self.env = mydojo.make(
             verbose=verbose,
             env_path=env_path,
+            port=8001,
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[
@@ -92,7 +94,7 @@ class HuskWithNoiseSoundWrapper(gym.Wrapper):
         obs = obs["obs"]
         is_dead = obs.is_dead
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = encode_sound(sound_subtitles, obs.x, obs.y, obs.yaw)
 
         reward = 0.5  # initial reward
         if is_dead:  #
@@ -114,7 +116,7 @@ class HuskWithNoiseSoundWrapper(gym.Wrapper):
         obs = self.env.reset(fast_reset=fast_reset)
         obs = obs["obs"]
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = encode_sound(sound_subtitles, obs.x, obs.y, obs.yaw)
         return np.array(sound_vector, dtype=np.float32)
 
 

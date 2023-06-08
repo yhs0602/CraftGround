@@ -21,7 +21,9 @@ from .proto import observation_space_pb2, initial_environment_pb2
 
 
 class MyEnv(gym.Env):
-    def __init__(self, initial_env: InitialEnvironment, verbose=False, env_path=None):
+    def __init__(
+        self, initial_env: InitialEnvironment, verbose=False, env_path=None, port=8000
+    ):
         self.action_space = MyActionSpace(6)
         self.observation_space = gym.spaces.Box(
             low=0,
@@ -35,6 +37,7 @@ class MyEnv(gym.Env):
         self.last_rgb_frame = None
         self.last_action = None
         self.verbose = verbose
+        self.port = port
         if env_path is None:
             self.env_path = os.path.join(
                 os.path.dirname(
@@ -53,13 +56,13 @@ class MyEnv(gym.Env):
         options: Optional[dict] = None,
     ) -> ObsType:
         if not self.sock:  # first time
-            self.start_server(port=8000)
+            self.start_server(port=self.port)
         else:
             if not fast_reset:
                 self.sock.close()
                 # wait for server death and restart server
                 sleep(5)
-                self.start_server(port=8000)
+                self.start_server(port=self.port)
             else:
                 send_fastreset2(self.sock)
                 print_with_time("Sent fast reset")

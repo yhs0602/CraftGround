@@ -6,11 +6,11 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
 import mydojo
-from mydojo.minecraft import int_to_action
+from mydojo.minecraft import no_op
 from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
 
 
-class HuskSoundWrapper(gym.Wrapper):
+class HuskSoundNoOpWrapper(gym.Wrapper):
     def __init__(self, verbose=False, env_path=None):
         self.env = mydojo.make(
             verbose=verbose,
@@ -36,15 +36,32 @@ class HuskSoundWrapper(gym.Wrapper):
             obs_keys=["sound_subtitles"],
         )
         super().__init__(self.env)
-        self.action_space = gym.spaces.Discrete(6)
+        self.action_space = gym.spaces.Discrete(7)
         self.observation_space = gym.spaces.Box(
             low=-1, high=1, shape=(7,), dtype=np.float32
         )
 
+    def int_to_action(self, input_act):
+        act = no_op()
+        # act=0: no op
+        if input_act == 1:  # go forward
+            act[0] = 1  # 0: noop 1: forward 2 : back
+        elif input_act == 2:  # go backward
+            act[0] = 2  # 0: noop 1: forward 2 : back
+        elif input_act == 3:  # move right
+            act[1] = 1  # 0: noop 1: move right 2: move left
+        elif input_act == 4:  # move left
+            act[1] = 2  # 0: noop 1: move right 2: move left
+        elif input_act == 5:  # Turn left
+            act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
+        elif input_act == 6:  # Turn right
+            act[0] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
+        return act
+
     def step(
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
-        action_arr = int_to_action(action)
+        action_arr = self.int_to_action(action)
         obs, reward, terminated, truncated, info = self.env.step(action_arr)
         # rgb = obs["rgb"]
         obs = obs["obs"]
@@ -111,7 +128,7 @@ class HuskSoundWrapper(gym.Wrapper):
 
 
 def main():
-    env = HuskSoundWrapper(verbose=False)
+    env = HuskSoundNoOpWrapper(verbose=False)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
@@ -136,7 +153,7 @@ def main():
     )
     runner = DQNWrapperRunner(
         env,
-        env_name="husk_wo_dist",
+        env_name="husk_no_op_wo_dist",
         agent=agent,
         max_steps_per_episode=400,
         num_episodes=2000,
