@@ -11,8 +11,8 @@ from wrappers.EscapeHuskBySoundWrapper import EscapeHuskBySoundWrapper
 
 
 class EscapeHuskBySoundWithPlayerWrapper(EscapeHuskBySoundWrapper):
-    def __init__(self, verbose=False, env_path=None):
-        super().__init__(verbose, env_path)
+    def __init__(self, verbose=False, env_path=None, port=8000):
+        super().__init__(verbose, env_path, port)
         self.observation_space = gym.spaces.Box(
             low=-1, high=1, shape=(6,), dtype=np.float32
         )
@@ -26,7 +26,7 @@ class EscapeHuskBySoundWithPlayerWrapper(EscapeHuskBySoundWrapper):
         obs = obs["obs"]
         is_dead = obs.is_dead
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.z, obs.yaw)
 
         reward = 0.5  # initial reward
         if is_dead:  #
@@ -53,25 +53,25 @@ class EscapeHuskBySoundWithPlayerWrapper(EscapeHuskBySoundWrapper):
         obs = self.env.reset(fast_reset=fast_reset)
         obs = obs["obs"]
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.z, obs.yaw)
         return np.array(sound_vector, dtype=np.float32)
 
     @staticmethod
     def encode_sound_and_yaw(
-        sound_subtitles, x: float, y: float, yaw: float
+        sound_subtitles, x: float, z: float, yaw: float
     ) -> List[float]:
         sound_vector = [0.0] * 6
         for sound in sound_subtitles:
-            if sound.x - x > 16 or sound.y - y > 16:
+            if sound.x - x > 16 or sound.z - z > 16:
                 continue
-            if sound.x - x < -16 or sound.y - y < -16:
+            if sound.x - x < -16 or sound.z - z < -16:
                 continue
             if sound.translate_key == "subtitles.entity.husk.ambient":
                 sound_vector[0] = (sound.x - x) / 16
-                sound_vector[1] = (sound.y - y) / 16
+                sound_vector[1] = (sound.z - z) / 16
             elif sound.translate_key == "subtitles.block.generic.footsteps":
                 sound_vector[2] = (sound.x - x) / 16
-                sound_vector[3] = (sound.y - y) / 16
+                sound_vector[3] = (sound.z - z) / 16
             elif sound.translate_key == "subtitles.entity.player.hurt":
                 sound_vector[4] = 1
         sound_vector[5] = yaw / 180.0

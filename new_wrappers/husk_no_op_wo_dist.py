@@ -67,7 +67,7 @@ class HuskSoundNoOpWrapper(gym.Wrapper):
         obs = obs["obs"]
         is_dead = obs.is_dead
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.z, obs.yaw)
 
         reward = 0.5  # initial reward
         if is_dead:  #
@@ -87,30 +87,30 @@ class HuskSoundNoOpWrapper(gym.Wrapper):
 
     @staticmethod
     def encode_sound_and_yaw(
-        sound_subtitles, x: float, y: float, yaw: float
+        sound_subtitles, x: float, z: float, yaw: float
     ) -> List[float]:
         sound_vector = [0.0] * 7
         for sound in sound_subtitles:
-            if sound.x - x > 16 or sound.y - y > 16:
+            if sound.x - x > 16 or sound.z - z > 16:
                 continue
-            if sound.x - x < -16 or sound.y - y < -16:
+            if sound.x - x < -16 or sound.z - z < -16:
                 continue
             if sound.translate_key == "subtitles.entity.husk.ambient":
                 # normalize
                 dx = sound.x - x
-                dy = sound.y - y
-                distance = math.sqrt(dx * dx + dy * dy)
+                dz = sound.z - z
+                distance = math.sqrt(dx * dx + dz * dz)
                 if distance > 0:
                     sound_vector[0] = dx / distance
-                    sound_vector[1] = dy / distance
+                    sound_vector[1] = dz / distance
             elif sound.translate_key == "subtitles.block.generic.footsteps":
                 # normalize
                 dx = sound.x - x
-                dy = sound.y - y
-                distance = math.sqrt(dx * dx + dy * dy)
+                dz = sound.z - z
+                distance = math.sqrt(dx * dx + dz * dz)
                 if distance > 0:
                     sound_vector[2] = dx / distance
-                    sound_vector[3] = dy / distance
+                    sound_vector[3] = dz / distance
             elif sound.translate_key == "subtitles.entity.player.hurt":
                 sound_vector[4] = 1
         # Trigonometric encoding
@@ -123,7 +123,7 @@ class HuskSoundNoOpWrapper(gym.Wrapper):
         obs = self.env.reset(fast_reset=fast_reset)
         obs = obs["obs"]
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.z, obs.yaw)
         return np.array(sound_vector, dtype=np.float32)
 
 

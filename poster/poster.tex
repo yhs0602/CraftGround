@@ -46,6 +46,14 @@
 \usepackage{minted}
 \usepackage{svg}
 \usepackage{cclicenses}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\definecolor{mybluei}{RGB}{124,156,205}
+\definecolor{myblueii}{RGB}{73,121,193}
+\definecolor{mygreen}{RGB}{202,217,126}
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}
 
 
 \usepackage{setspace}
@@ -59,8 +67,8 @@
 
 \doublespacing
 \graphicspath{./img/}
-\title{윈도우즈 시스템에서 집중방해요소 차단 기술\\
-\large 네트워크 패킷(packet) 차단과 프로세스 제어}
+\title{마인크래프트 강화학습 환경 구축을 통한 멀티모달 연구\\
+\large 와 특정 태스크에서의 우수성 비교}
 
 \addauthornote{mail}[@]{\ttfamily yhs0602@snu.ac.kr}
 % \addauthornote{diam}{Delft Institute of Applied Mathematics, TU Delft}
@@ -68,7 +76,7 @@
 
 % \addauthor[mail,diam]{J.F. Nash}
 % \addauthor[diam,tp]{C.F. Gau{\ss}}
-\addauthor{2019-13674 양현서}
+\addauthor{2019-13674 양현서 / 지도교수 장병탁}
 % \addauthor[tp]{R.P. Feynman}
 
 % \addfootimage(c:right column.center)[Delft Institute of Applied Mathematics]{tudelft}
@@ -93,42 +101,117 @@
 % \SetSansFonts{mj}{mj}
 \section{서론}
 \subsection{연구 주제}
-윈도우 환경에서 온라인 학습 집중 보조를 위해 필요한 네트워크 패킷(packet) 차단과 프로세스 제어 기술을 연구한다.
+강화학습을 위한 마인크래프트 환경에서 어둠 상태 효과를 활용한 시야 제한 태스크와 멀티모달 정보 활용의 중요성
 
 \subsection{연구 동기 및 목적}
-\begin{enumerate}
-  \item 온라인 수업이 증가하면서 집중을 도와주는 솔루션의 개발이 절실하나, 소수의 솔루션만이 제공되어 소비자의 선택의 폭이 좁다.
-  \item 집중방해요소 차단 솔루션을 구현하려면 특수 권한 접근을 위해 NT 레거시 드라이버 개발이 필수적이지만 이를 구현하기 위한 기술인 DDK(Driver Development Kit)는 진입 장벽이 높다.
-\end{enumerate}
-이에 따라 집중방해요소 차단 솔루션을 제작할 때 필요한 부분을 집중적으로 연구하는 것이 이 연구의 목적이다.
+강화학습 에이전트들은 Atari 게임 등에서 높은 성능을 보였다. 하지만 이러한 문제들은 특정 도메인에 한정되어 있고, 다양한 입력 모드를 받지 않는다는 한계가 있다. 따라서, 다양한 도메인과 입력 모드를 포함하는 새로운 강화학습 환경의 구축이 필요하다. 이를 위해 마인크래프트를 활용할 수 있다. 마인크래프트는 다양한 상황과 조건을 가지고 있어 강화학습 알고리즘의 적용과 실험에 적합하다. 이렇게 마인크래프트를 강화학습 알고리즘 환경으로 활용한 관련 연구로는 MineDojo, MineRL 등이 있다. 그러나 이러한 환경들은 오래된 모드 프레임워크인 Forge를 사용하여 업데이트가 느리며, MineDojo는 마인크래프트 1.11.2 버전까지만 지원된다. 마인크래프트 1.19에는 "어둠(Darkness)" 상태 효과가 등장했다. 이는 플레이어의 시야를 좁게 만드는 상태 효과로, 새로운 도전 요소를 제공한다. 본 연구에서는 기존 연구들에서 지원하지 않은 최신 버전의 마인크래프트 환경의 어둠 상태 효과를 활용하여 현실의 야간 작업 등 시야가 제한된 상태에서의 태스크들을 제시하고, 기존 비전 기반 모델이 기존 환경에서 보이던 성능과 비교한다. 또한 기존 연구들에서 사용되지 않은 소리 정보를 활용하는 에이전트를 실험하여 멀티모달 정보 활용의 중요성을 강조하고 이를 통한 성능 향상을 확인할 것이다. 이러한 연구는 강화학습 알고리즘의 발전과 실제 응용에 새로운 통찰을 제공할 것으로 기대된다.
 
 \section{이론적 배경}
-\subsection{API(Application Programming Inverface)}
-API란 응용프로그램이 특별한 기능을 사용할 수 있도록 운영체제가 제공하는 기능의 집합이다.
-\subsection{보호 링과 윈도우 드라이버 모델}
-% \begin{figure}
-%   \centering
-%   \includegraphics[width=.23\textwidth]{Priv_rings}
-%   \caption{특권 레벨이 높은 작업을 하기 위해서는 디바이스 드라이버가 필요하다. \bysa}
-%   \label{fig:test}
-% \end{figure}
-높은 특권을 가진 링 0에서 동작하는 프로그램을 개발하기 위해서는 DDK라는 특별한 API를 사용하여야 하며, 윈도우 드라이버 모델이 이러한 API를 제공한다.
-
-\subsection{WFP(Windows Filtering Platform)}
-WFP는 네트워크 필터링 기능을 제공하는 응용 프로그램을 만들기 쉽도록 윈도우가 제공하는 API의 모음이다.
-
-\subsection{콜백함수}
-콜백함수란 특정 사건이 발생했을 때 실행하게 설정하는 개발자가 정의한 코드이다.
+\subsection{강화학습}
+강화학습은 에이전트가 환경과 상호작용하며, 보상을 최대화하는 행동을 학습하는 방법이다. 강화학습은 다음과 같은 특징을 가진다.
+\begin{itemize}
+  \item 보상을 최대화하는 행동을 학습한다.
+  \item 지도학습과 달리 데이터에 대한 레이블이 필요하지 않다.
+  \item 시간 순서에 따라 행동을 수행하며, 이전의 행동이 다음 행동에 영향을 준다.
+  \item 행동을 수행하고, 그에 따른 보상을 받는다.
+\end{itemize}
+강화학습 에이전트가 학습하기 위해 수집하는 정보가 에이전트의 행동에 종속적인 경향이 있어, 학습이 어렵다. 이러한 문제를 해결하기 위해 다양한 강화학습 알고리즘이 제안되었다. 본 연구에서는 강화학습 알고리즘 중 하나인 DQN을 사용한다.
 
 \section{연구 방법}
+\subsection{Environment}
+Minecraft를 인간이 아닌 프로그램으로 조작하기 위해서 ``모드''라는 기능을 활용하였다. 모드를 이용하면 게임을 수정할 수 있다.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.3\textwidth]{arch1.png}
+  \caption{환경을 나타내는 그림. 강화학습 에이전트가 env.reset이나 step을 호출하면, 우리의 wrapper는 마인크래프트를 실행한 후, protobuf over TCP를 통해 우리의 마인크래프트 모드와 통신한다. 마인크래프트 모드는 플레이어를 조작하고, 관측 공간을 캡처하여 wrapper에게 전달한다. wrapper는 관측 공간을 처리하여 강화학습 에이전트에게 전달한다.}
+  \label{fig:test}
+\end{figure}
+
+% \begin{tikzpicture}[node distance=3pt,
+%   blueb/.style={
+%     draw=white,
+%     fill=mybluei,
+%     rounded corners,
+%     text width=2.5cm,
+%     font={\sffamily\bfseries\color{white}},
+%     align=center,
+%     text height=12pt,
+%     text depth=9pt},
+%   greenb/.style={blueb,fill=mygreen},
+%   ]
+%   \node[blueb] (RCP) {RCP main};
+%   \node[blueb,right=of RCP] (Aut) {Authoring};
+%   \node[blueb,right=of Aut] (Bro) {Browsing};
+%   \node[blueb,right=of Bro] (Pub) {Publishing};
+%   \node[blueb,right=of Pub] (Sea) {Search};
+%   \node[blueb,below=of RCP] (RTe) {Rich Text};
+%   \node[blueb,right=of RTe,text width=5cm+10pt] (LMa) {Library Management};
+%   \node[blueb,right=of LMa] (XML) {XML Export /\\[-0.7ex] Import};
+%   \node[blueb,right=of XML] (MSP) {MSP Export};
+%   \node[blueb,below=of RTe] (Com) {Common};
+%   \node[blueb,right=of Com,text width=5cm+10pt] (UMA) {UMA};
+%   \node[blueb,right=of UMA,text width=5cm+10pt] (EI) {Export/Import};
+%   \node[blueb,below=of Com] (Jti) {Jtidy};
+%   \node[greenb,right=of Jti,text width=5cm+10pt] (EMF) {EMF};
+%   \node[greenb,right=of EMF] (GEF) {GEF};
+%   \node[greenb,right=of GEF] (ICU) {ICUJ4};
+%   \node[greenb,below=3.4cm of Bro,text width=13cm+26pt] (RCP) {RCP Runtime};
+%   \begin{pgfonlayer}{background}
+%   \draw[blueb,draw=black,fill=mybluei!30] 
+%     ([xshift=-8pt,yshift=8pt]current bounding box.north west) rectangle 
+%     ([xshift=8pt,yshift=-8pt]current bounding box.south east);
+%   \end{pgfonlayer}
+%   \node[blueb,draw=black,fill=myblueii,below=4.8cm of Bro,text width=13cm+44pt] (RCP) {RCP Runtime};
+  
+%   \end{tikzpicture}
+
+% \begin{enumerate}
+% \item 파이썬이 env.reset 수행
+% \item gradle이 모드된 minecraft client를 실행
+% \item minecraft client는 자동으로 주어진 조건에 맞추어 새로운 세계 생성
+% \item minecraft client는 초기 상태를 python에 보냄
+% \item python은 해당 정보를 가공하여 env.reset의 리턴값으로 삼음
+% \item env.step에서 python은 조작 정보를 인코딩하여 minecraft client에 보냄
+% \item minecraft client는 해당 정보를 바탕으로 플레이어를 조작
+% \item 매 틱마다 클라이언트의 플레이어 조작 정보는 C2SPacket을 통해 서버에 보내짐
+% \item 서버는 해당 정보를 바탕으로 해당 틱의 로직을 수행
+% \item 클라이언트는 해당 틱이 끝나면 현재 화면을 캡처하고, 여러 obs 정보를 담아 python에 보냄
+% \item 반복
+% \end{enumerate}
+
+\subsection{Tasks}
+실험은 4개의 태스크와 3개의 모델을 이용하여 진행하였다. 먼저 태스크는 다음과 같다.
 \begin{enumerate}
-  \item 윈도우 디바이스 드라이버를 개발하는 방법 연구 : 윈도우 디바이스 드라이버를 개발하기 위한 지식이 담긴 도서(윈도우 디바이스 드라이버)를 조사하여 정리한다. 기본적인 기능을 가진 윈도우 디바이스 드라이버를 생성하여 제어하는 방법을 실험하고 정리한다.
-  \item 방화벽 개발 관련 정보를 참고하여 네트워크 필터링 방법 연구: 네트워크 패킷(packet) 필터링을 구현한 라이브러리를 조사하여 구현을 분석하거나 해당 라이브러리를 이용하는 방법을 연구하고 테스트한다.
-  \item 백신 개발 관련 정보를 참고하여 프로세스 필터링 방법 연구: 오픈 소스 백신 소프트웨어의 소소 크도나 Windows API 문서를 참조하여 프로세스 필터링 프로그램을 개발하여 테스트한다.
+  \item 한 마리의 허스크를 피해 도망가기
+  \item 여러 마리의 허스크를 피해 도망가기
+  \item Darkness 상태 이상이 걸린 상태에서 한 마리의 허스크를 피해 도망가기
+  \item 농장에서 동물 찾아가기
+\end{enumerate}
+3개의 모델은 다음과 같다.
+\begin{enumerate}
+  \item 시각 정보를 받는 CNN을 이용한 (D)DQN
+  \item 소리와 방향 정보를 받는 Fully Connected Network를 이용한 (D)DQN
+  \item 1과 2를 둘 다 이용하는 (D)DQN
 \end{enumerate}
 
+\subsection{보상 설계}
+허스크를 피해 도망가는 태스크의 경우, 매 틱마다 살아있을 경우 0.5의 보상, 죽었을 경우 -1의 보상을 부여하였다. 동물 찾아가기 태스크의 경우, 매 틱마다 지정한 동물이 있는 장소에 도달했을 경우 1의 보상, 그렇지 않을 경우 -0.05의 보상을 부여하였다.
+
+\subsection{모델 설계}
+\subsubsection{시각 정보를 이용하는 에이전트}
+$114 \times 64 \times 3$의 이미지를 입력으로 받는 CNN을 이용하였다. CNN의 구조는 다음과 같다.
+(CNN그림인데 구조 확정이 안남)
+\subsubsection{소리와 방향 정보를 이용하는 에이전트}
+마인크래프트에 존재하는 소리 자막 기능을 커스터마이징하여 현재 에이전트에 대한 소리의 상대 좌표와 종류를 알아낼 수 있다. 상대 좌표 벡터를 정규화하고, 현재 에이전트가 바라보고 있는 yaw값은 trigonometric encoding을 하여 입력으로 주었다. 완전한 평지 지형에서 테스트하므로 y좌표는
+
+
+\subsubsection{시각 정보와 소리, 방향 정보를 모두 이용하는 에이전트}
+
+
+
 \section{연구 결과}
-연구 결과, 다음과 같이 구성하여 개발하면 네트워크 패킷 차단 및 프로세스 제어 기능을 구현할 수 있다는 결론을 내려 예시 응용 프로그램을 개발하였다.
+
 \subsection{구조도}
 % \begin{figure}
 %   \centering
@@ -137,19 +220,6 @@ WFP는 네트워크 필터링 기능을 제공하는 응용 프로그램을 만�
 %   \label{fig:result}
 % \end{figure}
 
-\begin{enumerate}
-  \item \href{https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol}{DeviceIoControl} (마셜링 이용) 프로세스 차단 목록 관리
-  \item \href{https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine}{PsSetCreateProcessNotifyRoutine}으로 콜백 함수 등록
-  \item 프로세스 실행 시 운영체제가 콜백 함수 호출
-  \item 드라이버가 차단 목록에 의해 프로세스 실행 허용/차단
-  \item 네트워크 감시 기능 실행/중지, 차단 사이트 관리
-  \item \href{https://reqrypt.org/windivert.html}{WinDivert} 라이브러리 이용
-  \item WinDivert 드라이버 로드 및 제어
-  \item \href{https://docs.microsoft.com/ko-kr/windows/win32/fwp/windows-filtering-platform-start-page}{Windows 필터링 플랫폼}에 WinDivert.sys 드라이버 등록
-  \item 네이티브 네트워크 API 호출
-\end{enumerate}
-
-다음은 프로그램 실행 결과이다. 예시의 의도대로 메모장 실행이 차단되는 것을 볼 수 있다.
 
 % \begin{figure}
 %   \centering
@@ -159,21 +229,11 @@ WFP는 네트워크 필터링 기능을 제공하는 응용 프로그램을 만�
 % \end{figure}
 
 \subsection{연구 결과 소스 코드 저장소}
-\href{https://github.com/KYHSGeekCode/Self-Protecting-Driver}{Github}에서 본 포스터의 소스 코드를 탐색할 수 있다. 해당 저장소의 주소는 다음과 같다.
-\href{https://github.com/KYHSGeekCode/Self-Protecting-Driver}{https://github.com/KYHSGeekCode/Self-Protecting-Driver}
-% \subsection{네트워크 패킷 차단}
-% 네트워크 패킷을 중간에서 감시하기 위해서 IP Filter driver를 후킹하는 방법이 있다. WinDivert 라이브러리가 해당 기능을 구현하였다. Windows Filtering Platform (WFP)를 이용하여 
-% FwpmSubLayerAdd0
-% \subsection{프로세스 생성 제어}
-% \subsubsection{콜백함수 등록}
-% \lstinline{PsSetCreateProcessNotifyRoutineEx} 함수를 이용하면 윈도우즈 시스템 내에서 프로세스가 생성될 때 실행할 콜백함수를 설정할 수 있다. \lstinline{DriverEntty}에서 호출되는 \lstinline{InstallProcessProtect} 함수에서는 이 함수를 이용하여 콜백함수를 등록한다.
-% \lstinline{대상 프로세스 탐지}
-% \lstinline[breaklines=true]{VOID ProcessNotifyCallbackEx(PEPROCESS  Process, HANDLE  ProcessId,	PPS_CREATE_NOTIFY_INFO CreateInfo)} 함수에서는 등록된 프로세스 경로 패턴과 현재 실행되려하는 프로세스의 경로를 비교하여 차단과 허용 여부를 결정한다. 이 떄 \lstinline{FsRtlIsNameInExpression}함수를 이용한다. 이 함수를 사용할 때의 주의점은 ignorecase일 경우 패턴이 대문자여야 한다는 것이다.
-% 이제 차단하거나 허용할 프로세스 리스트를 관리하는 것에 초점을 맞추어 보자. 프로그램 실행 중에 언제든지 차단/허용 목록이 추가되거나 제거될 수 있다. 따라서 리스트 자료구조를 사용한다. 커널 레벨에서 동적 메모리 할당은 까다로운 작업이지만, ExAllocatePoolZero함수를 이용하여 메모리를 할당받을 수 있다. IRQL이 낮은 레벨인가 아무튼 잘 된다. 이 메모리를 해제할 때는 ExFreePool을 이용하면 된다. 또한 \lstinline{CONTAINING_RECORD} 사용법도 눈여겨보면 좋을 것이다.
+\href{https://github.com/KYHSGeekCode/MinecraftRL}{https://github.com/KYHSGeekCode/MinecraftRL}에서 본 포스터의 소스 코드를 탐색할 수 있다.
 
 \section{한계점 및 논의}
 \subsection{HTTPS}
-HTTPS 환경에서는 패킷이 암호화되기 때문에 패킷을 감시하는 것만으로는 사용자가 접근하는 URL정보를 얻어오기 어렵다. 이 문제를 해결한다면 한 단계 더 나아갈 수 있을 것이다.
+
 
 \section{시사점}
 이 연구는 타 분야에 비해 자료를 이해하기 어려운 DDK를 이용한 NT 레거시 윈도우 디바이스 개발이라는 분야에 유용한 예시를 제공하며, 이 연구를 통해 작성한 구현을 이용하여 비대면 강의 시 학생들의 집중을 도와주는 솔루션을 만드는 데 큰 도움을 준다는 데서 의의가 있다.
@@ -185,16 +245,5 @@ HTTPS 환경에서는 패킷이 암호화되기 때문에 패킷을 감시하는
 
 
 \end{document}
-% \begin{equation}
-  %   \int_\Omega v_i \left(
-  %     u_{i,t} + u_j u_{i,j} + p_{,i} - R^{-1} u_{i,jj}
-  %   \right) =
-  %   \int_\Omega v_i f_i.
-  % \end{equation}
-  % \experimentalblockright{%
-%   SPAM:
-%   Nulla malesuada porttitor diam. Donec felis erat, congue non, volutpat at,
-%   tincidunt tristique, libero.}
-
 % vim: tw=80:ts=2:sts=2:sw=2:et:fdm=marker:fmr=[[[,]]]
 

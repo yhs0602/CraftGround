@@ -11,10 +11,11 @@ from wrapper_runner import WrapperRunner
 
 
 class EscapeHuskBySoundWrapper(gym.Wrapper):
-    def __init__(self, verbose=False, env_path=None):
+    def __init__(self, verbose=False, env_path=None, port=8000):
         self.env = mydojo.make(
             verbose=verbose,
             env_path=env_path,
+            port=port,
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[

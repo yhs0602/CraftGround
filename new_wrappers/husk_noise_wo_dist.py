@@ -24,21 +24,21 @@ sound_list = [
 #     "subtitles.entity.player.hurt"  # player hurt sound
 
 
-def encode_sound(sound_subtitles: List, x: float, y: float, yaw: float) -> List[float]:
+def encode_sound(sound_subtitles: List, x: float, z: float, yaw: float) -> List[float]:
     sound_vector = [0] * (len(sound_list) * 2 + 3)
     for sound in sound_subtitles:
-        if sound.x - x > 16 or sound.y - y > 16:
+        if sound.x - x > 16 or sound.z - z > 16:
             continue
-        if sound.x - x < -16 or sound.y - y < -16:
+        if sound.x - x < -16 or sound.z - z < -16:
             continue
         for idx, translation_key in enumerate(sound_list):
             if translation_key == sound.translate_key:
                 dx = sound.x - x
-                dy = sound.y - y
-                distance = math.sqrt(dx * dx + dy * dy)
+                dz = sound.z - z
+                distance = math.sqrt(dx * dx + dz * dz)
                 if distance > 0:
                     sound_vector[idx * 2] = dx / distance
-                    sound_vector[idx * 2 + 1] = dy / distance
+                    sound_vector[idx * 2 + 1] = dz / distance
             elif translation_key == "subtitles.entity.player.hurt":
                 sound_vector[-1] = 1  # player hurt sound
 
@@ -94,7 +94,7 @@ class HuskWithNoiseSoundWrapper(gym.Wrapper):
         obs = obs["obs"]
         is_dead = obs.is_dead
         sound_subtitles = obs.sound_subtitles
-        sound_vector = encode_sound(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = encode_sound(sound_subtitles, obs.x, obs.z, obs.yaw)
 
         reward = 0.5  # initial reward
         if is_dead:  #
@@ -116,7 +116,7 @@ class HuskWithNoiseSoundWrapper(gym.Wrapper):
         obs = self.env.reset(fast_reset=fast_reset)
         obs = obs["obs"]
         sound_subtitles = obs.sound_subtitles
-        sound_vector = encode_sound(sound_subtitles, obs.x, obs.y, obs.yaw)
+        sound_vector = encode_sound(sound_subtitles, obs.x, obs.z, obs.yaw)
         return np.array(sound_vector, dtype=np.float32)
 
 
