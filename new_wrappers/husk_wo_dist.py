@@ -11,10 +11,11 @@ from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
 
 
 class HuskSoundWrapper(gym.Wrapper):
-    def __init__(self, verbose=False, env_path=None):
+    def __init__(self, verbose=False, env_path=None, port=8000):
         self.env = mydojo.make(
             verbose=verbose,
             env_path=env_path,
+            port=port,
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[
@@ -111,7 +112,7 @@ class HuskSoundWrapper(gym.Wrapper):
 
 
 def main():
-    env = HuskSoundWrapper(verbose=False)
+    env = HuskSoundWrapper(verbose=False, port=8001)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99

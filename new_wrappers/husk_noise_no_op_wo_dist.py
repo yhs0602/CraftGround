@@ -9,8 +9,48 @@ import mydojo
 from mydojo.minecraft import int_to_action_with_no_op
 from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
 
+sound_list = [
+    "subtitles.entity.sheep.ambient",  # sheep ambient sound
+    "subtitles.block.generic.footsteps",  # player, animal walking
+    "subtitles.block.generic.break",  # sheep eating grass
+    "subtitles.entity.cow.ambient",  # cow ambient sound
+    # "subtitles.entity.pig.ambient",  # pig ambient sound
+    # "subtitles.entity.chicken.ambient",  # chicken ambient sound
+    # "subtitles.entity.chicken.egg",  # chicken egg sound
+    "subtitles.entity.husk.ambient",  # husk ambient sound
+]
 
-class HuskSoundNoOpWrapper(gym.Wrapper):
+
+#     "subtitles.entity.player.hurt"  # player hurt sound
+
+
+def encode_sound(sound_subtitles: List, x: float, z: float, yaw: float) -> List[float]:
+    sound_vector = [0] * (len(sound_list) * 2 + 3)
+    for sound in sound_subtitles:
+        if sound.x - x > 16 or sound.z - z > 16:
+            continue
+        if sound.x - x < -16 or sound.z - z < -16:
+            continue
+        for idx, translation_key in enumerate(sound_list):
+            if translation_key == sound.translate_key:
+                dx = sound.x - x
+                dz = sound.z - z
+                distance = math.sqrt(dx * dx + dz * dz)
+                if distance > 0:
+                    sound_vector[idx * 2] = dx / distance
+                    sound_vector[idx * 2 + 1] = dz / distance
+            elif translation_key == "subtitles.entity.player.hurt":
+                sound_vector[-1] = 1  # player hurt sound
+
+    # Trigonometric encoding
+    yaw_radians = math.radians(yaw)
+    sound_vector[-3] = math.cos(yaw_radians)
+    sound_vector[-2] = math.sin(yaw_radians)
+
+    return sound_vector
+
+
+class HuskWithNoiseSoundWrapper(gym.Wrapper):
     def __init__(self, verbose=False, env_path=None, port=8000):
         self.env = mydojo.make(
             verbose=verbose,
@@ -19,7 +59,10 @@ class HuskSoundNoOpWrapper(gym.Wrapper):
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[
-                # "minecraft:sheep",
+                "minecraft:sheep ~ ~ 5",
+                "minecraft:cow ~ ~ -5",
+                "minecraft:cow ~5 ~ -5",
+                "minecraft:sheep ~-5 ~ -5",
                 "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
                 # player looks at south (positive Z) when spawn
             ],
@@ -39,7 +82,7 @@ class HuskSoundNoOpWrapper(gym.Wrapper):
         super().__init__(self.env)
         self.action_space = gym.spaces.Discrete(7)
         self.observation_space = gym.spaces.Box(
-            low=-1, high=1, shape=(7,), dtype=np.float32
+            low=-1, high=1, shape=(len(sound_list) * 2 + 3,), dtype=np.float32
         )
 
     def step(
@@ -51,7 +94,7 @@ class HuskSoundNoOpWrapper(gym.Wrapper):
         obs = obs["obs"]
         is_dead = obs.is_dead
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.z, obs.yaw)
+        sound_vector = encode_sound(sound_subtitles, obs.x, obs.z, obs.yaw)
 
         reward = 0.5  # initial reward
         if is_dead:  #
@@ -69,50 +112,16 @@ class HuskSoundNoOpWrapper(gym.Wrapper):
             info,
         )  # , done: deprecated
 
-    @staticmethod
-    def encode_sound_and_yaw(
-        sound_subtitles, x: float, z: float, yaw: float
-    ) -> List[float]:
-        sound_vector = [0.0] * 7
-        for sound in sound_subtitles:
-            if sound.x - x > 16 or sound.z - z > 16:
-                continue
-            if sound.x - x < -16 or sound.z - z < -16:
-                continue
-            if sound.translate_key == "subtitles.entity.husk.ambient":
-                # normalize
-                dx = sound.x - x
-                dz = sound.z - z
-                distance = math.sqrt(dx * dx + dz * dz)
-                if distance > 0:
-                    sound_vector[0] = dx / distance
-                    sound_vector[1] = dz / distance
-            elif sound.translate_key == "subtitles.block.generic.footsteps":
-                # normalize
-                dx = sound.x - x
-                dz = sound.z - z
-                distance = math.sqrt(dx * dx + dz * dz)
-                if distance > 0:
-                    sound_vector[2] = dx / distance
-                    sound_vector[3] = dz / distance
-            elif sound.translate_key == "subtitles.entity.player.hurt":
-                sound_vector[4] = 1
-        # Trigonometric encoding
-        yaw_radians = math.radians(yaw)
-        sound_vector[5] = math.sin(yaw_radians)
-        sound_vector[6] = math.cos(yaw_radians)
-        return sound_vector
-
     def reset(self, fast_reset: bool = True) -> WrapperObsType:
         obs = self.env.reset(fast_reset=fast_reset)
         obs = obs["obs"]
         sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound_and_yaw(sound_subtitles, obs.x, obs.z, obs.yaw)
+        sound_vector = encode_sound(sound_subtitles, obs.x, obs.z, obs.yaw)
         return np.array(sound_vector, dtype=np.float32)
 
 
 def main():
-    env = HuskSoundNoOpWrapper(verbose=False, port=8003)
+    env = HuskWithNoiseSoundWrapper(verbose=False, port=8004)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
@@ -137,10 +146,10 @@ def main():
     )
     runner = DQNWrapperRunner(
         env,
-        env_name="husk_no_op_wo_dist",
+        env_name="husk_noise_wo_dist",
         agent=agent,
         max_steps_per_episode=400,
-        num_episodes=2000,
+        num_episodes=3000,
         test_frequency=20,
         solved_criterion=lambda avg_score, test_score, avg_test_score, episode: avg_score
         >= 195.0

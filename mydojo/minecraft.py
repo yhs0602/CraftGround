@@ -43,7 +43,7 @@ def int_to_action(input_act: int):
     elif input_act == 4:  # Turn left
         act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
     elif input_act == 5:  # Turn right
-        act[0] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
+        act[4] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
     elif input_act == 6:  # Jump
         act[2] = 1  # 0: noop 1: jump 2: sneak 3: sprint
     elif input_act == 7:  # Attack
@@ -58,6 +58,24 @@ def int_to_action(input_act: int):
     elif input_act == 11:
         act[5] = 4  # craft
         act[6] = 331  # iron bar?
+    return act
+
+
+def int_to_action_with_no_op(input_act):
+    act = no_op()
+    # act=0: no op
+    if input_act == 1:  # go forward
+        act[0] = 1  # 0: noop 1: forward 2 : back
+    elif input_act == 2:  # go backward
+        act[0] = 2  # 0: noop 1: forward 2 : back
+    elif input_act == 3:  # move right
+        act[1] = 1  # 0: noop 1: move right 2: move left
+    elif input_act == 4:  # move left
+        act[1] = 2  # 0: noop 1: move right 2: move left
+    elif input_act == 5:  # Turn left
+        act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
+    elif input_act == 6:  # Turn right
+        act[4] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
     return act
 
 

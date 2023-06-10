@@ -11,10 +11,11 @@ from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
 
 
 class HusksSoundWrapper(gym.Wrapper):
-    def __init__(self, verbose=False, env_path=None):
+    def __init__(self, verbose=False, env_path=None, port=8000):
         self.env = mydojo.make(
             verbose=verbose,
             env_path=env_path,
+            port=port,
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[
@@ -85,15 +86,17 @@ class HusksSoundWrapper(gym.Wrapper):
                 dx = sound.x - x
                 dz = sound.z - z
                 distance = math.sqrt(dx * dx + dz * dz)
-                sound_vector[0] = dx / distance
-                sound_vector[1] = dz / distance
+                if distance > 0:
+                    sound_vector[0] = dx / distance
+                    sound_vector[1] = dz / distance
             elif sound.translate_key == "subtitles.block.generic.footsteps":
                 # normalize
                 dx = sound.x - x
                 dz = sound.z - z
                 distance = math.sqrt(dx * dx + dz * dz)
-                sound_vector[2] = dx / distance
-                sound_vector[3] = dz / distance
+                if distance > 0:
+                    sound_vector[2] = dx / distance
+                    sound_vector[3] = dz / distance
             elif sound.translate_key == "subtitles.entity.player.hurt":
                 sound_vector[4] = 1
         # Trigonometric encoding
@@ -111,7 +114,7 @@ class HusksSoundWrapper(gym.Wrapper):
 
 
 def main():
-    env = HusksSoundWrapper(verbose=False)
+    env = HusksSoundWrapper(verbose=False, port=8002)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99

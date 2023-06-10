@@ -14,9 +14,9 @@ sound_list = [
     "subtitles.block.generic.footsteps",  # player, animal walking
     "subtitles.block.generic.break",  # sheep eating grass
     "subtitles.entity.cow.ambient",  # cow ambient sound
-    "subtitles.entity.pig.ambient",  # pig ambient sound
-    "subtitles.entity.chicken.ambient",  # chicken ambient sound
-    "subtitles.entity.chicken.egg",  # chicken egg sound
+    # "subtitles.entity.pig.ambient",  # pig ambient sound
+    # "subtitles.entity.chicken.ambient",  # chicken ambient sound
+    # "subtitles.entity.chicken.egg",  # chicken egg sound
     "subtitles.entity.husk.ambient",  # husk ambient sound
 ]
 
@@ -44,18 +44,18 @@ def encode_sound(sound_subtitles: List, x: float, z: float, yaw: float) -> List[
 
     # Trigonometric encoding
     yaw_radians = math.radians(yaw)
-    sound_vector[-3] = math.sin(yaw_radians)
-    sound_vector[-2] = math.cos(yaw_radians)
+    sound_vector[-3] = math.cos(yaw_radians)
+    sound_vector[-2] = math.sin(yaw_radians)
 
     return sound_vector
 
 
 class HuskWithNoiseSoundWrapper(gym.Wrapper):
-    def __init__(self, verbose=False, env_path=None):
+    def __init__(self, verbose=False, env_path=None, port=8000):
         self.env = mydojo.make(
             verbose=verbose,
             env_path=env_path,
-            port=8001,
+            port=port,
             initialInventoryCommands=[],
             initialPosition=None,  # nullable
             initialMobsCommands=[
@@ -121,7 +121,7 @@ class HuskWithNoiseSoundWrapper(gym.Wrapper):
 
 
 def main():
-    env = HuskWithNoiseSoundWrapper(verbose=False)
+    env = HuskWithNoiseSoundWrapper(verbose=False, port=8004)
     buffer_size = 1000000
     batch_size = 256
     gamma = 0.99
