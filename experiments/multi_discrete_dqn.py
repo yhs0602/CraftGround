@@ -1,6 +1,6 @@
 import random
 from collections import deque, namedtuple
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import torch
@@ -114,9 +114,9 @@ class MultiDiscreteDQNAgent:
                 q_valuess = self.policy_net(state)
             return [q_values.argmax().item() for q_values in q_valuess]
 
-    def update_model(self):
+    def update_model(self) -> Optional[float]:
         if len(self.replay_buffer) < self.batch_size:
-            return
+            return None
         # print("Will update model")
         state, action, next_state, reward, done = self.replay_buffer.sample(
             self.batch_size
@@ -157,6 +157,7 @@ class MultiDiscreteDQNAgent:
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        return loss.item()
 
     def update_target_model(self):
         self.target_net.load_state_dict(self.policy_net.state_dict())

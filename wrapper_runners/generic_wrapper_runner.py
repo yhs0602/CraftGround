@@ -3,6 +3,7 @@ import glob
 import os
 import time
 from collections import deque
+from typing import Optional
 
 import numpy as np
 import wandb
@@ -24,6 +25,9 @@ class Agent(abc.ABC):
 
     @abc.abstractmethod
     def load(self, path):
+        pass
+
+    def update_model(self):
         pass
 
 
@@ -131,9 +135,13 @@ class GenericWrapperRunner:
                 avg_test_score = np.mean(recent_test_scores)
                 avg_test_scores.append(avg_test_score)
             else:
-                episode_reward, num_steps, accum_steps, time_took = self.train_agent(
-                    episode, accum_steps
-                )
+                (
+                    episode_reward,
+                    num_steps,
+                    accum_steps,
+                    time_took,
+                    avg_loss,
+                ) = self.train_agent(episode, accum_steps)
                 if num_steps == 0:
                     num_steps = 1
                 scores.append(episode_reward)
@@ -144,6 +152,7 @@ class GenericWrapperRunner:
                     "episode": episode,
                     "score": episode_reward,
                     "avg_score": avg_score,
+                    "avg_loss": avg_loss,
                 }
                 thing_to_log.update(self.get_extra_log_info())
                 print(
@@ -169,6 +178,7 @@ class GenericWrapperRunner:
         episode_reward = 0
         sum_time = 0
         num_steps = 0
+        losses = []
         for step in range(self.max_steps_per_episode):
             start_time = time.time()
             action = self.select_action(episode, state, False)
@@ -176,7 +186,7 @@ class GenericWrapperRunner:
             episode_reward += reward
             accum_steps += 1
             num_steps += 1
-            self.after_step(
+            loss = self.after_step(
                 step,
                 accum_steps,
                 state,
@@ -188,6 +198,7 @@ class GenericWrapperRunner:
                 info,
                 False,
             )
+            losses.append(loss)
             if terminated:
                 break
 
@@ -195,7 +206,8 @@ class GenericWrapperRunner:
             elapsed_time = time.time() - start_time
             # print(f"Step {step} took {elapsed_time:.5f} seconds")
             sum_time += elapsed_time
-        return episode_reward, num_steps, accum_steps, sum_time
+        avg_loss = np.mean([loss for loss in losses if loss is not None])
+        return episode_reward, num_steps, accum_steps, sum_time, avg_loss
 
     def test_agent(self, episode, record_video):
         if record_video:
@@ -259,7 +271,7 @@ class GenericWrapperRunner:
         truncated,
         info,
         testing: bool,
-    ):
+    ) -> Optional[float]:
         pass
 
     def after_episode(self, episode, testing: bool):

@@ -1,5 +1,6 @@
 import random
 from collections import deque, namedtuple
+from typing import Optional
 
 import numpy as np
 import torch
@@ -174,7 +175,7 @@ class DQNAgent(Agent):
             self.policy_net.train()
             return q_values.argmax().item()
 
-    def update_model(self):
+    def update_model(self) -> Optional[float]:
         if len(self.replay_buffer) < self.batch_size:
             return
         # print("Will update model")
@@ -196,6 +197,7 @@ class DQNAgent(Agent):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        return loss.item()
 
     def update_target_model(self):
         self.target_net.load_state_dict(self.policy_net.state_dict())
@@ -292,7 +294,7 @@ class SoundDQN(nn.Module):
     #         l2_loss += torch.norm(param, p=2) ** 2
     #     return 0.5 * self.weight_decay * l2_loss
 
-    def update_model(self):
+    def update_model(self) -> Optional[float]:
         if len(self.replay_buffer) < self.batch_size:
             return
         # print("Will update model")
@@ -314,6 +316,7 @@ class SoundDQN(nn.Module):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        return loss.item()
 
 
 class DQNSoundAgent(DQNAgent):
@@ -356,7 +359,7 @@ class DQNSoundAgent(DQNAgent):
             "action_dim": self.action_dim,
             "hidden_dim": self.hidden_dim,
             "buffer_size": self.buffer_size,
-            "learning_rage": self.learning_rate,
+            "learning_rate": self.learning_rate,
             "gamma": self.gamma,
             "batch_size": self.batch_size,
             "optimizer": self.optimizer,

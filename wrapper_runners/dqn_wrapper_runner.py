@@ -1,3 +1,5 @@
+from typing import Optional
+
 from wrapper_runners.generic_wrapper_runner import GenericWrapperRunner
 
 
@@ -68,14 +70,15 @@ class DQNWrapperRunner(GenericWrapperRunner):
         truncated,
         info,
         testing,
-    ):
+    ) -> Optional[float]:
         if testing:
-            return
+            return None
         self.agent.add_experience(state, action, next_state, reward, terminated)
-        self.agent.update_model()
+        loss = self.agent.update_model()
         if accum_steps % self.update_frequency == 0:
             print(f"{accum_steps=}, {step=}, {self.update_frequency=}")
-            self.agent.update_target_model()  # important! FIXME: step ranges from 0 to max_steps_per_episode;
+            self.agent.update_target_model()
+        return loss
 
     def after_episode(self, episode, testing: bool):
         if episode >= self.warmup_episodes and not testing:
