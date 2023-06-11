@@ -46,10 +46,8 @@ class DQNSoundAndVision(nn.Module):
         x = nn.functional.relu(self.conv3(x))
         x = x.view(x.size(0), -1)
         x = nn.functional.relu(self.cnn_fc1(x))
-        s_x = nn.functional.relu(self.sound_fc1(sound))
-        s_x = self.sound_bn1(s_x)
-        s_x = nn.functional.relu(self.sound_fc2(s_x))
-        s_x = self.sound_bn2(s_x)
+        s_x = nn.functional.relu(self.sound_bn1(self.sound_fc1(sound)))
+        s_x = nn.functional.relu(self.sound_bn2(self.sound_fc2(s_x)))
         x = torch.cat((x, s_x), dim=1)
         x = self.fc3(x)
         return x
