@@ -295,7 +295,7 @@
 % footer [[[
 
 \newlength\footerheight
-\deflength\footerheight{.1\paperheight}
+\deflength\footerheight{.08\paperheight}
 \newlength\footerheightwithmargin
 \deflength\footerheightwithmargin{\footerheight+\columnsep}
 \geometry{vmargin={0cm,\footerheightwithmargin}}
