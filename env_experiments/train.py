@@ -1,5 +1,6 @@
 import argparse
 import socket
+import subprocess
 
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.sound_wrapper import SoundWrapper
@@ -68,7 +69,8 @@ parser.add_argument(
     "--hidden_dim",
     type=int,
     help="hidden dimension to use",
-    required=True,
+    required=False,
+    default=128,
 )
 
 parser.add_argument(
@@ -114,6 +116,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--epsilon_min",
+    type=float,
+    help="epsilon min to use",
+    required=True,
+)
+
+parser.add_argument(
     "--max_steps_per_episode",
     type=int,
     help="max steps per episode to use",
@@ -150,6 +159,7 @@ def main(
     buffer_size,
     epsilon_init,
     epsilon_decay,
+    epsilon_min,
     max_steps_per_episode,
     num_episodes,
     warmup_episodes,
@@ -182,6 +192,7 @@ def main(
 
     from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
 
+    print("Running DQN wrapper runner")
     runner = DQNWrapperRunner(
         wrapper,
         env_name=env_name,
@@ -200,7 +211,7 @@ def main(
         warmup_episodes=warmup_episodes,
         update_frequency=update_freq,
         epsilon_init=epsilon_init,
-        epsilon_min=0.01,
+        epsilon_min=epsilon_min,
         epsilon_decay=epsilon_decay,
         resume=False,
         max_saved_models=1,
@@ -210,10 +221,11 @@ def main(
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(("", 0))
-    port = sock.getsockname()[1]
-    sock.close()
+    # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # sock.bind(("", 0))
+    # port = sock.getsockname()[1]
+    # sock.close()
+    port = 8008
     main(
         args.verbose,
         args.env_path,
@@ -229,7 +241,20 @@ if __name__ == "__main__":
         args.buffer_size,
         args.epsilon_init,
         args.epsilon_decay,
+        args.epsilon_min,
         args.max_steps_per_episode,
         args.num_episodes,
         args.warmup_episodes,
     )
+    try:
+        pass
+        # cmd = f"lsof -i:{port} | grep java | grep CLOSED | awk '{{print $2}}'"
+        # process = subprocess.Popen(
+        #     cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        # )
+        # output, _ = process.communicate()
+        # pid = int(output.strip())
+        # subprocess.call(["kill", "-9", str(pid)])
+        # print(f"Process with PID {pid} has been terminated.")
+    except subprocess.CalledProcessError:
+        print(f"No process found listening on port {port}.")
