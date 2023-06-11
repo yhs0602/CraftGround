@@ -1,6 +1,5 @@
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.vision_and_sound_wrapper import VisionAndSoundWrapper
-from env_wrappers.vision_wrapper import VisionWrapper
 
 
 def train_vision_and_sound(
@@ -24,10 +23,15 @@ def train_vision_and_sound(
     max_steps_per_episode,
     num_episodes,
     warmup_episodes,
+    reward_function=None,
 ):
     env, sound_list = env_makers[env_name](verbose, env_path, port)
     wrapper = VisionAndSoundWrapper(
-        env, action_dim=7, sound_list=sound_list, coord_dim=2
+        env,
+        action_dim=7,
+        sound_list=sound_list,
+        coord_dim=2,
+        reward_function=reward_function,
     )
     if agent == "DQNAgent":
         from models.dqn import MultimodalDQNAgent

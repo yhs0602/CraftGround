@@ -19,11 +19,13 @@ class VisionAndSoundWrapper(gym.Wrapper):
         sound_list: List[str],
         sound_dim: int = 2,
         coord_dim: int = 2,
+        reward_function=None,
     ):
         self.env = env
         self.sound_list = sound_list
         self.coord_dim = coord_dim
         self.sound_dim = sound_dim
+        self.reward_function = reward_function
         super().__init__(self.env)
         self.action_space = gym.spaces.Discrete(action_dim)
         self.observation_space = spaces.Dict(
@@ -53,14 +55,17 @@ class VisionAndSoundWrapper(gym.Wrapper):
         is_dead = obs.is_dead
         sound_subtitles = obs.sound_subtitles
         sound_vector = self.encode_sound(sound_subtitles, obs.x, obs.y, obs.z, obs.yaw)
-        reward = 0.5  # initial reward
-        if is_dead:  #
-            if self.initial_env.isHardCore:
-                reward = -100
-                terminated = True
-            else:  # send respawn packet
-                reward = -1
-                terminated = True
+        if self.reward_function is None:
+            reward = 0.5  # initial reward
+            if is_dead:  #
+                if self.initial_env.isHardCore:
+                    reward = -100
+                    terminated = True
+                else:  # send respawn packet
+                    reward = -1
+                    terminated = True
+        else:
+            reward, terminated = self.reward_function(obs)
         return (
             {
                 "vision": rgb,
