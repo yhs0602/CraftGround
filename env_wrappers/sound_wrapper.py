@@ -68,7 +68,7 @@ class SoundWrapper(gym.Wrapper):
                     dz = sound.z - z
                     distance = math.sqrt(dx * dx + dy * dy + dz * dz)
                     if distance > 0:
-                        if self.sound_dim == 2:
+                        if self.coord_dim == 2:
                             sound_vector[idx * self.coord_dim] = dx / distance
                             sound_vector[idx * self.coord_dim + 1] = dz / distance
                         else:

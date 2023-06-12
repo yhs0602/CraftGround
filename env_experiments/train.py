@@ -144,7 +144,7 @@ parser.add_argument(
 )
 
 
-def main(
+def train_sound(
     verbose,
     env_path,
     port,
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     # port = sock.getsockname()[1]
     # sock.close()
     port = 8008
-    main(
+    train_sound(
         args.verbose,
         args.env_path,
         port,

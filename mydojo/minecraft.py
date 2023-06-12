@@ -13,14 +13,14 @@ from mydojo.proto import action_space_pb2
 def wait_for_server(port: int) -> socket.socket:
     while True:
         try:
-            print("socket", port)
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(("127.0.0.1", port))
             s.settimeout(30)
-            print("settimeout", port)
             return s
         except ConnectionRefusedError:
-            print("Waiting for server... on port", port)
+            print(
+                f"Waiting for server on port {port}...",
+            )
             time.sleep(1)
 
 
