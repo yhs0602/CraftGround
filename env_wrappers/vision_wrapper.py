@@ -10,10 +10,11 @@ from mydojo.minecraft import no_op
 
 # abstract class for sound wrapper
 class VisionWrapper(gym.Wrapper):
-    def __init__(self, env: MyEnv, action_dim):
+    def __init__(self, env: MyEnv, action_dim, reward_function=None):
         self.env = env
         super().__init__(self.env)
         self.action_space = gym.spaces.Discrete(action_dim)
+        self.reward_function = reward_function
         self.observation_space = gym.spaces.Box(
             low=0,
             high=255,
@@ -30,14 +31,18 @@ class VisionWrapper(gym.Wrapper):
         obs = obs["obs"]
         is_dead = obs.is_dead
 
-        reward = 0.5  # initial reward
-        if is_dead:  #
-            if self.initial_env.isHardCore:
-                reward = -100
-                terminated = True
-            else:  # send respawn packet
-                reward = -1
-                terminated = True
+        if self.reward_function is None:
+            reward = 0.5  # initial reward
+            if is_dead:  #
+                if self.initial_env.isHardCore:
+                    reward = -100
+                    terminated = True
+                else:  # send respawn packet
+                    reward = -1
+                    terminated = True
+
+        else:
+            reward, terminated = self.reward_function(obs)
         return (
             rgb,
             reward,

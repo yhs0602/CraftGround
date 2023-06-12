@@ -10,10 +10,11 @@ from mydojo.minecraft import no_op
 
 # abstract class for sound wrapper
 class SoundWrapper(gym.Wrapper):
-    def __init__(self, env, action_dim, sound_list, coord_dim):
+    def __init__(self, env, action_dim, sound_list, coord_dim, reward_function=None):
         self.sound_list = sound_list
         self.env = env
         self.coord_dim = coord_dim
+        self.reward_function = reward_function
         super().__init__(self.env)
         self.action_space = gym.spaces.Discrete(action_dim)
         self.observation_space = gym.spaces.Box(
@@ -31,14 +32,17 @@ class SoundWrapper(gym.Wrapper):
         sound_subtitles = obs.sound_subtitles
         sound_vector = self.encode_sound(sound_subtitles, obs.x, obs.y, obs.z, obs.yaw)
 
-        reward = 0.5  # initial reward
-        if is_dead:  #
-            if self.initial_env.isHardCore:
-                reward = -100
-                terminated = True
-            else:  # send respawn packet
-                reward = -1
-                terminated = True
+        if self.reward_function is None:
+            reward = 0.5  # initial reward
+            if is_dead:  #
+                if self.initial_env.isHardCore:
+                    reward = -100
+                    terminated = True
+                else:  # send respawn packet
+                    reward = -1
+                    terminated = True
+        else:
+            reward, terminated = self.reward_function(obs)
         return (
             np.array(sound_vector, dtype=np.float32),
             reward,

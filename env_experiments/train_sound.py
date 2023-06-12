@@ -1,5 +1,4 @@
 import argparse
-import socket
 import subprocess
 
 from env_wrappers.husk_environment import env_makers
@@ -163,9 +162,16 @@ def train_sound(
     max_steps_per_episode,
     num_episodes,
     warmup_episodes,
+    reward_function=None,
 ):
     env, sound_list = env_makers[env_name](verbose, env_path, port)
-    wrapper = SoundWrapper(env, action_dim=7, sound_list=sound_list, coord_dim=2)
+    wrapper = SoundWrapper(
+        env,
+        action_dim=7,
+        sound_list=sound_list,
+        coord_dim=2,
+        reward_function=reward_function,
+    )
     if agent == "DQNAgent":
         from models.dqn import DQNSoundAgent
 

@@ -23,9 +23,10 @@ def train_cnn(
     max_steps_per_episode,
     num_episodes,
     warmup_episodes,
+    reward_function=None,
 ):
     env, _ = env_makers[env_name](verbose, env_path, port)
-    wrapper = VisionWrapper(env, action_dim=7)
+    wrapper = VisionWrapper(env, action_dim=7, reward_function=reward_function)
     if agent == "DQNAgent":
         from models.dqn import DQNAgent
 
