@@ -199,6 +199,11 @@ def train_sound(
         from models.dqn import DDQNSoundAgent
 
         agent_class = DDQNSoundAgent
+    elif agent == "DuelingDQNAgent":
+
+        from models.dueling_dqn import DuelingSoundDQNAgent
+
+        agent_class = DuelingSoundDQNAgent
     else:
         print(f"Agent not implemented: {agent}")
         raise NotImplementedError
