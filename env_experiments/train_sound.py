@@ -208,9 +208,7 @@ def train_sound(
         print(f"Agent not implemented: {agent}")
         raise NotImplementedError
     state_dim = wrapper.observation_space.shape
-    print(state_dim)
     state_dim = (np.prod(state_dim),)
-    print(state_dim)
     action_dim = wrapper.action_space.n
     agent_instance = agent_class(
         state_dim,

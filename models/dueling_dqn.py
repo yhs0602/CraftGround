@@ -28,7 +28,7 @@ class DuelingSoundDQN(nn.Module):
         x = self.feature(x)
         advantage = self.advantage(x)
         value = self.value(x)
-        return value + advantage - advantage.mean()
+        return value + advantage - advantage.mean(dim=1, keepdim=True)
 
 
 class DuelingSoundDQNAgent(Agent):
@@ -52,7 +52,8 @@ class DuelingSoundDQNAgent(Agent):
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
         self.device = device
-        self.net = DuelingSoundDQN(state_dim, action_dim, hidden_dim).to(device)
+        self.policy_net = DuelingSoundDQN(state_dim, action_dim, hidden_dim).to(device)
+        self.target_net = DuelingSoundDQN(state_dim, action_dim, hidden_dim).to(device)
         self.loss_fn = nn.MSELoss()
         self.gamma = gamma
         self.learning_rate = learning_rate
@@ -61,7 +62,7 @@ class DuelingSoundDQNAgent(Agent):
         self.replay_buffer = ReplayBuffer(buffer_size)
         self.batch_size = batch_size
         self.optimizer = torch.optim.Adam(
-            self.net.parameters(), lr=learning_rate, weight_decay=weight_decay
+            self.policy_net.parameters(), lr=learning_rate, weight_decay=weight_decay
         )
 
     @property
@@ -88,10 +89,10 @@ class DuelingSoundDQNAgent(Agent):
         else:
             # print("policy action")
             state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
-            self.net.eval()
+            self.policy_net.eval()
             with torch.no_grad():
-                q_values = self.net(state)
-            self.net.train()
+                q_values = self.policy_net(state).detach()
+            self.policy_net.train()
             return q_values.argmax().item()
 
     def update_model(self) -> Optional[float]:
@@ -100,12 +101,11 @@ class DuelingSoundDQNAgent(Agent):
         state, action, next_state, reward, done = self.replay_buffer.sample(
             self.batch_size
         )
-        print(f"sampled next state: {next_state.shape}")
         state = state.to(self.device)
-        next_state = next_state.to(self.device)
+        next_state = next_state.to(self.device).squeeze(1)
         action = action.to(self.device)
         reward = reward.to(self.device)
-        done = done.to(self.device)
+        done = done.to(self.device).squeeze(1)
 
         # state = torch.FloatTensor(state).to(self.device)
         # next_state = torch.FloatTensor(next_state).to(self.device)
@@ -113,12 +113,11 @@ class DuelingSoundDQNAgent(Agent):
         # action = torch.LongTensor(action).to(self.device)
         # reward = torch.FloatTensor(reward).to(self.device)
         # done = torch.FloatTensor(done).to(self.device)
-        q_values = self.net(state)
-        next_q_values = self.net(next_state)
-        q_value = q_values.gather(1, action.to(torch.int64)).squeeze(1)
-        next_q_value = next_q_values.max(1)[0]
-        expected_q_value = reward + self.gamma * next_q_value * (1 - done)
-        loss = self.loss_fn(q_value, expected_q_value)
+        q_values = self.policy_net(state).gather(1, action.to(torch.int64)).squeeze(1)
+        next_q_values = self.target_net(next_state).max(1)[0]
+        expected_q_values = reward + (1 - done) * self.gamma * next_q_values
+
+        loss = self.loss_fn(q_values, expected_q_values.detach())
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -126,8 +125,7 @@ class DuelingSoundDQNAgent(Agent):
         return loss.item()
 
     def update_target_model(self):
-        pass
+        self.target_net.load_state_dict(self.policy_net.state_dict())
 
     def add_experience(self, state, action, next_state, reward, done):
-        print(f"add experience {state.shape=} {next_state.shape=}")
         self.replay_buffer.add(state, action, next_state, reward, done)
