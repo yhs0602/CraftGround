@@ -1,5 +1,6 @@
 from gymnasium.wrappers import FrameStack
 
+from env_experiments.get_device import get_device
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.vision_wrapper import VisionWrapper
 
@@ -40,6 +41,10 @@ def train_cnn(
         from models.dqn import DDQNAgent
 
         agent_class = DDQNAgent
+    elif agent == "DuelingDQNAgent":
+        from models.dueling_vision_dqn import DuelingVisionDQNAgent
+
+        agent_class = DuelingVisionDQNAgent
     else:
         print(f"Agent not implemented: {agent}")
         raise NotImplementedError
@@ -56,6 +61,7 @@ def train_cnn(
         gamma,
         learning_rate,
         weight_decay,
+        device=get_device(),
     )
 
     from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
@@ -70,7 +76,7 @@ def train_cnn(
         solved_criterion=lambda avg_score, test_score, avg_test_score, episode: avg_score
         >= 195.0
         and avg_test_score >= 195.0
-        and episode >= 1000
+        and episode >= 500
         and test_score == 200.0
         if avg_score is not None
         else False and episode >= 1000,

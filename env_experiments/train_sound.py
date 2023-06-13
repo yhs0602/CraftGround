@@ -2,18 +2,11 @@ import argparse
 import subprocess
 
 import numpy as np
-import torch
 from gymnasium.wrappers import FrameStack
 
+from env_experiments.get_device import get_device
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.sound_wrapper import SoundWrapper
-
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-elif torch.has_mps:
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
 
 parser = argparse.ArgumentParser(description="Run experiment")
 
@@ -201,7 +194,7 @@ def train_sound(
         agent_class = DDQNSoundAgent
     elif agent == "DuelingDQNAgent":
 
-        from models.dueling_dqn import DuelingSoundDQNAgent
+        from models.dueling_sound_dqn import DuelingSoundDQNAgent
 
         agent_class = DuelingSoundDQNAgent
     else:
@@ -220,7 +213,7 @@ def train_sound(
         learning_rate,
         weight_decay,
         stack_size=stack_size,
-        device=device,
+        device=get_device(),
     )
 
     from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
