@@ -54,9 +54,9 @@ class DuelingDQNAgentBase(Agent, ABC):
             self.batch_size
         )
         state = state.to(self.device)
-        next_state = next_state.to(self.device).squeeze(1)
+        next_state = next_state.to(self.device)
         action = action.to(self.device)
-        reward = reward.to(self.device)
+        reward = reward.to(self.device).squeeze(1)
         done = done.to(self.device).squeeze(1)
 
         q_values = self.policy_net(state).gather(1, action.to(torch.int64)).squeeze(1)

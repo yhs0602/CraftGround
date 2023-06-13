@@ -53,7 +53,7 @@ class VisionWrapper(gym.Wrapper):
 
     def reset(self, fast_reset: bool = True) -> WrapperObsType:
         obs = self.env.reset(fast_reset=fast_reset)
-        return obs["rgb"]
+        return obs["rgb"], obs
 
     def int_to_action(self, input_act: int) -> List[float]:
         act = no_op()

@@ -26,7 +26,7 @@ class DuelingBiModalDQN(DuelingDQNBase):
         )
         conv_out_size = self.get_conv_output(state_dim)
         self.video_feature = nn.Sequential(
-            self.conv, nn.Linear(conv_out_size, hidden_dim), nn.ReLU()
+            self.conv, nn.Flatten(), nn.Linear(conv_out_size, hidden_dim), nn.ReLU()
         )
         self.feature = nn.Sequential(
             nn.Linear(hidden_dim * 2, hidden_dim),
@@ -49,6 +49,7 @@ class DuelingBiModalDQN(DuelingDQNBase):
         return int(np.prod(x.size()))
 
     def forward(self, audio, video):
+        video = video.float() / 255.0
         audio_feature = self.audio_feature(audio)
         video_feature = self.video_feature(video)
         x = torch.cat((audio_feature, video_feature), dim=1)

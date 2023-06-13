@@ -36,6 +36,14 @@ class DuelingVisionDQN(DuelingDQNBase):
         x = self.feature(x)
         return int(np.prod(x.size()))
 
+    def forward(self, x):
+        x = x.float() / 255.0
+        x = self.feature(x)
+        x = x.view(x.size(0), -1)
+        advantage = self.advantage(x)
+        value = self.value(x)
+        return value + advantage - advantage.mean(dim=1, keepdim=True)
+
 
 class DuelingVisionDQNAgent(DuelingDQNAgentBase):
     def __init__(
