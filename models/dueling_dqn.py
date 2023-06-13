@@ -1,10 +1,9 @@
 # Dueling dqns for sound, vision, and bimodal inputs
 from typing import Optional
 
+import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
 
 from models.dqn import ReplayBuffer
 from wrapper_runners.generic_wrapper_runner import Agent
