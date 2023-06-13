@@ -1,8 +1,19 @@
 import argparse
 import subprocess
 
+import numpy as np
+import torch
+from gymnasium.wrappers import FrameStack
+
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.sound_wrapper import SoundWrapper
+
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+elif torch.has_mps:
+    device = torch.device("mps")
+else:
+    device = torch.device("cpu")
 
 parser = argparse.ArgumentParser(description="Run experiment")
 
@@ -163,6 +174,7 @@ def train_sound(
     num_episodes,
     warmup_episodes,
     reward_function=None,
+    stack_size=None,
 ):
     env, sound_list = env_makers[env_name](verbose, env_path, port)
     wrapper = SoundWrapper(
@@ -172,10 +184,17 @@ def train_sound(
         coord_dim=2,
         reward_function=reward_function,
     )
+    if stack_size is not None:
+        wrapper = FrameStack(wrapper, stack_size)
     if agent == "DQNAgent":
-        from models.dqn import DQNSoundAgent
+        if stack_size is None:
+            from models.dqn import DQNSoundAgent
 
-        agent_class = DQNSoundAgent
+            agent_class = DQNSoundAgent
+        else:
+            from models.stacked_dqn import StackedDQNSoundAgent
+
+            agent_class = StackedDQNSoundAgent
     elif agent == "DDQNAgent":
         from models.dqn import DDQNSoundAgent
 
@@ -184,6 +203,9 @@ def train_sound(
         print(f"Agent not implemented: {agent}")
         raise NotImplementedError
     state_dim = wrapper.observation_space.shape
+    print(state_dim)
+    state_dim = (np.prod(state_dim),)
+    print(state_dim)
     action_dim = wrapper.action_space.n
     agent_instance = agent_class(
         state_dim,
@@ -194,6 +216,8 @@ def train_sound(
         gamma,
         learning_rate,
         weight_decay,
+        stack_size=stack_size,
+        device=device,
     )
 
     from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner

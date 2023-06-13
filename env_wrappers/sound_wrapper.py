@@ -94,7 +94,7 @@ class SoundWrapper(gym.Wrapper):
         obs = obs["obs"]
         sound_subtitles = obs.sound_subtitles
         sound_vector = self.encode_sound(sound_subtitles, obs.x, obs.y, obs.z, obs.yaw)
-        return np.array(sound_vector, dtype=np.float32)
+        return np.array(sound_vector, dtype=np.float32), obs
 
     def int_to_action(self, input_act: int) -> List[float]:
         act = no_op()

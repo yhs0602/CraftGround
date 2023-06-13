@@ -497,41 +497,12 @@ class SoundDQN(nn.Module):
         self.fc3 = nn.Linear(hidden_dim, num_actions)
 
     def forward(self, x):
+        if x.dim() == 3:  # stacked frames
+            x = x.view(-1, x.shape[1] * x.shape[2])
         x = nn.functional.relu(self.bn1(self.fc1(x)))
         x = nn.functional.relu(self.bn2(self.fc2(x)))
         x = self.fc3(x)
         return x
-
-    # def regularization_loss(self):
-    #     # Calculate the L2 regularization loss for the module's parameters
-    #     l2_loss = torch.tensor(0.0)
-    #     for param in self.parameters():
-    #         l2_loss += torch.norm(param, p=2) ** 2
-    #     return 0.5 * self.weight_decay * l2_loss
-
-    def update_model(self) -> Optional[float]:
-        if len(self.replay_buffer) < self.batch_size:
-            return
-        # print("Will update model")
-        state, action, next_state, reward, done = self.replay_buffer.sample(
-            self.batch_size
-        )
-        state = state.to(device)
-        action = action.to(device)
-        reward = reward.to(device).squeeze(1)
-        next_state = next_state.to(device)
-        done = done.to(device).squeeze(1)
-
-        q_values = self.policy_net(state).gather(1, action.to(torch.int64)).squeeze(1)
-        next_q_values = self.target_net(next_state).max(1)[0]
-        expected_q_values = reward + (1 - done) * self.gamma * next_q_values
-
-        loss = self.loss_fn(q_values, expected_q_values.detach())
-
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-        return loss.item()
 
 
 class DQNSoundAgent(DQNAgent):
@@ -545,6 +516,7 @@ class DQNSoundAgent(DQNAgent):
         gamma,
         learning_rate,
         weight_decay,
+        stack_size=None,
     ):
         self.state_dim = state_dim
         self.action_dim = action_dim
@@ -553,6 +525,7 @@ class DQNSoundAgent(DQNAgent):
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
         self.gamma = gamma
+        self.stack_size = stack_size
         self.policy_net = SoundDQN(state_dim, action_dim, hidden_dim).to(device)
         self.target_net = SoundDQN(state_dim, action_dim, hidden_dim).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
@@ -580,6 +553,7 @@ class DQNSoundAgent(DQNAgent):
             "optimizer": self.optimizer,
             "loss_fn": self.loss_fn,
             "weight_decay": self.weight_decay,
+            "stack_size": self.stack_size,
         }
 
 

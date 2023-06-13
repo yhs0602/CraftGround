@@ -1,3 +1,5 @@
+from gymnasium.wrappers import FrameStack
+
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.vision_wrapper import VisionWrapper
 
@@ -24,9 +26,12 @@ def train_cnn(
     num_episodes,
     warmup_episodes,
     reward_function=None,
+    stack_size=None,
 ):
     env, _ = env_makers[env_name](verbose, env_path, port)
     wrapper = VisionWrapper(env, action_dim=7, reward_function=reward_function)
+    if stack_size is not None:
+        wrapper = FrameStack(wrapper, stack_size)
     if agent == "DQNAgent":
         from models.dqn import DQNAgent
 

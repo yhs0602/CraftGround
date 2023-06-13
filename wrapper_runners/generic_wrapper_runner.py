@@ -173,7 +173,7 @@ class GenericWrapperRunner:
         wandb.finish()
 
     def train_agent(self, episode, accum_steps):
-        state = self.env.reset(fast_reset=True)
+        state, info = self.env.reset(fast_reset=True)
         print_with_time("Finished resetting the environment")
         episode_reward = 0
         sum_time = 0
@@ -212,7 +212,7 @@ class GenericWrapperRunner:
     def test_agent(self, episode, record_video):
         if record_video:
             video_recorder = VideoRecorder(self.env, f"video{episode}.mp4")
-        state = self.env.reset(fast_reset=True)
+        state, info = self.env.reset(fast_reset=True)
         print_with_time("Finished resetting the environment")
         episode_reward = 0
         time_took = 0
