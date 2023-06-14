@@ -11,10 +11,12 @@ from models.dueling_dqn_base import DuelingDQNAgentBase, DuelingDQNBase
 
 
 class DuelingBiModalDQN(DuelingDQNBase):
-    def __init__(self, state_dim, action_dim, kernel_size, stride, hidden_dim):
+    def __init__(
+        self, state_dim, sound_dim, action_dim, kernel_size, stride, hidden_dim
+    ):
         super(DuelingBiModalDQN, self).__init__()
         self.audio_feature = nn.Sequential(
-            nn.Linear(state_dim[0], hidden_dim), nn.ReLU()
+            nn.Linear(sound_dim[0], hidden_dim), nn.ReLU()
         )
         self.conv = nn.Sequential(
             nn.Conv2d(state_dim[0], 16, kernel_size=kernel_size, stride=stride),
@@ -65,8 +67,11 @@ class DuelingBiModalDQNAgent(DuelingDQNAgentBase):
     def __init__(
         self,
         state_dim,
+        sound_dim,
         action_dim,
         hidden_dim,
+        kernel_size,
+        stride,
         buffer_size,
         batch_size,
         gamma,
@@ -79,12 +84,12 @@ class DuelingBiModalDQNAgent(DuelingDQNAgentBase):
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
         self.device = device
-        self.policy_net = DuelingBiModalDQN(state_dim, action_dim, hidden_dim).to(
-            device
-        )
-        self.target_net = DuelingBiModalDQN(state_dim, action_dim, hidden_dim).to(
-            device
-        )
+        self.policy_net = DuelingBiModalDQN(
+            state_dim, sound_dim, action_dim, kernel_size, stride, hidden_dim
+        ).to(device)
+        self.target_net = DuelingBiModalDQN(
+            state_dim, sound_dim, action_dim, kernel_size, stride, hidden_dim
+        ).to(device)
         self.loss_fn = nn.MSELoss()
         self.gamma = gamma
         self.learning_rate = learning_rate
@@ -151,9 +156,9 @@ class DuelingBiModalDQNAgent(DuelingDQNAgentBase):
         done = done.to(self.device).squeeze(1)
 
         q_values = (
-            self.policy_net(video, audio).gather(1, action.to(torch.int64)).squeeze(1)
+            self.policy_net(audio, video).gather(1, action.to(torch.int64)).squeeze(1)
         )
-        next_q_values = self.target_net(next_video, next_audio).max(1)[0]
+        next_q_values = self.target_net(next_audio, next_video).max(1)[0]
         expected_q_values = reward + (1 - done) * self.gamma * next_q_values
 
         loss = self.loss_fn(q_values, expected_q_values.detach())

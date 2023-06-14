@@ -1,3 +1,4 @@
+from env_experiments.get_device import get_device
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.vision_and_sound_wrapper import VisionAndSoundWrapper
 
@@ -41,6 +42,10 @@ def train_vision_and_sound(
         from models.dqn import MultimodalDQNAgent
 
         agent_class = MultimodalDQNAgent
+    elif agent == "DuelingDQNAgent":
+        from models.dueling_bimodal_dqn import DuelingBiModalDQNAgent
+
+        agent_class = DuelingBiModalDQNAgent
     else:
         print(f"Agent not implemented: {agent}")
         raise NotImplementedError
@@ -60,6 +65,7 @@ def train_vision_and_sound(
         gamma,
         learning_rate,
         weight_decay,
+        device=get_device(),
     )
 
     from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner

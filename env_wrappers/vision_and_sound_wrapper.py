@@ -86,7 +86,7 @@ class VisionAndSoundWrapper(gym.Wrapper):
         return {
             "vision": rgb,
             "sound": np.array(sound_vector, dtype=np.float32),
-        }
+        }, obs
 
     def encode_sound(
         self, sound_subtitles: List, x: float, y: float, z: float, yaw: float
