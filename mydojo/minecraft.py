@@ -107,8 +107,11 @@ def send_command(sock: socket.socket, command: str):
     # print("Sent command")
 
 
-def send_fastreset2(sock: socket.socket):
-    send_command(sock, "fastreset")
+def send_fastreset2(sock: socket.socket, extra_commands: List[str] = None):
+    extra_cmd_str = ""
+    if extra_commands is not None:
+        extra_cmd_str = ";".join(extra_commands)
+    send_command(sock, f"fastreset {extra_cmd_str}")
 
 
 def send_respawn2(sock: socket.socket):

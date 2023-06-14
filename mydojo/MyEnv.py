@@ -51,6 +51,7 @@ class MyEnv(gym.Env):
     def reset(
         self,
         fast_reset: bool = True,
+        extra_commands: Optional[List[str]] = None,
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
@@ -64,7 +65,7 @@ class MyEnv(gym.Env):
                 sleep(5)
                 self.start_server(port=self.port)
             else:
-                send_fastreset2(self.sock)
+                send_fastreset2(self.sock, extra_commands)
                 print_with_time("Sent fast reset")
         print_with_time("Reading response...")
         siz, res = self.read_one_observation()
