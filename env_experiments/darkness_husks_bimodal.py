@@ -1,4 +1,4 @@
-from env_experiments.vision_and_sound import train_vision_and_sound
+from env_experiments.train_bimodal import train_vision_and_sound
 
 if __name__ == "__main__":
     train_vision_and_sound(
