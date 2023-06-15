@@ -35,7 +35,7 @@ if __name__ == "__main__":
         epsilon_decay=0.99,
         epsilon_min=0.01,
         max_steps_per_episode=400,
-        num_episodes=2000,
+        num_episodes=4000,
         warmup_episodes=0,
         reward_function=reward_function,
     )

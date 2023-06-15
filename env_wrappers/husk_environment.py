@@ -1,7 +1,6 @@
 import random
 
 import gym
-import numpy as np
 from gymnasium.core import WrapperObsType
 
 import mydojo
@@ -323,8 +322,8 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
             super(RandomHuskWrapper, self).__init__(self.env)
 
         def reset(self, fast_reset: bool = True) -> WrapperObsType:
-            dx = random.randint(-10, 10)
-            dz = random.randint(-10, 10)
+            dx = self.generate_random_excluding(-10, 10, -5, 5)
+            dz = self.generate_random_excluding(-10, 10, -5, 5)
             obs = self.env.reset(
                 fast_reset=fast_reset,
                 extra_commands=[
@@ -335,7 +334,17 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
                 ],
             )
             print(f"dx={dx}, dz={dz}")
+            obs["extra_info"] = {
+                "husk_dx": dx,
+                "husk_dz": dz,
+            }
             return obs
+
+        def generate_random_excluding(self, start, end, exclude_start, exclude_end):
+            while True:
+                x = random.randint(start, end)
+                if x not in range(exclude_start, exclude_end):
+                    return x
 
     return RandomHuskWrapper(), [
         "subtitles.entity.husk.ambient",

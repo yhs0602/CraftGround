@@ -141,6 +141,7 @@ class GenericWrapperRunner:
                     accum_steps,
                     time_took,
                     avg_loss,
+                    reset_extra_info,
                 ) = self.train_agent(episode, accum_steps)
                 if num_steps == 0:
                     num_steps = 1
@@ -155,6 +156,7 @@ class GenericWrapperRunner:
                     "avg_loss": avg_loss,
                 }
                 thing_to_log.update(self.get_extra_log_info())
+                # thing_to_log.update(reset_extra_info)
                 print(
                     " ".join(["{0}={1}".format(k, v) for k, v in thing_to_log.items()])
                 )
@@ -173,7 +175,8 @@ class GenericWrapperRunner:
         wandb.finish()
 
     def train_agent(self, episode, accum_steps):
-        state, info = self.env.reset(fast_reset=True)
+        state, reset_info = self.env.reset(fast_reset=True)
+        # reset_extra_info = reset_info.get("extra_info", None)
         print_with_time("Finished resetting the environment")
         episode_reward = 0
         sum_time = 0
@@ -207,12 +210,20 @@ class GenericWrapperRunner:
             # print(f"Step {step} took {elapsed_time:.5f} seconds")
             sum_time += elapsed_time
         avg_loss = np.mean([loss for loss in losses if loss is not None])
-        return episode_reward, num_steps, accum_steps, sum_time, avg_loss
+        return (
+            episode_reward,
+            num_steps,
+            accum_steps,
+            sum_time,
+            avg_loss,
+            None,
+        )  # reset_extra_info
 
     def test_agent(self, episode, record_video):
         if record_video:
             video_recorder = VideoRecorder(self.env, f"video{episode}.mp4")
         state, info = self.env.reset(fast_reset=True)
+        # reset_extra_info = state.get("extra_info", None)
         print_with_time("Finished resetting the environment")
         episode_reward = 0
         time_took = 0
@@ -224,6 +235,7 @@ class GenericWrapperRunner:
             action = self.select_action(episode, state, True)
             # print(f"{state=}, {action=}")
             next_state, reward, terminated, truncated, info = self.env.step(action)
+            # extra_info = info.get("extra_info", None)
             episode_reward += reward
             self.after_step(
                 step,
@@ -247,7 +259,9 @@ class GenericWrapperRunner:
             num_steps += 1
         if record_video:
             video_recorder.close()
-        wandb.log({"test/score": episode_reward, "test/step": episode})
+        to_log = {"test/score": episode_reward, "test/step": episode}
+        # to_log.update(reset_extra_info)
+        wandb.log(to_log)
         return episode_reward, num_steps, time_took, video_recorder
 
     def before_training(self):
