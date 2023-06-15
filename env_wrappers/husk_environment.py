@@ -352,6 +352,69 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
+def make_random_husks_environment(verbose: bool, env_path: str, port: int):
+    class RandomHuskWrapper(gym.Wrapper):
+        def __init__(self):
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[],
+                initialPosition=None,  # nullable
+                initialMobsCommands=[
+                    # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                    # player looks at south (positive Z) when spawn
+                ],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=12345,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=True,  # superflat world
+                obs_keys=["sound_subtitles"],
+            )
+            super(RandomHuskWrapper, self).__init__(self.env)
+
+        def reset(self, fast_reset: bool = True) -> WrapperObsType:
+            extra_commands = ["tp @e[type=!player] ~ -500 ~"]
+
+            for _ in range(5):
+                dx = self.generate_random_excluding(-10, 10, -5, 5)
+                dz = self.generate_random_excluding(-10, 10, -5, 5)
+                extra_commands.append(
+                    "summon minecraft:husk "
+                    + f"~{dx} ~ ~{dz}"
+                    + " {HandItems:[{Count:1,id:iron_shovel},{}]}"
+                )
+                print(f"dx={dx}, dz={dz}")
+
+            obs = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=extra_commands,
+            )
+            # obs["extra_info"] = {
+            #     "husk_dx": dx,
+            #     "husk_dz": dz,
+            # }
+            return obs
+
+        def generate_random_excluding(self, start, end, exclude_start, exclude_end):
+            while True:
+                x = random.randint(start, end)
+                if x not in range(exclude_start, exclude_end):
+                    return x
+
+    return RandomHuskWrapper(), [
+        "subtitles.entity.husk.ambient",
+        "subtitles.block.generic.footsteps",
+    ]
+
+
 env_makers = {
     "husk": make_husk_environment,
     "husks": make_husks_environment,
@@ -361,4 +424,5 @@ env_makers = {
     "husks-darkness": make_husks_darkness_environment,
     "find-animal": make_find_animal_environment,
     "husk-random": make_random_husk_environment,
+    "husks-random": make_random_husks_environment,
 }
