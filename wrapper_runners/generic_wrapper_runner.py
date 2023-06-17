@@ -233,7 +233,7 @@ class GenericWrapperRunner:
             if record_video:
                 video_recorder.capture_frame()
             action = self.select_action(episode, state, True)
-            print(f"testing {action=} state norm = {np.linalg.norm(state)}")
+            # print(f"testing {action=} state norm = {np.linalg.norm(state)}")
             # print(f"{state=}, {action=}")
             next_state, reward, terminated, truncated, info = self.env.step(action)
             # extra_info = info.get("extra_info", None)

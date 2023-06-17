@@ -1,7 +1,8 @@
 import random
+from typing import Tuple
 
 import gym
-from gymnasium.core import WrapperObsType
+from gymnasium.core import WrapperObsType, ActType, ObsType
 
 import mydojo
 
@@ -454,6 +455,65 @@ def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: i
     ]
 
 
+# summons husks every 20 ticks
+def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
+    class RandomHuskWrapper(gym.Wrapper):
+        def __init__(self):
+            initialExtraCommands = []
+            initialExtraCommands.extend(generate_husks(20, 5, 10))
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[],
+                initialPosition=None,  # nullable
+                initialMobsCommands=[
+                    # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                    # player looks at south (positive Z) when spawn
+                ],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=12345,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=True,  # superflat world
+                obs_keys=["sound_subtitles"],
+                initialExtraCommands=initialExtraCommands,
+            )
+            super(RandomHuskWrapper, self).__init__(self.env)
+
+        def reset(self, fast_reset: bool = True) -> WrapperObsType:
+            extra_commands = ["tp @e[type=!player] ~ -500 ~"]
+            extra_commands.extend(generate_husks(20, 5, 10))
+
+            obs = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=extra_commands,
+            )
+            # obs["extra_info"] = {
+            #     "husk_dx": dx,
+            #     "husk_dz": dz,
+            # }
+            return obs
+
+        def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            if random.randint(0, 19) == 0:
+                extra_commands = generate_husks(1, 5, 10)
+                self.env.add_commands(extra_commands)
+            return obs, reward, terminated, truncated, info
+
+    return RandomHuskWrapper(), [
+        "subtitles.entity.husk.ambient",
+        "subtitles.block.generic.footsteps",
+    ]
+
+
 env_makers = {
     "husk": make_husk_environment,
     "husks": make_husks_environment,
@@ -465,6 +525,7 @@ env_makers = {
     "husk-random": make_random_husk_environment,
     "husks-random": make_random_husks_environment,
     "husks-random-darkness": make_random_husks_darkness_environment,
+    "husks-continuous": make_continuous_husks_environment,
 }
 
 

@@ -96,22 +96,24 @@ def send_action2(sock: socket.socket, action_array: List[int]):
     # print("Sent action")
 
 
-def send_command(sock: socket.socket, command: str):
+def send_commands(sock: socket.socket, commands: List[str]):
     # print("Sending command")
     action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(no_op())
-    action_space.command = command
+    action_space.commands.extend(commands)
     v = action_space.SerializeToString()
     sock.send(struct.pack("<I", len(v)))
     sock.sendall(v)
     # print("Sent command")
 
 
-def send_action_and_command(sock: socket.socket, action_array: List[int], command: str):
+def send_action_and_commands(
+    sock: socket.socket, action_array: List[int], commands: List[str]
+):
     # print("Sending command")
     action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(action_array)
-    action_space.command = command
+    action_space.commands.extend(commands)
     v = action_space.SerializeToString()
     sock.send(struct.pack("<I", len(v)))
     sock.sendall(v)
@@ -122,8 +124,8 @@ def send_fastreset2(sock: socket.socket, extra_commands: List[str] = None):
     extra_cmd_str = ""
     if extra_commands is not None:
         extra_cmd_str = ";".join(extra_commands)
-    send_command(sock, f"fastreset {extra_cmd_str}")
+    send_commands(sock, [f"fastreset {extra_cmd_str}"])
 
 
 def send_respawn2(sock: socket.socket):
-    send_command(sock, "respawn")
+    send_commands(sock, ["respawn"])

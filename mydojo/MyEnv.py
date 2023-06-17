@@ -16,7 +16,13 @@ from gym.core import ActType, ObsType, RenderFrame
 from mydojo.initial_environment import InitialEnvironment
 from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
-from .minecraft import wait_for_server, send_action2, send_fastreset2, send_action
+from .minecraft import (
+    wait_for_server,
+    send_action2,
+    send_fastreset2,
+    send_action,
+    send_action_and_commands,
+)
 from .proto import observation_space_pb2, initial_environment_pb2
 
 
@@ -38,6 +44,7 @@ class MyEnv(gym.Env):
         self.last_action = None
         self.verbose = verbose
         self.port = port
+        self.queued_commands = []
         if env_path is None:
             self.env_path = os.path.join(
                 os.path.dirname(
@@ -71,6 +78,7 @@ class MyEnv(gym.Env):
         siz, res = self.read_one_observation()
         print_with_time(f"Got response with size {siz}")
         arr, done, reward, truncated = self.convert_observation(res)
+        self.queued_commands = []
 
         return {"obs": res, "rgb": arr}
 
@@ -167,7 +175,8 @@ class MyEnv(gym.Env):
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
         self.last_action = action
-        send_action2(self.sock, action)
+        send_action_and_commands(self.sock, action, commands=self.queued_commands)
+        self.queued_commands.clear()
         # read the response
         print_with_time("Sent action and reading response...")
         siz, res = self.read_one_observation()
@@ -187,6 +196,12 @@ class MyEnv(gym.Env):
     # def close(self):
     #     self.sock.close()
     #     self.buffered_socket.close()
+
+    def add_command(self, command: str):
+        self.queued_commands.append(command)
+
+    def add_commands(self, commands: List[str]):
+        self.queued_commands.extend(commands)
 
 
 # Deprecated
