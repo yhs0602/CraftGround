@@ -46,6 +46,10 @@ def train_vision_and_sound(
         from models.dueling_bimodal_dqn import DuelingBiModalDQNAgent
 
         agent_class = DuelingBiModalDQNAgent
+    elif agent == "DuelingDQNAttentionAgent":
+        from models.dueling_bimodal_attention_dqn import DuelingBiModalAttentionAgent
+
+        agent_class = DuelingBiModalAttentionAgent
     else:
         print(f"Agent not implemented: {agent}")
         raise NotImplementedError

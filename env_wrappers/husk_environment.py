@@ -377,21 +377,15 @@ def make_random_husks_environment(verbose: bool, env_path: str, port: int):
                 isHardCore=False,
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
+                initialExtraCommands=generate_husks(5, 5, 10),
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
         def reset(self, fast_reset: bool = True) -> WrapperObsType:
             extra_commands = ["tp @e[type=!player] ~ -500 ~"]
 
-            for _ in range(5):
-                dx = self.generate_random_excluding(-10, 10, -5, 5)
-                dz = self.generate_random_excluding(-10, 10, -5, 5)
-                extra_commands.append(
-                    "summon minecraft:husk "
-                    + f"~{dx} ~ ~{dz}"
-                    + " {HandItems:[{Count:1,id:iron_shovel},{}]}"
-                )
-                print(f"dx={dx}, dz={dz}")
+            gen_husk_commands = generate_husks(5, 5, 10)
+            extra_commands.extend(gen_husk_commands)
 
             obs = self.env.reset(
                 fast_reset=fast_reset,
@@ -403,11 +397,56 @@ def make_random_husks_environment(verbose: bool, env_path: str, port: int):
             # }
             return obs
 
-        def generate_random_excluding(self, start, end, exclude_start, exclude_end):
-            while True:
-                x = random.randint(start, end)
-                if x not in range(exclude_start, exclude_end):
-                    return x
+    return RandomHuskWrapper(), [
+        "subtitles.entity.husk.ambient",
+        "subtitles.block.generic.footsteps",
+    ]
+
+
+def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: int):
+    class RandomHuskWrapper(gym.Wrapper):
+        def __init__(self):
+            initialExtraCommands = ["effect give @p minecraft:darkness infinite 1 true"]
+            initialExtraCommands.extend(generate_husks(40, 5, 10))
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[],
+                initialPosition=None,  # nullable
+                initialMobsCommands=[
+                    # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                    # player looks at south (positive Z) when spawn
+                ],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=12345,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=True,  # superflat world
+                obs_keys=["sound_subtitles"],
+                initialExtraCommands=initialExtraCommands,
+            )
+            super(RandomHuskWrapper, self).__init__(self.env)
+
+        def reset(self, fast_reset: bool = True) -> WrapperObsType:
+            extra_commands = ["tp @e[type=!player] ~ -500 ~"]
+            extra_commands.extend(generate_husks(40, 5, 10))
+
+            obs = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=extra_commands,
+            )
+            # obs["extra_info"] = {
+            #     "husk_dx": dx,
+            #     "husk_dz": dz,
+            # }
+            return obs
 
     return RandomHuskWrapper(), [
         "subtitles.entity.husk.ambient",
@@ -425,4 +464,34 @@ env_makers = {
     "find-animal": make_find_animal_environment,
     "husk-random": make_random_husk_environment,
     "husks-random": make_random_husks_environment,
+    "husks-random-darkness": make_random_husks_darkness_environment,
 }
+
+
+def generate_husks(num_husks, min_distnace, max_distance):
+    commands = []
+    success_count = 0
+    while success_count < num_husks:
+        dx = generate_random(-max_distance, max_distance)
+        dz = generate_random(-max_distance, max_distance)
+        if dx * dx + dz * dz < min_distnace * min_distnace:
+            continue
+        commands.append(
+            "summon minecraft:husk "
+            + f"~{dx} ~ ~{dz}"
+            + " {HandItems:[{Count:1,id:iron_shovel},{}], IsBaby:1}"
+        )
+        success_count += 1
+        print(f"dx={dx}, dz={dz}")
+    return commands
+
+
+def generate_random(start, end):
+    return random.randint(start, end)
+
+
+def generate_random_excluding(start, end, exclude_start, exclude_end):
+    while True:
+        x = random.randint(start, end)
+        if x not in range(exclude_start, exclude_end):
+            return x

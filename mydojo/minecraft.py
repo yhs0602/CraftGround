@@ -107,6 +107,17 @@ def send_command(sock: socket.socket, command: str):
     # print("Sent command")
 
 
+def send_action_and_command(sock: socket.socket, action_array: List[int], command: str):
+    # print("Sending command")
+    action_space = action_space_pb2.ActionSpaceMessage()
+    action_space.action.extend(action_array)
+    action_space.command = command
+    v = action_space.SerializeToString()
+    sock.send(struct.pack("<I", len(v)))
+    sock.sendall(v)
+    # print("Sent command")
+
+
 def send_fastreset2(sock: socket.socket, extra_commands: List[str] = None):
     extra_cmd_str = ""
     if extra_commands is not None:
