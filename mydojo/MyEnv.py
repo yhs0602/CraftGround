@@ -6,7 +6,7 @@ import struct
 import subprocess
 from datetime import datetime
 from time import sleep
-from typing import Tuple, Optional, Union, List
+from typing import Tuple, Optional, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
@@ -62,7 +62,7 @@ class MyEnv(gym.Env):
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
-    ) -> ObsType:
+    ) -> Tuple[ObsType, Dict[str, Any]]:
         if not self.sock:  # first time
             self.start_server(port=self.port)
         else:
@@ -80,7 +80,7 @@ class MyEnv(gym.Env):
         arr, done, reward, truncated = self.convert_observation(res)
         self.queued_commands = []
 
-        return {"obs": res, "rgb": arr}
+        return {"obs": res, "rgb": arr}, {"obs": res, "rgb": arr}
 
     def convert_observation(self, res):
         png_img = res.image  # png byte array
@@ -182,7 +182,13 @@ class MyEnv(gym.Env):
         siz, res = self.read_one_observation()
         arr, done, reward, truncated = self.convert_observation(res)
 
-        return {"obs": res, "rgb": arr}, reward, done, truncated, {}
+        return (
+            {"obs": res, "rgb": arr},
+            reward,
+            done,
+            truncated,
+            {"obs": res, "rgb": arr},
+        )
 
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
         # print("Rendering...")

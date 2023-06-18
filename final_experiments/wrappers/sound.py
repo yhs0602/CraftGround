@@ -1,20 +1,18 @@
 import math
-from typing import SupportsFloat, Any, List, Tuple, Dict
+from typing import SupportsFloat, Any, List, Optional
 
 import gymnasium as gym
 import numpy as np
-from gymnasium.core import WrapperActType, WrapperObsType, ObsType
+from gymnasium.core import WrapperActType, WrapperObsType
 
 
-# abstract class for sound wrapper
+# Sound wrapper
 class SoundWrapper(gym.Wrapper):
-    def __init__(self, env, action_dim, sound_list, coord_dim, reward_function=None):
+    def __init__(self, env, sound_list, coord_dim):
         self.sound_list = sound_list
         self.env = env
         self.coord_dim = coord_dim
-        self.reward_function = reward_function
         super().__init__(self.env)
-        self.action_space = env.action_space
         self.observation_space = gym.spaces.Box(
             low=-1, high=1, shape=(len(sound_list) * coord_dim + 3,), dtype=np.float32
         )
@@ -22,25 +20,12 @@ class SoundWrapper(gym.Wrapper):
     def step(
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
-        action_arr = self.int_to_action(action)
-        obs, reward, terminated, truncated, info = self.env.step(action_arr)
-        # rgb = obs["rgb"]
-        obs = obs["obs"]
-        is_dead = obs.is_dead
-        sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound(sound_subtitles, obs.x, obs.y, obs.z, obs.yaw)
-
-        if self.reward_function is None:
-            reward = 0.5  # initial reward
-            if is_dead:  #
-                if self.initial_env.isHardCore:
-                    reward = -100
-                    terminated = True
-                else:  # send respawn packet
-                    reward = -1
-                    terminated = True
-        else:
-            reward, terminated = self.reward_function(obs)
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        info_obs = info["obs"]
+        sound_subtitles = info_obs.sound_subtitles
+        sound_vector = self.encode_sound(
+            sound_subtitles, info_obs.x, info_obs.y, info_obs.z, info_obs.yaw
+        )
         return (
             np.array(sound_vector, dtype=np.float32),
             reward,
@@ -87,9 +72,17 @@ class SoundWrapper(gym.Wrapper):
 
         return sound_vector
 
-    def reset(self, fast_reset: bool = True) -> Tuple[ObsType, Dict[str, Any]]:
-        obs, info = self.env.reset(fast_reset=fast_reset)
-        obs = obs["obs"]
-        sound_subtitles = obs.sound_subtitles
-        sound_vector = self.encode_sound(sound_subtitles, obs.x, obs.y, obs.z, obs.yaw)
-        return np.array(sound_vector, dtype=np.float32), obs
+    def reset(
+        self,
+        fast_reset: bool = True,
+        *,
+        seed: Optional[int] = None,
+        options: Optional[dict[str, Any]] = None
+    ):
+        obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
+        obs_info = info["obs"]
+        sound_subtitles = obs_info.sound_subtitles
+        sound_vector = self.encode_sound(
+            sound_subtitles, obs_info.x, obs_info.y, obs_info.z, obs_info.yaw
+        )
+        return np.array(sound_vector, dtype=np.float32), info

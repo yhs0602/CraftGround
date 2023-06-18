@@ -166,15 +166,17 @@ def train_sound(
     max_steps_per_episode,
     num_episodes,
     warmup_episodes,
+    coord_dim=2,
+    action_dim=7,
     reward_function=None,
     stack_size=None,
 ):
     env, sound_list = env_makers[env_name](verbose, env_path, port)
     wrapper = SoundWrapper(
         env,
-        action_dim=7,
+        action_dim=action_dim,
         sound_list=sound_list,
-        coord_dim=2,
+        coord_dim=coord_dim,
         reward_function=reward_function,
     )
     if stack_size is not None:

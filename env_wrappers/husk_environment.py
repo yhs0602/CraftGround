@@ -1,7 +1,7 @@
 import random
-from typing import Tuple
+from typing import Tuple, Optional, Dict, Any
 
-import gym
+import gymnasium as gym
 from gymnasium.core import WrapperObsType, ActType, ObsType
 
 import mydojo
@@ -322,10 +322,10 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
-        def reset(self, fast_reset: bool = True) -> WrapperObsType:
+        def reset(self, fast_reset: bool = True) -> Tuple[ObsType, Dict[str, Any]]:
             dx = self.generate_random_excluding(-10, 10, -5, 5)
             dz = self.generate_random_excluding(-10, 10, -5, 5)
-            obs = self.env.reset(
+            obs, info = self.env.reset(
                 fast_reset=fast_reset,
                 extra_commands=[
                     "tp @e[type=!player] ~ -500 ~",
@@ -339,7 +339,7 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
                 "husk_dx": dx,
                 "husk_dz": dz,
             }
-            return obs
+            return obs, info
 
         def generate_random_excluding(self, start, end, exclude_start, exclude_end):
             while True:
@@ -514,6 +514,62 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
+def make_random_husk_terrain_environment(verbose: bool, env_path: str, port: int):
+    class RandomHuskWrapper(gym.Wrapper):
+        def __init__(self):
+            initialExtraCommands = []
+            initialExtraCommands.extend(generate_husks(1, 5, 10, dy=8))
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[],
+                initialPosition=None,  # nullable
+                initialMobsCommands=[
+                    # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                    # player looks at south (positive Z) when spawn
+                ],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=3788863154090864390,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=False,  # superflat world
+                obs_keys=["sound_subtitles"],
+                initialExtraCommands=initialExtraCommands,
+            )
+            super(RandomHuskWrapper, self).__init__(self.env)
+
+        def reset(
+            self,
+            fast_reset: bool = True,
+            seed: Optional[int] = None,
+            options: Optional[dict[str, Any]] = None,
+        ) -> tuple[WrapperObsType, dict[str, Any]]:
+            extra_commands = ["tp @e[type=!player] ~ -500 ~"]
+            extra_commands.extend(generate_husks(1, 5, 10, dy=8))
+
+            obs = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=extra_commands,
+            )
+            # obs["extra_info"] = {
+            #     "husk_dx": dx,
+            #     "husk_dz": dz,
+            # }
+            return obs
+
+    return RandomHuskWrapper(), [
+        "subtitles.entity.husk.ambient",
+        "subtitles.block.generic.footsteps",
+    ]
+
+
 env_makers = {
     "husk": make_husk_environment,
     "husks": make_husks_environment,
@@ -526,21 +582,30 @@ env_makers = {
     "husks-random": make_random_husks_environment,
     "husks-random-darkness": make_random_husks_darkness_environment,
     "husks-continuous": make_continuous_husks_environment,
+    "husk-random-terrain": make_random_husk_terrain_environment,
 }
 
 
-def generate_husks(num_husks, min_distnace, max_distance, is_baby: bool = False):
+def generate_husks(
+    num_husks,
+    min_distnace,
+    max_distance,
+    dy: Optional[int] = None,
+    is_baby: bool = False,
+):
     commands = []
     success_count = 0
     is_baby_int = 1 if is_baby else 0
     while success_count < num_husks:
         dx = generate_random(-max_distance, max_distance)
         dz = generate_random(-max_distance, max_distance)
-        if dx * dx + dz * dz < min_distnace * min_distnace:
+        if dy is None:
+            dy = 0
+        if dx * dx + dz * dz + dy * dy < min_distnace * min_distnace:
             continue
         commands.append(
             "summon minecraft:husk "
-            + f"~{dx} ~ ~{dz}"
+            + f"~{dx} ~{dy} ~{dz}"
             + " {HandItems:[{Count:1,id:iron_shovel},{}],"
             + f" IsBaby:{is_baby_int}"
             + "}"

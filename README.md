@@ -4,6 +4,10 @@ RL experiments using lightweight minecraft environment
 # Environment
 https://github.com/KYHSGeekCode/MinecraftEnv
 
+# Experiments
+
+Please see `final_experiments` to see working codes.
+
 # Tasks
 - Escape a husk in a superflat world using sound information
 - Escape three husks in a superflat world using sound information
