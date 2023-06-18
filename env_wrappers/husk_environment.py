@@ -437,7 +437,7 @@ def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: i
 
         def reset(self, fast_reset: bool = True) -> WrapperObsType:
             extra_commands = ["tp @e[type=!player] ~ -500 ~"]
-            extra_commands.extend(generate_husks(40, 5, 10))
+            extra_commands.extend(generate_husks(10, 5, 10))
 
             obs = self.env.reset(
                 fast_reset=fast_reset,
@@ -455,12 +455,12 @@ def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: i
     ]
 
 
-# summons husks every 20 ticks
+# summons husks every 25 ticks
 def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
     class RandomHuskWrapper(gym.Wrapper):
         def __init__(self):
             initialExtraCommands = []
-            initialExtraCommands.extend(generate_husks(20, 5, 10))
+            initialExtraCommands.extend(generate_husks(1, 3, 5))
             self.env = mydojo.make(
                 verbose=verbose,
                 env_path=env_path,
@@ -489,7 +489,7 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
 
         def reset(self, fast_reset: bool = True) -> WrapperObsType:
             extra_commands = ["tp @e[type=!player] ~ -500 ~"]
-            extra_commands.extend(generate_husks(20, 5, 10))
+            extra_commands.extend(generate_husks(1, 4, 7))
 
             obs = self.env.reset(
                 fast_reset=fast_reset,
@@ -503,8 +503,8 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
 
         def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
             obs, reward, terminated, truncated, info = self.env.step(action)
-            if random.randint(0, 19) == 0:
-                extra_commands = generate_husks(1, 5, 10)
+            if random.randint(0, 50) == 0:
+                extra_commands = generate_husks(1, 4, 7)
                 self.env.add_commands(extra_commands)
             return obs, reward, terminated, truncated, info
 
@@ -529,9 +529,10 @@ env_makers = {
 }
 
 
-def generate_husks(num_husks, min_distnace, max_distance):
+def generate_husks(num_husks, min_distnace, max_distance, is_baby: bool = False):
     commands = []
     success_count = 0
+    is_baby_int = 1 if is_baby else 0
     while success_count < num_husks:
         dx = generate_random(-max_distance, max_distance)
         dz = generate_random(-max_distance, max_distance)
@@ -540,7 +541,9 @@ def generate_husks(num_husks, min_distnace, max_distance):
         commands.append(
             "summon minecraft:husk "
             + f"~{dx} ~ ~{dz}"
-            + " {HandItems:[{Count:1,id:iron_shovel},{}], IsBaby:1}"
+            + " {HandItems:[{Count:1,id:iron_shovel},{}],"
+            + f" IsBaby:{is_baby_int}"
+            + "}"
         )
         success_count += 1
         print(f"dx={dx}, dz={dz}")
