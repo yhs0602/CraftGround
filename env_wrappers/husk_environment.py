@@ -514,11 +514,17 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
-def make_random_husk_terrain_environment(verbose: bool, env_path: str, port: int):
+def make_random_husk_terrain_environment(
+    verbose: bool, env_path: str, port: int, darkness: bool = False
+):
     class RandomHuskWrapper(gym.Wrapper):
         def __init__(self):
             initialExtraCommands = []
             initialExtraCommands.extend(generate_husks(1, 5, 10, dy=8))
+            if darkness:
+                initialExtraCommands.append(
+                    "effect give @p minecraft:darkness infinite 1 true"
+                )
             self.env = mydojo.make(
                 verbose=verbose,
                 env_path=env_path,
