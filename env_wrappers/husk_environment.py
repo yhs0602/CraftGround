@@ -570,6 +570,71 @@ def make_random_husk_terrain_environment(verbose: bool, env_path: str, port: int
     ]
 
 
+def make_hunt_husk_environment(verbose: bool, env_path: str, port: int):
+    class RandomHuskWrapper(gym.Wrapper):
+        def __init__(self):
+            initialExtraCommands = []
+            initialExtraCommands.extend(generate_husks(1, 5, 10))
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[
+                    "minecraft:diamond_sword",
+                ],
+                initialPosition=None,  # nullable
+                initialMobsCommands=[
+                    # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                    # player looks at south (positive Z) when spawn
+                ],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=3788863154090864390,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=True,  # superflat world
+                obs_keys=["sound_subtitles"],
+                initialExtraCommands=initialExtraCommands,
+                killedStatKeys=["minecraft:husk"],
+            )
+            super(RandomHuskWrapper, self).__init__(self.env)
+
+        def reset(
+            self,
+            fast_reset: bool = True,
+            seed: Optional[int] = None,
+            options: Optional[dict[str, Any]] = None,
+        ) -> tuple[WrapperObsType, dict[str, Any]]:
+            extra_commands = ["tp @e[type=!player] ~ -500 ~"]
+            extra_commands.extend(generate_husks(1, 5, 10))
+
+            obs = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=extra_commands,
+            )
+            # obs["extra_info"] = {
+            #     "husk_dx": dx,
+            #     "husk_dz": dz,
+            # }
+            return obs
+
+    return RandomHuskWrapper(), [
+        "subtitles.entity.husk.ambient",
+        "subtitles.block.generic.footsteps",
+        "subtitles.entity.player.attack.crit",
+        "subtitles.entity.player.attack.knockback",
+        "subtitles.entity.player.attack.strong",
+        "subtitles.entity.player.attack.sweep",
+        "subtitles.entity.player.attack.weak",
+        "subtitles.entity.husk.hurt",
+    ]
+
+
 env_makers = {
     "husk": make_husk_environment,
     "husks": make_husks_environment,
@@ -583,6 +648,7 @@ env_makers = {
     "husks-random-darkness": make_random_husks_darkness_environment,
     "husks-continuous": make_continuous_husks_environment,
     "husk-random-terrain": make_random_husk_terrain_environment,
+    "husk-hunt": make_hunt_husk_environment,
 }
 
 
