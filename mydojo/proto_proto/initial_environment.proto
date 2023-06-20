@@ -26,4 +26,5 @@ message InitialEnvironmentMessage {
   repeated string minedStatKeys = 16;
   repeated string miscStatKeys = 17;
   repeated BlockState initialBlockStates = 18;
+  repeated int32 surroundingEntityDistances = 19;
 }

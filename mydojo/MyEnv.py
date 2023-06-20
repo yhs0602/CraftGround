@@ -164,6 +164,10 @@ class MyEnv(gym.Env):
             initial_env.minedStatKeys.extend(self.initial_env.minedStatKeys)
         if self.initial_env.miscStatKeys is not None:
             initial_env.miscStatKeys.extend(self.initial_env.miscStatKeys)
+        if self.initial_env.surrounding_entities_keys is not None:
+            initial_env.surroundingEntityDistances.extend(
+                self.initial_env.surrounding_entities_keys
+            )
         # print(
         #     "Sending initial environment... ",
         # )

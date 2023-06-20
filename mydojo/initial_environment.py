@@ -24,6 +24,7 @@ class InitialEnvironment:
         minedStatKeys=None,
         miscStatKeys=None,
         obs_keys=None,
+        surrounding_entities_keys=None,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
@@ -44,3 +45,4 @@ class InitialEnvironment:
         self.minedStatKeys = minedStatKeys
         self.miscStatKeys = miscStatKeys
         self.obs_keys = obs_keys
+        self.surrounding_entities_keys = surrounding_entities_keys

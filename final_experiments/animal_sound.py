@@ -1,38 +1,36 @@
 from env_wrappers.husk_environment import env_makers
-from final_experiments.runners.bimodal import train_vision_and_sound
-from final_experiments.wrappers.avoid_damage import AvoidDamageWrapper
-from final_experiments.wrappers.bimodal import BimodalWrapper
+from final_experiments.runners.sound import train_sound
+from final_experiments.wrappers.find_animal import FindAnimalWrapper
 from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
-from models.dueling_bimodal_dqn import DuelingBiModalDQNAgent
+from final_experiments.wrappers.sound import SoundWrapper
+from models.dueling_sound_dqn import DuelingSoundDQNAgent
 
 if __name__ == "__main__":
     verbose = False
     env_path = None
-    port = 8003
-    inner_env, sound_list = env_makers["husk-random-terrain"](verbose, env_path, port)
-    env = AvoidDamageWrapper(
-        BimodalWrapper(
+    port = 8005
+    inner_env, sound_list = env_makers["find-animal"](verbose, env_path, port)
+    env = FindAnimalWrapper(
+        SoundWrapper(
             SimpleNavigationWrapper(
-                inner_env, num_actions=SimpleNavigationWrapper.JUMP + 1
+                inner_env, num_actions=SimpleNavigationWrapper.TURN_RIGHT + 1
             ),
-            x_dim=114,
-            y_dim=64,
             sound_list=sound_list,
-            sound_coord_dim=3,
-        )
+            coord_dim=3,
+        ),
+        target_translation_key="entity.minecraft.chicken",
+        target_number=7,
     )
 
-    train_vision_and_sound(
+    train_sound(
         env=env,
-        agent_class=DuelingBiModalDQNAgent,
+        agent_class=DuelingSoundDQNAgent,
         # env_name="husk-random-terrain",
         batch_size=256,
         gamma=0.99,
         learning_rate=0.00001,
         update_freq=1000,
         hidden_dim=128,
-        kernel_size=5,
-        stride=2,
         weight_decay=0.00001,
         buffer_size=1000000,
         epsilon_init=1.0,

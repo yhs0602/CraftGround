@@ -52,6 +52,10 @@ message SoundEntry {
   double z = 5;
 }
 
+message EntitiesWithinDistance {
+  repeated EntityInfo entities = 1;
+}
+
 message ObservationSpaceMessage {
   bytes image = 1;
   double x = 2;
@@ -71,5 +75,5 @@ message ObservationSpaceMessage {
   map<string, int32> mined_statistics = 16;
   map<string, int32> misc_statistics = 17;
   repeated EntityInfo visible_entities = 18;
-  repeated EntityInfo surrounding_entities = 19;
+  map<int32, EntitiesWithinDistance> surrounding_entities = 19;
 }

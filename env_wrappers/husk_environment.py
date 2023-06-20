@@ -257,7 +257,7 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
         summon_animal_commands("sheep", coords[0][0], coords[0][1]),
         summon_animal_commands("pig", coords[1][0], coords[1][1]),
         summon_animal_commands("chicken", coords[2][0], coords[2][1]),
-    ] * 3
+    ] * 7
 
     return mydojo.make(
         verbose=verbose,
@@ -283,6 +283,7 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
         initialExtraCommands=build_cage_comands + summon_animal_commands_list,
+        surrounding_entities_keys=[1, 5, 10],
     ), [
         "subtitles.entity.sheep.ambient",  # sheep ambient sound
         "subtitles.block.generic.footsteps",  # player, animal walking
