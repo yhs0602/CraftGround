@@ -7,10 +7,10 @@ from typing import Optional
 
 import numpy as np
 import wandb
+from dotenv import load_dotenv
 from gymnasium.wrappers.monitoring.video_recorder import VideoRecorder
 
 from mydojo.MyEnv import print_with_time
-from dotenv import load_dotenv
 
 
 class Agent(abc.ABC):
@@ -130,7 +130,7 @@ class GenericWrapperRunner:
             testing = episode % self.test_frequency == 0
             self.before_episode(episode, testing)
             if testing:
-                test_score, num_steps, time_took, video_recorder = self.test_agent(
+                test_score, num_steps, time_took = self.test_agent(
                     episode, record_video
                 )
                 recent_test_scores.append(test_score)
@@ -266,7 +266,7 @@ class GenericWrapperRunner:
         to_log = {"test/score": episode_reward, "test/step": episode}
         # to_log.update(reset_extra_info)
         wandb.log(to_log)
-        return episode_reward, num_steps, time_took, video_recorder
+        return episode_reward, num_steps, time_took
 
     def before_training(self):
         pass
