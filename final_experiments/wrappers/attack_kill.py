@@ -1,14 +1,14 @@
 from collections import deque
 from typing import SupportsFloat, Any, Optional
 
-import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
 
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
 
 
 # Sound wrapper
-class AttackKillWrapper(gym.Wrapper):
+class AttackKillWrapper(CleanUpFastResetWrapper):
     def __init__(self, env):
         self.env = env
         self.durabilities = deque(maxlen=2)

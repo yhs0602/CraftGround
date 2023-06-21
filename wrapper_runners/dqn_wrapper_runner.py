@@ -8,6 +8,7 @@ class DQNWrapperRunner(GenericWrapperRunner):
         self,
         env,
         env_name,
+        group,
         agent: "DQNAgent",
         max_steps_per_episode,
         num_episodes,
@@ -21,6 +22,7 @@ class DQNWrapperRunner(GenericWrapperRunner):
         epsilon_decay,
         resume: bool = False,
         max_saved_models=2,
+        **extra_configs,
     ):
         import models.dqn
 
@@ -31,6 +33,7 @@ class DQNWrapperRunner(GenericWrapperRunner):
         super().__init__(
             env,
             env_name,
+            group,
             agent,
             max_steps_per_episode,
             num_episodes,
@@ -44,6 +47,7 @@ class DQNWrapperRunner(GenericWrapperRunner):
             epsilon_init=epsilon_init,
             epsilon_min=epsilon_min,
             epsilon_decay=epsilon_decay,
+            extra_configs=extra_configs,
         )
         self.epsilon = epsilon_init
         self.epsilon_min = epsilon_min

@@ -1,3 +1,7 @@
+import time
+
+import numpy as np
+
 from env_wrappers.husk_environment import env_makers
 from final_experiments.runners.sound import train_sound
 from final_experiments.wrappers.avoid_damage import AvoidDamageWrapper
@@ -5,7 +9,11 @@ from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
 from final_experiments.wrappers.sound import SoundWrapper
 from models.dueling_sound_dqn import DuelingSoundDQNAgent
 
-if __name__ == "__main__":
+
+def run_experiment():
+    seed = int(time.time())
+    np.random.seed(seed)
+
     verbose = False
     env_path = None
     port = 8000
@@ -21,6 +29,7 @@ if __name__ == "__main__":
     )
 
     train_sound(
+        group="husk_sound_terrain",
         env=env,
         agent_class=DuelingSoundDQNAgent,
         # env_name="husk-random-terrain",
@@ -37,4 +46,9 @@ if __name__ == "__main__":
         max_steps_per_episode=400,
         num_episodes=3000,
         warmup_episodes=10,
+        seed=seed,
     )
+
+
+if __name__ == "__main__":
+    run_experiment()

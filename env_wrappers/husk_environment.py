@@ -5,6 +5,7 @@ import gymnasium as gym
 from gymnasium.core import WrapperObsType, ActType, ObsType
 
 import mydojo
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 def make_husk_environment(verbose: bool, env_path: str, port: int):
@@ -253,7 +254,7 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
         (-13, -13),
     ]
 
-    class RandomAnimalWrapper(gym.Wrapper):
+    class RandomAnimalWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             random.shuffle(coords)
             summon_animal_commands_list = [
@@ -318,7 +319,7 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
 
 
 def make_random_husk_environment(verbose: bool, env_path: str, port: int):
-    class RandomHuskWrapper(gym.Wrapper):
+    class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             self.env = mydojo.make(
                 verbose=verbose,
@@ -345,7 +346,9 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
-        def reset(self, fast_reset: bool = True) -> Tuple[ObsType, Dict[str, Any]]:
+        def reset(
+            self, fast_reset: bool = True, **kwargs
+        ) -> Tuple[ObsType, Dict[str, Any]]:
             dx = self.generate_random_excluding(-10, 10, -5, 5)
             dz = self.generate_random_excluding(-10, 10, -5, 5)
             obs, info = self.env.reset(
@@ -356,6 +359,7 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
                     + f"~{dx} ~ ~{dz}"
                     + " {HandItems:[{Count:1,id:iron_shovel},{}]}",
                 ],
+                **kwargs,
             )
             print(f"dx={dx}, dz={dz}")
             obs["extra_info"] = {
@@ -377,7 +381,7 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
 
 
 def make_random_husks_environment(verbose: bool, env_path: str, port: int):
-    class RandomHuskWrapper(gym.Wrapper):
+    class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             self.env = mydojo.make(
                 verbose=verbose,
@@ -405,7 +409,7 @@ def make_random_husks_environment(verbose: bool, env_path: str, port: int):
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
-        def reset(self, fast_reset: bool = True) -> WrapperObsType:
+        def reset(self, fast_reset: bool = True, **kwargs) -> WrapperObsType:
             extra_commands = ["tp @e[type=!player] ~ -500 ~"]
 
             gen_husk_commands = generate_husks(5, 5, 10)
@@ -414,6 +418,7 @@ def make_random_husks_environment(verbose: bool, env_path: str, port: int):
             obs = self.env.reset(
                 fast_reset=fast_reset,
                 extra_commands=extra_commands,
+                **kwargs,
             )
             # obs["extra_info"] = {
             #     "husk_dx": dx,
@@ -428,7 +433,7 @@ def make_random_husks_environment(verbose: bool, env_path: str, port: int):
 
 
 def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: int):
-    class RandomHuskWrapper(gym.Wrapper):
+    class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = ["effect give @p minecraft:darkness infinite 1 true"]
             initialExtraCommands.extend(generate_husks(40, 5, 10))
@@ -458,7 +463,7 @@ def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: i
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
-        def reset(self, fast_reset: bool = True) -> WrapperObsType:
+        def reset(self, fast_reset: bool = True, **kwargs) -> WrapperObsType:
             extra_commands = ["tp @e[type=!player] ~ -500 ~"]
             extra_commands.extend(generate_husks(10, 5, 10))
 
@@ -480,7 +485,7 @@ def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: i
 
 # summons husks every 25 ticks
 def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
-    class RandomHuskWrapper(gym.Wrapper):
+    class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = []
             initialExtraCommands.extend(generate_husks(1, 3, 5))
@@ -510,13 +515,12 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
-        def reset(self, fast_reset: bool = True) -> WrapperObsType:
+        def reset(self, fast_reset: bool = True, **kwargs) -> WrapperObsType:
             extra_commands = ["tp @e[type=!player] ~ -500 ~"]
             extra_commands.extend(generate_husks(1, 4, 7))
 
             obs = self.env.reset(
-                fast_reset=fast_reset,
-                extra_commands=extra_commands,
+                fast_reset=fast_reset, extra_commands=extra_commands, **kwargs
             )
             # obs["extra_info"] = {
             #     "husk_dx": dx,
@@ -540,7 +544,7 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
 def make_random_husk_terrain_environment(
     verbose: bool, env_path: str, port: int, darkness: bool = False
 ):
-    class RandomHuskWrapper(gym.Wrapper):
+    class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = []
             initialExtraCommands.extend(generate_husks(1, 5, 10, dy=8))
@@ -586,6 +590,8 @@ def make_random_husk_terrain_environment(
             obs = self.env.reset(
                 fast_reset=fast_reset,
                 extra_commands=extra_commands,
+                seed=seed,
+                options=options,
             )
             # obs["extra_info"] = {
             #     "husk_dx": dx,
@@ -600,7 +606,7 @@ def make_random_husk_terrain_environment(
 
 
 def make_hunt_husk_environment(verbose: bool, env_path: str, port: int):
-    class RandomHuskWrapper(gym.Wrapper):
+    class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = []
             initialExtraCommands.extend(generate_husks(1, 5, 10))
@@ -645,6 +651,8 @@ def make_hunt_husk_environment(verbose: bool, env_path: str, port: int):
             obs = self.env.reset(
                 fast_reset=fast_reset,
                 extra_commands=extra_commands,
+                seed=seed,
+                options=options,
             )
             # obs["extra_info"] = {
             #     "husk_dx": dx,

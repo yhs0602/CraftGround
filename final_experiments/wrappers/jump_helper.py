@@ -1,13 +1,13 @@
 from typing import SupportsFloat, Any, Optional, Tuple
 
-import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
 
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
 
 
 # Sound wrapper
-class JumpHelperWrapper(gym.Wrapper):
+class JumpHelperWrapper(CleanUpFastResetWrapper):
     def __init__(self, env):
         self.env = env
         self.prev_pos = None

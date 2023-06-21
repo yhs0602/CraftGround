@@ -1,11 +1,12 @@
 from typing import SupportsFloat, Any, Optional
 
-import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
+
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 # Sound wrapper
-class FindAnimalWrapper(gym.Wrapper):
+class FindAnimalWrapper(CleanUpFastResetWrapper):
     def __init__(self, env, target_translation_key: str, target_number):
         self.env = env
         self.target_translation_key = target_translation_key

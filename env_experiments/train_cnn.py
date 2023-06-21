@@ -9,6 +9,7 @@ def train_cnn(
     verbose,
     env_path,
     port,
+    group,
     agent,
     env_name,
     batch_size,
@@ -28,6 +29,7 @@ def train_cnn(
     warmup_episodes,
     reward_function=None,
     stack_size=None,
+    **extra_configs,
 ):
     env, _ = env_makers[env_name](verbose, env_path, port)
     wrapper = VisionWrapper(env, action_dim=7, reward_function=reward_function)
@@ -68,6 +70,7 @@ def train_cnn(
 
     runner = DQNWrapperRunner(
         wrapper,
+        group=group,
         env_name=env_name,
         agent=agent_instance,
         max_steps_per_episode=max_steps_per_episode,
@@ -88,5 +91,6 @@ def train_cnn(
         epsilon_decay=epsilon_decay,
         resume=False,
         max_saved_models=1,
+        extra_configs=extra_configs,
     )
     runner.run_wrapper(record_video=True)

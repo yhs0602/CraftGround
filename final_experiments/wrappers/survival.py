@@ -1,11 +1,12 @@
 from typing import SupportsFloat, Any
 
-import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
+
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 # Sound wrapper
-class SurvivalWrapper(gym.Wrapper):
+class SurvivalWrapper(CleanUpFastResetWrapper):
     def __init__(self, env):
         self.env = env
         super().__init__(self.env)

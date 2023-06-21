@@ -23,6 +23,7 @@ if __name__ == "__main__":
     )
 
     train_cnn(
+        group="animal_vision",
         env=env,
         agent_class=DuelingVisionDQNAgent,
         # env_name="husk-random-terrain",

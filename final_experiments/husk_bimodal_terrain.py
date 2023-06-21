@@ -23,6 +23,7 @@ if __name__ == "__main__":
     )
 
     train_vision_and_sound(
+        group="husk_bimodal_terrain",
         env=env,
         agent_class=DuelingBiModalDQNAgent,
         # env_name="husk-random-terrain",

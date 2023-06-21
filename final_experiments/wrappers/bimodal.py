@@ -6,9 +6,11 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 from gymnasium.vector.utils import spaces
 
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+
 
 # Sound wrapper
-class BimodalWrapper(gym.Wrapper):
+class BimodalWrapper(CleanUpFastResetWrapper):
     def __init__(
         self, env, x_dim, y_dim, sound_list: List[str], sound_coord_dim: int = 2
     ):
@@ -82,7 +84,7 @@ class BimodalWrapper(gym.Wrapper):
                 continue
             if sound.x - x < -16 or sound.z - z < -16:
                 continue
-            if self.sound_coord_dim == 3 and sound.y - y < -16 or sound.y - y > 16:
+            if self.sound_coord_dim == 3 and (sound.y - y < -16 or sound.y - y > 16):
                 continue
             for idx, translation_key in enumerate(self.sound_list):
                 if translation_key == sound.translate_key:
@@ -92,15 +94,13 @@ class BimodalWrapper(gym.Wrapper):
                     else:
                         dy = 0
                     dz = sound.z - z
-                    distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-                    if distance > 0:
-                        if self.sound_coord_dim == 2:
-                            sound_vector[idx * self.sound_coord_dim] = dx / distance
-                            sound_vector[idx * self.sound_coord_dim + 1] = dz / distance
-                        else:
-                            sound_vector[idx * self.sound_coord_dim] = dx / distance
-                            sound_vector[idx * self.sound_coord_dim + 1] = dy / distance
-                            sound_vector[idx * self.sound_coord_dim + 2] = dz / distance
+                    if self.sound_coord_dim == 2:
+                        sound_vector[idx * self.sound_coord_dim] = dx / 15
+                        sound_vector[idx * self.sound_coord_dim + 1] = dz / 15
+                    else:
+                        sound_vector[idx * self.sound_coord_dim] = dx / 15
+                        sound_vector[idx * self.sound_coord_dim + 1] = dy / 15
+                        sound_vector[idx * self.sound_coord_dim + 2] = dz / 15
                 elif translation_key == "subtitles.entity.player.hurt":
                     sound_vector[-1] = 1  # player hurt sound
 

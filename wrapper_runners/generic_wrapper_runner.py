@@ -36,6 +36,7 @@ class GenericWrapperRunner:
         self,
         env,
         env_name,
+        group,
         agent: Agent,
         max_steps_per_episode,
         num_episodes,
@@ -63,6 +64,7 @@ class GenericWrapperRunner:
             # track hyperparameters and run metadata
             config=config,
             resume=resume,
+            group=group,
         )
         # define our custom x axis metric
         wandb.define_metric("test/step")
@@ -171,6 +173,7 @@ class GenericWrapperRunner:
                 print(f"Solved in {episode} episodes!")
                 break
 
+        self.env.terminate()
         self.env.close()
         wandb.finish()
 

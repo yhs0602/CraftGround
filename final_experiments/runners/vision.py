@@ -2,6 +2,7 @@ from env_experiments.get_device import get_device
 
 
 def train_cnn(
+    group,
     agent_class,
     env,
     batch_size,
@@ -20,6 +21,7 @@ def train_cnn(
     num_episodes,
     warmup_episodes,
     stack_size=None,
+    **extra_configs,
 ):
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
@@ -41,6 +43,7 @@ def train_cnn(
 
     runner = DQNWrapperRunner(
         env,
+        group=group,
         env_name="wrapped-vision",
         agent=agent_instance,
         max_steps_per_episode=max_steps_per_episode,
@@ -61,5 +64,6 @@ def train_cnn(
         epsilon_decay=epsilon_decay,
         resume=False,
         max_saved_models=1,
+        extra_configs=extra_configs,
     )
     runner.run_wrapper(record_video=True)

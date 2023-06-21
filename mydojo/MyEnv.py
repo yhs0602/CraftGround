@@ -18,10 +18,10 @@ from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
 from .minecraft import (
     wait_for_server,
-    send_action2,
     send_fastreset2,
     send_action,
     send_action_and_commands,
+    send_exit,
 )
 from .proto import observation_space_pb2, initial_environment_pb2
 
@@ -45,6 +45,7 @@ class MyEnv(gym.Env):
         self.verbose = verbose
         self.port = port
         self.queued_commands = []
+        self.process = None
         if env_path is None:
             self.env_path = os.path.join(
                 os.path.dirname(
@@ -110,7 +111,7 @@ class MyEnv(gym.Env):
     def start_server(self, port=8000):
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
-        subprocess.Popen(
+        self.process = subprocess.Popen(
             "./gradlew runClient",
             cwd=self.env_path,
             shell=True,
@@ -213,6 +214,22 @@ class MyEnv(gym.Env):
     def add_commands(self, commands: List[str]):
         self.queued_commands.extend(commands)
 
+    def terminate(self):
+        if self.sock is not None:
+            self.sock.close()
+            self.sock = None
+        print("Terminated the java process")
+        pid = self.process.pid if self.process else None
+        # wait for the pid to exit
+        try:
+            if pid:
+                _, exit_status = os.waitpid(pid, 0)
+            else:
+                print("No pid to wait for")
+        except ChildProcessError:
+            print("Child process already terminated")
+        print("Terminated the java process")
+
 
 # Deprecated
 class MultiDiscreteEnv(MyEnv):
@@ -285,6 +302,22 @@ class MultiDiscreteEnv(MyEnv):
             truncated,
             {},
         )
+
+    def terminate(self):
+        pid = self.process.pid if self.process else None
+        try:
+            send_exit(self.sock)
+        except BrokenPipeError:
+            print("Broken pipe")
+        # wait for the pid to exit
+        try:
+            if pid:
+                _, exit_status = os.waitpid(pid, 0)
+            else:
+                print("No pid to wait for")
+        except ChildProcessError:
+            print("Child process already terminated")
+        print("Terminated the java process")
 
 
 def print_with_time(*args, **kwargs):

@@ -3,13 +3,14 @@ from typing import SupportsFloat, Any, List, Optional
 import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
 
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 from mydojo.minecraft import no_op
 
 
 # Converts the int action space to a box action space
 # advantages navigation (no op, forward, back, left, right, turn left, turn right, jump, look up, look down)
 # can attack
-class SimpleNavigationWrapper(gym.Wrapper):
+class SimpleNavigationWrapper(CleanUpFastResetWrapper):
     NO_OP = 0
     FORWARD = 1
     BACKWARD = 2

@@ -4,7 +4,7 @@ import numpy as np
 
 from env_wrappers.husk_environment import env_makers
 from final_experiments.runners.sound import train_sound
-from final_experiments.wrappers.find_animal import FindAnimalWrapper
+from final_experiments.wrappers.avoid_damage import AvoidDamageWrapper
 from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
 from final_experiments.wrappers.sound import SoundWrapper
 from models.dueling_sound_dqn import DuelingSoundDQNAgent
@@ -13,24 +13,22 @@ from models.dueling_sound_dqn import DuelingSoundDQNAgent
 def run_experiment():
     seed = int(time.time())
     np.random.seed(seed)
-    verbose = False
+
+    verbose = True
     env_path = None
-    port = 8005
-    inner_env, sound_list = env_makers["find-animal"](verbose, env_path, port)
-    env = FindAnimalWrapper(
+    port = 8000
+    inner_env, sound_list = env_makers["husk-random"](verbose, env_path, port)
+    env = AvoidDamageWrapper(
         SoundWrapper(
             SimpleNavigationWrapper(
                 inner_env, num_actions=SimpleNavigationWrapper.TURN_RIGHT + 1
             ),
             sound_list=sound_list,
             coord_dim=3,
-        ),
-        target_translation_key="entity.minecraft.chicken",
-        target_number=7,
+        )
     )
 
     train_sound(
-        group="animal_sound",
         env=env,
         agent_class=DuelingSoundDQNAgent,
         # env_name="husk-random-terrain",
@@ -45,8 +43,9 @@ def run_experiment():
         epsilon_decay=0.99,
         epsilon_min=0.01,
         max_steps_per_episode=400,
-        num_episodes=3000,
+        num_episodes=20,
         warmup_episodes=10,
+        group="husk_sound",
         seed=seed,
     )
 

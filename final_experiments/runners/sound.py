@@ -4,6 +4,7 @@ from env_experiments.get_device import get_device
 
 
 def train_sound(
+    group,
     agent_class,
     env,
     batch_size,
@@ -20,6 +21,7 @@ def train_sound(
     num_episodes,
     warmup_episodes,
     stack_size=None,
+    **extra_configs,
 ):
     state_dim = env.observation_space.shape
     state_dim = (np.prod(state_dim),)
@@ -43,6 +45,7 @@ def train_sound(
     runner = DQNWrapperRunner(
         env,
         env_name="wrapped",
+        group=group,
         agent=agent_instance,
         max_steps_per_episode=max_steps_per_episode,
         num_episodes=num_episodes,
@@ -62,5 +65,6 @@ def train_sound(
         epsilon_decay=epsilon_decay,
         resume=False,
         max_saved_models=1,
+        extra_configs=extra_configs,
     )
     runner.run_wrapper(record_video=True)

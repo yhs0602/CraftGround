@@ -129,3 +129,7 @@ def send_fastreset2(sock: socket.socket, extra_commands: List[str] = None):
 
 def send_respawn2(sock: socket.socket):
     send_commands(sock, ["respawn"])
+
+
+def send_exit(sock: socket.socket):
+    send_commands(sock, ["exit"])

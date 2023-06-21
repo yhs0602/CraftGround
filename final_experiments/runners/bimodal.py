@@ -2,6 +2,7 @@ from env_experiments.get_device import get_device
 
 
 def train_vision_and_sound(
+    group,
     agent_class,
     env,
     batch_size,
@@ -19,6 +20,7 @@ def train_vision_and_sound(
     max_steps_per_episode,
     num_episodes,
     warmup_episodes,
+    **extra_configs,
 ):
     state_dim = env.observation_space["vision"].shape
     sound_dim = env.observation_space["sound"].shape
@@ -42,6 +44,7 @@ def train_vision_and_sound(
 
     runner = DQNWrapperRunner(
         env,
+        group=group,
         env_name="wrapped-bimodal",
         agent=agent_instance,
         max_steps_per_episode=max_steps_per_episode,
@@ -62,5 +65,6 @@ def train_vision_and_sound(
         epsilon_decay=epsilon_decay,
         resume=False,
         max_saved_models=1,
+        extra_configs=extra_configs,
     )
     runner.run_wrapper(record_video=True)

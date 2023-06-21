@@ -24,6 +24,7 @@ if __name__ == "__main__":
     )
 
     train_sound(
+        group="hunt_husk_sound_flat",
         env=env,
         agent_class=DuelingSoundDQNAgent,
         # env_name="husk-random-terrain",

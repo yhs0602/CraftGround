@@ -5,9 +5,11 @@ import gymnasium as gym
 import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
+from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+
 
 # Sound wrapper
-class SoundWrapper(gym.Wrapper):
+class SoundWrapper(CleanUpFastResetWrapper):
     def __init__(self, env, sound_list, coord_dim):
         self.sound_list = sound_list
         self.env = env
