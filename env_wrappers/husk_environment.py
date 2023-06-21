@@ -252,39 +252,61 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
         (-13, 13),
         (-13, -13),
     ]
-    random.shuffle(coords)
-    summon_animal_commands_list = [
-        summon_animal_commands("sheep", coords[0][0], coords[0][1]),
-        summon_animal_commands("pig", coords[1][0], coords[1][1]),
-        summon_animal_commands("chicken", coords[2][0], coords[2][1]),
-    ] * 7
 
-    return mydojo.make(
-        verbose=verbose,
-        env_path=env_path,
-        port=port,
-        initialInventoryCommands=[],
-        initialPosition=None,  # nullable
-        initialMobsCommands=[
-            # "minecraft:sheep",
-            # "minecraft:sheep ~ ~ ~4",
-            # player looks at south (positive Z) when spawn
-        ],
-        imageSizeX=114,
-        imageSizeY=64,
-        visibleSizeX=342,
-        visibleSizeY=192,
-        seed=12345,  # nullable
-        allowMobSpawn=False,
-        alwaysDay=True,
-        alwaysNight=False,
-        initialWeather="clear",  # nullable
-        isHardCore=False,
-        isWorldFlat=True,  # superflat world
-        obs_keys=["sound_subtitles"],
-        initialExtraCommands=build_cage_comands + summon_animal_commands_list,
-        surrounding_entities_keys=[1, 5, 10],
-    ), [
+    class RandomAnimalWrapper(gym.Wrapper):
+        def __init__(self):
+            random.shuffle(coords)
+            summon_animal_commands_list = [
+                summon_animal_commands("sheep", coords[0][0], coords[0][1]),
+                summon_animal_commands("pig", coords[1][0], coords[1][1]),
+                summon_animal_commands("chicken", coords[2][0], coords[2][1]),
+            ] * 7
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[],
+                initialPosition=None,  # nullable
+                initialMobsCommands=[],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=342,
+                visibleSizeY=192,
+                seed=12345,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=True,  # superflat world
+                obs_keys=["sound_subtitles"],
+                initialExtraCommands=build_cage_comands + summon_animal_commands_list,
+                surrounding_entities_keys=[1, 5, 10],
+            )
+            super(RandomAnimalWrapper, self).__init__(self.env)
+
+        def reset(
+            self,
+            fast_reset: bool = True,
+            seed: Optional[int] = None,
+            options: Optional[dict[str, Any]] = None,
+        ) -> tuple[WrapperObsType, dict[str, Any]]:
+            extra_commands = ["tp @e[type=!player] ~ -500 ~"]
+            random.shuffle(coords)
+            summon_animal_commands_list = [
+                summon_animal_commands("sheep", coords[0][0], coords[0][1]),
+                summon_animal_commands("pig", coords[1][0], coords[1][1]),
+                summon_animal_commands("chicken", coords[2][0], coords[2][1]),
+            ] * 7
+            extra_commands.extend(summon_animal_commands_list)
+
+            obs = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=extra_commands,
+            )
+            return obs
+
+    return RandomAnimalWrapper(), [
         "subtitles.entity.sheep.ambient",  # sheep ambient sound
         "subtitles.block.generic.footsteps",  # player, animal walking
         "subtitles.block.generic.break",  # sheep eating grass

@@ -23,11 +23,6 @@ class FindAnimalWrapper(gym.Wrapper):
         animals5 = self.count_animals(surrounding_entities[5].entities)
         animals10 = self.count_animals(surrounding_entities[10].entities)
 
-        print("animals1: ", animals1)
-        print("animals5: ", animals5)
-        print("animals10: ", animals10)
-        sound_subtitles = info_obs.sound_subtitles
-        print(sound_subtitles)
         if animals1 >= self.target_number:
             reward = 1
             terminated = True
@@ -36,7 +31,7 @@ class FindAnimalWrapper(gym.Wrapper):
                 0.5 * animals1 / self.target_number
                 + 0.2 * animals5 / self.target_number
                 + 0.1 * animals10 / self.target_number
-                - 0.01
+                - 0.81
             )
 
         return (
