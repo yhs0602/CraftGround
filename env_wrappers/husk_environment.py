@@ -1,7 +1,6 @@
 import random
 from typing import Tuple, Optional, Dict, Any
 
-import gymnasium as gym
 from gymnasium.core import WrapperObsType, ActType, ObsType
 
 import mydojo
@@ -672,6 +671,43 @@ def make_hunt_husk_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
+def make_mansion_environment(verbose: bool, env_path: str, port: int):
+    build_mansion = [
+        "difficulty peaceful",  # peaceful mode
+        "place structure mansion -26 80 -40",  # place a mansion
+        # "tp @p -32 78 -35", # tp player to the mansion's start point
+        "setblock -22 86 -51 campfire",
+        "setblock -21 86 -51 campfire",
+        "setblock -23 86 -51 campfire",  # beacons
+        "effect give @p night_vision infinite 1 true",  # night vision without particles
+        "kill @e[type=!player]",  # kill all mobs, items except player
+    ]
+
+    return mydojo.make(
+        verbose=verbose,
+        env_path=env_path,
+        port=port,
+        initialInventoryCommands=[],
+        initialPosition=[-32, 78, -35],  # nullable
+        initialMobsCommands=[],
+        imageSizeX=114,
+        imageSizeY=64,
+        visibleSizeX=342,
+        visibleSizeY=192,
+        seed=8952232712572833477,  # nullable
+        allowMobSpawn=False,
+        alwaysDay=True,
+        alwaysNight=False,
+        initialWeather="clear",  # nullable
+        isHardCore=False,
+        isWorldFlat=False,  # superflat world
+        obs_keys=["sound_subtitles"],
+        initialExtraCommands=build_mansion,
+    ), [
+        "subtitles.block.campfire.crackle",  # Campfire crackles
+    ]
+
+
 env_makers = {
     "husk": make_husk_environment,
     "husks": make_husks_environment,
@@ -686,6 +722,7 @@ env_makers = {
     "husks-continuous": make_continuous_husks_environment,
     "husk-random-terrain": make_random_husk_terrain_environment,
     "husk-hunt": make_hunt_husk_environment,
+    "mansion": make_mansion_environment,
 }
 
 

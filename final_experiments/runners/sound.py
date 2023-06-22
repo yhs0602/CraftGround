@@ -20,6 +20,7 @@ def train_sound(
     max_steps_per_episode,
     num_episodes,
     warmup_episodes,
+    solved_criterion,
     stack_size=None,
     **extra_configs,
 ):
@@ -50,13 +51,7 @@ def train_sound(
         max_steps_per_episode=max_steps_per_episode,
         num_episodes=num_episodes,
         test_frequency=20,
-        solved_criterion=lambda avg_score, test_score, avg_test_score, episode: avg_score
-        >= 195.0
-        and avg_test_score >= 195.0
-        and episode >= 1000
-        and test_score == 200.0
-        if avg_score is not None
-        else False and episode >= 1000,
+        solved_criterion=solved_criterion,
         after_wandb_init=lambda *args: None,
         warmup_episodes=warmup_episodes,
         update_frequency=update_freq,
