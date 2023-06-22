@@ -169,6 +169,7 @@ class MyEnv(gym.Env):
             initial_env.surroundingEntityDistances.extend(
                 self.initial_env.surrounding_entities_keys
             )
+        initial_env.hudHidden = self.initial_env.isHudHidden
         # print(
         #     "Sending initial environment... ",
         # )

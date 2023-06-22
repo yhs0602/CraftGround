@@ -25,6 +25,7 @@ class InitialEnvironment:
         miscStatKeys=None,
         obs_keys=None,
         surrounding_entities_keys=None,
+        isHudHidden: bool = False,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
@@ -46,3 +47,4 @@ class InitialEnvironment:
         self.miscStatKeys = miscStatKeys
         self.obs_keys = obs_keys
         self.surrounding_entities_keys = surrounding_entities_keys
+        self.isHudHidden = isHudHidden

@@ -27,4 +27,5 @@ message InitialEnvironmentMessage {
   repeated string miscStatKeys = 17;
   repeated BlockState initialBlockStates = 18;
   repeated int32 surroundingEntityDistances = 19;
+  bool hudHidden = 20;
 }

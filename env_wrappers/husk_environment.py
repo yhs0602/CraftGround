@@ -671,11 +671,11 @@ def make_hunt_husk_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
-def make_mansion_environment(verbose: bool, env_path: str, port: int):
+def make_mansion_environment(verbose: bool, env_path: str, port: int, hud_hidden: bool):
     build_mansion = [
         "difficulty peaceful",  # peaceful mode
         "place structure mansion -26 80 -40",  # place a mansion
-        # "tp @p -32 78 -35", # tp player to the mansion's start point
+        "tp @p -32 78 -35 -180 0",  # tp player to the mansion's start point
         "setblock -22 86 -51 campfire",
         "setblock -21 86 -51 campfire",
         "setblock -23 86 -51 campfire",  # beacons
@@ -692,8 +692,8 @@ def make_mansion_environment(verbose: bool, env_path: str, port: int):
         initialMobsCommands=[],
         imageSizeX=114,
         imageSizeY=64,
-        visibleSizeX=342,
-        visibleSizeY=192,
+        visibleSizeX=114,
+        visibleSizeY=64,
         seed=8952232712572833477,  # nullable
         allowMobSpawn=False,
         alwaysDay=True,
@@ -703,6 +703,7 @@ def make_mansion_environment(verbose: bool, env_path: str, port: int):
         isWorldFlat=False,  # superflat world
         obs_keys=["sound_subtitles"],
         initialExtraCommands=build_mansion,
+        isHudHidden=hud_hidden,
     ), [
         "subtitles.block.campfire.crackle",  # Campfire crackles
     ]
