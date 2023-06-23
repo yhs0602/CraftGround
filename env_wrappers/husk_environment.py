@@ -231,26 +231,26 @@ def make_husks_darkness_environment(verbose: bool, env_path: str, port: int):
 def make_find_animal_environment(verbose: bool, env_path: str, port: int):
     build_cage_comands = [
         "tp @p 0 -59 0",  # tp player
-        "fill ~-15 ~-1 ~-15 ~15 ~2 ~15 minecraft:hay_block hollow",  # make a cage
-        "fill ~-14 ~-1 ~-14 ~-11 ~-1 ~-11 minecraft:acacia_fence outline",  # make a cage
-        "fill ~11 ~-1 ~11 ~14 ~-1 ~14 minecraft:acacia_fence outline",  # make a cage
-        "fill ~-14 ~-1 ~11 ~-11 ~-1 ~14 minecraft:acacia_fence outline",  # make a cage
-        "fill ~11 ~-1 ~-14 ~14 ~-1 ~-11 minecraft:acacia_fence outline",  # make a cage
-        "fill ~-13 ~-1 ~-13 ~-12 ~-1 ~-12 minecraft:air outline",  # make a cage
-        "fill ~12 ~-1 ~12 ~13 ~-1 ~13 minecraft:air outline",  # make a cage
-        "fill ~-13 ~-1 ~12 ~-12 ~-1 ~13 minecraft:air outline",  # make a cage
-        "fill ~12 ~-1 ~-13 ~13 ~-1 ~-12 minecraft:air outline",  # make a cage
-        "fill ~-15 ~2 ~-15 ~15 ~10 ~15 minecraft:air replace",  # make a cage
+        "fill ~-11 ~-1 ~-11 ~11 ~2 ~11 minecraft:hay_block hollow",  # make a cage
+        "fill ~-10 ~-1 ~-10 ~-7 ~-1 ~-7 minecraft:acacia_fence outline",  # make a cage
+        "fill ~7 ~-1 ~7 ~10 ~-1 ~10 minecraft:acacia_fence outline",  # make a cage
+        "fill ~-10 ~-1 ~7 ~-7 ~-1 ~10 minecraft:acacia_fence outline",  # make a cage
+        "fill ~7 ~-1 ~-10 ~10 ~-1 ~-7 minecraft:acacia_fence outline",  # make a cage
+        "fill ~-9 ~-1 ~-9 ~-8 ~-1 ~-8 minecraft:air outline",  # make a cage
+        "fill ~8 ~-1 ~8 ~9 ~-1 ~9 minecraft:air outline",  # make a cage
+        "fill ~-9 ~-1 ~8 ~-8 ~-1 ~9 minecraft:air outline",  # make a cage
+        "fill ~8 ~-1 ~-9 ~9 ~-1 ~-8 minecraft:air outline",  # make a cage
+        "fill ~-11 ~2 ~-11 ~11 ~10 ~11 minecraft:air replace",  # make a cage
     ]
 
     def summon_animal_commands(animal, x, z):
-        return f"summon minecraft:{animal} ~{x} ~ ~{z}"
+        return f"summon minecraft:{animal} ~{x} ~-1 ~{z}"
 
     coords = [
-        (13, 13),
-        (13, -13),
-        (-13, 13),
-        (-13, -13),
+        (9, 9),
+        (9, -9),
+        (-9, 9),
+        (-9, -9),
     ]
 
     class RandomAnimalWrapper(CleanUpFastResetWrapper):
@@ -281,7 +281,7 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=build_cage_comands + summon_animal_commands_list,
-                surrounding_entities_keys=[1, 5, 10],
+                surrounding_entities_keys=[1, 2, 5],
             )
             super(RandomAnimalWrapper, self).__init__(self.env)
 

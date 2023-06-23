@@ -21,19 +21,14 @@ class FindAnimalWrapper(CleanUpFastResetWrapper):
         surrounding_entities = info_obs.surrounding_entities
 
         animals1 = self.count_animals(surrounding_entities[1].entities)
+        animals2 = self.count_animals(surrounding_entities[2].entities)
         animals5 = self.count_animals(surrounding_entities[5].entities)
-        animals10 = self.count_animals(surrounding_entities[10].entities)
 
-        if animals1 >= self.target_number:
+        if animals2 >= self.target_number:
             reward = 1
             terminated = True
-        else:
-            reward = (
-                0.5 * animals1 / self.target_number
-                + 0.2 * animals5 / self.target_number
-                + 0.1 * animals10 / self.target_number
-                - 0.81
-            )
+        if info_obs.y == -60:  # Arrived somewhere in the pen
+            terminated = True
 
         return (
             obs,

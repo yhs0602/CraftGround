@@ -5,9 +5,24 @@ import numpy as np
 from env_wrappers.husk_environment import env_makers
 from final_experiments.runners.sound import train_sound
 from final_experiments.wrappers.find_animal import FindAnimalWrapper
-from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
+from final_experiments.wrappers.simplest_navigation import SimplestNavigationWrapper
 from final_experiments.wrappers.sound import SoundWrapper
+from final_experiments.wrappers.surrounding_sound import SurroundingSoundWrapper
 from models.dueling_sound_dqn import DuelingSoundDQNAgent
+
+
+def solved_criterion(avg_score, test_score, avg_test_score, episode):
+    if episode < 500:
+        return False
+    if avg_score < 0.9:
+        return False
+    if test_score < 0.95:
+        return False
+    if avg_test_score is None:
+        return True
+    if avg_test_score < 0.95:
+        return False
+    return True
 
 
 def run_experiment():
@@ -18,12 +33,12 @@ def run_experiment():
     port = 8005
     inner_env, sound_list = env_makers["find-animal"](verbose, env_path, port)
     env = FindAnimalWrapper(
-        SoundWrapper(
-            SimpleNavigationWrapper(
-                inner_env, num_actions=SimpleNavigationWrapper.TURN_RIGHT + 1
+        SurroundingSoundWrapper(
+            SimplestNavigationWrapper(
+                inner_env, num_actions=SimplestNavigationWrapper.TURN_RIGHT + 1
             ),
             sound_list=sound_list,
-            coord_dim=3,
+            coord_dim=2,
         ),
         target_translation_key="entity.minecraft.chicken",
         target_number=7,
@@ -44,10 +59,11 @@ def run_experiment():
         epsilon_init=1.0,
         epsilon_decay=0.99,
         epsilon_min=0.01,
-        max_steps_per_episode=400,
+        max_steps_per_episode=600,
         num_episodes=3000,
-        warmup_episodes=10,
+        warmup_episodes=50,
         seed=seed,
+        solved_criterion=solved_criterion,
     )
 
 
