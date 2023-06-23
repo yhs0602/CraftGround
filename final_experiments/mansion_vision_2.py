@@ -4,7 +4,7 @@ import numpy as np
 
 from env_wrappers.husk_environment import env_makers
 from final_experiments.runners.vision import train_cnn
-from final_experiments.wrappers.go_up import GoUpWrapper
+from final_experiments.wrappers.go_up_2 import GoUp2Wrapper
 from final_experiments.wrappers.simplest_navigation import SimplestNavigationWrapper
 from final_experiments.wrappers.vision import VisionWrapper
 from models.dueling_vision_dqn import DuelingVisionDQNAgent
@@ -30,11 +30,11 @@ def run_experiment():
 
     verbose = False
     env_path = None
-    port = 8007
+    port = 8008
     inner_env, sound_list = env_makers["mansion"](
         verbose, env_path, port, hud_hidden=True
     )
-    env = GoUpWrapper(
+    env = GoUp2Wrapper(
         VisionWrapper(
             SimplestNavigationWrapper(
                 inner_env, num_actions=SimplestNavigationWrapper.TURN_RIGHT + 1

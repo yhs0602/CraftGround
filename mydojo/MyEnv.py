@@ -103,7 +103,7 @@ class MyEnv(gym.Env):
         # soundSubtitles = res["soundSubtitles"]
         # for subtitle in soundSubtitles:
         #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
-        reward = 0  # Initialize reward to one
+        reward = 0  # Initialize reward to zero
         done = False  # Initialize done flag to False
         truncated = False  # Initialize truncated flag to False
         return arr, done, reward, truncated
