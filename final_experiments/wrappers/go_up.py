@@ -28,7 +28,17 @@ class GoUpWrapper(CleanUpFastResetWrapper):
         elif self.height_deque[0] > self.height_deque[1]:
             reward = -0.1
             print("Got lower!")
-        reward -= 0.001  # time penalty
+
+        near_campfire = False
+        if info_obs.sound_subtitles:
+            for sound in info_obs.sound_subtitles:
+                if sound.translate_key == "subtitles.block.campfire.crackle":
+                    near_campfire = True
+
+        if near_campfire:
+            reward += 0.002  # guide toward campfire
+        else:
+            reward -= 0.001  # time penalty
 
         if info_obs.z > -33:
             reward = -0.01  # went out of bounds

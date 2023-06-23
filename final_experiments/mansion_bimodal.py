@@ -4,9 +4,9 @@ import numpy as np
 
 from env_wrappers.husk_environment import env_makers
 from final_experiments.runners.bimodal import train_vision_and_sound
-from final_experiments.wrappers.avoid_damage import AvoidDamageWrapper
 from final_experiments.wrappers.bimodal import BimodalWrapper
-from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
+from final_experiments.wrappers.go_up import GoUpWrapper
+from final_experiments.wrappers.simplest_navigation import SimplestNavigationWrapper
 from models.dueling_bimodal_dqn import DuelingBiModalDQNAgent
 
 
@@ -30,22 +30,25 @@ def run_experiment():
 
     verbose = False
     env_path = None
-    port = 8002
-    inner_env, sound_list = env_makers["husk-random"](verbose, env_path, port)
-    env = AvoidDamageWrapper(
+    port = 8001
+    inner_env, sound_list = env_makers["mansion"](
+        verbose, env_path, port, hud_hidden=True
+    )
+    env = GoUpWrapper(
         BimodalWrapper(
-            SimpleNavigationWrapper(
-                inner_env, num_actions=SimpleNavigationWrapper.TURN_RIGHT + 1
+            SimplestNavigationWrapper(
+                inner_env, num_actions=SimplestNavigationWrapper.TURN_RIGHT + 1
             ),
             x_dim=114,
             y_dim=64,
             sound_list=sound_list,
-            sound_coord_dim=2,
-        )
+            sound_coord_dim=3,
+        ),
+        95,
     )
 
     train_vision_and_sound(
-        group="husk_bimodal",
+        group="mansion_bimodal",
         env=env,
         agent_class=DuelingBiModalDQNAgent,
         # env_name="husk-random-terrain",
@@ -61,9 +64,9 @@ def run_experiment():
         epsilon_init=1.0,
         epsilon_decay=0.99,
         epsilon_min=0.01,
-        max_steps_per_episode=400,
+        max_steps_per_episode=800,
         num_episodes=1000,
-        warmup_episodes=10,
+        warmup_episodes=50,
         seed=seed,
         solved_criterion=solved_criterion,
     )

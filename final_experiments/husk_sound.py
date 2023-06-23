@@ -24,7 +24,7 @@ def run_experiment():
                 inner_env, num_actions=SimpleNavigationWrapper.TURN_RIGHT + 1
             ),
             sound_list=sound_list,
-            coord_dim=3,
+            coord_dim=2,
         )
     )
 
