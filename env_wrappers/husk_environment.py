@@ -228,7 +228,9 @@ def make_husks_darkness_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
-def make_find_animal_environment(verbose: bool, env_path: str, port: int):
+def make_find_animal_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool
+):
     build_cage_comands = [
         "tp @p 0 -59 0",  # tp player
         "fill ~-11 ~-1 ~-11 ~11 ~2 ~11 minecraft:hay_block hollow",  # make a cage
@@ -270,8 +272,8 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
                 initialMobsCommands=[],
                 imageSizeX=114,
                 imageSizeY=64,
-                visibleSizeX=342,
-                visibleSizeY=192,
+                visibleSizeX=114,
+                visibleSizeY=64,
                 seed=12345,  # nullable
                 allowMobSpawn=False,
                 alwaysDay=True,
@@ -282,6 +284,7 @@ def make_find_animal_environment(verbose: bool, env_path: str, port: int):
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=build_cage_comands + summon_animal_commands_list,
                 surrounding_entities_keys=[1, 2, 5],
+                isHudHidden=hud_hidden,
             )
             super(RandomAnimalWrapper, self).__init__(self.env)
 

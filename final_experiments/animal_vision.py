@@ -32,7 +32,7 @@ def run_experiment():
     env_path = None
     port = 8004
     inner_env, sound_list = env_makers["find-animal"](
-        verbose, env_path, port, hide_hud=True
+        verbose, env_path, port, hud_hidden=True
     )
     env = FindAnimalWrapper(
         VisionWrapper(
@@ -63,9 +63,9 @@ def run_experiment():
         epsilon_init=1.0,
         epsilon_decay=0.99,
         epsilon_min=0.01,
-        max_steps_per_episode=400,
-        num_episodes=2000,
-        warmup_episodes=10,
+        max_steps_per_episode=600,
+        num_episodes=3000,
+        warmup_episodes=50,
         seed=seed,
         solved_criterion=solved_criterion,
     )
