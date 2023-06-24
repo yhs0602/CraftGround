@@ -8,6 +8,7 @@ from models.dqn import Transition
 from models.dueling_dqn_base import DuelingDQNAgentBase
 from models.dueling_sound_dqn import DuelingSoundDQN
 from models.per import PER
+import torch.nn.functional as F
 
 
 class PERDuelingSoundDQNAgent(DuelingDQNAgentBase):
@@ -60,16 +61,30 @@ class PERDuelingSoundDQNAgent(DuelingDQNAgentBase):
         }
 
     def add_experience(self, state, action, next_state, reward, done):
-        target = self.policy_net(state)
-        old_val = target[0][action]
-        target_val = self.target_net(next_state)
+        self.policy_net.eval()
+        with torch.no_grad():
+            old_policy_values = self.policy_net(
+                torch.FloatTensor(state).unsqueeze(0).to(self.device)
+            )
+            old_val = old_policy_values[0][action]
+        self.policy_net.train()
+
+        self.target_net.eval()
+        with torch.no_grad():
+            target_q_values = self.target_net(
+                torch.FloatTensor(next_state).unsqueeze(0).to(self.device)
+            )
+        self.target_net.train()
+
         if done:
-            target[0][action] = reward
+            old_policy_values[0][action] = reward
         else:
-            target[0][action] = reward + self.gamma * torch.max(target_val)
-        error = abs(old_val - target[0][action])
+            old_policy_values[0][action] = reward + self.gamma * torch.max(
+                target_q_values
+            )
+        error = abs(old_val - old_policy_values[0][action])
         self.replay_buffer.add(
-            error, Transition(state, action, next_state, reward, done)
+            error.item(), Transition(state, action, next_state, reward, done)
         )
 
     def update_model(self) -> Optional[float]:
@@ -93,15 +108,16 @@ class PERDuelingSoundDQNAgent(DuelingDQNAgentBase):
         next_q_values = self.target_net(next_state).max(1)[0]
         expected_q_values = reward + (1 - done) * self.gamma * next_q_values
 
-        errors = torch.abs(q_values - expected_q_values.detach()).cpu().numpy()
+        errors = torch.abs(q_values - expected_q_values.detach()).detach().cpu().numpy()
 
         for i in range(self.batch_size):
             idx = idxs[i]
             self.replay_buffer.update(idx, errors[i])
 
-        loss = torch.FloatTensor(is_weights) * self.loss_fn(
-            q_values, expected_q_values.detach()
-        )
+        loss = (
+            torch.FloatTensor(is_weights).to(self.device)
+            * F.mse_loss(q_values, expected_q_values.detach())
+        ).mean()
 
         self.optimizer.zero_grad()
         loss.backward()

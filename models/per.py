@@ -4,7 +4,7 @@ from typing import Tuple, List, TypeVar, Generic
 
 import numpy as np
 
-from sumtree import SumTree
+from models.sumtree import SumTree
 
 T = TypeVar("T")  # Declare type variable "T"
 
