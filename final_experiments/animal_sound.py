@@ -6,7 +6,6 @@ from env_wrappers.husk_environment import env_makers
 from final_experiments.runners.sound import train_sound
 from final_experiments.wrappers.find_animal import FindAnimalWrapper
 from final_experiments.wrappers.simplest_navigation import SimplestNavigationWrapper
-from final_experiments.wrappers.sound import SoundWrapper
 from final_experiments.wrappers.surrounding_sound import SurroundingSoundWrapper
 from models.dueling_sound_dqn import DuelingSoundDQNAgent
 
@@ -28,6 +27,7 @@ def solved_criterion(avg_score, test_score, avg_test_score, episode):
 def run_experiment():
     seed = int(time.time())
     np.random.seed(seed)
+
     verbose = False
     env_path = None
     port = 8005
