@@ -27,7 +27,7 @@ class FindAnimalWrapper(CleanUpFastResetWrapper):
         if animals2 >= self.target_number:
             reward = 1
             terminated = True
-        if info_obs.y == -60:  # Arrived somewhere in the pen
+        elif info_obs.y == -60:  # Arrived somewhere in the pen
             terminated = True
 
         return (
