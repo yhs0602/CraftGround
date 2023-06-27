@@ -382,7 +382,9 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
-def make_random_husks_environment(verbose: bool, env_path: str, port: int):
+def make_random_husks_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool
+):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             self.env = mydojo.make(
@@ -408,6 +410,7 @@ def make_random_husks_environment(verbose: bool, env_path: str, port: int):
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=generate_husks(5, 5, 10),
+                isHudHidden=hud_hidden,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
