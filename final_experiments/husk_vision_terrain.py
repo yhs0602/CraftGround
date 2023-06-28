@@ -10,6 +10,20 @@ from final_experiments.wrappers.vision import VisionWrapper
 from models.dueling_vision_dqn import DuelingVisionDQNAgent
 
 
+def solved_criterion(avg_score, test_score, avg_test_score, episode):
+    if episode < 500:
+        return False
+    if avg_score < 195.0:
+        return False
+    if test_score < 198.0:
+        return False
+    if avg_test_score is None:
+        return True
+    if avg_test_score < 195.0:
+        return False
+    return True
+
+
 def run_experiment():
     seed = int(time.time())
     np.random.seed(seed)
@@ -17,7 +31,9 @@ def run_experiment():
     verbose = False
     env_path = None
     port = 8001
-    inner_env, sound_list = env_makers["husk-random-terrain"](verbose, env_path, port)
+    inner_env, sound_list = env_makers["husk-random-terrain"](
+        verbose, env_path, port, hud_hidden=True
+    )
     env = AvoidDamageWrapper(
         VisionWrapper(
             SimpleNavigationWrapper(
@@ -49,6 +65,7 @@ def run_experiment():
         num_episodes=2000,
         warmup_episodes=10,
         seed=seed,
+        solved_criterion=solved_criterion,
     )
 
 

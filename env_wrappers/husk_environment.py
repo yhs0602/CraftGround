@@ -191,7 +191,9 @@ def make_husk_darkness_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
-def make_husks_darkness_environment(verbose: bool, env_path: str, port: int):
+def make_husks_darkness_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
     return mydojo.make(
         verbose=verbose,
         env_path=env_path,
@@ -222,6 +224,7 @@ def make_husks_darkness_environment(verbose: bool, env_path: str, port: int):
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
         initialExtraCommands=["effect give @p minecraft:darkness infinite 1 true"],
+        isHudHidden=hud_hidden,
     ), [
         "subtitles.entity.husk.ambient",
         "subtitles.block.generic.footsteps",
@@ -320,7 +323,9 @@ def make_find_animal_environment(
     ]
 
 
-def make_random_husk_environment(verbose: bool, env_path: str, port: int):
+def make_random_husk_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             self.env = mydojo.make(
@@ -345,6 +350,7 @@ def make_random_husk_environment(verbose: bool, env_path: str, port: int):
                 isHardCore=False,
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
+                isHudHidden=hud_hidden,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
@@ -437,7 +443,9 @@ def make_random_husks_environment(
     ]
 
 
-def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: int):
+def make_random_husks_darkness_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = ["effect give @p minecraft:darkness infinite 1 true"]
@@ -465,6 +473,7 @@ def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: i
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=initialExtraCommands,
+                isHudHidden=hud_hidden,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
@@ -489,7 +498,9 @@ def make_random_husks_darkness_environment(verbose: bool, env_path: str, port: i
 
 
 # summons husks every 25 ticks
-def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
+def make_continuous_husks_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = []
@@ -517,6 +528,7 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=initialExtraCommands,
+                isHudHidden=hud_hidden,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
@@ -547,7 +559,11 @@ def make_continuous_husks_environment(verbose: bool, env_path: str, port: int):
 
 
 def make_random_husk_terrain_environment(
-    verbose: bool, env_path: str, port: int, darkness: bool = False
+    verbose: bool,
+    env_path: str,
+    port: int,
+    darkness: bool = False,
+    hud_hidden: bool = True,
 ):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
@@ -580,6 +596,7 @@ def make_random_husk_terrain_environment(
                 isWorldFlat=False,  # superflat world
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=initialExtraCommands,
+                isHudHidden=hud_hidden,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
@@ -610,7 +627,9 @@ def make_random_husk_terrain_environment(
     ]
 
 
-def make_hunt_husk_environment(verbose: bool, env_path: str, port: int):
+def make_hunt_husk_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = []
@@ -641,6 +660,7 @@ def make_hunt_husk_environment(verbose: bool, env_path: str, port: int):
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=initialExtraCommands,
                 killedStatKeys=["minecraft:husk"],
+                isHudHidden=hud_hidden,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
