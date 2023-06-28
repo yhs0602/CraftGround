@@ -31,6 +31,8 @@
 \usepackage{amsfonts}
 \usepackage{gensymb}
 \usepackage{float}
+\usepackage{setspace}
+\usepackage{tocloft}
 
 \usepackage[hidelinks]{hyperref}
 
@@ -92,6 +94,11 @@
 %% Length of underline
 %\setlength{\committeenameunderlinelength}{7cm}
 
+\renewcommand{\thesection}{제 \arabic{section} 절}
+\renewcommand{\thesubsection}{제 \arabic{section} 절의 \arabic{subsection}.}
+\addtolength{\cftsecnumwidth}{10pt}
+\addtolength{\cftsubsecnumwidth}{20pt}
+
 \begin{document}
 
 \pagenumbering{Roman}
@@ -131,6 +138,8 @@
 \cleardoublepage
 %\pagenumbering {arabic}
 
+\doublespacing
+\renewcommand{\baselinestretch}{1.7}
 \chapter{서론}
 
 \section{선행 연구}
@@ -296,37 +305,37 @@ OpenAI gym 인터페이스\cite{gym}의 \lstinline{reset} 함수를 호출할 �
 태스크별 하이퍼파라미터 미세조정은 진행하지 않았다.
 
 \chapter{실험 결과}
-아래에 이번에 진행한 여러 실험에서 각 소리, 비전, 멀티모달 에이전트들이 획득한 평균 보상을 나타낸 그래프들을 나타내었다. 가로축은 진행한 에피소드 수이며, 세로축은 각 에이전트가 해당 에피소드에서 획득한 총 리워드를 의미한다.
+아래에 이번에 진행한 여러 실험에서 각 소리, 비전, 멀티모달 에이전트들이 획득한 평균 보상을 나타낸 그래프들을 나타내었다. 가로축은 진행한 에피소드 수이며, 세로축은 각 에이전트가 해당 에피소드에서 획득한 총 보상을 의미한다. 허스크로부터 도망가는 태스크에서 얻을 수 있는 최대 보상은 $400 \times 0.5 = 200 $이고, 동물 찾기 태스크에서 얻을 수 있는 최대 보상은 $1$이다.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{husk.png}
-    \caption{허스크 회피 태스크(허스크 1)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. }
+    \caption{허스크 회피 태스크(허스크 1)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. \lstinline{husk_vision}으로 나타낸 비전 에이전트도 어느 정도 학습이 이루어진 것을 알 수 있지만, \lstinline{husk_sound}로 나타나는 소리 에이전트와 \lstinline{husk_multimodal}로 나타낸 멀티모달 에이전트가 가장 높은 보상을 얻었다. 또한 멀티모달 에이전트는 증가한 파라미터로 인해 학습이 소리 에이전트에 비해 느려진 것을 확인할 수 있다.}
     \label{fig:husk}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=\textwidth]{husks.png}
-    \caption{여러 허스크 회피 태스크 (허스크 2)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. 가로축은 진행한 에피소드 수이며, 세로축은 각 에이전트가 해당 에피소드에서 획득한 총 리워드를 의미한다.}
+    \caption{여러 허스크 회피 태스크 (허스크 2)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. \lstinline{husks_vision}으로 나타낸 비전 에이전트는 거의 상황에 대처하지 못하는 것을 볼 수 있으며, \lstinline{husks_sound}로 나타낸 소리 에이전트와 \lstinline{husks_multimodal}로 나타낸 멀티모달 에이전트는 여러 허스크가 등장하는 상황에서도 잘 대처하는 것을 확인할 수 있다.}
     \label{fig:husks}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{animal.png}
-    \caption{동물 찾아가기 태스크(동물)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. 가로축은 진행한 에피소드 수이며, 세로축은 각 에이전트가 해당 에피소드에서 획득한 총 리워드를 의미한다.}
+    \caption{동물 찾아가기 태스크(동물)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. 보상이 희박하기 때문에 세 에이전트에서 학습이 느린 것을 볼 수 있다. \lstinline{animal_vision}으로 나타낸 비전 에이전트는 주어진 시간 내에 동물을 찾아가는 것을 학습하지 못하였다. \lstinline{animal_sound}로 나타낸 소리 에이전트와 \lstinline{animal_multimodal}로 나타낸 멀티모달 에이전트는 주어진 시간 내에 학습을 완료하였다.}
     \label{fig:animal}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{husk_terrain.png}
-    \caption{장애물과 언덕이 있는 지형에서 허스크를 회피하는 태스크 (지형-허스크)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. 가로축은 진행한 에피소드 수이며, 세로축은 각 에이전트가 해당 에피소드에서 획득한 총 리워드를 의미한다.}
+    \caption{장애물과 언덕이 있는 지형에서 허스크를 회피하는 태스크 (지형-허스크)에 대한 비전, 소리, 멀티모달 에이전트의 성능을 나타낸 그래프이다. \lstinline{husk_vision_terrain}으로 나타낸 비전 에이전트는 거의 상황에 대처하지 못하는 것을 볼 수 있으며, \lstinline{husk_sound_terrain}로 나타낸 소리 에이전트와 \lstinline{husk_multimodal_terrain}로 나타낸 멀티모달 에이전트는 장애물과 언덕이 있는 지형에서도 잘 대처하는 것을 확인할 수 있다.}
     \label{fig:husk_terrain}
 \end{figure}
 
 \chapter{결론}\label{chp:conclusion}
 
-우리는 어둠 상태 효과가 걸린 상황에서 비전 기반 에이전트의 성능이 향상되는 현상을 관찰했다. 이는 쓸모없는 정보가 제거되어서 발생한 것으로 생각된다. 비전에 비해 소리와 바이모달 성능이 더 우수함을 확인할 수 있었다. 평지 환경에서는 소리가 가장 우수한 성능을 보여주었으며, 그 다음으로 바이모달, 그리고 비전 순으로 성능이 좋았다. 그러나 복잡한 환경에서는 소리가 비전보다 우수하게 작동하는 것은 아니었지만, 바이모달 입력을 통해 성능이 크게 향상되었다. 스파스 리워드 환경에서의 실험 결과는 전반적인 경향을 반전시키지 않았다.
+앞 장의 실험 결과를 보면, 비전만을 이용하는 에이전트에 비해 소리를 이용하는 에이전트와 소리와 비전 모두를 활용하는 바이모달 에이전트의 성능이 더 우수함을 확인할 수 있었다. 또한 소리만을 이용하는 에이전트의 경우 파라미터 수가 적어 더 빠른 시간 내에 학습이 진행되었다. 보상이 희박한 환경에서도 이 경향은 반전되지 않았다. 이는 이 연구에서 주어진 태스크에서 비전만을 이용하는 에이전트보다 소리 입력만 또는 소리와 비전을 모두 이용하는 에이전트가 더 효율적으로 학습할 수 있음을 보여준다.
 
-앞으로의 연구 방향으로는 PER이나 DRQN과 같은 기술을 적용해 보는 것과 함께, A2C나 PPO와 같은 Policy Gradient 방법을 시도해 볼 것이 있다. 이를 통해 보다 정교한 강화 학습 알고리즘을 구축하고, 우리의 시스템 성능을 더욱 향상시킬 수 있을 것으로 기대된다. 이러한 연구는 인간의 감각체계와 유사한 기능을 가진 인공 시스템의 발전에 기여할 수 있으며, 다양한 실제 응용 분야에서 유용하게 활용될 수 있을 것이다.
+앞으로의 연구 방향으로는 중요한 정보가 들어 있는(오차가 큰) 전이를 더 자주 추출하는 리플레이 버퍼 전략인 Prioritized Experience Replay \cite{per}나 순환 신경망을 이용하여 최근 N개의 관측을 활용하는 DRQN \cite{POMDP}, 호기심 기반 탐색 \cite{curious}과 같은 기술을 적용해 보는 것과 함께, Advantage Actor Critic \cite{A2C}이나 Proximal Policy Optimization \cite{PPO}과 같은 Policy Gradient 방법을 시도해 보는 것이다. 이를 통해 보다 정교한 강화 학습 알고리즘을 구축 및 실험하고, 우리의 시스템 성능을 더욱 향상시킬 수 있을 것으로 기대된다. 또한 이번 연구에서 알아낸 Q 값 기반 강화학습에 미치는 바이모달 에이전트의 성능과 policy gradient 방식 강화학습에 미치는 바이모달 에이전트의 성능에 대한 비교를 해볼 수 있을 것이다. 또한 이번 연구에서 활용한 환경들은 비교적 간단한 것들이었기에, 더 복잡한 환경에서 더 어려운 태스크를 수행하는 것도 시도해볼 수 있다. 이러한 연구는 인간의 감각체계와 유사한 기능을 가진 인공 시스템의 발전에 기여할 수 있으며, 다양한 실제 응용 분야에서 유용하게 활용될 수 있을 것이다.
 
 %\appendix
 %
@@ -339,6 +348,9 @@ OpenAI gym 인터페이스\cite{gym}의 \lstinline{reset} 함수를 호출할 �
 
     \bibitem{minedojo}Fan, L., Wang, G., Jiang, Y., Mandlekar, A., Yang, Y., Zhu, H., Tang, A., Huang, D., Zhu, Y. \& Anandkumar, A. MineDojo: Building Open-Ended Embodied Agents with Internet-Scale Knowledge.  (2022)
 
+    \bibitem{minedojoGithub}
+    MineDojo. (2023). \textit{MineDojo GitHub Repository}. GitHub repository. Retrieved from \url{https://github.com/MineDojo/MineDojo/blob/main/minedojo/sim/Malmo/Minecraft/build.gradle#L70}
+
     \bibitem{DQN}Mnih, V., Kavukcuoglu, K., Silver, D., Graves, A., Antonoglou, I., Wierstra, D. \& Riedmiller, M. Playing Atari with Deep Reinforcement Learning. {\em CoRR}. \textbf{abs/1312.5602} (2013), http://arxiv.org/abs/1312.5602
 
     \bibitem{DuelingDQN}Wang, Z., Freitas, N. \& Lanctot, M. Dueling Network Architectures for Deep Reinforcement Learning. {\em CoRR}. \textbf{abs/1511.06581} (2015), http://arxiv.org/abs/1511.06581
@@ -349,13 +361,51 @@ OpenAI gym 인터페이스\cite{gym}의 \lstinline{reset} 함수를 호출할 �
 
     \bibitem{gym}Brockman, G., Cheung, V., Pettersson, L., Schneider, J., Schulman, J., Tang, J. \& Zaremba, W. OpenAI Gym. {\em CoRR}. \textbf{abs/1606.01540} (2016), http://arxiv.org/abs/1606.01540
 
-    \bibitem{minedojoGithub}
-    MineDojo. (2023). \textit{MineDojo GitHub Repository}. GitHub repository. Retrieved from \url{https://github.com/MineDojo/MineDojo/blob/main/minedojo/sim/Malmo/Minecraft/build.gradle#L70}
+    \bibitem{per}Schaul, T., Quan, J., Antonoglou, I. \& Silver, D. Prioritized Experience Replay.  (2015), http://arxiv.org/abs/1511.05952, cite arxiv:1511.05952Comment: Published at ICLR 2016
+
+    \bibitem{curious}Pathak, D., Agrawal, P., Efros, A. \& Darrell, T. Curiosity-driven Exploration by Self-supervised Prediction. {\em CoRR}. \textbf{abs/1705.05363} (2017), http://arxiv.org/abs/1705.05363
+
+
+    \bibitem{A2C}Mnih, V., Badia, A., Mirza, M., Graves, A., Lillicrap, T., Harley, T., Silver, D. \& Kavukcuoglu, K. Asynchronous Methods for Deep Reinforcement Learning. {\em CoRR}. \textbf{abs/1602.01783} (2016), http://arxiv.org/abs/1602.01783
+
+    \bibitem{PPO}Schulman, J., Wolski, F., Dhariwal, P., Radford, A. \& Klimov, O. Proximal Policy Optimization Algorithms. {\em CoRR}. \textbf{abs/1707.06347} (2017), http://arxiv.org/abs/1707.06347
 
 
 \end{thebibliography}
 
+
+
 % \bibliography{biblio}
 
+
+
+\newpage
+\keywordalt{Reinforcement Learning, Minecraft, Multimodal, Bimodal, Sound}
+\addcontentsline{toc}{chapter}{\abstractnamealt}
+\begin{center}
+    \fontsize{16}{32}\selectfont
+    \abstractnamealt\\
+    \fontsize{22}{36}\selectfont
+    The Utility of Various Modalities in Reinforcement Learning Environments using Minecraft 
+    \vspace{1cm}
+    \fontsize{14}{14}\selectfont
+    \begin{flushright}
+        Hyeonseo Yang\\
+        Department of Computer Science and Engineering\\
+        The Graduate School \\ 
+        Seoul National University \\ 
+    \end{flushright}
+		
+\end{center}
+
+\begin{center}
+    \fontsize{11}{11}\selectfont
+    This study proposes a new reinforcement learning environment called "MyDojo" based on Minecraft. In this environment, a new observation space item, sound, is introduced that was not provided in existing environments. The performance of bimodal models using sound information is compared to that of existing unimodal models in various tasks, aiming to elevate the importance of sound information and multimodal processing, which have been less emphasized compared to visual information. When tasks involve avoiding one or multiple husks attacking the player or navigating to specific animals in a farm environment, the methods utilizing the newly added sound information, as well as both visual and sound information, demonstrate better performance and shorter learning time compared to the widely used vision-based methods. Through this study, it proposes an increased interest in agents utilizing sound information or bimodal information, which has been relatively overlooked compared to vision.
+\end{center}
+
+\vfill\vspace*{\fill}
+	% better than "\vfill", "\null\vfill", \vspace*{0pt}\vfill", etc.
+	\noindent
+	{\bfseries \keywordnamealt}: Reinforcement Learning, Minecraft, Multimodal, Bimodal, Sound 
 
 \end{document}

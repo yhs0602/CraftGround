@@ -324,12 +324,12 @@
 \if@snu@under
 	%% 배행간 설정이 조금 까다롭다.
 	%% 영문은 1.6으로 하고, 한글은 1.75나 2.0으로 해야 한다는 주장도 있다.
-	\linespread{1.75} % Doblespacing
+	\linespread{1.7} % Doblespacing
 \else
 	\if@snu@ko
-	\linespread{1.6} % 170% (?)
+	\linespread{1.7} % 170% (?)
 	\else
-	\linespread{1.5} % 170% (?)
+	\linespread{1.7} % 170% (?)
 	\fi
 \fi
 \let\@snu@oldfootnote=\footnote
@@ -472,8 +472,7 @@
 			\@title\\
             \fontsize{16pt}{16pt}\selectfont
             (\@titlealt)\\
-			\vfill
-            \vspace{1cm}\nointerlineskip
+            \vspace{2cm}\nointerlineskip
             \fontsize{18pt}{18pt}\selectfont
             지도교수~:~\@advisoralt\\
             \vspace{2cm}\nointerlineskip
@@ -485,7 +484,7 @@
 			\@snu@school@ko\\
 			\@snu@department@ko\\
 			\@authoralt	\\
-            \vspace{1cm}\nointerlineskip
+            \vspace{1.5cm}\nointerlineskip
             \fontsize{20pt}{20pt}\selectfont
 			\@snu@graddate\\
 	}
