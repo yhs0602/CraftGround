@@ -365,11 +365,9 @@
 \def\schoolko#1{\gdef\@snu@school@ko{#1}}
 \def\schoolen#1{\gdef\@snu@school@en{#1}}
 \def\schoolensub#1{\gdef\@snu@school@ensub{#1}} % 불필요?
-\if@snu@under
-	\def\@snu@school@ko{서울대학교 공과대학}
-\else
-	\def\@snu@school@ko{서울대학교 대학원}
-\fi
+
+\def\@snu@school@ko{서울대학교 공과대학}
+
 \def\@snu@school@en{COLLEGE OF ENGINEERING}
 \def\@snu@school@ensub{SEOUL NATIONAL UNIVERSITY}
 %onlypreamble{\schoolko}
@@ -469,74 +467,27 @@
 	\parbox[][\@snu@covertextheight][s]{\textwidth}{%
 		\centering
 		\normalfont
-		\linespread{1.3}\selectfont
-		\if@snu@under % 학부
-			\fontsize{16pt}{16pt}\selectfont
-			공학학사학위논문\\
-			\vspace{2cm}\nointerlineskip
-			\fontsize{21pt}{21pt}\selectfont
+		\linespread{1.6}\selectfont
+			\fontsize{24pt}{24pt}\selectfont
 			\@title\\
+            \fontsize{16pt}{16pt}\selectfont
+            (\@titlealt)\\
 			\vfill
-			\fontsize{16pt}{16pt}\selectfont
-			\@snu@graddate\\
-			\vspace{4cm}\nointerlineskip
+            \vspace{1cm}\nointerlineskip
+            \fontsize{18pt}{18pt}\selectfont
+            지도교수~:~\@advisoralt\\
+            \vspace{2cm}\nointerlineskip
+            \fontsize{20pt}{20pt}\selectfont
+            이~논문을~공학학사~학위~논문으로~제출함.\\
+            \vspace{2cm}\nointerlineskip
+			\@snu@submissiondate\\
+			\vspace{2cm}\nointerlineskip
 			\@snu@school@ko\\
-			\vspace{1cm}\nointerlineskip
 			\@snu@department@ko\\
-			\vspace{1cm}\nointerlineskip
-			\@authoralt
-		\else % 대학원
-			\fontsize{14pt}{14pt}\selectfont
-			\if@snu@ms
-				\@snu@koen{\@snu@academic@ko석사학위논문}%
-				{M.S. THESIS}\\
-			\else
-				\@snu@koen{\@snu@academic@ko박사학위논문}%
-				{공학박사학위논문}\\
-				%{Ph.D. DISSERTATION}\\
-			\fi
-			\vspace{2cm}\nointerlineskip
-			\fontsize{22pt}{22pt}\selectfont
-			\@title\\
-			\vspace{1cm}\nointerlineskip
-			\fontsize{16pt}{16pt}\selectfont
-			\@titlealt\\
-			\if@snu@ko\else
-				\vspace{2cm}\nointerlineskip
-				\fontsize{14pt}{14pt}\selectfont
-				%BY\\
-				%\vspace{1cm}\nointerlineskip
-				%\@author
-			\fi
-			\vfill
-			\fontsize{14pt}{14pt}\selectfont
+			\@authoralt	\\
+            \vspace{1cm}\nointerlineskip
+            \fontsize{20pt}{20pt}\selectfont
 			\@snu@graddate\\
-			\vspace{4cm}\nointerlineskip
-			\if@snu@ko
-				\fontsize{16pt}{16pt}\selectfont
-				\@snu@school@ko\\
-				\vspace{5mm}\nointerlineskip
-				\fontsize{14pt}{16pt}\selectfont
-				\@snu@department@ko\\
-				\vspace{5mm}\nointerlineskip
-				\fontsize{16pt}{16pt}\selectfont
-				\@authoralt
-			\else
-%				\fontsize{14pt}{14pt}\selectfont
-%				\@snu@department@en\\
-%				\@snu@school@en\\
-%				\@snu@school@ensub
-				\fontsize{16pt}{16pt}\selectfont
-				\@snu@school@ko\\
-				\vspace{5mm}\nointerlineskip
-				\fontsize{14pt}{16pt}\selectfont
-				\@snu@department@ko\\
-				\vspace{5mm}\nointerlineskip
-				\fontsize{16pt}{16pt}\selectfont
-				\@authoralt
-
-			\fi
-		\fi
 	}
 	%\end{minipage}
 	%% 여백 원래대로
@@ -584,75 +535,27 @@
 		\centering
 		\normalfont
 		\linespread{1.3}\selectfont
-		\if@snu@under % 학부
-			\fontsize{21pt}{21pt}\selectfont
-			\@title\\
-			\vspace{1cm}\nointerlineskip
-			\fontsize{16pt}{16pt}\selectfont
-			지도교수~\@advisoralt\\
-			\vspace{1cm}\nointerlineskip
-			이~논문을~공학~학사학위~논문으로~제출함\\
-			%\@snu@submissiondate\\
-			\vspace{5cm}\nointerlineskip
-			\@snu@school@ko\\
-			\vspace{1cm}\nointerlineskip
-			\@snu@department@ko\\
-			\vspace{0.5cm}\nointerlineskip
-			\@authoralt\\
-			\vfill
-			\@author~의~학사~학위~논문을~인준함\\
-			\vspace{1cm}\nointerlineskip
-			\@snu@approvaldate\\
-			\vspace{1cm}\nointerlineskip
-			지~도~교~수~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~(인)
-		\else % 대학원
-			\if@snu@ko
-				\fontsize{22pt}{22pt}\selectfont
-			\else
-				\fontsize{16pt}{16pt}\selectfont
-			\fi
-			\@title\\
-			\vspace{1cm}\nointerlineskip
-			\fontsize{16pt}{16pt}\selectfont
-			\@titlealt\\
-			\vspace{1cm}\nointerlineskip
-			\fontsize{14pt}{14pt}\selectfont
-			지도교수 \@advisoralt\\
-			\vspace{5mm}\nointerlineskip
-			\fontsize{16pt}{16pt}\selectfont
-			이 논문을 %
-			\@snu@academic@ko\@snu@msphd{석사}{박사}%
-			학위논문으로 제출함\\
-			\vspace{5mm}\nointerlineskip
-			\fontsize{14pt}{14pt}\selectfont
-			\@snu@submissiondate\\
-			\vspace{1cm}\nointerlineskip
-			\fontsize{16pt}{16pt}\selectfont
-			\@snu@school@ko\\
-			\vspace{5mm}\nointerlineskip
-			\fontsize{14pt}{14pt}\selectfont
-			\@snu@department@ko\\
-			\vspace{5mm}\nointerlineskip
-			\fontsize{16pt}{16pt}\selectfont
-			\@authoralt\\
-			\vspace{1cm}\nointerlineskip
-			\@author의 %
-			\@snu@academic@ko\@snu@msphd{석사}{박사} %
-			학위논문을 인준함\\
-			\vspace{5mm}\nointerlineskip
-			\fontsize{14pt}{14pt}\selectfont
-			\@snu@approvaldate\\
-			\vfill
-			\begin{tabular}[b]{cc}
-			위 \hfill 원 \hfill 장 & \committeestyle{\@snu@committeememberA} (인)\\
-			부위원장               & \committeestyle{\@snu@committeememberB} (인)\\
-			위 \hfill 원           & \committeestyle{\@snu@committeememberC} (인)\\
-			\if@snu@ms\else
-			위 \hfill 원           & \committeestyle{\@snu@committeememberD} (인)\\
-			위 \hfill 원           & \committeestyle{\@snu@committeememberE} (인)\\
-			\fi
-			\end{tabular}
-		\fi
+        \fontsize{21pt}{21pt}\selectfont
+        \@title\\
+        \vspace{1cm}\nointerlineskip
+        \fontsize{16pt}{16pt}\selectfont
+        지도교수~\@advisoralt\\
+        \vspace{1cm}\nointerlineskip
+        이~논문을~공학학사~학위~논문으로~제출함\\
+        %\@snu@submissiondate\\
+        \vspace{5cm}\nointerlineskip
+        \@snu@school@ko\\
+        \vspace{1cm}\nointerlineskip
+        \@snu@department@ko\\
+        \vspace{0.5cm}\nointerlineskip
+        \@authoralt\\
+        \vfill
+        \@author~의~학사~학위~논문을~인준함\\
+        \vspace{1cm}\nointerlineskip
+        \@snu@approvaldate\\
+        \vspace{1cm}\nointerlineskip
+        지~도~교~수~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~(인)
+		
 	}
 %	\end{minipage}
 	\newpage
@@ -762,10 +665,10 @@
 			\centering
 			\normalfont
 			\linespread{1.0}
-			\fontsize{22pt}{22pt}\selectfont
+			\fontsize{16pt}{16pt}\selectfont
 			\textbf{\abstractname}\par\nobreak
 		}
-		\vspace{2cm}
+		\vspace{1cm}
 		\@afterheading
 	\fi
 }{%
