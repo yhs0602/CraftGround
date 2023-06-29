@@ -31,7 +31,9 @@ def run_experiment():
     verbose = False
     env_path = None
     port = 8005
-    inner_env, sound_list = env_makers["find-animal"](verbose, env_path, port)
+    inner_env, sound_list = env_makers["find-animal"](
+        verbose, env_path, port, hud_hidden=True
+    )
     env = FindAnimalWrapper(
         SurroundingSoundWrapper(
             SimplestNavigationWrapper(
