@@ -13,7 +13,7 @@ from models.dueling_sound_dqn import DuelingSoundDQNAgent
 def solved_criterion(avg_score, test_score, avg_test_score, episode):
     if episode < 500:
         return False
-    if avg_score < 0.9:
+    if avg_score < 0.95:
         return False
     if test_score < 0.95:
         return False

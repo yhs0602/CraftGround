@@ -13,7 +13,7 @@ from models.dueling_bimodal_dqn import DuelingBiModalDQNAgent
 def solved_criterion(avg_score, test_score, avg_test_score, episode):
     if episode < 500:
         return False
-    if avg_score < 0.9:
+    if avg_score < 0.95:
         return False
     if test_score < 0.95:
         return False
