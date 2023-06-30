@@ -1,12 +1,12 @@
-from env_experiments.train_cnn import train_cnn
+from old_experiments.train_bimodal import train_vision_and_sound
 
 if __name__ == "__main__":
-    train_cnn(
+    train_vision_and_sound(
         verbose=False,
         env_path=None,
-        port=8006,
+        port=8004,
         agent="DQNAgent",
-        env_name="husk-darkness",
+        env_name="husks-darkness",
         batch_size=256,
         gamma=0.99,
         learning_rate=0.00001,

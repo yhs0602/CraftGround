@@ -1,11 +1,10 @@
-from env_experiments.train_cnn import train_cnn
+from old_experiments.train import train_sound
 
-
-def sweep():
-    train_cnn(
+if __name__ == "__main__":
+    train_sound(
         verbose=False,
         env_path=None,
-        port=8000,
+        port=8004,
         agent="DQNAgent",
         env_name="husk",
         batch_size=256,
@@ -13,8 +12,6 @@ def sweep():
         learning_rate=0.00001,
         update_freq=1000,
         hidden_dim=128,
-        kernel_size=5,
-        stride=2,
         weight_decay=0.00001,
         buffer_size=1000000,
         epsilon_init=1.0,
@@ -24,7 +21,3 @@ def sweep():
         num_episodes=2000,
         warmup_episodes=0,
     )
-
-
-if __name__ == "__main__":
-    sweep()

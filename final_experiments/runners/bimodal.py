@@ -1,4 +1,4 @@
-from env_experiments.get_device import get_device
+from final_experiments.get_device import get_device
 
 
 def train_vision_and_sound(

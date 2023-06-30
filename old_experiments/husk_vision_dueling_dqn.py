@@ -1,4 +1,4 @@
-from env_experiments.train_cnn import train_cnn
+from old_experiments.train_cnn import train_cnn
 
 if __name__ == "__main__":
     train_cnn(

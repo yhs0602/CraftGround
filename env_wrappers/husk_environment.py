@@ -627,6 +627,75 @@ def make_random_husk_terrain_environment(
     ]
 
 
+def make_random_husk_forest_environment(
+    verbose: bool,
+    env_path: str,
+    port: int,
+    darkness: bool = False,
+    hud_hidden: bool = True,
+):
+    class RandomHuskWrapper(CleanUpFastResetWrapper):
+        def __init__(self):
+            initialExtraCommands = []
+            initialExtraCommands.extend(generate_husks(1, 5, 10, dy=8))
+            if darkness:
+                initialExtraCommands.append(
+                    "effect give @p minecraft:darkness infinite 1 true"
+                )
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[],
+                initialPosition=[-117, 75, -15],  # nullable
+                initialMobsCommands=[
+                    # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                    # player looks at south (positive Z) when spawn
+                ],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=3788863154090864390,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=False,  # superflat world
+                obs_keys=["sound_subtitles"],
+                initialExtraCommands=initialExtraCommands,
+                isHudHidden=hud_hidden,
+            )
+            super(RandomHuskWrapper, self).__init__(self.env)
+
+        def reset(
+            self,
+            fast_reset: bool = True,
+            seed: Optional[int] = None,
+            options: Optional[dict[str, Any]] = None,
+        ) -> tuple[WrapperObsType, dict[str, Any]]:
+            extra_commands = ["tp @e[type=!player] ~ -500 ~"]
+            extra_commands.extend(generate_husks(1, 5, 10, dy=8))
+
+            obs = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=extra_commands,
+                seed=seed,
+                options=options,
+            )
+            # obs["extra_info"] = {
+            #     "husk_dx": dx,
+            #     "husk_dz": dz,
+            # }
+            return obs
+
+    return RandomHuskWrapper(), [
+        "subtitles.entity.husk.ambient",
+        "subtitles.block.generic.footsteps",
+    ]
+
+
 def make_hunt_husk_environment(
     verbose: bool, env_path: str, port: int, hud_hidden: bool = True
 ):
@@ -748,6 +817,7 @@ env_makers = {
     "husks-random-darkness": make_random_husks_darkness_environment,
     "husks-continuous": make_continuous_husks_environment,
     "husk-random-terrain": make_random_husk_terrain_environment,
+    "husk-random-forest": make_random_husk_forest_environment,
     "husk-hunt": make_hunt_husk_environment,
     "mansion": make_mansion_environment,
 }

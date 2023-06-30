@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Tuple
 
-from env_experiments.train_sound import train_sound
+from old_experiments.train_sound import train_sound
 
 health_deque = deque(maxlen=2)
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         verbose=False,
         env_path=None,
         port=8004,
-        agent="DQNAgent",
+        agent="DDQNAgent",
         env_name="husk",
         batch_size=256,
         gamma=0.99,

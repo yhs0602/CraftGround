@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Tuple
 
-from env_experiments.train_bimodal import train_vision_and_sound
+from old_experiments.train_sound import train_sound
 
 health_deque = deque(maxlen=2)
 
@@ -18,19 +18,17 @@ def reward_function(obs) -> Tuple[float, bool]:
 
 if __name__ == "__main__":
     health_deque.append(20)
-    train_vision_and_sound(
+    train_sound(
         verbose=False,
         env_path=None,
-        port=8003,
+        port=8004,
         agent="DQNAgent",
-        env_name="husk-darkness",
+        env_name="husk",
         batch_size=256,
         gamma=0.99,
         learning_rate=0.00001,
         update_freq=1000,
         hidden_dim=128,
-        kernel_size=5,
-        stride=2,
         weight_decay=0.00001,
         buffer_size=1000000,
         epsilon_init=1.0,

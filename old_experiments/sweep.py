@@ -1,27 +1,11 @@
-from collections import deque
-from typing import Tuple
-
-from env_experiments.train_cnn import train_cnn
-
-health_deque = deque(maxlen=2)
+from old_experiments.train_cnn import train_cnn
 
 
-def reward_function(obs) -> Tuple[float, bool]:
-    if obs.is_dead:
-        health_deque.append(20)
-        return -1, True
-    health_deque.append(obs.health)
-    if health_deque[0] < health_deque[1]:
-        return -0.1, False
-    return 0.5, False
-
-
-if __name__ == "__main__":
-    health_deque.append(20)
+def sweep():
     train_cnn(
         verbose=False,
         env_path=None,
-        port=8006,
+        port=8000,
         agent="DQNAgent",
         env_name="husk",
         batch_size=256,
@@ -39,5 +23,8 @@ if __name__ == "__main__":
         max_steps_per_episode=400,
         num_episodes=2000,
         warmup_episodes=0,
-        reward_function=reward_function,
     )
+
+
+if __name__ == "__main__":
+    sweep()

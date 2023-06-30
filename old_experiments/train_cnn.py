@@ -1,6 +1,6 @@
 from gymnasium.wrappers import FrameStack
 
-from env_experiments.get_device import get_device
+from final_experiments.get_device import get_device
 from env_wrappers.husk_environment import env_makers
 from env_wrappers.vision_wrapper import VisionWrapper
 
