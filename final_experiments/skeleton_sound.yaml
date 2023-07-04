@@ -1,0 +1,37 @@
+verbose: false
+seed: null
+port: 8000
+env_path: null
+mode: sound
+env:
+  name: 'skeleton'
+  hud: false
+  env_specific_args: { }
+wrappers:
+  - SimpleNavigationWrapper:
+      - max_action: TURN_RIGHT
+      - no_op: true
+  - SoundWrapper:
+      - coord_dim: 2
+  - AvoidDamageWrapper
+train:
+  agent: DuelingSoundDQNAgent
+  batch_size: 256
+  gamma: 0.99
+  learning_rate: 0.0001
+  target_update: 1000
+  hidden_dim: 128
+  weight_decay: 0.00001
+  buffer_size: 1000000
+  epsilon_init: 1.0
+  epsilon_decay: 0.99
+  epsilon_min: 0.01
+  max_steps_per_episode: 400
+  num_episodes: 2000
+  warmup_episodes: 10
+  group: husk_sound
+  solved_criterion:
+    - average_score: 195.0
+    - average_test_score: 195.0
+    - test_score: 198.0
+    - min_episode: 500

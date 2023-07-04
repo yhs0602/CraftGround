@@ -804,6 +804,112 @@ def make_mansion_environment(verbose: bool, env_path: str, port: int, hud_hidden
     ]
 
 
+def make_skeleton_random_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
+    class RandomSkeletonWrapper(CleanUpFastResetWrapper):
+        def __init__(self):
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=[],
+                initialPosition=None,  # nullable
+                initialMobsCommands=[
+                    "minecraft:skeleton ~ ~ ~5",
+                    # player looks at south (positive Z) when spawn
+                ],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=12345,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=False,
+                alwaysNight=True,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=True,  # superflat world
+                obs_keys=["sound_subtitles"],
+                isHudHidden=hud_hidden,
+            )
+            super(RandomSkeletonWrapper, self).__init__(self.env)
+
+        def reset(
+            self, fast_reset: bool = True, **kwargs
+        ) -> Tuple[ObsType, Dict[str, Any]]:
+            dx = self.generate_random_excluding(-10, 10, -5, 5)
+            dz = self.generate_random_excluding(-10, 10, -5, 5)
+            obs, info = self.env.reset(
+                fast_reset=fast_reset,
+                extra_commands=[
+                    "tp @e[type=!player] ~ -500 ~",
+                    "summon minecraft:skeleton " + f"~{dx} ~ ~{dz}",
+                ],
+                **kwargs,
+            )
+            print(f"dx={dx}, dz={dz}")
+            obs["extra_info"] = {
+                "skeleton_dx": dx,
+                "skeleton_dz": dz,
+            }
+            return obs, info
+
+        def generate_random_excluding(self, start, end, exclude_start, exclude_end):
+            while True:
+                x = random.randint(start, end)
+                if x not in range(exclude_start, exclude_end):
+                    return x
+
+    return RandomSkeletonWrapper(), [
+        "subtitles.entity.skeleton.ambient",
+        "subtitles.entity.skeleton.shoot",
+        "subtitles.entity.arrow.hit_player",
+        "subtitles.entity.arrow.hit",
+        "subtitles.block.generic.footsteps",
+    ]
+
+
+def make_find_village_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
+    class FindVillageWrapper(CleanUpFastResetWrapper):
+        def __init__(self):
+            self.env = mydojo.make(
+                verbose=verbose,
+                env_path=env_path,
+                port=port,
+                initialInventoryCommands=["minecraft:firework_rocket 64"],
+                initialPosition=[0, 3000, 0],  # nullable
+                initialMobsCommands=[],
+                imageSizeX=114,
+                imageSizeY=64,
+                visibleSizeX=114,
+                visibleSizeY=64,
+                seed=12345,  # nullable
+                allowMobSpawn=False,
+                alwaysDay=True,
+                alwaysNight=False,
+                initialWeather="clear",  # nullable
+                isHardCore=False,
+                isWorldFlat=True,  # superflat world
+                obs_keys=["sound_subtitles"],
+                miscStatKeys=["aviate_one_cm"],
+                isHudHidden=hud_hidden,
+                initialExtraCommands=[
+                    "item replace entity @p armor.chest with minecraft:elytra",
+                    "difficulty peaceful",
+                    "item replace entity @p armor.feet with minecraft:diamond_boots",
+                ],
+                surrounding_entities_keys=[30],
+            )
+            super(FindVillageWrapper, self).__init__(self.env)
+
+    return FindVillageWrapper(), [
+        "subtitles.entity.skeleton.ambient",  # TODO: remove
+    ]
+
+
 env_makers = {
     "husk": make_husk_environment,
     "husks": make_husks_environment,
@@ -820,6 +926,8 @@ env_makers = {
     "husk-random-forest": make_random_husk_forest_environment,
     "husk-hunt": make_hunt_husk_environment,
     "mansion": make_mansion_environment,
+    "skeleton-random": make_skeleton_random_environment,
+    "find-village": make_find_village_environment,
 }
 
 
