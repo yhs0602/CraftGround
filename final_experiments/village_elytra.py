@@ -5,12 +5,10 @@ import numpy as np
 from env_wrappers.husk_environment import env_makers
 from final_experiments.runners.vision import train_cnn
 from final_experiments.wrappers.action import ActionWrapper
-from final_experiments.wrappers.avoid_damage import AvoidDamageWrapper
 from final_experiments.wrappers.find_village import FindVillageWrapper
 from final_experiments.wrappers.fly_helper import FlyHelperWrapper
 from final_experiments.wrappers.vision import VisionWrapper
 from models.dueling_vision_dqn import DuelingVisionDQNAgent
-from models.manual_instruction import ManualVisionAgent
 
 
 def solved_criterion(avg_score, test_score, avg_test_score, episode):
@@ -35,7 +33,7 @@ def run_experiment():
     env_path = None
     port = 8001
     inner_env, sound_list = env_makers["find-village"](
-        verbose, env_path, port, hud_hidden=False
+        verbose, env_path, port, hud_hidden=True
     )
     env = FindVillageWrapper(
         FlyHelperWrapper(
@@ -61,7 +59,7 @@ def run_experiment():
     train_cnn(
         group="elytra_vision",
         env=env,
-        agent_class=ManualVisionAgent,
+        agent_class=DuelingVisionDQNAgent,
         # env_name="husk-random-terrain",
         batch_size=256,
         gamma=0.99,
@@ -75,7 +73,7 @@ def run_experiment():
         epsilon_init=1.0,
         epsilon_decay=0.99,
         epsilon_min=0.01,
-        max_steps_per_episode=4000,
+        max_steps_per_episode=500,
         num_episodes=1000,
         warmup_episodes=0,
         seed=seed,

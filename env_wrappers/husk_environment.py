@@ -880,7 +880,7 @@ def make_find_village_environment(
                 env_path=env_path,
                 port=port,
                 initialInventoryCommands=["minecraft:firework_rocket 64"],
-                initialPosition=[0, 3000, 0],  # nullable
+                initialPosition=None,  # [0, , 0],  # nullable
                 initialMobsCommands=[],
                 imageSizeX=114,
                 imageSizeY=64,

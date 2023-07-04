@@ -10,18 +10,25 @@ class FlyHelperWrapper(CleanUpFastResetWrapper):
     def __init__(self, env):
         self.env = env
         self.prev_flight_distance = None
+        self.prev_firework_stock = 64
         super().__init__(self.env)
 
     def step(
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         obs, reward, terminated, truncated, info = self.env.step(action)
-        if action == 0:
-            reward += 0.001
         info_obs = info["obs"]
         flight_distance = info_obs.misc_statistics["aviate_one_cm"]
+        inventory = info_obs.inventory
+        firework_stock = 0
+        for item in inventory:
+            if item.translation_key == "item.minecraft.firework_rocket":
+                firework_stock = item.count
+        if firework_stock < self.prev_firework_stock:
+            reward -= 0.05  # penalty for using firework rocket
+        self.prev_firework_stock = firework_stock
+
         if flight_distance > self.prev_flight_distance:
-            print("Flew")
             reward += 0.01
         self.prev_flight_distance = flight_distance
 
@@ -42,4 +49,5 @@ class FlyHelperWrapper(CleanUpFastResetWrapper):
         obs, info = self.env.reset(fast_reset=True, seed=seed, options=options)
         info_obs = info["obs"]
         self.prev_flight_distance = info_obs.misc_statistics["aviate_one_cm"]
+        self.prev_firework_stock = 64
         return obs, info
