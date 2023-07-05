@@ -21,7 +21,7 @@ class FindVillageWrapper(CleanUpFastResetWrapper):
         villager30 = self.count_villagers(surrounding_entities[30].entities)
 
         if villager30 >= 1:
-            reward = 1
+            reward = 5
             terminated = True
         elif info_obs.is_dead:
             reward = -1

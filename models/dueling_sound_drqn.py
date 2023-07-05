@@ -1,6 +1,6 @@
 import random
 from collections import deque
-from typing import List, TypeAlias, Tuple, Optional
+from typing import List, TypeAlias, Optional
 
 import numpy as np
 import torch
@@ -143,21 +143,68 @@ class DuelingSoundDRQNAgent(Agent):
     def update_model(self) -> Optional[float]:
         if len(self.replay_buffer) < self.batch_size:
             return
+
+        hidden_batch, cell_batch = self.policy_net.init_hidden_states(
+            bsize=self.batch_size
+        )
         batch_episodes: List[Episode] = self.replay_buffer.get_batch(
             self.batch_size, self.time_step
         )
 
-        state = state.to(self.device)
-        next_state = next_state.to(self.device)
-        action = action.to(self.device)
-        reward = reward.to(self.device).squeeze(1)
-        done = done.to(self.device).squeeze(1)
+        states_batch = []
+        actions_batch = []
+        next_states_batch = []
+        rewards_batch = []
+        done_batch = []
+        for episode in batch_episodes:
+            states = []
+            actions = []
+            next_states = []
+            rewards = []
+            done = []
+            for transition in episode:
+                states.append(transition.state)
+                actions.append(transition.action)
+                next_states.append(transition.next_state)
+                rewards.append(transition.reward)
+                done.append(transition.done)
+            states_batch.append(states)
+            actions_batch.append(actions)
+            next_states_batch.append(next_states)
+            rewards_batch.append(rewards)
+            done_batch.append(done)
 
-        q_values = self.policy_net(state).gather(1, action.to(torch.int64)).squeeze(1)
-        next_q_values = self.target_net(next_state).max(1)[0]
-        expected_q_values = reward + (1 - done) * self.gamma * next_q_values
+        torch_states_batch = torch.FloatTensor(states_batch).to(self.device)
+        torch_actions_batch = torch.FloatTensor(actions_batch).to(self.device)
+        torch_next_states_batch = torch.FloatTensor(next_states_batch).to(self.device)
+        torch_rewards_batch = torch.FloatTensor(rewards_batch).to(self.device)
+        torch_done_batch = torch.FloatTensor(done_batch).to(self.device)
 
-        loss = self.loss_fn(q_values, expected_q_values.detach())
+        q_values, _ = self.policy_net.forward(
+            torch_states_batch,
+            self.batch_size,
+            self.time_step,
+            hidden_batch,
+            cell_batch,
+        )
+
+        next_q_values, _ = self.target_net.forward(
+            torch_next_states_batch,
+            self.batch_size,
+            self.time_step,
+            hidden_batch,
+            cell_batch,
+        )
+        Q_next_max = next_q_values.detach().max(dim=1)[0]
+        expected_q_values = (
+            torch_rewards_batch[:, self.time_step - 1]
+            + (1 - torch_done_batch[:, self.time_step - 1]) * self.gamma * Q_next_max
+        )
+        q_value = q_values.gather(
+            dim=1, index=torch_actions_batch[:, self.time_step - 1].long().unsqueeze(1)
+        ).squeeze(1)
+
+        loss = self.loss_fn(q_value, expected_q_values.detach())
 
         self.optimizer.zero_grad()
         loss.backward()

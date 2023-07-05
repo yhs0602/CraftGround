@@ -1,4 +1,7 @@
 # Dueling dqns for sound, vision, and bimodal inputs
+import sys
+from collections import deque
+from typing import Tuple
 
 import numpy as np
 import torch
@@ -6,10 +9,11 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 from models.dqn import ReplayBuffer
-from models.dueling_dqn_base import DuelingDQNBase, DuelingDQNAgentBase
+from models.dueling_dqn_base import DuelingDQNAgentBase
 
 
-class DuelingVisionRNNDQN(DuelingDQNBase):
+# https://github.com/keep9oing/DRQN-Pytorch-CartPole-v1/blob/main/DRQN.py
+class DuelingVisionRNNDQN(nn.Module):
     def __init__(self, state_dim, action_dim, kernel_size, stride, hidden_dim):
         super(DuelingVisionRNNDQN, self).__init__()
         self.feature = nn.Sequential(
@@ -21,7 +25,7 @@ class DuelingVisionRNNDQN(DuelingDQNBase):
             nn.ReLU(),
         )
         conv_out_size = self.get_conv_output(state_dim)
-        self.rnn = nn.GRUCell(conv_out_size, hidden_dim)
+        self.rnn = nn.LSTM(conv_out_size, hidden_dim, batch_first=True)
         self.advantage = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
@@ -37,17 +41,53 @@ class DuelingVisionRNNDQN(DuelingDQNBase):
         x = self.feature(x)
         return int(np.prod(x.size()))
 
-    def forward(self, x, hx):
+    def forward(
+        self, x, hidden, cell
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x = x.float() / 255.0
         x = self.feature(x)
         x = x.view(x.size(0), -1)
 
-        hx = self.rnn(x, hx)
-        x = nn.functional.relu(hx)
+        x, (new_hidden, new_cell) = self.rnn(x, (hidden, cell))
+        x = nn.functional.relu(x)
 
         advantage = self.advantage(x)
         value = self.value(x)
-        return value + advantage - advantage.mean(dim=1, keepdim=True)
+        return (
+            value + advantage - advantage.mean(dim=1, keepdim=True),
+            new_hidden,
+            new_cell,
+        )
+
+    def init_hidden_state(self, batch_size):
+        return torch.zeros(1, batch_size, self.hidden_dim).to(self.device), torch.zeros(
+            1, batch_size, self.hidden_dim
+        ).to(self.device)
+
+
+class EpisodeMemory:
+    def __init__(
+        self,
+        random_update=False,
+        size=1000,
+        time_step=500,
+        batch_size=1,
+        lookup_step=None,
+    ):
+        self.random_update = random_update
+        self.size = size
+        self.time_step = time_step
+        self.batch_size = batch_size
+        self.lookup_step = lookup_step
+        if (random_update is False) and (self.batch_size > 1):
+            sys.exit(
+                "It is recommend to use 1 batch for sequential update, if you want, erase this code block and modify code"
+            )
+
+        self.memory = deque(maxlen=self.size)
+
+    def put(self, transition):
+        self.memory.append(episode)
 
 
 class DuelingVisionDQNAgent(DuelingDQNAgentBase):
