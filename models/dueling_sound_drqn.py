@@ -37,8 +37,10 @@ class RecurrentReplayBuffer:
 
 
 class DuelingSoundDRQN(nn.Module):
-    def __init__(self, state_dim, action_dim, hidden_dim):
+    def __init__(self, state_dim, action_dim, hidden_dim, device):
         super(DuelingSoundDRQN, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.device = device
         self.feature = nn.Sequential(nn.Linear(state_dim[0], hidden_dim), nn.ReLU())
         self.lstm = nn.LSTM(
             input_size=hidden_dim,
@@ -60,16 +62,18 @@ class DuelingSoundDRQN(nn.Module):
     def forward(self, x, batch_size, time_step, hidden_state, cell_state):
         x = x.view(batch_size, time_step, -1)
         x = self.feature(x)
+        # print(f"1 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")
         x, (hidden_state, cell_state) = self.lstm(x, (hidden_state, cell_state))
+        # print(f"2 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")
         x = x[:, -1, :]
+        # print(f"3 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")
         advantage = self.advantage(x)
         value = self.value(x)
         return value + advantage - advantage.mean(), (hidden_state, cell_state)
 
     def init_hidden_states(self, bsize):
-        h = torch.zeros(1, bsize, 512).float()
-        c = torch.zeros(1, bsize, 512).float()
-
+        h = torch.zeros(1, bsize, self.hidden_dim).float().to(self.device)
+        c = torch.zeros(1, bsize, self.hidden_dim).float().to(self.device)
         return h, c
 
 
@@ -93,8 +97,12 @@ class DuelingSoundDRQNAgent(Agent):
         self.hidden_dim = hidden_dim
         self.time_step = time_step
         self.device = device
-        self.policy_net = DuelingSoundDRQN(state_dim, action_dim, hidden_dim).to(device)
-        self.target_net = DuelingSoundDRQN(state_dim, action_dim, hidden_dim).to(device)
+        self.policy_net = DuelingSoundDRQN(
+            state_dim, action_dim, hidden_dim, device=device
+        ).to(device)
+        self.target_net = DuelingSoundDRQN(
+            state_dim, action_dim, hidden_dim, device=device
+        ).to(device)
         self.loss_fn = nn.MSELoss()
         self.gamma = gamma
         self.learning_rate = learning_rate
@@ -134,7 +142,11 @@ class DuelingSoundDRQNAgent(Agent):
         self.policy_net.eval()  # TODO: check if this is correct
         with torch.no_grad():  # TODO: check if this is correct. detach?
             current_qs, (new_hidden_state, new_cell_state) = self.policy_net(
-                state, 1, self.time_step, hidden_state, cell_state
+                state,
+                batch_size=1,
+                time_step=1,
+                hidden_state=hidden_state,
+                cell_state=cell_state,
             )
         self.policy_net.train()  # TODO: check if this is correct
         if np.random.rand() <= epsilon and not testing:

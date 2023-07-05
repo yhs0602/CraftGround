@@ -17,7 +17,9 @@ def run_experiment():
     verbose = False
     env_path = None
     port = 8000
-    inner_env, sound_list = env_makers["husk-random"](verbose, env_path, port)
+    inner_env, sound_list = env_makers["husks-random"](
+        verbose, env_path, port, hud_hidden=True
+    )
     env = AvoidDamageWrapper(
         SoundWrapper(
             SimpleNavigationWrapper(
@@ -32,7 +34,7 @@ def run_experiment():
         env=env,
         agent_class=DuelingSoundDRQNAgent,
         # env_name="husk-random-terrain",
-        batch_size=256,
+        batch_size=16,
         time_step=8,
         gamma=0.99,
         learning_rate=0.00001,
@@ -46,7 +48,7 @@ def run_experiment():
         max_steps_per_episode=400,
         num_episodes=2000,
         warmup_episodes=10,
-        group="husk_sound",
+        group="husks_sound_drqn",
         seed=seed,
         solved_criterion=lambda avg_score, test_score, avg_test_score, episode: avg_score
         >= 195.0
