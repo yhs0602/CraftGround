@@ -1,29 +1,36 @@
-from typing import List, Optional
+# Dueling drqn for vision
+from typing import Tuple, Optional, List
 
 import numpy as np
 import torch
-from torch import nn
+import torch.nn as nn
+from torch.autograd import Variable
 
 from final_experiments.wrapper_runners.generic_wrapper_runner import Agent
 from models.recurrent_replay_buffer import RecurrentReplayBuffer, Episode
 
 
-# https://github.com/mynkpl1998/Recurrent-Deep-Q-Learning/blob/master/LSTM%2C%20BPTT%3D8.ipynb
-
-
-class DuelingSoundDRQN(nn.Module):
-    def __init__(self, state_dim, action_dim, hidden_dim, device):
-        super(DuelingSoundDRQN, self).__init__()
+# https://github.com/keep9oing/DRQN-Pytorch-CartPole-v1/blob/main/DRQN.py
+class DuelingVisionRNNDQN(nn.Module):
+    def __init__(self, state_dim, action_dim, kernel_size, stride, hidden_dim, device):
+        super(DuelingVisionRNNDQN, self).__init__()
         self.hidden_dim = hidden_dim
         self.device = device
-        self.feature = nn.Sequential(nn.Linear(state_dim[0], hidden_dim), nn.ReLU())
+        self.feature = nn.Sequential(
+            nn.Conv2d(state_dim[0], 16, kernel_size=kernel_size, stride=stride),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, kernel_size=kernel_size, stride=stride),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=kernel_size, stride=stride),
+            nn.ReLU(),
+        )
+        conv_out_size = self.get_conv_output(state_dim)
         self.lstm = nn.LSTM(
-            input_size=hidden_dim,
+            input_size=conv_out_size,
             hidden_size=hidden_dim,
             num_layers=1,
             batch_first=True,
         )
-
         self.advantage = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
@@ -34,14 +41,21 @@ class DuelingSoundDRQN(nn.Module):
             nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, 1)
         )
 
-    def forward(self, x, batch_size, time_step, hidden_state, cell_state):
-        x = x.view(batch_size, time_step, -1)
+    def get_conv_output(self, shape):
+        x = Variable(torch.rand(1, *shape))
         x = self.feature(x)
-        # print(f"1 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")
+        return int(np.prod(x.size()))
+
+    def forward(
+        self, x, batch_size, time_step, hidden_state, cell_state
+    ) -> Tuple[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+        x = x.view(batch_size, time_step, *self.state_dim)
+        x = x.float() / 255.0
+        x = self.feature(x)
+        x = x.view(x.size(0), -1)
+
         x, (hidden_state, cell_state) = self.lstm(x, (hidden_state, cell_state))
-        # print(f"2 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")
         x = x[:, -1, :]
-        # print(f"3 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")
         advantage = self.advantage(x)
         value = self.value(x)
         return value + advantage - advantage.mean(), (hidden_state, cell_state)
@@ -52,12 +66,14 @@ class DuelingSoundDRQN(nn.Module):
         return h, c
 
 
-class DuelingSoundDRQNAgent(Agent):
+class DuelingVisionDRQNAgent(Agent):
     def __init__(
         self,
         state_dim,
         action_dim,
         hidden_dim,
+        kernel_size,
+        stride,
         buffer_size,
         batch_size,
         time_step,
@@ -71,12 +87,14 @@ class DuelingSoundDRQNAgent(Agent):
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
         self.time_step = time_step
+        self.kernel_size = kernel_size
+        self.stride = stride
         self.device = device
-        self.policy_net = DuelingSoundDRQN(
-            state_dim, action_dim, hidden_dim, device=device
+        self.policy_net = DuelingVisionRNNDQN(
+            state_dim, action_dim, kernel_size, stride, hidden_dim, device=device
         ).to(device)
-        self.target_net = DuelingSoundDRQN(
-            state_dim, action_dim, hidden_dim, device=device
+        self.target_net = DuelingVisionRNNDQN(
+            state_dim, action_dim, kernel_size, stride, hidden_dim, device=device
         ).to(device)
         self.loss_fn = nn.MSELoss()
         self.gamma = gamma
@@ -92,9 +110,11 @@ class DuelingSoundDRQNAgent(Agent):
     @property
     def config(self):
         return {
-            "architecture": "Dueling sound DRQN",
+            "architecture": "Dueling vision DRQN",
             "state_dim": self.state_dim,
             "action_dim": self.action_dim,
+            "kernel_size": self.kernel_size,
+            "stride": self.stride,
             "hidden_dim": self.hidden_dim,
             "buffer_size": self.buffer_size,
             "time_step": self.time_step,
