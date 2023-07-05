@@ -35,8 +35,9 @@ class DuelingSoundDRQN(nn.Module):
         )
 
     def forward(self, x, batch_size, time_step, hidden_state, cell_state):
-        x = x.view(batch_size, time_step, -1)
+        x = x.view(batch_size * time_step, -1)
         x = self.feature(x)
+        x = x.view(batch_size, time_step, -1)
         # print(f"1 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")
         x, (hidden_state, cell_state) = self.lstm(x, (hidden_state, cell_state))
         # print(f"2 {x.shape=} {hidden_state.shape=} {cell_state.shape=}")

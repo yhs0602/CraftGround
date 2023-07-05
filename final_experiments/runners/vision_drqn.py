@@ -1,11 +1,15 @@
+import numpy as np
+
 from final_experiments.get_device import get_device
+from final_experiments.wrapper_runners.drqn_wrapper_runner import DRQNWrapperRunner
 
 
-def train_cnn(
+def train_vision_drqn(
     group,
     agent_class,
     env,
     batch_size,
+    time_step,
     gamma,
     learning_rate,
     update_freq,
@@ -34,18 +38,20 @@ def train_cnn(
         stride,
         buffer_size,
         batch_size,
+        time_step,
         gamma,
         learning_rate,
         weight_decay,
+        stack_size=stack_size,
         device=get_device(),
     )
 
-    from final_experiments.wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+    print("Running DRQN vision wrapper runner")
 
-    runner = DQNWrapperRunner(
+    runner = DRQNWrapperRunner(
         env,
+        env_name="wrapped",
         group=group,
-        env_name="wrapped-vision",
         agent=agent_instance,
         max_steps_per_episode=max_steps_per_episode,
         num_episodes=num_episodes,

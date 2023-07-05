@@ -16,6 +16,7 @@ class DuelingVisionRNNDQN(nn.Module):
         super(DuelingVisionRNNDQN, self).__init__()
         self.hidden_dim = hidden_dim
         self.device = device
+        self.state_dim = state_dim
         self.feature = nn.Sequential(
             nn.Conv2d(state_dim[0], 16, kernel_size=kernel_size, stride=stride),
             nn.ReLU(),
@@ -49,10 +50,10 @@ class DuelingVisionRNNDQN(nn.Module):
     def forward(
         self, x, batch_size, time_step, hidden_state, cell_state
     ) -> Tuple[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
-        x = x.view(batch_size, time_step, *self.state_dim)
+        x = x.view(batch_size * time_step, *self.state_dim)
         x = x.float() / 255.0
         x = self.feature(x)
-        x = x.view(x.size(0), -1)
+        x = x.view(batch_size, time_step, -1)
 
         x, (hidden_state, cell_state) = self.lstm(x, (hidden_state, cell_state))
         x = x[:, -1, :]
