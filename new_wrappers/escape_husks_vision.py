@@ -6,7 +6,7 @@ from gymnasium.core import WrapperActType, WrapperObsType
 
 import mydojo
 from mydojo.minecraft import int_to_action
-from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+from final_experiments.wrapper_runners import DQNWrapperRunner
 
 
 class EscapeHusksVisionWrapper(gym.Wrapper):
@@ -88,7 +88,6 @@ def main():
     stride = 2
     state_dim = env.observation_space.shape
     action_dim = env.action_space.n
-    from models.dqn import DQNAgent
 
     from models.dqn import DDQNAgent
 

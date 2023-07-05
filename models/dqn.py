@@ -8,7 +8,7 @@ import wandb
 from torch import nn, optim
 from torch.autograd import Variable
 
-from wrapper_runners.generic_wrapper_runner import Agent
+from final_experiments.wrapper_runners.generic_wrapper_runner import Agent
 
 if torch.cuda.is_available():
     device = torch.device("cuda")

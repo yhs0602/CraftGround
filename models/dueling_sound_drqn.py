@@ -1,13 +1,13 @@
 import random
 from collections import deque
-from typing import List, TypeAlias, Optional
+from typing import List, Optional, TypeAlias
 
 import numpy as np
 import torch
 from torch import nn
 
+from final_experiments.wrapper_runners.generic_wrapper_runner import Agent
 from models.dqn import Transition
-from wrapper_runners.generic_wrapper_runner import Agent
 
 # https://github.com/mynkpl1998/Recurrent-Deep-Q-Learning/blob/master/LSTM%2C%20BPTT%3D8.ipynb
 
@@ -65,6 +65,12 @@ class DuelingSoundDRQN(nn.Module):
         advantage = self.advantage(x)
         value = self.value(x)
         return value + advantage - advantage.mean(), (hidden_state, cell_state)
+
+    def init_hidden_states(self, bsize):
+        h = torch.zeros(1, bsize, 512).float()
+        c = torch.zeros(1, bsize, 512).float()
+
+        return h, c
 
 
 class DuelingSoundDRQNAgent(Agent):

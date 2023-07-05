@@ -8,7 +8,7 @@ import torch.nn as nn
 from torch.nn.modules.loss import _Loss
 
 from models.dqn import ReplayBuffer
-from wrapper_runners.generic_wrapper_runner import Agent
+from final_experiments.wrapper_runners import Agent
 
 
 class DuelingDQNBase(nn.Module, ABC):

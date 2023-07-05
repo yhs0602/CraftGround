@@ -7,7 +7,6 @@ from gymnasium.core import WrapperActType, WrapperObsType
 import mydojo
 from models.dqn import DQNAgent
 from mydojo.minecraft import int_to_action
-from wrapper_runner import WrapperRunner
 
 
 class EscapeHuskVisuallyWrapper(gym.Wrapper):
@@ -103,7 +102,7 @@ def main():
         learning_rate,
         # weight_decay=weight_decay,
     )
-    from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+    from final_experiments.wrapper_runners import DQNWrapperRunner
 
     runner = DQNWrapperRunner(
         env,

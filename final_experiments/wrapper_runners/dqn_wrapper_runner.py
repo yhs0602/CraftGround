@@ -1,19 +1,17 @@
 from typing import Optional
 
-from models.dqn import Transition
-from models.dueling_sound_drqn import DuelingSoundDRQNAgent
-from wrapper_runners.generic_wrapper_runner import GenericWrapperRunner
+from final_experiments.wrapper_runners.generic_wrapper_runner import (
+    GenericWrapperRunner,
+)
 
 
-class DRQNWrapperRunner(GenericWrapperRunner):
-    agent: DuelingSoundDRQNAgent
-
+class DQNWrapperRunner(GenericWrapperRunner):
     def __init__(
         self,
         env,
         env_name,
         group,
-        agent: DuelingSoundDRQNAgent,
+        agent: "DQNAgent",
         max_steps_per_episode,
         num_episodes,
         test_frequency,
@@ -58,7 +56,6 @@ class DRQNWrapperRunner(GenericWrapperRunner):
         self.epsilon_decay = epsilon_decay
         self.warmup_episodes = warmup_episodes
         self.update_frequency = update_frequency
-        self.episode_buffer = []
 
     def select_action(self, episode, state, testing):
         if episode < self.warmup_episodes:
@@ -82,9 +79,7 @@ class DRQNWrapperRunner(GenericWrapperRunner):
     ) -> Optional[float]:
         if testing:
             return None
-        self.episode_buffer.append(
-            Transition(state, action, next_state, reward, terminated)
-        )
+        self.agent.add_experience(state, action, next_state, reward, terminated)
         loss = self.agent.update_model()
         if accum_steps % self.update_frequency == 0:
             print(f"{accum_steps=}, {step=}, {self.update_frequency=}")
@@ -92,11 +87,7 @@ class DRQNWrapperRunner(GenericWrapperRunner):
         return loss
 
     def after_episode(self, episode, testing: bool):
-        if testing:
-            return
-        self.agent.add_episode(self.episode_buffer)
-        self.episode_buffer = []
-        if episode >= self.warmup_episodes:
+        if episode >= self.warmup_episodes and not testing:
             self.epsilon = max(self.epsilon_min, self.epsilon_decay * self.epsilon)
 
     def get_extra_log_info(self):

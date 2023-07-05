@@ -4,7 +4,7 @@ from typing import List
 import gymnasium as gym
 import numpy as np
 
-from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+from final_experiments.wrapper_runners import DQNWrapperRunner
 from wrappers.EscapeHuskBySoundWithPlayerWrapper import (
     EscapeHuskBySoundWithPlayerWrapper,
 )

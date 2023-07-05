@@ -1,17 +1,19 @@
+import numpy as np
+
 from final_experiments.get_device import get_device
+from final_experiments.wrapper_runners.drqn_wrapper_runner import DRQNWrapperRunner
 
 
-def train_cnn(
+def train_sound_drqn(
     group,
     agent_class,
     env,
     batch_size,
+    time_step,
     gamma,
     learning_rate,
     update_freq,
     hidden_dim,
-    kernel_size,
-    stride,
     weight_decay,
     buffer_size,
     epsilon_init,
@@ -25,27 +27,27 @@ def train_cnn(
     **extra_configs,
 ):
     state_dim = env.observation_space.shape
+    state_dim = (np.prod(state_dim),)
     action_dim = env.action_space.n
     agent_instance = agent_class(
         state_dim,
         action_dim,
         hidden_dim,
-        kernel_size,
-        stride,
         buffer_size,
         batch_size,
+        time_step,
         gamma,
         learning_rate,
         weight_decay,
+        stack_size=stack_size,
         device=get_device(),
     )
 
-    from final_experiments.wrapper_runners import DQNWrapperRunner
-
-    runner = DQNWrapperRunner(
+    print("Running DQN wrapper runner")
+    runner = DRQNWrapperRunner(
         env,
+        env_name="wrapped",
         group=group,
-        env_name="wrapped-vision",
         agent=agent_instance,
         max_steps_per_episode=max_steps_per_episode,
         num_episodes=num_episodes,

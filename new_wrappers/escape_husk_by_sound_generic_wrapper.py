@@ -1,4 +1,4 @@
-from wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+from final_experiments.wrapper_runners import DQNWrapperRunner
 
 
 def main():
