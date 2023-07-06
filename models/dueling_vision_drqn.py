@@ -171,28 +171,32 @@ class DuelingVisionDRQNAgent(Agent):
         rewards_batch = []
         done_batch = []
         for episode in batch_episodes:
-            states = []
-            actions = []
-            next_states = []
-            rewards = []
-            done = []
-            for transition in episode:
-                states.append(transition.state)
-                actions.append(transition.action)
-                next_states.append(transition.next_state)
-                rewards.append(transition.reward)
-                done.append(transition.done)
-            states_batch.append(states)
-            actions_batch.append(actions)
-            next_states_batch.append(next_states)
-            rewards_batch.append(rewards)
-            done_batch.append(done)
+            (
+                episode_states,
+                episode_actions,
+                episode_next_states,
+                episode_rewards,
+                episode_done,
+            ) = zip(*episode)
+            states_batch.append(np.asarray(episode_states))
+            actions_batch.append(np.asarray(episode_actions))
+            next_states_batch.append(np.asarray(episode_next_states))
+            rewards_batch.append(np.asarray(episode_rewards))
+            done_batch.append(np.asarray(episode_done))
 
-        torch_states_batch = torch.FloatTensor(states_batch).to(self.device)
-        torch_actions_batch = torch.FloatTensor(actions_batch).to(self.device)
-        torch_next_states_batch = torch.FloatTensor(next_states_batch).to(self.device)
-        torch_rewards_batch = torch.FloatTensor(rewards_batch).to(self.device)
-        torch_done_batch = torch.FloatTensor(done_batch).to(self.device)
+        states_batch_np = np.stack(states_batch)
+        actions_batch_np = np.stack(actions_batch)
+        next_states_batch_np = np.stack(next_states_batch)
+        rewards_batch_np = np.stack(rewards_batch)
+        done_batch_np = np.stack(done_batch)
+
+        torch_states_batch = torch.FloatTensor(states_batch_np).to(self.device)
+        torch_actions_batch = torch.FloatTensor(actions_batch_np).to(self.device)
+        torch_next_states_batch = torch.FloatTensor(next_states_batch_np).to(
+            self.device
+        )
+        torch_rewards_batch = torch.FloatTensor(rewards_batch_np).to(self.device)
+        torch_done_batch = torch.FloatTensor(done_batch_np).to(self.device)
 
         q_values, _ = self.policy_net.forward(
             torch_states_batch,
