@@ -40,9 +40,9 @@ def train_sound(
         device=get_device(),
     )
 
-    from final_experiments.wrapper_runners import DQNWrapperRunner
-
     print("Running DQN wrapper runner")
+    from final_experiments.wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+
     runner = DQNWrapperRunner(
         env,
         env_name="wrapped",

@@ -910,6 +910,62 @@ def make_find_village_environment(
     ]
 
 
+def make_flat_night_environment(
+    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+):
+    return mydojo.make(
+        verbose=verbose,
+        env_path=env_path,
+        port=port,
+        initialInventoryCommands=[],
+        initialPosition=None,  # nullable
+        initialMobsCommands=[],
+        imageSizeX=114,
+        imageSizeY=64,
+        visibleSizeX=228,
+        visibleSizeY=128,
+        seed=12345,  # nullable
+        allowMobSpawn=True,
+        alwaysDay=False,
+        alwaysNight=True,
+        initialWeather="clear",  # nullable
+        isHardCore=False,
+        isWorldFlat=True,  # superflat world
+        obs_keys=["sound_subtitles"],
+        initialExtraCommands=["difficulty normal", "gamerule mobGriefing false"],
+        isHudHidden=hud_hidden,
+    ), [
+        "subtitles.entity.slime.attack",
+        "subtitles.entity.slime.death",
+        "subtitles.entity.slime.hurt",
+        "subtitles.entity.slime.squish",
+        "entity.skeleton.ambient",
+        "entity.skeleton.death",
+        "entity.skeleton.hurt",
+        "entity.skeleton.shoot",
+        "entity.skeleton.step",
+        "subtitles.entity.arrow.hit_player",
+        "subtitles.entity.arrow.hit",
+        "subtitles.entity.zombie.ambient",
+        "subtitles.entity.zombie.death",
+        "subtitles.entity.zombie.hurt",
+        "subtitles.entity.creeper.death",
+        "subtitles.entity.creeper.hurt",
+        "subtitles.entity.creeper.primed",
+        "subtitles.entity.generic.explode",
+        "subtitles.entity.spider.ambient",
+        "subtitles.entity.spider.death",
+        "subtitles.entity.spider.hurt",
+        "subtitles.entity.witch.ambient",
+        "subtitles.entity.witch.drink",
+        "subtitles.entity.witch.death",
+        "subtitles.entity.witch.hurt",
+        "subtitles.entity.witch.throw",
+        "subtitles.entity.potion.splash",
+        "subtitles.block.generic.footsteps",
+    ]
+
+
 env_makers = {
     "husk": make_husk_environment,
     "husks": make_husks_environment,
@@ -928,6 +984,7 @@ env_makers = {
     "mansion": make_mansion_environment,
     "skeleton-random": make_skeleton_random_environment,
     "find-village": make_find_village_environment,
+    "flat-night": make_flat_night_environment,
 }
 
 
