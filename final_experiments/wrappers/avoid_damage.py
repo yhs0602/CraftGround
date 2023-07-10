@@ -8,8 +8,9 @@ from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetW
 
 # Sound wrapper
 class AvoidDamageWrapper(CleanUpFastResetWrapper):
-    def __init__(self, env):
+    def __init__(self, env, base_reward=0.5):
         self.env = env
+        self.base_reward = base_reward
         super().__init__(self.env)
         self.health_deque = deque(maxlen=2)
 
@@ -20,7 +21,7 @@ class AvoidDamageWrapper(CleanUpFastResetWrapper):
         info_obs = info["obs"]
         is_dead = info_obs.is_dead
 
-        reward = 0.5
+        reward = self.base_reward
         if is_dead:
             self.health_deque.append(20)
             terminated = True

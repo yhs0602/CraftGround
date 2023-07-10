@@ -697,7 +697,11 @@ def make_random_husk_forest_environment(
 
 
 def make_hunt_husk_environment(
-    verbose: bool, env_path: str, port: int, hud: bool = False
+    verbose: bool,
+    env_path: str,
+    port: int,
+    hud: bool = False,
+    render_action: bool = False,
 ):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
@@ -710,6 +714,7 @@ def make_hunt_husk_environment(
                 verbose=verbose,
                 env_path=env_path,
                 port=port,
+                render_action=render_action,
                 initialInventoryCommands=[
                     "minecraft:diamond_sword",
                 ],
@@ -1012,12 +1017,14 @@ def generate_husks(
         if dx * dx + dz * dz + dy * dy < min_distnace * min_distnace:
             continue
         shovel_command = "HandItems:[{Count:1,id:iron_shovel},{}],"
+        health_command = 'Health:5,Attributes:[{Name:"generic.max_health",Base:5f}],'
         if not shovel:
             shovel_command = ""
         commands.append(
             "summon minecraft:husk "
             + f"~{dx} ~{dy} ~{dz}"
             + " {"
+            # + health_command
             + shovel_command
             + f" IsBaby:{is_baby_int}"
             + "}"

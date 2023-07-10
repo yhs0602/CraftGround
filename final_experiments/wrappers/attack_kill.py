@@ -8,10 +8,11 @@ from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetW
 
 # Sound wrapper
 class AttackKillWrapper(CleanUpFastResetWrapper):
-    def __init__(self, env):
+    def __init__(self, env, target_name="minecraft:husk"):
         self.env = env
         self.durabilities = deque(maxlen=2)
         self.old_killed_stat = 0
+        self.target_name = target_name
         super().__init__(self.env)
 
     def step(
@@ -24,11 +25,10 @@ class AttackKillWrapper(CleanUpFastResetWrapper):
         if (
             self.durabilities[0] > self.durabilities[1]
         ):  # durability decreased. We attacked successfully
-            reward -= 0.1  # Make it kill with fewer attacks
-        print(f"{info_obs.killed_statistics=}")
-        if info_obs.killed_statistics["husk"] > self.old_killed_stat:
+            reward += 0.1  # Successfully attacked
+        if info_obs.killed_statistics[self.target_name] > self.old_killed_stat:
             reward += 1  # we killed a husk
-            self.old_killed_stat = info_obs.killed_statistics["husk"]
+            self.old_killed_stat = info_obs.killed_statistics[self.target_name]
             terminated = True
 
         return (
@@ -47,7 +47,7 @@ class AttackKillWrapper(CleanUpFastResetWrapper):
     ) -> tuple[WrapperObsType, dict[str, Any]]:
         obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
         info_obs = info["obs"]
-        self.old_killed_stat = info_obs.killed_statistics["husk"]
+        self.old_killed_stat = info_obs.killed_statistics[self.target_name]
         self.durabilities.clear()
         self.durabilities.append(info_obs.inventory[0].durability)
         return obs, info

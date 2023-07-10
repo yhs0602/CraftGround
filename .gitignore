@@ -293,3 +293,6 @@ saved_models_400
 wandb/
 *.json
 *.mp4
+
+dejavu-fonts-ttf-2.37.zip
+dejavu-fonts-ttf-2.37

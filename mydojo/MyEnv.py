@@ -10,7 +10,7 @@ from typing import Tuple, Optional, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from gym.core import ActType, ObsType, RenderFrame
 
 from mydojo.initial_environment import InitialEnvironment
@@ -28,7 +28,12 @@ from .proto import observation_space_pb2, initial_environment_pb2
 
 class MyEnv(gym.Env):
     def __init__(
-        self, initial_env: InitialEnvironment, verbose=False, env_path=None, port=8000
+        self,
+        initial_env: InitialEnvironment,
+        verbose=False,
+        env_path=None,
+        port=8000,
+        render_action: bool = False,
     ):
         self.action_space = MyActionSpace(6)
         self.observation_space = gym.spaces.Box(
@@ -41,7 +46,9 @@ class MyEnv(gym.Env):
         self.sock = None
         self.buffered_socket = None
         self.last_rgb_frame = None
+        self.last_image = None
         self.last_action = None
+        self.render_action = render_action
         self.verbose = verbose
         self.port = port
         self.queued_commands = []
@@ -90,6 +97,7 @@ class MyEnv(gym.Env):
         bytes_io = io.BytesIO(png_img)
         # Use PIL to open the image from the BytesIO object
         img = Image.open(bytes_io).convert("RGB")
+        self.last_image = img
         # Convert the PIL image to a numpy array
         self.last_rgb_frame = np.array(img)
         arr = np.transpose(self.last_rgb_frame, (2, 1, 0))
@@ -198,8 +206,49 @@ class MyEnv(gym.Env):
 
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
         # print("Rendering...")
+        if self.render_action and self.last_action:
+            draw = ImageDraw.Draw(self.last_image)
+            text = self.action_to_symbol(self.last_action)
+            position = (0, 0)
+            font = ImageFont.truetype("DejaVuSans-ExtraLight.ttf", 8)
+            font_size = 8
+            color = (255, 0, 0)
+            draw.text(position, text, font=font, font_size=font_size, fill=color)
+            return np.array(self.last_image)
+        else:
+            return self.last_rgb_frame
 
-        return self.last_rgb_frame
+    def action_to_symbol(self, action) -> str:
+        res = ""
+        if action[0] == 1:
+            res += "↑"
+        elif action[0] == 2:
+            res += "↓"
+        if action[1] == 1:
+            res += "←"
+        elif action[1] == 2:
+            res += "→"
+        if action[2] == 1:
+            res += "⤴"
+        elif action[2] == 2:
+            res += "⤵"
+        elif action[2] == 3:
+            res += "⚡"
+        if action[3] > 12:  # pitch up
+            res += "⤒"
+        elif action[3] < 12:  # pitch down
+            res += "⤓"
+        if action[4] > 12:  # yaw right
+            res += "⏭"
+        elif action[4] < 12:  # yaw left
+            res += "⏮"
+        if action[5] == 1:  # use
+            res += "⚒"
+        elif action[5] == 2:  # drop
+            res += "🤮"
+        elif action[5] == 3:  # attack
+            res += "⚔"
+        return res
 
     @property
     def render_mode(self) -> Optional[str]:

@@ -34,3 +34,8 @@ codes.
 
 # Models
 ![Model architecture](./poster/models.png)
+
+# Devaju font license
+https://dejavu-fonts.github.io/License.html
+
+

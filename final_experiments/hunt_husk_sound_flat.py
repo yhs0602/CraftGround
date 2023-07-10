@@ -32,7 +32,9 @@ def run_experiment():
     verbose = False
     env_path = None
     port = 8004
-    inner_env, sound_list = env_makers["husk-hunt"](verbose, env_path, port, hud=False)
+    inner_env, sound_list = env_makers["husk-hunt"](
+        verbose, env_path, port, hud=False, render_action=True
+    )
     env = AttackKillWrapper(
         AvoidDamageWrapper(
             SoundWrapper(
@@ -55,12 +57,13 @@ def run_experiment():
                 ),
                 sound_list=sound_list,
                 coord_dim=2,
-            )
+            ),
+            base_reward=0,
         )
     )
 
     train_sound(
-        group="hunt_husk_sound_flat",
+        group="hunt_husk_sound_flat_newreward",
         env=env,
         agent_class=DuelingSoundDQNAgent,
         # env_name="husk-random-terrain",
