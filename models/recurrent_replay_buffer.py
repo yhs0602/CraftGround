@@ -1,12 +1,12 @@
 import random
 from collections import deque
-from typing import TypeAlias, List
+from typing import List, TypeVar, Union
 
 import numpy as np
 
-from models.dqn import Transition
+from models.transition import BimodalEpisode, Episode
 
-Episode: TypeAlias = List[Transition]
+T = TypeVar("T", bound=Union[Episode, BimodalEpisode])
 
 
 class RecurrentReplayBuffer:
@@ -14,12 +14,10 @@ class RecurrentReplayBuffer:
         self.capacity = capacity
         self.memory = deque(maxlen=capacity)
 
-    def add_episode(self, episode: Episode):
+    def add_episode(self, episode: T):
         self.memory.append(episode)
 
-    def get_batch(
-        self, batch_size, time_step
-    ) -> List[Episode]:  # Actually, partial episode
+    def get_batch(self, batch_size, time_step) -> List[T]:  # Actually, partial episode
         sampled_episodes = random.sample(self.memory, batch_size)
         batch = []
         for episode in sampled_episodes:

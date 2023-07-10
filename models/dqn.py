@@ -1,5 +1,5 @@
 import random
-from collections import deque, namedtuple
+from collections import deque
 from typing import Optional
 
 import numpy as np
@@ -132,11 +132,6 @@ class CNNDQNWithBNPool(nn.Module):
         return int(np.prod(x.size()))
 
 
-Transition = namedtuple(
-    "Transition", ("state", "action", "next_state", "reward", "done")
-)
-
-
 class ReplayBuffer:
     def __init__(self, capacity):
         self.memory = deque(maxlen=capacity)
@@ -156,12 +151,6 @@ class ReplayBuffer:
         next_state = torch.stack(list(map(torch.from_numpy, batch.next_state)))
         done = torch.stack([torch.Tensor([x]) for x in batch.done])
         return state, action, next_state, reward, done  # tuple(map(torch.cat, batch))
-
-
-MultiModalTransition = namedtuple(
-    "MultiModalTransition",
-    ("audio", "video", "action", "next_audio", "next_video", "reward", "done"),
-)
 
 
 class MultiModalReplayBuffer:
