@@ -14,8 +14,8 @@ class ActionWrapper(CleanUpFastResetWrapper):
     NO_OP = 0
     FORWARD = 1
     BACKWARD = 2
-    MOVE_RIGHT = 3
-    MOVE_LEFT = 4
+    STRAFE_RIGHT = 3
+    STRAFE_LEFT = 4
     TURN_LEFT = 5
     TURN_RIGHT = 6
     JUMP = 7
@@ -66,9 +66,9 @@ class ActionWrapper(CleanUpFastResetWrapper):
             act[0] = 1  # 0: noop 1: forward 2 : back
         elif input_act == ActionWrapper.BACKWARD:  # go backward
             act[0] = 2  # 0: noop 1: forward 2 : back
-        elif input_act == ActionWrapper.MOVE_RIGHT:  # move right
+        elif input_act == ActionWrapper.STRAFE_RIGHT:  # move right
             act[1] = 1  # 0: noop 1: move right 2: move left
-        elif input_act == ActionWrapper.MOVE_LEFT:  # move left
+        elif input_act == ActionWrapper.STRAFE_LEFT:  # move left
             act[1] = 2  # 0: noop 1: move right 2: move left
         elif input_act == ActionWrapper.TURN_LEFT:  # Turn left
             act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)

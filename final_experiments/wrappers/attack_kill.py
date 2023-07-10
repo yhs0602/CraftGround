@@ -4,7 +4,6 @@ from typing import SupportsFloat, Any, Optional
 from gymnasium.core import WrapperActType, WrapperObsType
 
 from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
-from final_experiments.wrappers.simple_navigation import SimpleNavigationWrapper
 
 
 # Sound wrapper
@@ -22,16 +21,13 @@ class AttackKillWrapper(CleanUpFastResetWrapper):
         info_obs = info["obs"]
         main_hand_item = info_obs.inventory[0]
         self.durabilities.append(main_hand_item.durability)
-        reward = 0.05
         if (
             self.durabilities[0] > self.durabilities[1]
-        ):  # durability decreased. We attacked.
-            reward = 1
-        elif action == SimpleNavigationWrapper.ATTACK:  # tried attack, but missed.
-            reward = 0.1
-
+        ):  # durability decreased. We attacked successfully
+            reward -= 0.1  # Make it kill with fewer attacks
+        print(f"{info_obs.killed_statistics=}")
         if info_obs.killed_statistics["husk"] > self.old_killed_stat:
-            reward = 5
+            reward += 1  # we killed a husk
             self.old_killed_stat = info_obs.killed_statistics["husk"]
             terminated = True
 

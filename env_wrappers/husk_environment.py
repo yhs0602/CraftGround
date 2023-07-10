@@ -697,12 +697,15 @@ def make_random_husk_forest_environment(
 
 
 def make_hunt_husk_environment(
-    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+    verbose: bool, env_path: str, port: int, hud: bool = False
 ):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
             initialExtraCommands = []
             initialExtraCommands.extend(generate_husks(1, 5, 10))
+            initialExtraCommands.extend(
+                "item replace entity @p weapon.offhand with minecraft:shield"
+            )
             self.env = mydojo.make(
                 verbose=verbose,
                 env_path=env_path,
@@ -711,10 +714,7 @@ def make_hunt_husk_environment(
                     "minecraft:diamond_sword",
                 ],
                 initialPosition=None,  # nullable
-                initialMobsCommands=[
-                    # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
-                    # player looks at south (positive Z) when spawn
-                ],
+                initialMobsCommands=[],
                 imageSizeX=114,
                 imageSizeY=64,
                 visibleSizeX=114,
@@ -729,7 +729,7 @@ def make_hunt_husk_environment(
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=initialExtraCommands,
                 killedStatKeys=["minecraft:husk"],
-                isHudHidden=hud_hidden,
+                isHudHidden=not hud,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
@@ -999,6 +999,7 @@ def generate_husks(
     max_distance,
     dy: Optional[int] = None,
     is_baby: bool = False,
+    shovel: bool = False,
 ):
     commands = []
     success_count = 0
@@ -1010,10 +1011,14 @@ def generate_husks(
             dy = 0
         if dx * dx + dz * dz + dy * dy < min_distnace * min_distnace:
             continue
+        shovel_command = "HandItems:[{Count:1,id:iron_shovel},{}],"
+        if not shovel:
+            shovel_command = ""
         commands.append(
             "summon minecraft:husk "
             + f"~{dx} ~{dy} ~{dz}"
-            + " {HandItems:[{Count:1,id:iron_shovel},{}],"
+            + " {"
+            + shovel_command
             + f" IsBaby:{is_baby_int}"
             + "}"
         )
