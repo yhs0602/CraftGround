@@ -26,12 +26,10 @@ class ActionWrapper(CleanUpFastResetWrapper):
     JUMP_USE = 12
 
     def __init__(self, env, enabled_actions):
-        self.env = env
+        super().__init__(env)
         self.no_op = no_op
         self.enabled_actions = enabled_actions
         self.action_space = gym.spaces.Discrete(len(enabled_actions))
-
-        super().__init__(self.env)
 
     def step(
         self, action: WrapperActType

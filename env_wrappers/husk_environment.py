@@ -768,6 +768,7 @@ def make_hunt_husk_environment(
         "subtitles.entity.player.attack.sweep",
         "subtitles.entity.player.attack.weak",
         "subtitles.entity.husk.hurt",
+        "subtitles.item.shield.block",
     ]
 
 

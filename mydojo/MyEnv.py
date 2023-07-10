@@ -229,11 +229,11 @@ class MyEnv(gym.Env):
         elif action[1] == 2:
             res += "→"
         if action[2] == 1:
-            res += "⤴"
+            res += "jump"  # "⤴"
         elif action[2] == 2:
-            res += "⤵"
+            res += "sneak"  # "⤵"
         elif action[2] == 3:
-            res += "⚡"
+            res += "sprint"  # "⚡"
         if action[3] > 12:  # pitch up
             res += "⤒"
         elif action[3] < 12:  # pitch down
@@ -243,11 +243,11 @@ class MyEnv(gym.Env):
         elif action[4] < 12:  # yaw left
             res += "⏮"
         if action[5] == 1:  # use
-            res += "⚒"
+            res += "use"  # "⚒"
         elif action[5] == 2:  # drop
-            res += "🤮"
+            res += "drop"  # "🤮"
         elif action[5] == 3:  # attack
-            res += "⚔"
+            res += "attack"  # "⚔"
         return res
 
     @property
