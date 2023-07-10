@@ -911,7 +911,12 @@ def make_find_village_environment(
 
 
 def make_flat_night_environment(
-    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud_hidden: bool = True,
 ):
     return mydojo.make(
         verbose=verbose,
@@ -920,10 +925,10 @@ def make_flat_night_environment(
         initialInventoryCommands=[],
         initialPosition=None,  # nullable
         initialMobsCommands=[],
-        imageSizeX=114,
-        imageSizeY=64,
-        visibleSizeX=228,
-        visibleSizeY=128,
+        imageSizeX=size_x,
+        imageSizeY=size_y,
+        visibleSizeX=size_x,
+        visibleSizeY=size_y,
         seed=12345,  # nullable
         allowMobSpawn=True,
         alwaysDay=False,
