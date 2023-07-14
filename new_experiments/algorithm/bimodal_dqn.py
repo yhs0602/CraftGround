@@ -55,6 +55,8 @@ class BimodalDQNAlgorithm(DQNAlgorithm):
         )
         self.kernel_size = kernel_size
         self.stride = stride
+        self.state_dim = env.observation_space["vision"].shape
+        self.sound_dim = env.observation_space["sound"].shape
         self.policy_net = DuelingBiModalDQN(
             self.state_dim,
             self.sound_dim,
