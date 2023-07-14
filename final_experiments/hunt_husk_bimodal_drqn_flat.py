@@ -3,12 +3,12 @@ import time
 import numpy as np
 
 from env_wrappers.husk_environment import env_makers
-from final_experiments.runners.sound import train_sound
+from final_experiments.runners.bimodal import train_vision_and_sound
 from final_experiments.wrappers.action import ActionWrapper
 from final_experiments.wrappers.attack_kill import AttackKillWrapper
 from final_experiments.wrappers.avoid_damage import AvoidDamageWrapper
-from final_experiments.wrappers.sound import SoundWrapper
-from models.dueling_sound_dqn import DuelingSoundDQNAgent
+from final_experiments.wrappers.bimodal import BimodalWrapper
+from models.dueling_bimodal_drqn import DuelingBimodalDRQNAgent
 
 
 def solved_criterion(avg_score, test_score, avg_test_score, episode):
@@ -37,7 +37,7 @@ def run_experiment():
     )
     env = AttackKillWrapper(
         AvoidDamageWrapper(
-            SoundWrapper(
+            BimodalWrapper(
                 ActionWrapper(
                     inner_env,
                     enabled_actions=[
@@ -56,16 +56,18 @@ def run_experiment():
                     ],
                 ),
                 sound_list=sound_list,
-                coord_dim=2,
+                x_dim=114,
+                y_dim=64,
+                sound_coord_dim=2,
             ),
             alive_reward=0,
         )
     )
 
-    train_sound(
-        group="hunt_husk_sound_flat_newreward",
+    train_vision_and_sound(
+        group="hunt_husk_flat_bimodal_drqn",
         env=env,
-        agent_class=DuelingSoundDQNAgent,
+        agent_class=DuelingBimodalDRQNAgent,
         # env_name="husk-random-terrain",
         batch_size=256,
         gamma=0.99,

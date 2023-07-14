@@ -324,7 +324,7 @@ def make_find_animal_environment(
 
 
 def make_random_husk_environment(
-    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+    verbose: bool, env_path: str, port: int, hud: bool = True
 ):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
@@ -350,7 +350,7 @@ def make_random_husk_environment(
                 isHardCore=False,
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
-                isHudHidden=hud_hidden,
+                isHudHidden=not hud,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 

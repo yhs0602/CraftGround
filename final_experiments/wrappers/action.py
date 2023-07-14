@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import SupportsFloat, Any, List, Optional
 
 import gymnasium as gym
@@ -10,7 +11,9 @@ from mydojo.minecraft import no_op
 # Converts the int action space to a box action space
 # advantages navigation (no op, forward, back, left, right, turn left, turn right, jump, look up, look down)
 # can attack
-class ActionWrapper(CleanUpFastResetWrapper):
+
+# convert int to box
+class Action(Enum):
     NO_OP = 0
     FORWARD = 1
     BACKWARD = 2
@@ -25,17 +28,25 @@ class ActionWrapper(CleanUpFastResetWrapper):
     USE = 11
     JUMP_USE = 12
 
-    def __init__(self, env, enabled_actions):
+
+class ActionWrapper(CleanUpFastResetWrapper):
+    enabled_actions: List[Action]
+
+    def __init__(self, env, enabled_actions, **kwargs):
         super().__init__(env)
         self.no_op = no_op
+        if isinstance(enabled_actions[0], str):
+            enabled_actions = [Action[action] for action in enabled_actions]
+        elif isinstance(enabled_actions[0], int):
+            enabled_actions = [Action(action) for action in enabled_actions]
         self.enabled_actions = enabled_actions
         self.action_space = gym.spaces.Discrete(len(enabled_actions))
 
     def step(
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
-        internal_index = self.enabled_actions[action]
-        action_arr = self.int_to_action(internal_index)
+        action_enum: Action = self.enabled_actions[action]
+        action_arr = self.int_to_action(action_enum)
         # print(f"Final Action: {action_arr}")
         obs, reward, terminated, truncated, info = self.env.step(action_arr)
 
@@ -57,36 +68,36 @@ class ActionWrapper(CleanUpFastResetWrapper):
         obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
         return obs, info
 
-    def int_to_action(self, input_act: int) -> List[float]:
+    def int_to_action(self, input_act: Action) -> List[float]:
         act = no_op()
         # act=0: no op
-        if input_act == ActionWrapper.FORWARD:  # go forward
+        if input_act == Action.FORWARD:  # go forward
             act[0] = 1  # 0: noop 1: forward 2 : back
-        elif input_act == ActionWrapper.BACKWARD:  # go backward
+        elif input_act == Action.BACKWARD:  # go backward
             act[0] = 2  # 0: noop 1: forward 2 : back
-        elif input_act == ActionWrapper.STRAFE_RIGHT:  # move right
+        elif input_act == Action.STRAFE_RIGHT:  # move right
             act[1] = 1  # 0: noop 1: move right 2: move left
-        elif input_act == ActionWrapper.STRAFE_LEFT:  # move left
+        elif input_act == Action.STRAFE_LEFT:  # move left
             act[1] = 2  # 0: noop 1: move right 2: move left
-        elif input_act == ActionWrapper.TURN_LEFT:  # Turn left
+        elif input_act == Action.TURN_LEFT:  # Turn left
             act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
-        elif input_act == ActionWrapper.TURN_RIGHT:  # Turn right
+        elif input_act == Action.TURN_RIGHT:  # Turn right
             act[4] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
-        elif input_act == ActionWrapper.JUMP:  # Jump
+        elif input_act == Action.JUMP:  # Jump
             act[2] = 1  # 0: noop 1: jump
-        elif input_act == ActionWrapper.LOOK_UP:  # Look up
+        elif input_act == Action.LOOK_UP:  # Look up
             act[3] = 12 - 1  # Camera delta pitch (0: -180, 24: 180)
-        elif input_act == ActionWrapper.LOOK_DOWN:  # Look down
+        elif input_act == Action.LOOK_DOWN:  # Look down
             act[3] = 12 + 1  # Camera delta pitch (0: -180, 24: 180)
-        elif input_act == ActionWrapper.ATTACK:  # attack
+        elif input_act == Action.ATTACK:  # attack
             act[
                 5
             ] = 3  # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
-        elif input_act == ActionWrapper.USE:  # use
+        elif input_act == Action.USE:  # use
             act[
                 5
             ] = 1  # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
-        elif input_act == ActionWrapper.JUMP_USE:  # use while jumping
+        elif input_act == Action.JUMP_USE:  # use while jumping
             act[2] = 1  # 0: noop 1: jump
             act[5] = 1
         return act

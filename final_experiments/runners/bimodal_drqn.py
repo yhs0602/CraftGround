@@ -1,11 +1,12 @@
 from final_experiments.get_device import get_device
 
 
-def train_vision_and_sound(
+def train_bimodal_drqn(
     group,
     agent_class,
     env,
     batch_size,
+    time_step,
     gamma,
     learning_rate,
     update_freq,
@@ -35,15 +36,18 @@ def train_vision_and_sound(
         stride,
         buffer_size,
         batch_size,
+        time_step,
         gamma,
         learning_rate,
         weight_decay,
         device=get_device(),
     )
 
-    from final_experiments.wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
+    print("Running DRQN bimodal wrapper runner")
 
-    runner = DQNWrapperRunner(
+    from final_experiments.wrapper_runners.drqn_wrapper_runner import DRQNWrapperRunner
+
+    runner = DRQNW, ㅣㅊㅇㅇrapperRunner(
         env,
         group=group,
         env_name="wrapped-bimodal",

@@ -10,7 +10,7 @@ from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetW
 
 # Sound wrapper
 class SoundWrapper(CleanUpFastResetWrapper):
-    def __init__(self, env, sound_list, coord_dim):
+    def __init__(self, env, sound_list, coord_dim, **kwargs):
         self.sound_list = sound_list
         self.env = env
         self.coord_dim = coord_dim

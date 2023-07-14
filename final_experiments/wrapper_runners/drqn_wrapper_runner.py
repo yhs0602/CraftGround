@@ -1,27 +1,28 @@
 import time
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import wandb
 from gymnasium.wrappers.monitoring.video_recorder import VideoRecorder
 
-from models.dqn import Transition
-from models.dueling_sound_drqn import DuelingSoundDRQNAgent
-from mydojo.MyEnv import print_with_time
 from final_experiments.wrapper_runners.generic_wrapper_runner import (
     GenericWrapperRunner,
 )
+from models.dueling_bimodal_drqn import DuelingBimodalDRQNAgent
+from models.dueling_sound_drqn import DuelingSoundDRQNAgent
+from models.transition import Transition
+from mydojo.MyEnv import print_with_time
 
 
 class DRQNWrapperRunner(GenericWrapperRunner):
-    agent: DuelingSoundDRQNAgent
+    agent: Union[DuelingSoundDRQNAgent, DuelingBimodalDRQNAgent]
 
     def __init__(
         self,
         env,
         env_name,
         group,
-        agent: DuelingSoundDRQNAgent,
+        agent: Union[DuelingSoundDRQNAgent, DuelingBimodalDRQNAgent],
         max_steps_per_episode,
         num_episodes,
         test_frequency,
@@ -34,6 +35,7 @@ class DRQNWrapperRunner(GenericWrapperRunner):
         epsilon_decay,
         resume: bool = False,
         max_saved_models=2,
+        transition_class=Transition,
         **extra_configs,
     ):
         import models.dqn
@@ -67,6 +69,7 @@ class DRQNWrapperRunner(GenericWrapperRunner):
         self.warmup_episodes = warmup_episodes
         self.update_frequency = update_frequency
         self.episode_buffer = []
+        self.transition_class = transition_class
 
     def train_agent(self, episode, accum_steps):
         state, reset_info = self.env.reset(fast_reset=True)
@@ -187,7 +190,7 @@ class DRQNWrapperRunner(GenericWrapperRunner):
         if testing:
             return None
         self.episode_buffer.append(
-            Transition(state, action, next_state, reward, terminated)
+            self.transition_class(state, action, next_state, reward, terminated)
         )
         loss = self.agent.update_model()
         if accum_steps % self.update_frequency == 0:

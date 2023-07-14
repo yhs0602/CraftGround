@@ -1,5 +1,3 @@
-import random
-from collections import deque
 from typing import Optional
 
 import numpy as np
@@ -130,58 +128,6 @@ class CNNDQNWithBNPool(nn.Module):
         x = nn.functional.relu(self.conv3(x))
         x = self.pool3(x)
         return int(np.prod(x.size()))
-
-
-class ReplayBuffer:
-    def __init__(self, capacity):
-        self.memory = deque(maxlen=capacity)
-
-    def __len__(self):
-        return len(self.memory)
-
-    def add(self, *args):
-        self.memory.append(Transition(*args))
-
-    def sample(self, batch_size):
-        transitions = random.sample(self.memory, batch_size)
-        batch = Transition(*zip(*transitions))
-        state = torch.stack(list(map(torch.from_numpy, batch.state)))
-        action = torch.stack([torch.Tensor([float(x)]) for x in batch.action])
-        reward = torch.stack([torch.Tensor([float(x)]) for x in batch.reward])
-        next_state = torch.stack(list(map(torch.from_numpy, batch.next_state)))
-        done = torch.stack([torch.Tensor([x]) for x in batch.done])
-        return state, action, next_state, reward, done  # tuple(map(torch.cat, batch))
-
-
-class MultiModalReplayBuffer:
-    def __init__(self, capacity):
-        self.memory = deque(maxlen=capacity)
-
-    def __len__(self):
-        return len(self.memory)
-
-    def add(self, *args):
-        self.memory.append(MultiModalTransition(*args))
-
-    def sample(self, batch_size):
-        transitions = random.sample(self.memory, batch_size)
-        batch = MultiModalTransition(*zip(*transitions))
-        audio = torch.stack(list(map(torch.from_numpy, batch.audio)))
-        video = torch.stack(list(map(torch.from_numpy, batch.video)))
-        action = torch.stack([torch.Tensor([float(x)]) for x in batch.action])
-        reward = torch.stack([torch.Tensor([float(x)]) for x in batch.reward])
-        next_audio = torch.stack(list(map(torch.from_numpy, batch.next_audio)))
-        next_video = torch.stack(list(map(torch.from_numpy, batch.next_video)))
-        done = torch.stack([torch.Tensor([x]) for x in batch.done])
-        return (
-            audio,
-            video,
-            action,
-            next_audio,
-            next_video,
-            reward,
-            done,
-        )  # tuple(map(torch.cat, batch))
 
 
 class MultimodalDQNAgent(Agent):

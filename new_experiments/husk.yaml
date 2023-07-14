@@ -1,0 +1,55 @@
+seed: null
+env_path: null
+group: "husk_random_sound"
+record_video: true
+device: null
+
+env:
+  name: 'husk-random'
+  params:
+    hud: false
+    verbose: false
+    port: 8000
+
+wrappers:
+  - name: 'ActionWrapper'
+    enabled_actions:
+      - FORWARD
+      - TURN_LEFT
+      - TURN_RIGHT
+
+  - name: 'SoundWrapper'
+    coord_dim: 2
+  - name: 'AvoidDamageWrapper'
+    damage_reward: -0.1
+    alive_reward: 0.5
+
+algorithm:
+  name:
+    "SoundDQNAlgorithm"
+  params:
+    num_episodes: 1000
+    steps_per_episode: 400
+    test_frequency: 10
+    solved_criterion:
+      name: 'ScoreCriterion'
+      params:
+        min_episode: 500
+        min_avg_score: 195
+        min_test_score: 195
+        min_avg_test_score: 195
+    hidden_dim: 128
+    device: null
+    epsilon_init: 1.0
+    epsilon_decay: 0.99
+    epsilon_min: 0.01
+    update_frequency: 1000
+    train_frequency: 1
+    replay_buffer_size: 100000
+    batch_size: 32
+    gamma: 0.99
+    learning_rate: 0.0001
+    weight_decay: 0.0001
+    tau: 1.0
+
+
