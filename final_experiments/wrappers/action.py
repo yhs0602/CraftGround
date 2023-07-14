@@ -17,8 +17,8 @@ class Action(Enum):
     NO_OP = 0
     FORWARD = 1
     BACKWARD = 2
-    STRAFE_RIGHT = 3
-    STRAFE_LEFT = 4
+    STRAFE_LEFT = 3
+    STRAFE_RIGHT = 4
     TURN_LEFT = 5
     TURN_RIGHT = 6
     JUMP = 7

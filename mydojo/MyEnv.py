@@ -10,9 +10,10 @@ from typing import Tuple, Optional, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from gym.core import ActType, ObsType, RenderFrame
 
+from font import get_font
 from mydojo.initial_environment import InitialEnvironment
 from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
@@ -210,7 +211,7 @@ class MyEnv(gym.Env):
             draw = ImageDraw.Draw(self.last_image)
             text = self.action_to_symbol(self.last_action)
             position = (0, 0)
-            font = ImageFont.truetype("DejaVuSans-ExtraLight.ttf", 8)
+            font = get_font()
             font_size = 8
             color = (255, 0, 0)
             draw.text(position, text, font=font, font_size=font_size, fill=color)

@@ -18,8 +18,9 @@ class SoundDQNAlgorithm:
         self,
         env,
         logger: Logger,
-        num_episodes,
-        steps_per_episode,
+        num_episodes: int,
+        warmup_episodes: int,
+        steps_per_episode: int,
         test_frequency,
         solved_criterion,
         hidden_dim,
@@ -39,6 +40,7 @@ class SoundDQNAlgorithm:
         self.logger = logger
         self.env = env
         self.num_episodes = num_episodes
+        self.warmup_episodes = warmup_episodes
         self.test_frequency = test_frequency
         self.steps_per_episode = steps_per_episode
         self.state_dim = (np.prod(env.observation_space.shape),)
@@ -100,6 +102,12 @@ class SoundDQNAlgorithm:
                 recent_test_scores.append(test_score)
                 avg_test_score = np.mean(recent_test_scores)
                 avg_test_scores.append(avg_test_score)
+                self.logger.log(
+                    {
+                        "test/step": episode,
+                        "test/score": test_score,
+                    }
+                )
             else:  # training
                 (
                     episode_reward,
@@ -113,10 +121,12 @@ class SoundDQNAlgorithm:
                 avg_score = np.mean(recent_scores)
                 avg_scores.append(avg_score)
                 self.logger.log(
-                    episode=episode,
-                    score=episode_reward,
-                    avg_score=avg_score,
-                    avg_loss=avg_loss,
+                    {
+                        "episode": episode,
+                        "score": episode_reward,
+                        "avg_score": avg_score,
+                        "avg_loss": avg_loss,
+                    }
                 )
             if num_steps == 0:
                 num_steps = 1
@@ -163,7 +173,7 @@ class SoundDQNAlgorithm:
 
         for step in range(self.steps_per_episode):
             self.logger.before_step(step, should_record_video=False)
-            if self.explorer.should_explore():
+            if self.explorer.should_explore() or self.episode < self.warmup_episodes:
                 action = np.random.choice(self.action_dim)
             else:  # exploit
                 action = self.exploit_action(state)

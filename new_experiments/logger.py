@@ -1,3 +1,5 @@
+from typing import Dict
+
 import wandb
 from dotenv import load_dotenv
 from gymnasium.wrappers.monitoring.video_recorder import VideoRecorder
@@ -22,9 +24,9 @@ class Logger:
         self.record_video = record_video
         self.video_recorder = None
 
-    def log(self, **kwargs):
-        print(" ".join(["{0}={1}".format(k, v) for k, v in kwargs.items()]))
-        wandb.log(kwargs)
+    def log(self, data: Dict):
+        print(" ".join(["{0}={1}".format(k, v) for k, v in data.items()]))
+        wandb.log(data)
 
     def start_training(self):
         if self.record_video:
