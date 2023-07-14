@@ -72,7 +72,7 @@ def train_vision_and_sound(
         device=get_device(),
     )
 
-    from final_experiments.wrapper_runners import DQNWrapperRunner
+    from final_experiments.wrapper_runners.dqn_wrapper_runner import DQNWrapperRunner
 
     runner = DQNWrapperRunner(
         wrapper,

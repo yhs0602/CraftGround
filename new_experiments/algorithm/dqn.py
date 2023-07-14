@@ -210,7 +210,7 @@ class DQNAlgorithm(abc.ABC):
         state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         self.policy_net.eval()
         with torch.no_grad():
-            q_values = self.policy_net(state)
+            q_values = self.policy_net(state).detach()
         self.policy_net.train()
         return q_values.argmax().item()
 
