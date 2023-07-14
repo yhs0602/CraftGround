@@ -3,8 +3,8 @@
 import torch
 import torch.nn as nn
 
-from models.dqn import ReplayBuffer
 from models.dueling_dqn_base import DuelingDQNAgentBase, DuelingDQNBase
+from models.replay_buffer import ReplayBuffer
 
 
 class DuelingSoundDQN(DuelingDQNBase):

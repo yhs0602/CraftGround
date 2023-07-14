@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from models.dqn import MultiModalReplayBuffer
 from models.dueling_dqn_base import DuelingDQNAgentBase, DuelingDQNBase
 
 

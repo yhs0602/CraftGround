@@ -1,11 +1,11 @@
 from torch import optim
 
-from models.dueling_sound_dqn import DuelingSoundDQN
+from models.dueling_vision_dqn import DuelingVisionDQN
 from new_experiments.algorithm.dqn import DQNAlgorithm
 from new_experiments.logger import Logger
 
 
-class SoundDQNAlgorithm(DQNAlgorithm):
+class VisionDQNAlgorithm(DQNAlgorithm):
     def __init__(
         self,
         env,
@@ -16,6 +16,8 @@ class SoundDQNAlgorithm(DQNAlgorithm):
         test_frequency,
         solved_criterion,
         hidden_dim,
+        kernel_size,
+        stride,
         device,
         epsilon_init,
         epsilon_decay,
@@ -51,12 +53,15 @@ class SoundDQNAlgorithm(DQNAlgorithm):
             weight_decay,
             tau,
         )
-        self.policy_net = DuelingSoundDQN(
-            self.state_dim, self.action_dim, hidden_dim
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.policy_net = DuelingVisionDQN(
+            self.state_dim, self.action_dim, kernel_size, stride, hidden_dim
         ).to(device)
-        self.target_net = DuelingSoundDQN(
-            self.state_dim, self.action_dim, hidden_dim
+        self.target_net = DuelingVisionDQN(
+            self.state_dim, self.action_dim, kernel_size, stride, hidden_dim
         ).to(device)
+
         self.optimizer = optim.Adam(
             self.policy_net.parameters(), lr=learning_rate, weight_decay=weight_decay
         )
