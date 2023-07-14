@@ -4,7 +4,6 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
 
-from models.dqn import MultiModalReplayBuffer
 from models.dueling_bimodal_dqn import DuelingBiModalDQNAgent
 
 

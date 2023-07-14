@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
+from models.bimodal_replay_buffer import BiModalReplayBuffer
 from models.dueling_dqn_base import DuelingDQNAgentBase, DuelingDQNBase
 
 
@@ -61,7 +62,7 @@ class DuelingBiModalDQN(DuelingDQNBase):
 
 
 class DuelingBiModalDQNAgent(DuelingDQNAgentBase):
-    replay_buffer: MultiModalReplayBuffer  # override type hint
+    replay_buffer: BiModalReplayBuffer  # override type hint
 
     def __init__(
         self,

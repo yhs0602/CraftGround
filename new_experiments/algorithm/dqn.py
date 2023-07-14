@@ -49,7 +49,6 @@ class DQNAlgorithm(abc.ABC):
         self.warmup_episodes = warmup_episodes
         self.test_frequency = test_frequency
         self.steps_per_episode = steps_per_episode
-        self.state_dim = (np.prod(env.observation_space.shape),)
         self.action_dim = env.action_space.n
         self.hidden_dim = hidden_dim
         self.epsilon_init = epsilon_init

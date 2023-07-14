@@ -1,3 +1,4 @@
+import numpy as np
 from torch import optim
 
 from models.dueling_sound_dqn import DuelingSoundDQN
@@ -51,6 +52,7 @@ class SoundDQNAlgorithm(DQNAlgorithm):
             weight_decay,
             tau,
         )
+        self.state_dim = (np.prod(env.observation_space.shape),)
         self.policy_net = DuelingSoundDQN(
             self.state_dim, self.action_dim, hidden_dim
         ).to(device)

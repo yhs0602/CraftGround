@@ -5,8 +5,8 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from models.dqn import ReplayBuffer
 from models.dueling_dqn_base import DuelingDQNBase, DuelingDQNAgentBase
+from models.replay_buffer import ReplayBuffer
 
 
 class DuelingVisionDQN(DuelingDQNBase):

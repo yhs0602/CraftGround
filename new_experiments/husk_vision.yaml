@@ -23,8 +23,9 @@ wrappers:
       - TURN_LEFT
       - TURN_RIGHT
 
-  - name: 'SoundWrapper'
-    coord_dim: 2
+  - name: 'VisionWrapper'
+    x_dim: 114
+    y_dim: 64
   - name: 'AvoidDamageWrapper'
     damage_reward: -0.1
     alive_reward: 0.5

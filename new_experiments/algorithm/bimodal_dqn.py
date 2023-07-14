@@ -1,11 +1,11 @@
 from torch import optim
 
-from models.dueling_vision_dqn import DuelingVisionDQN
+from models.dueling_bimodal_dqn import DuelingBiModalDQN
 from new_experiments.algorithm.dqn import DQNAlgorithm
 from new_experiments.logger import Logger
 
 
-class VisionDQNAlgorithm(DQNAlgorithm):
+class BimodalDQNAlgorithm(DQNAlgorithm):
     def __init__(
         self,
         env,
@@ -53,14 +53,23 @@ class VisionDQNAlgorithm(DQNAlgorithm):
             weight_decay,
             tau,
         )
-        self.state_dim = env.observation_space.shape
         self.kernel_size = kernel_size
         self.stride = stride
-        self.policy_net = DuelingVisionDQN(
-            self.state_dim, self.action_dim, kernel_size, stride, hidden_dim
+        self.policy_net = DuelingBiModalDQN(
+            self.state_dim,
+            self.sound_dim,
+            self.action_dim,
+            self.kernel_size,
+            self.stride,
+            self.hidden_dim,
         ).to(device)
-        self.target_net = DuelingVisionDQN(
-            self.state_dim, self.action_dim, kernel_size, stride, hidden_dim
+        self.target_net = DuelingBiModalDQN(
+            self.state_dim,
+            self.sound_dim,
+            self.action_dim,
+            self.kernel_size,
+            self.stride,
+            self.hidden_dim,
         ).to(device)
 
         self.optimizer = optim.Adam(

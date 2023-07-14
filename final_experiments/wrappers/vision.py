@@ -9,7 +9,7 @@ from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetW
 
 # Sound wrapper
 class VisionWrapper(CleanUpFastResetWrapper):
-    def __init__(self, env, x_dim, y_dim):
+    def __init__(self, env, x_dim, y_dim, **kwargs):
         self.env = env
         super().__init__(self.env)
         self.observation_space = gym.spaces.Box(
