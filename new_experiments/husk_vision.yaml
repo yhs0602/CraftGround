@@ -48,7 +48,6 @@ algorithm:
     hidden_dim: 128
     kernel_size: 5
     stride: 2
-    device: null
     epsilon_init: 1.0
     epsilon_decay: 0.99
     epsilon_min: 0.01

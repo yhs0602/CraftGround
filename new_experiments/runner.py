@@ -61,7 +61,7 @@ class Runner:
         # algorithm = DQN | DRQN | A2C | PPO | SAC ...
         algorithm_class = getattr(algorithm, self.algorithm_name)
         algorithm_instance = algorithm_class(
-            env=env, **self.algorithm_params, logger=logger
+            env=env, **self.algorithm_params, logger=logger, device=self.device
         )
         algorithm_instance.run()
 

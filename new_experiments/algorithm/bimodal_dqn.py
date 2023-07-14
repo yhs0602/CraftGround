@@ -77,3 +77,6 @@ class BimodalDQNAlgorithm(DQNAlgorithm):
         self.optimizer = optim.Adam(
             self.policy_net.parameters(), lr=learning_rate, weight_decay=weight_decay
         )
+
+    def add_experience(self, state, action, next_state, reward, done):
+        self.replay_buffer.add(state, action, next_state, reward, done)

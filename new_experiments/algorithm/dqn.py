@@ -17,6 +17,7 @@ from new_experiments.logger import Logger
 class DQNAlgorithm(abc.ABC):
     policy_net: torch.nn.Module
     target_net: torch.nn.Module
+    optimizer: torch.optim.Optimizer
 
     @abstractmethod
     def __init__(
@@ -180,7 +181,7 @@ class DQNAlgorithm(abc.ABC):
             self.total_steps += 1
 
             # add experience to replay buffer
-            self.replay_buffer.add(state, action, next_state, reward, done)
+            self.add_experience(state, action, next_state, reward, done)
 
             # update policy network
             if self.total_steps % self.train_frequency == 0:
@@ -246,3 +247,6 @@ class DQNAlgorithm(abc.ABC):
             target_param.data.copy_(
                 self.tau * policy_param.data + (1 - self.tau) * target_param.data
             )
+
+    def add_experience(self, state, action, next_state, reward, done):
+        self.replay_buffer.add(state, action, next_state, reward, done)
