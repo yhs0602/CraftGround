@@ -66,5 +66,5 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner(config_filename="experiments/husk_bimodal_drqn.yaml")
+    runner = Runner(config_filename="experiments/husk_sound_a2c.yml")
     runner.run()

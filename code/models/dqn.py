@@ -4,12 +4,9 @@ import wandb
 from torch import nn
 from torch.autograd import Variable
 
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-elif torch.has_mps:
-    device = torch.device("mps")
-else:
-    device = torch.device("cpu")
+from get_device import get_device
+
+device = get_device()
 
 
 def after_wandb_init():

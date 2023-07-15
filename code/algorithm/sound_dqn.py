@@ -1,9 +1,9 @@
 import numpy as np
 from torch import optim
 
-from code.models import DuelingSoundDQN
 from code.algorithm.dqn import DQNAlgorithm
 from code.logger import Logger
+from models.dueling_sound_dqn import DuelingSoundDQN
 
 
 class SoundDQNAlgorithm(DQNAlgorithm):

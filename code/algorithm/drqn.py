@@ -8,11 +8,11 @@ import numpy as np
 import torch
 from torch import nn
 
-from code.models import RecurrentReplayBuffer
-from code.models.transition import Transition, Episode
 from code import criterion
 from code.algorithm.epsilon_greedy import EpsilonGreedyExplorer
 from code.logger import Logger
+from code.models.transition import Transition, Episode
+from models.recurrent_replay_buffer import RecurrentReplayBuffer
 
 
 class DRQNAlgorithm(abc.ABC):
