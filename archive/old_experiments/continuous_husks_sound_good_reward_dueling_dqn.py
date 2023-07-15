@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Tuple
 
-from old_experiments.train_sound import train_sound
+from archive.old_experiments.train_sound import train_sound
 
 health_deque = deque(maxlen=2)
 

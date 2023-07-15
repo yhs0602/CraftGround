@@ -1,10 +1,10 @@
-from old_experiments.train_bimodal import train_vision_and_sound
+from archive.old_experiments.train_cnn import train_cnn
 
 if __name__ == "__main__":
-    train_vision_and_sound(
+    train_cnn(
         verbose=False,
         env_path=None,
-        port=8003,
+        port=8006,
         agent="DuelingDQNAgent",
         env_name="husk",
         batch_size=256,
@@ -22,5 +22,4 @@ if __name__ == "__main__":
         max_steps_per_episode=400,
         num_episodes=2000,
         warmup_episodes=0,
-        reward_function=None,
     )

@@ -1,10 +1,27 @@
-from old_experiments.train_bimodal import train_vision_and_sound
+from collections import deque
+from typing import Tuple
+
+from archive.old_experiments.train_bimodal import train_vision_and_sound
+
+health_deque = deque(maxlen=2)
+
+
+def reward_function(obs) -> Tuple[float, bool]:
+    if obs.is_dead:
+        health_deque.append(20)
+        return -1, True
+    health_deque.append(obs.health)
+    if health_deque[0] < health_deque[1]:
+        return -0.1, False
+    return 0.5, False
+
 
 if __name__ == "__main__":
+    health_deque.append(20)
     train_vision_and_sound(
         verbose=False,
         env_path=None,
-        port=8004,
+        port=8003,
         agent="DQNAgent",
         env_name="husk-darkness",
         batch_size=256,
@@ -22,4 +39,5 @@ if __name__ == "__main__":
         max_steps_per_episode=400,
         num_episodes=2000,
         warmup_episodes=0,
+        reward_function=reward_function,
     )

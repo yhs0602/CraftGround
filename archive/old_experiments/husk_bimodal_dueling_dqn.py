@@ -1,4 +1,4 @@
-from old_experiments.train_bimodal import train_vision_and_sound
+from archive.old_experiments.train_bimodal import train_vision_and_sound
 
 if __name__ == "__main__":
     train_vision_and_sound(
@@ -6,7 +6,7 @@ if __name__ == "__main__":
         env_path=None,
         port=8003,
         agent="DuelingDQNAgent",
-        env_name="husk-darkness",
+        env_name="husk",
         batch_size=256,
         gamma=0.99,
         learning_rate=0.00001,

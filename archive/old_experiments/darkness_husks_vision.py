@@ -1,13 +1,12 @@
-from old_experiments.train_cnn import train_cnn
+from archive.old_experiments.train_cnn import train_cnn
 
-
-def sweep():
+if __name__ == "__main__":
     train_cnn(
         verbose=False,
         env_path=None,
-        port=8000,
+        port=8008,
         agent="DQNAgent",
-        env_name="husk",
+        env_name="husks-darkness",
         batch_size=256,
         gamma=0.99,
         learning_rate=0.00001,
@@ -24,7 +23,3 @@ def sweep():
         num_episodes=2000,
         warmup_episodes=0,
     )
-
-
-if __name__ == "__main__":
-    sweep()

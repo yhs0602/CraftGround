@@ -1,4 +1,4 @@
-from old_experiments.train_bimodal import train_vision_and_sound
+from archive.old_experiments.train_bimodal import train_vision_and_sound
 
 if __name__ == "__main__":
     train_vision_and_sound(
