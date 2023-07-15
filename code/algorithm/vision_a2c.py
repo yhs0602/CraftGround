@@ -3,10 +3,10 @@ import torch
 
 from algorithm.a2c import A2CAlgorithm
 from logger import Logger
-from models.sound_a2c import SoundActor, SoundCritic
+from models.vision_a2c import VisionActor, VisionCritic
 
 
-class SoundA2CAlgorithm(A2CAlgorithm):
+class VisionA2CAlgorithm(A2CAlgorithm):
     def __init__(
         self,
         env,
@@ -16,6 +16,8 @@ class SoundA2CAlgorithm(A2CAlgorithm):
         test_frequency,
         solved_criterion,
         hidden_dim,
+        kernel_size,
+        stride,
         device,
         update_frequency,
         train_frequency,
@@ -37,9 +39,15 @@ class SoundA2CAlgorithm(A2CAlgorithm):
             train_frequency,
             gamma,
         )
-        self.state_dim = (np.prod(env.observation_space.shape),)
-        self.actor = SoundActor(self.state_dim, self.action_dim, hidden_dim).to(device)
-        self.critic = SoundCritic(self.state_dim, hidden_dim).to(device)
+        self.state_dim = env.observation_space.shape
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.actor = VisionActor(
+            self.state_dim, self.action_dim, kernel_size, stride, hidden_dim
+        ).to(device)
+        self.critic = VisionCritic(self.state_dim, kernel_size, stride, hidden_dim).to(
+            device
+        )
         self.actor_optim = torch.optim.Adam(
             self.actor.parameters(), lr=learning_rate, weight_decay=weight_decay
         )

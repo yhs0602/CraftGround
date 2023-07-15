@@ -26,7 +26,6 @@ class A2CAlgorithm:
         device,
         update_frequency,
         train_frequency,
-        batch_size,
         gamma,
         **kwargs,
     ):
@@ -42,8 +41,6 @@ class A2CAlgorithm:
         self.train_frequency = train_frequency
 
         self.gamma = gamma
-
-        self.batch_size = batch_size
 
         self.device = device
 
