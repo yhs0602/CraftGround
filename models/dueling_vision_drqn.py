@@ -11,9 +11,9 @@ from models.recurrent_replay_buffer import RecurrentReplayBuffer, Episode
 
 
 # https://github.com/keep9oing/DRQN-Pytorch-CartPole-v1/blob/main/DRQN.py
-class DuelingVisionRNNDQN(nn.Module):
+class DuelingVisionDRQN(nn.Module):
     def __init__(self, state_dim, action_dim, kernel_size, stride, hidden_dim, device):
-        super(DuelingVisionRNNDQN, self).__init__()
+        super(DuelingVisionDRQN, self).__init__()
         self.hidden_dim = hidden_dim
         self.device = device
         self.state_dim = state_dim
@@ -91,10 +91,10 @@ class DuelingVisionDRQNAgent(Agent):
         self.kernel_size = kernel_size
         self.stride = stride
         self.device = device
-        self.policy_net = DuelingVisionRNNDQN(
+        self.policy_net = DuelingVisionDRQN(
             state_dim, action_dim, kernel_size, stride, hidden_dim, device=device
         ).to(device)
-        self.target_net = DuelingVisionRNNDQN(
+        self.target_net = DuelingVisionDRQN(
             state_dim, action_dim, kernel_size, stride, hidden_dim, device=device
         ).to(device)
         self.loss_fn = nn.MSELoss()

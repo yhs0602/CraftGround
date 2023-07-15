@@ -196,7 +196,8 @@ class DQNAlgorithm(abc.ABC):
                 break
 
         end_time = time.time()
-        self.explorer.after_episode()  # update epsilon
+        if self.episode > self.warmup_episodes:
+            self.explorer.after_episode()  # update epsilon
         avg_loss = np.mean([loss for loss in losses if loss is not None])
         return (
             episode_reward,
