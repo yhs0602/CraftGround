@@ -11,7 +11,7 @@ from torch import nn
 from code.models.replay_buffer import ReplayBuffer
 from code import criterion
 from code.algorithm.epsilon_greedy import EpsilonGreedyExplorer
-from code.new_experiments.logger import Logger
+from code.logger import Logger
 
 
 class DQNAlgorithm(abc.ABC):

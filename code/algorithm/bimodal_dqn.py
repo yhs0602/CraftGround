@@ -6,7 +6,7 @@ from torch import optim
 from code.models.bimodal_replay_buffer import BiModalReplayBuffer
 from code.models.dueling_bimodal_dqn import DuelingBiModalDQN
 from code.algorithm.dqn import DQNAlgorithm
-from code.new_experiments.logger import Logger
+from code.logger import Logger
 
 
 class BimodalDQNAlgorithm(DQNAlgorithm):

@@ -3,9 +3,9 @@ import time
 import numpy as np
 import yaml
 
-from code.husk_environment import env_makers
+from code.environments import env_makers
 from code.get_device import get_device
-from code.new_experiments.logger import Logger
+from code.logger import Logger
 from code import algorithm, wrappers
 
 
@@ -66,5 +66,5 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner(config_filename="husk_bimodal_drqn.yaml")
+    runner = Runner(config_filename="experiments/husk_bimodal_drqn.yaml")
     runner.run()

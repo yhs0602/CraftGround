@@ -7,7 +7,7 @@ from torch import optim
 from code.models.dueling_bimodal_drqn import DuelingBimodalDRQN
 from code.models.transition import BimodalTransition, BimodalEpisode
 from code.algorithm.drqn import DRQNAlgorithm
-from code.new_experiments.logger import Logger
+from code.logger import Logger
 
 
 class BimodalDRQNAlgorithm(DRQNAlgorithm):

@@ -12,7 +12,7 @@ from code.models import RecurrentReplayBuffer
 from code.models.transition import Transition, Episode
 from code import criterion
 from code.algorithm.epsilon_greedy import EpsilonGreedyExplorer
-from code.new_experiments.logger import Logger
+from code.logger import Logger
 
 
 class DRQNAlgorithm(abc.ABC):

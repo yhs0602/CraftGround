@@ -1,6 +1,6 @@
 from torchview import draw_graph
 
-from code.models import CNNDQN, SoundDQN, DQNSoundAndVision
+from code.models.dqn import CNNDQN, SoundDQN, DQNSoundAndVision
 
 
 def visualize_cnn():

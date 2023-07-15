@@ -2,7 +2,7 @@ from torch import optim
 
 from code.models.dueling_vision_drqn import DuelingVisionDRQN
 from code.algorithm.drqn import DRQNAlgorithm
-from code.new_experiments.logger import Logger
+from code.logger import Logger
 
 
 class VisionDRQNAlgorithm(DRQNAlgorithm):
