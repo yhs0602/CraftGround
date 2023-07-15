@@ -191,7 +191,9 @@ class DRQNAlgorithm(abc.ABC):
             self.total_steps += 1
 
             # add experience to the current episode
-            episode.append(Transition(state, action, next_state, reward, done))
+            self.append_transition_to_episode(
+                episode, state, action, next_state, reward, done
+            )
 
             # update policy network
             if self.total_steps % self.train_frequency == 0:
@@ -321,3 +323,8 @@ class DRQNAlgorithm(abc.ABC):
             target_param.data.copy_(
                 self.tau * policy_param.data + (1 - self.tau) * target_param.data
             )
+
+    def append_transition_to_episode(
+        self, episode, state, action, next_state, reward, done
+    ):
+        episode.append(Transition(state, action, next_state, reward, done))
