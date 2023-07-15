@@ -169,7 +169,7 @@ class BimodalDRQNAlgorithm(DRQNAlgorithm):
         torch_rewards_batch = torch.FloatTensor(rewards_batch_np).to(self.device)
         torch_done_batch = torch.FloatTensor(done_batch_np).to(self.device)
 
-        q_values, _ = self.policy_net.forward(
+        q_values, _ = self.policy_net(
             torch_audio_states_batch,
             torch_video_states_batch,
             self.batch_size,

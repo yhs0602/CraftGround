@@ -68,6 +68,7 @@ class DuelingBimodalDRQN(nn.Module):
         video = video.view(batch_size * time_step, *self.state_dim)
         video = video.float() / 255.0
         video_feature = self.video_feature(video)
+        audio = audio.view(batch_size * time_step, -1)
         audio_feature = self.audio_feature(audio)
         x = torch.cat((audio_feature, video_feature), dim=1)
         x = self.feature(x)
