@@ -67,5 +67,5 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner(config_filename="husk_vision.yaml")
+    runner = Runner(config_filename="husk_bimodal.yml")
     runner.run()

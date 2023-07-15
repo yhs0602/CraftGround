@@ -12,7 +12,13 @@ from final_experiments.wrappers.CleanUpFastResetWrapper import CleanUpFastResetW
 # Sound wrapper
 class BimodalWrapper(CleanUpFastResetWrapper):
     def __init__(
-        self, env, x_dim, y_dim, sound_list: List[str], sound_coord_dim: int = 2
+        self,
+        env,
+        x_dim,
+        y_dim,
+        sound_list: List[str],
+        sound_coord_dim: int = 2,
+        **kwargs
     ):
         self.env = env
         self.sound_list = sound_list
