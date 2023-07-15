@@ -16,7 +16,7 @@ class Actor(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             nn.Tanh(),
             nn.Linear(hidden_dim, n_actions),
-            nn.Softmax(),
+            nn.Softmax(dim=-1),
         )
 
     def forward(self, x):
@@ -73,8 +73,8 @@ class SoundA2CAlgorithm(A2CAlgorithm):
             gamma,
         )
         self.state_dim = (np.prod(env.observation_space.shape),)
-        self.actor = Actor(self.state_dim, self.action_dim, hidden_dim)
-        self.critic = Critic(self.state_dim, hidden_dim)
+        self.actor = Actor(self.state_dim, self.action_dim, hidden_dim).to(device)
+        self.critic = Critic(self.state_dim, hidden_dim).to(device)
         self.actor_optim = torch.optim.Adam(
             self.actor.parameters(), lr=learning_rate, weight_decay=weight_decay
         )

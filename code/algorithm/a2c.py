@@ -123,9 +123,7 @@ class A2CAlgorithm:
         for step in range(self.steps_per_episode):
             self.logger.before_step(step, should_record_video=True)
             _, action = self.exploit_action(state)
-            next_state, reward, done, truncated, info = self.env.step(
-                action.detach().data.numpy()
-            )
+            next_state, reward, done, truncated, info = self.env.step(action.item())
             episode_reward += reward
             steps_in_episode += 1
             if done:
@@ -149,12 +147,12 @@ class A2CAlgorithm:
         for step in range(self.steps_per_episode):
             self.logger.before_step(step, should_record_video=False)
             dist, action = self.exploit_action(state)
-            next_state, reward, done, truncated, info = self.env.step(
-                action.detach().data.numpy()
-            )
+            next_state, reward, done, truncated, info = self.env.step(action.item())
 
-            state_tensor = torch.from_numpy(state).float().to(self.device)
-            next_state_tensor = torch.from_numpy(next_state).float().to(self.device)
+            state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+            next_state_tensor = (
+                torch.FloatTensor(next_state).unsqueeze(0).to(self.device)
+            )
 
             advantage = (
                 reward
@@ -196,7 +194,7 @@ class A2CAlgorithm:
         )
 
     def exploit_action(self, state):
-        state = torch.from_numpy(state).float()
+        state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         probs = self.actor(state)
         dist = torch.distributions.Categorical(probs=probs)
         action = dist.sample()

@@ -39,7 +39,7 @@ algorithm:
     solved_criterion:
       name: 'ScoreCriterion'
       params:
-        min_episode: 500
+        min_episode: 10
         min_avg_score: 195
         min_test_score: 195
         min_avg_test_score: 195
@@ -48,7 +48,7 @@ algorithm:
     train_frequency: 1
     batch_size: 256
     gamma: 0.99
-    learning_rate: 0.00001
+    learning_rate: 0.0007
     weight_decay: 0.00001
 
 
