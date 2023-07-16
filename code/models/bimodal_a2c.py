@@ -4,7 +4,7 @@ from torch import nn
 from torch.autograd import Variable
 
 
-# Actor module, categorical actions only
+# ActorCritic module, categorical actions only
 class BimodalActorCritic(nn.Module):
     def __init__(
         self, state_dim, sound_dim, action_dim, kernel_size, stride, hidden_dim
@@ -48,6 +48,3 @@ class BimodalActorCritic(nn.Module):
         video_feature = self.video_feature(video)
         feature = torch.cat((audio_feature, video_feature), dim=1)
         return self.actor(feature), self.critic(feature)
-
-
-# Critic module
