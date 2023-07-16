@@ -1,6 +1,6 @@
 seed: null
 env_path: null
-group: "hunt_bimodal_a2c_adam"
+group: "hunt_bimodal_a2c_adam2"
 record_video: true
 device: null
 
@@ -32,9 +32,9 @@ wrappers:
     y_dim: 64
     sound_coord_dim: 2
   - name: 'AvoidDamageWrapper'
-    damage_reward: -0.05
+    damage_reward: 0.0
     alive_reward: 0.0
-    death_reward: -0.5
+    death_reward: 0.0
   - name: 'AttackKillWrapper'
     target_name: 'minecraft:husk'
     attack_reward: 0.1
