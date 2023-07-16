@@ -927,7 +927,8 @@ def make_flat_night_environment(
     port: int,
     size_x: int = 114,
     size_y: int = 64,
-    hud_hidden: bool = True,
+    hud: bool = False,
+    render_action: bool = True,
 ):
     return mydojo.make(
         verbose=verbose,
@@ -949,7 +950,8 @@ def make_flat_night_environment(
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
         initialExtraCommands=["difficulty normal", "gamerule mobGriefing false"],
-        isHudHidden=hud_hidden,
+        isHudHidden=not hud,
+        render_action=render_action,
     ), [
         "subtitles.entity.slime.attack",
         "subtitles.entity.slime.death",

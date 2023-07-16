@@ -1,0 +1,56 @@
+seed: null
+env_path: null
+group: "flat_night_sound_a2c"
+record_video: true
+device: null
+
+env:
+  name: 'flat-night'
+  params:
+    hud: false
+    verbose: false
+    port: 8000
+    render_action: true
+
+wrappers:
+  - name: 'ActionWrapper'
+    enabled_actions:
+      - NO_OP
+      - FORWARD
+      - BACKWARD
+      - STRAFE_LEFT
+      - STRAFE_RIGHT
+      - TURN_LEFT
+      - TURN_RIGHT
+
+  - name: 'SoundWrapper'
+    coord_dim: 2
+  - name: 'AvoidDamageWrapper'
+    damage_reward: -0.1
+    alive_reward: 0.5
+
+algorithm:
+  name:
+    "SoundA2CAlgorithm"
+  params:
+    num_episodes: 1000
+    steps_per_episode: 4000
+    test_frequency: 10
+    solved_criterion:
+      name: 'ScoreCriterion'
+      params:
+        min_episode: 100
+        min_avg_score: 1950
+        min_test_score: 1950
+        min_avg_test_score: 1950
+    hidden_dim: 128
+    update_frequency: 1000
+    train_frequency: 1
+    gamma: 0.99
+    optimizer:
+      name: 'Adam'
+      params:
+        lr: 0.0007
+        weight_decay: 0.00001
+
+

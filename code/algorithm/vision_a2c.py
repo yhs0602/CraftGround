@@ -1,5 +1,5 @@
-import numpy as np
 import torch
+import torch.optim
 
 from algorithm.a2c import A2CAlgorithm
 from logger import Logger
@@ -22,8 +22,7 @@ class VisionA2CAlgorithm(A2CAlgorithm):
         update_frequency,
         train_frequency,
         gamma,
-        learning_rate,
-        weight_decay,
+        optimizer,
         **kwargs,
     ):
         super().__init__(
@@ -48,9 +47,11 @@ class VisionA2CAlgorithm(A2CAlgorithm):
         self.critic = VisionCritic(self.state_dim, kernel_size, stride, hidden_dim).to(
             device
         )
-        self.actor_optim = torch.optim.Adam(
-            self.actor.parameters(), lr=learning_rate, weight_decay=weight_decay
+        optim_name = optimizer.get("name", "Adam")
+        optimizer_class = getattr(torch.optim, optim_name)
+        self.actor_optim = optimizer_class(
+            self.actor.parameters(), **optimizer["params"]
         )
-        self.critic_optim = torch.optim.Adam(
-            self.critic.parameters(), lr=learning_rate, weight_decay=weight_decay
+        self.critic_optim = optimizer_class(
+            self.actor.parameters(), **optimizer["params"]
         )

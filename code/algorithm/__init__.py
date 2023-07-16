@@ -1,3 +1,4 @@
+from .bimodal_a2c import BimodalA2CAlgorithm
 from .bimodal_dqn import BimodalDQNAlgorithm
 from .bimodal_drqn import BimodalDRQNAlgorithm
 from .sound_a2c import SoundA2CAlgorithm

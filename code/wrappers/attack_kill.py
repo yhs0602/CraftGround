@@ -8,11 +8,20 @@ from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 # Sound wrapper
 class AttackKillWrapper(CleanUpFastResetWrapper):
-    def __init__(self, env, target_name="minecraft:husk"):
+    def __init__(
+        self,
+        env,
+        target_name="minecraft:husk",
+        attack_reward=0.1,
+        kill_reward=1,
+        **kwargs
+    ):
         self.env = env
         self.durabilities = deque(maxlen=2)
         self.old_killed_stat = 0
         self.target_name = target_name
+        self.attack_reward = attack_reward
+        self.kill_reward = kill_reward
         super().__init__(self.env)
 
     def step(
@@ -25,9 +34,9 @@ class AttackKillWrapper(CleanUpFastResetWrapper):
         if (
             self.durabilities[0] > self.durabilities[1]
         ):  # durability decreased. We attacked successfully
-            reward += 0.1  # Successfully attacked
+            reward += self.attack_reward  # Successfully attacked
         if info_obs.killed_statistics[self.target_name] > self.old_killed_stat:
-            reward += 1  # we killed a husk
+            reward += self.kill_reward  # we killed a husk
             self.old_killed_stat = info_obs.killed_statistics[self.target_name]
             terminated = True
 

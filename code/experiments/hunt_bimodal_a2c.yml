@@ -1,0 +1,69 @@
+seed: null
+env_path: null
+group: "hunt_bimodal_a2c_adam"
+record_video: true
+device: null
+
+env:
+  name: 'husk-hunt'
+  params:
+    hud: false
+    verbose: false
+    port: 8000
+    render_action: true
+
+wrappers:
+  - name: 'ActionWrapper'
+    enabled_actions:
+      - NO_OP
+      - FORWARD
+      - BACKWARD
+      - STRAFE_LEFT
+      - STRAFE_RIGHT
+      - TURN_LEFT
+      - TURN_RIGHT
+#      - JUMP
+#      - LOOK_UP
+#      - LOOK_DOWN
+      - ATTACK
+      - USE
+  - name: 'BimodalWrapper'
+    x_dim: 114
+    y_dim: 64
+    sound_coord_dim: 2
+  - name: 'AvoidDamageWrapper'
+    damage_reward: -0.05
+    alive_reward: 0.0
+    death_reward: -0.5
+  - name: 'AttackKillWrapper'
+    target_name: 'minecraft:husk'
+    attack_reward: 0.1
+    kill_reward: 2.0
+
+algorithm:
+  name:
+    "BimodalA2CAlgorithm"
+  params:
+    num_episodes: 3000
+    steps_per_episode: 400
+    test_frequency: 10
+    solved_criterion:
+      name: 'ScoreCriterion'
+      params:
+        min_episode: 100
+        min_avg_score: 2
+        min_test_score: 2
+        min_avg_test_score: 2
+    hidden_dim: 128
+    kernel_size: 5
+    stride: 2
+    update_frequency: 1000
+    train_frequency: 1
+    gamma: 0.99
+    optimizer:
+      name: 'Adam'
+      params:
+        lr: 0.0007
+        weight_decay: 0.00001
+
+
