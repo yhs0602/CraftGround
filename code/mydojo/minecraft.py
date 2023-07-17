@@ -5,7 +5,7 @@ import struct
 import time
 from typing import List
 
-import code.mydojo.MyEnv as MyEnv
+import mydojo.MyEnv as MyEnv
 from mydojo.json_socket import JSONSocket
 from mydojo.proto import action_space_pb2
 
