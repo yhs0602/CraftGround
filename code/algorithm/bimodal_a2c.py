@@ -26,6 +26,7 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
         train_frequency,
         gamma,
         optimizer,
+        beta,
         **kwargs,
     ):
         super().__init__(
@@ -41,6 +42,7 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
             train_frequency,
             gamma,
         )
+        self.beta = beta
         self.kernel_size = kernel_size
         self.stride = stride
         self.state_dim = env.observation_space["vision"].shape
@@ -137,7 +139,10 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
 
         advantage = rewards_batch + self.gamma * next_value * (1 - dones_batch) - value
         dist = torch.distributions.Categorical(probs=probs)
-        actor_loss = -dist.log_prob(actions_batch) * advantage.detach()
+        entropy = dist.entropy().mean()
+        actor_loss = -(
+            dist.log_prob(actions_batch) * advantage.detach() + entropy * self.beta
+        )
         critic_loss = advantage.pow(2)
         loss = actor_loss + critic_loss
 
@@ -149,7 +154,6 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
 
         avg_actor_loss = actor_loss.mean().item()
         avg_critic_loss = critic_loss.mean().item()
-        action_entropy = dist.entropy().mean().item()
 
         return (
             episode_reward,
@@ -158,7 +162,7 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
             avg_actor_loss,
             avg_critic_loss,
             reset_info,
-            action_entropy,
+            entropy.item(),
         )
 
     def exploit_action(self, state):

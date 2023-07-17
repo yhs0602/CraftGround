@@ -1,6 +1,6 @@
 seed: null
 env_path: null
-group: "hunt_bimodal_a2c_adam2"
+group: "hunt_bimodal_a2c_entropy_adam"
 record_video: true
 device: null
 
@@ -60,6 +60,7 @@ algorithm:
     update_frequency: 1000
     train_frequency: 1
     gamma: 0.99
+    beta: 0.01
     optimizer:
       name: 'Adam'
       params:
