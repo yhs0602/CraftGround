@@ -1,8 +1,8 @@
 import numpy as np
 from torch import optim
 
-from code.algorithm.dqn import DQNAlgorithm
-from code.logger import Logger
+from algorithm.dqn import DQNAlgorithm
+from logger import Logger
 from models.dueling_sound_dqn import DuelingSoundDQN
 
 

@@ -1,7 +1,7 @@
 from typing import Union
 
-from code.mydojo.initial_environment import InitialEnvironment
-from code.mydojo.MyEnv import MyEnv, MultiDiscreteEnv
+from mydojo.initial_environment import InitialEnvironment
+from mydojo.MyEnv import MyEnv, MultiDiscreteEnv
 
 
 def make(

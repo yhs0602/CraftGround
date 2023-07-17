@@ -3,8 +3,8 @@ from typing import Tuple, Optional, Dict, Any
 
 from gymnasium.core import WrapperObsType, ActType, ObsType
 
-from code import mydojo
-from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+import mydojo
+from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 def make_husk_environment(verbose: bool, env_path: str, port: int):

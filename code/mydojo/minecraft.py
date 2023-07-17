@@ -6,8 +6,8 @@ import time
 from typing import List
 
 import code.mydojo.MyEnv as MyEnv
-from code.mydojo.json_socket import JSONSocket
-from code.mydojo.proto import action_space_pb2
+from mydojo.json_socket import JSONSocket
+from mydojo.proto import action_space_pb2
 
 
 def wait_for_server(port: int) -> socket.socket:

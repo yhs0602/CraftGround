@@ -2,7 +2,7 @@ from typing import SupportsFloat, Any
 
 from gymnasium.core import WrapperActType, WrapperObsType
 
-from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 # Go up wrapper

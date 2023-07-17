@@ -1,6 +1,6 @@
 seed: null
 env_path: null
-group: "hunt_bimodal_a2c_entropy_adam"
+group: "hunt_bimodal_a2c_entropy_adam2"
 record_video: true
 device: null
 
@@ -64,7 +64,6 @@ algorithm:
     optimizer:
       name: 'Adam'
       params:
-        lr: 0.0007
+        lr: 0.00005
         weight_decay: 0.00001
-
 

@@ -1,8 +1,8 @@
 from torch import optim
 
-from code.models.dueling_vision_drqn import DuelingVisionDRQN
-from code.algorithm.drqn import DRQNAlgorithm
-from code.logger import Logger
+from models.dueling_vision_drqn import DuelingVisionDRQN
+from algorithm.drqn import DRQNAlgorithm
+from logger import Logger
 
 
 class VisionDRQNAlgorithm(DRQNAlgorithm):

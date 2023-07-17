@@ -4,10 +4,10 @@ import numpy as np
 import torch
 from torch import optim
 
-from code.models.dueling_bimodal_drqn import DuelingBimodalDRQN
-from code.models.transition import BimodalTransition, BimodalEpisode
-from code.algorithm.drqn import DRQNAlgorithm
-from code.logger import Logger
+from models.dueling_bimodal_drqn import DuelingBimodalDRQN
+from models.transition import BimodalTransition, BimodalEpisode
+from algorithm.drqn import DRQNAlgorithm
+from logger import Logger
 
 
 class BimodalDRQNAlgorithm(DRQNAlgorithm):

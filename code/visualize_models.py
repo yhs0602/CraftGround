@@ -3,7 +3,7 @@ from torch.autograd import Variable
 from torchsummary import summary
 from torchviz import make_dot
 
-from code.models.dqn import CNNDQN, SoundDQN
+from models.dqn import CNNDQN, SoundDQN
 
 
 def visualize_cnn():

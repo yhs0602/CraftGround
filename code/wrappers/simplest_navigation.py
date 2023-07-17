@@ -3,8 +3,8 @@ from typing import SupportsFloat, Any, List, Optional
 import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
 
-from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
-from code.mydojo.minecraft import no_op
+from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+from mydojo.minecraft import no_op
 
 
 # Converts the int action space to a box action space

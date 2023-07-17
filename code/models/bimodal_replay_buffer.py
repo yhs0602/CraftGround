@@ -3,7 +3,7 @@ from collections import deque
 
 import torch
 
-from code.models.transition import BimodalTransition
+from models.transition import BimodalTransition
 
 
 class BiModalReplayBuffer:

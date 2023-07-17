@@ -8,10 +8,10 @@ import numpy as np
 import torch
 from torch import nn
 
-from code.models.replay_buffer import ReplayBuffer
-from code import criterion
-from code.algorithm.epsilon_greedy import EpsilonGreedyExplorer
-from code.logger import Logger
+from models.replay_buffer import ReplayBuffer
+import criterion
+from algorithm.epsilon_greedy import EpsilonGreedyExplorer
+from logger import Logger
 
 
 class DQNAlgorithm(abc.ABC):

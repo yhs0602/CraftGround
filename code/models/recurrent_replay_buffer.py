@@ -4,7 +4,7 @@ from typing import List, TypeVar, Union
 
 import numpy as np
 
-from code.models.transition import BimodalEpisode, Episode
+from models.transition import BimodalEpisode, Episode
 
 T = TypeVar("T", bound=Union[Episode, BimodalEpisode])
 

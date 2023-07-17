@@ -6,7 +6,7 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 from gymnasium.vector.utils import spaces
 
-from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 # Sound wrapper

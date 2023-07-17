@@ -3,10 +3,10 @@ from typing import Optional
 import torch
 from torch import optim
 
-from code.models.bimodal_replay_buffer import BiModalReplayBuffer
-from code.models.dueling_bimodal_dqn import DuelingBiModalDQN
-from code.algorithm.dqn import DQNAlgorithm
-from code.logger import Logger
+from models.bimodal_replay_buffer import BiModalReplayBuffer
+from models.dueling_bimodal_dqn import DuelingBiModalDQN
+from algorithm.dqn import DQNAlgorithm
+from logger import Logger
 
 
 class BimodalDQNAlgorithm(DQNAlgorithm):

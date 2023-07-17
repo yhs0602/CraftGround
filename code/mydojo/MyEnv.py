@@ -13,8 +13,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 from gym.core import ActType, ObsType, RenderFrame
 
-from code.font import get_font
-from code.mydojo.initial_environment import InitialEnvironment
+from font import get_font
+from mydojo.initial_environment import InitialEnvironment
 from .MyActionSpace import MyActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
 from .minecraft import (

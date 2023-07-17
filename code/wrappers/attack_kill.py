@@ -3,7 +3,7 @@ from typing import SupportsFloat, Any, Optional
 
 from gymnasium.core import WrapperActType, WrapperObsType
 
-from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 # Sound wrapper

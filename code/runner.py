@@ -3,10 +3,11 @@ import time
 import numpy as np
 import yaml
 
-from code.environments import env_makers
-from code.get_device import get_device
-from code.logger import Logger
-from code import algorithm, wrappers
+import algorithm
+import wrappers
+from environments import env_makers
+from get_device import get_device
+from logger import Logger
 
 
 class Runner:

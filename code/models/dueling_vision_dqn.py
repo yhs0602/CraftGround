@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from code.models.dueling_dqn_base import DuelingDQNBase
+from models.dueling_dqn_base import DuelingDQNBase
 
 
 class DuelingVisionDQN(DuelingDQNBase):

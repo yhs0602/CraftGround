@@ -5,9 +5,7 @@ from collections import deque
 
 import numpy as np
 
-from code.models import DQNAgent
 import wandb
-from code.wrappers import EscapeHuskWrapper
 
 max_saved_models = 3
 model_dir = "saved_models"

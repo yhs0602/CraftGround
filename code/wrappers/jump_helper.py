@@ -2,8 +2,8 @@ from typing import SupportsFloat, Any, Optional, Tuple
 
 from gymnasium.core import WrapperActType, WrapperObsType
 
-from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
-from code.wrappers.simple_navigation import SimpleNavigationWrapper
+from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+from wrappers.simple_navigation import SimpleNavigationWrapper
 
 
 # Sound wrapper

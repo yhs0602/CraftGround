@@ -5,7 +5,7 @@ import gymnasium as gym
 import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 
-from code.wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
+from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
 # Sound wrapper

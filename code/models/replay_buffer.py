@@ -3,7 +3,7 @@ from collections import deque
 
 import torch
 
-from code.models.transition import Transition
+from models.transition import Transition
 
 
 class ReplayBuffer:

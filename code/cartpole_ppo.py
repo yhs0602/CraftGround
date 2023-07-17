@@ -4,7 +4,7 @@ import gym
 import numpy as np
 import torch
 
-from code.models import PPO
+from models import PPO
 
 
 def main():
