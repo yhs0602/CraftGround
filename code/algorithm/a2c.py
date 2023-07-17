@@ -83,6 +83,7 @@ class A2CAlgorithm:
                     avg_actor_loss,
                     avg_critic_loss,
                     reset_extra_info,
+                    action_entropy,
                 ) = self.train_agent()
                 scores.append(episode_reward)
                 recent_scores.append(episode_reward)
@@ -95,6 +96,7 @@ class A2CAlgorithm:
                         "avg_score": avg_score,
                         "avg_actor_loss": avg_actor_loss,
                         "avg_critic_loss": avg_critic_loss,
+                        "action_entropy": action_entropy,
                     }
                 )
             if num_steps == 0:
@@ -181,6 +183,8 @@ class A2CAlgorithm:
 
         avg_actor_loss = np.mean(actor_losses)
         avg_critic_loss = np.mean(critic_losses)
+
+        action_entropy = dist.entropy().mean().item()
         return (
             episode_reward,
             steps_in_episode,
@@ -188,6 +192,7 @@ class A2CAlgorithm:
             avg_actor_loss,
             avg_critic_loss,
             reset_info,
+            action_entropy,
         )
 
     def exploit_action(self, state):

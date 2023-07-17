@@ -87,8 +87,6 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
         state, reset_info = self.env.reset(fast_reset=True)
         episode_reward = 0
         steps_in_episode = 0
-        actor_losses = []
-        critic_losses = []
         start_time = time.time()
 
         states, actions, rewards, next_states, dones = [], [], [], [], []
@@ -110,47 +108,49 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
             if done:
                 break
 
-        loss = 0
-        for i in range(len(states)):
-            state = states[i]
-            action = actions[i]
-            reward = rewards[i]
-            next_state = next_states[i]
-            done = dones[i]
-            audio_state = state["sound"]
-            video_state = state["vision"]
-            audio_state = torch.FloatTensor(audio_state).unsqueeze(0).to(self.device)
-            video_state = torch.FloatTensor(video_state).unsqueeze(0).to(self.device)
-            next_audio_state = next_state["sound"]
-            next_video_state = next_state["vision"]
-            next_audio_state = (
-                torch.FloatTensor(next_audio_state).unsqueeze(0).to(self.device)
-            )
-            next_video_state = (
-                torch.FloatTensor(next_video_state).unsqueeze(0).to(self.device)
-            )
-            action = torch.LongTensor([action]).unsqueeze(0).to(self.device)
-            reward = torch.FloatTensor([reward]).unsqueeze(0).to(self.device)
-            probs, value = self.actor_critic(audio_state, video_state)
-            _, next_value = self.actor_critic(next_audio_state, next_video_state)
+        vision_states_batch_np = np.stack([state["vision"] for state in states])
+        audio_states_batch_np = np.stack([state["sound"] for state in states])
+        actions_batch_np = np.stack(actions)
+        rewards_batch_np = np.stack(rewards)
+        next_vision_states_batch_np = np.stack(
+            [state["vision"] for state in next_states]
+        )
+        next_audio_states_batch_np = np.stack([state["sound"] for state in next_states])
+        dones_batch_np = np.stack(dones)
 
-            advantage = reward + self.gamma * next_value * (1 - done) - value
-            dist = torch.distributions.Categorical(probs=probs)
-            actor_loss = -dist.log_prob(action) * advantage.detach()
-            critic_loss = advantage.pow(2)
-            loss += actor_loss + critic_loss
+        vision_states_batch = torch.FloatTensor(vision_states_batch_np).to(self.device)
+        audio_states_batch = torch.FloatTensor(audio_states_batch_np).to(self.device)
+        actions_batch = torch.LongTensor(actions_batch_np).to(self.device)
+        rewards_batch = torch.FloatTensor(rewards_batch_np).to(self.device)
+        next_vision_states_batch = torch.FloatTensor(next_vision_states_batch_np).to(
+            self.device
+        )
+        next_audio_states_batch = torch.FloatTensor(next_audio_states_batch_np).to(
+            self.device
+        )
+        dones_batch = torch.FloatTensor(dones_batch_np).to(self.device)
 
-            actor_losses.append(actor_loss.item())
-            critic_losses.append(critic_loss.item())
+        probs, value = self.actor_critic(audio_states_batch, vision_states_batch)
+        _, next_value = self.actor_critic(
+            next_audio_states_batch, next_vision_states_batch
+        )
+
+        advantage = rewards_batch + self.gamma * next_value * (1 - dones_batch) - value
+        dist = torch.distributions.Categorical(probs=probs)
+        actor_loss = -dist.log_prob(actions_batch) * advantage.detach()
+        critic_loss = advantage.pow(2)
+        loss = actor_loss + critic_loss
 
         self.actor_critic_optim.zero_grad()
-        loss.backward()
+        loss.mean().backward()
         self.actor_critic_optim.step()
 
         time_took = time.time() - start_time
 
-        avg_actor_loss = np.mean(actor_losses)
-        avg_critic_loss = np.mean(critic_losses)
+        avg_actor_loss = actor_loss.mean().item()
+        avg_critic_loss = critic_loss.mean().item()
+        action_entropy = dist.entropy().mean().item()
+
         return (
             episode_reward,
             steps_in_episode,
@@ -158,6 +158,7 @@ class BimodalA2CAlgorithm(A2CAlgorithm):
             avg_actor_loss,
             avg_critic_loss,
             reset_info,
+            action_entropy,
         )
 
     def exploit_action(self, state):
