@@ -1,6 +1,6 @@
 seed: null
 env_path: null
-group: "hunt_bimodal_a2c_entropy_adam2"
+group: "hunt_bimodal_a2c_entropy_adam3"
 record_video: true
 device: null
 
@@ -37,8 +37,8 @@ wrappers:
     death_reward: 0.0
   - name: 'AttackKillWrapper'
     target_name: 'minecraft:husk'
-    attack_reward: 0.1
-    kill_reward: 2.0
+    attack_reward: 1.0
+    kill_reward: 5.0
 
 algorithm:
   name:
@@ -64,6 +64,6 @@ algorithm:
     optimizer:
       name: 'Adam'
       params:
-        lr: 0.00005
+        lr: 0.0007
         weight_decay: 0.00001
 

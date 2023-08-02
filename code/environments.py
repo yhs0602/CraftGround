@@ -713,7 +713,7 @@ def make_hunt_husk_environment(
             initialExtraCommands = []
             initialExtraCommands.extend(generate_husks(1, 5, 10))
             initialExtraCommands.extend(
-                "item replace entity @p weapon.offhand with minecraft:shield"
+                ["item replace entity @p weapon.offhand with minecraft:shield"]
             )
             self.env = mydojo.make(
                 verbose=verbose,
