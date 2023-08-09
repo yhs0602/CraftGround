@@ -38,8 +38,7 @@ class MineCLIPRewardWrapper(CleanUpFastResetWrapper):
         if len(self.recent_frames) > 4:
             combined_np = np.stack(list(self.recent_frames), axis=0)
             combined_tensor = torch.from_numpy(combined_np).to(self.device).unsqueeze(0)
-            print(f"{combined_tensor.shape=}")
-            # video_feats = self.model.encode_video(combined_tensor)
+            # requires 5D tensor
             with torch.no_grad():
                 reward, _ = self.model(
                     combined_tensor,
