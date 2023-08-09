@@ -67,5 +67,5 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner(config_filename="experiments/hunt_bimodal_a2c.yml")
+    runner = Runner(config_filename="experiments/husk.yaml")
     runner.run()
