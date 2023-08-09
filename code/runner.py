@@ -1,3 +1,4 @@
+import argparse
 import time
 
 import numpy as np
@@ -11,10 +12,11 @@ from logger import Logger
 
 
 class Runner:
-    def __init__(self, config_filename: str):
+    def __init__(self, config_filename: str, verbose: bool = False):
         with open(config_filename, "r") as yaml_file:
             yaml_content = yaml_file.read()
         data = yaml.safe_load(yaml_content)
+        self.verbose = verbose
         self.data = data
         self.seed = data["seed"]
         self.env_path = data["env_path"]
@@ -36,6 +38,9 @@ class Runner:
         if self.seed is None:
             self.seed = int(time.time())
         np.random.seed(self.seed)
+        env_params = self.env_params
+        if self.verbose:
+            env_params["verbose"] = True
         inner_env, sound_list = env_makers[self.env_name](
             env_path=self.env_path, **self.env_params
         )
@@ -67,5 +72,25 @@ class Runner:
 
 
 if __name__ == "__main__":
-    runner = Runner(config_filename="experiments/husk.yaml")
+    parser = argparse.ArgumentParser(
+        prog="python runner.py",
+        description="Run an experiment.",
+        epilog="Example: python runner.py --config experiments/husk.yaml",
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        help="Path to the config file.",
+        required=True,
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Print the log of gradle",
+        default=False,
+        required=False,
+    )
+    args = parser.parse_args()
+    runner = Runner(config_filename=args.config, verbose=args.verbose)
     runner.run()
