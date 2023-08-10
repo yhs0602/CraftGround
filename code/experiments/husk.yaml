@@ -8,7 +8,7 @@ env:
   name: 'husk-random'
   params:
     hud: false
-    verbose: false
+    verbose: true
     port: 8000
     render_action: true
 

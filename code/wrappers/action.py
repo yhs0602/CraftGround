@@ -12,6 +12,7 @@ from mydojo.minecraft import no_op
 # advantages navigation (no op, forward, back, left, right, turn left, turn right, jump, look up, look down)
 # can attack
 
+
 # convert int to box
 class Action(Enum):
     NO_OP = 0

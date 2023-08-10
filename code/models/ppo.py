@@ -85,7 +85,6 @@ class ActorCritic(nn.Module):
         raise NotImplementedError
 
     def act(self, state):
-
         if self.has_continuous_action_space:
             action_mean = self.actor(state)
             cov_mat = torch.diag(self.action_var).unsqueeze(dim=0)
@@ -101,7 +100,6 @@ class ActorCritic(nn.Module):
         return action.detach(), action_logprob.detach(), state_val.detach()
 
     def evaluate(self, state, action):
-
         if self.has_continuous_action_space:
             action_mean = self.actor(state)
 
@@ -136,7 +134,6 @@ class PPO:
         device,
         action_std_init=0.6,
     ):
-
         self.has_continuous_action_space = has_continuous_action_space
 
         if has_continuous_action_space:
@@ -208,7 +205,6 @@ class PPO:
         )
 
     def select_action(self, state):
-
         if self.has_continuous_action_space:
             with torch.no_grad():
                 state = torch.FloatTensor(state).to(self.device)
