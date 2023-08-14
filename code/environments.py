@@ -29,8 +29,8 @@ def make_husk_environment(
         ],
         imageSizeX=size_x,
         imageSizeY=size_y,
-        visibleSizeX=114,
-        visibleSizeY=64,
+        visibleSizeX=size_x,
+        visibleSizeY=size_y,
         seed=12345,  # nullable
         allowMobSpawn=False,
         alwaysDay=True,
@@ -47,7 +47,15 @@ def make_husk_environment(
     ]
 
 
-def make_husks_environment(verbose: bool, env_path: str, port: int):
+def make_husks_environment(
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
+):
     return mydojo.make(
         verbose=verbose,
         env_path=env_path,
@@ -66,10 +74,10 @@ def make_husks_environment(verbose: bool, env_path: str, port: int):
             "minecraft:husk ~ ~ ~-15 {HandItems:[{Count:1,id:iron_shovel},{}]}",
             # player looks at south (positive Z) when spawn
         ],
-        imageSizeX=114,
-        imageSizeY=64,
-        visibleSizeX=114,
-        visibleSizeY=64,
+        imageSizeX=size_x,
+        imageSizeY=size_y,
+        visibleSizeX=size_x,
+        visibleSizeY=size_y,
         seed=12345,  # nullable
         allowMobSpawn=False,
         alwaysDay=True,
@@ -78,13 +86,23 @@ def make_husks_environment(verbose: bool, env_path: str, port: int):
         isHardCore=False,
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
+        isHudHidden=not hud,
+        render_action=render_action,
     ), [
         "subtitles.entity.husk.ambient",
         "subtitles.block.generic.footsteps",
     ]
 
 
-def make_husk_noisy_environment(verbose: bool, env_path: str, port: int):
+def make_husk_noisy_environment(
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
+):
     return mydojo.make(
         verbose=verbose,
         env_path=env_path,
@@ -99,10 +117,10 @@ def make_husk_noisy_environment(verbose: bool, env_path: str, port: int):
             "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
             # player looks at south (positive Z) when spawn
         ],
-        imageSizeX=114,
-        imageSizeY=64,
-        visibleSizeX=114,
-        visibleSizeY=64,
+        imageSizeX=size_x,
+        imageSizeY=size_y,
+        visibleSizeX=size_x,
+        visibleSizeY=size_y,
         seed=12345,  # nullable
         allowMobSpawn=False,
         alwaysDay=True,
@@ -112,6 +130,8 @@ def make_husk_noisy_environment(verbose: bool, env_path: str, port: int):
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
         noisy=True,
+        isHudHidden=not hud,
+        render_action=render_action,
     ), [
         "subtitles.entity.husk.ambient",
         "subtitles.entity.sheep.ambient",  # sheep ambient sound
@@ -124,7 +144,15 @@ def make_husk_noisy_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
-def make_husks_noisy_environment(verbose: bool, env_path: str, port: int):
+def make_husks_noisy_environment(
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
+):
     return mydojo.make(
         verbose=verbose,
         env_path=env_path,
@@ -146,10 +174,10 @@ def make_husks_noisy_environment(verbose: bool, env_path: str, port: int):
             "minecraft:husk ~ ~ ~-15 {HandItems:[{Count:1,id:iron_shovel},{}]}",
             # player looks at south (positive Z) when spawn
         ],
-        imageSizeX=114,
-        imageSizeY=64,
-        visibleSizeX=114,
-        visibleSizeY=64,
+        imageSizeX=size_x,
+        imageSizeY=size_y,
+        visibleSizeX=size_x,
+        visibleSizeY=size_y,
         seed=12345,  # nullable
         allowMobSpawn=False,
         alwaysDay=True,
@@ -159,6 +187,8 @@ def make_husks_noisy_environment(verbose: bool, env_path: str, port: int):
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
         noisy=True,
+        isHudHidden=not hud,
+        render_action=render_action,
     ), [
         "subtitles.entity.husk.ambient",
         "subtitles.entity.sheep.ambient",  # sheep ambient sound
@@ -171,7 +201,15 @@ def make_husks_noisy_environment(verbose: bool, env_path: str, port: int):
     ]
 
 
-def make_husk_darkness_environment(verbose: bool, env_path: str, port: int):
+def make_husk_darkness_environment(
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
+):
     return mydojo.make(
         verbose=verbose,
         env_path=env_path,
@@ -182,10 +220,10 @@ def make_husk_darkness_environment(verbose: bool, env_path: str, port: int):
             "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
             # player looks at south (positive Z) when spawn
         ],
-        imageSizeX=114,
-        imageSizeY=64,
-        visibleSizeX=114,
-        visibleSizeY=64,
+        imageSizeX=size_x,
+        imageSizeY=size_y,
+        visibleSizeX=size_x,
+        visibleSizeY=size_y,
         seed=12345,  # nullable
         allowMobSpawn=False,
         alwaysDay=False,
@@ -195,6 +233,8 @@ def make_husk_darkness_environment(verbose: bool, env_path: str, port: int):
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
         initialExtraCommands=["effect give @p minecraft:darkness infinite 1 true"],
+        isHudHidden=not hud,
+        render_action=render_action,
     ), [
         "subtitles.entity.husk.ambient",
         "subtitles.block.generic.footsteps",
@@ -202,7 +242,13 @@ def make_husk_darkness_environment(verbose: bool, env_path: str, port: int):
 
 
 def make_husks_darkness_environment(
-    verbose: bool, env_path: str, port: int, hud_hidden: bool = True
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
 ):
     return mydojo.make(
         verbose=verbose,
@@ -221,10 +267,10 @@ def make_husks_darkness_environment(
             "minecraft:husk ~ ~ ~-15 {HandItems:[{Count:1,id:iron_shovel},{}]}",
             # player looks at south (positive Z) when spawn
         ],
-        imageSizeX=114,
-        imageSizeY=64,
-        visibleSizeX=114,
-        visibleSizeY=64,
+        imageSizeX=size_x,
+        imageSizeY=size_y,
+        visibleSizeX=size_x,
+        visibleSizeY=size_y,
         seed=12345,  # nullable
         allowMobSpawn=False,
         alwaysDay=False,
@@ -234,7 +280,8 @@ def make_husks_darkness_environment(
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
         initialExtraCommands=["effect give @p minecraft:darkness infinite 1 true"],
-        isHudHidden=hud_hidden,
+        isHudHidden=not hud,
+        render_action=render_action,
     ), [
         "subtitles.entity.husk.ambient",
         "subtitles.block.generic.footsteps",
@@ -242,7 +289,13 @@ def make_husks_darkness_environment(
 
 
 def make_find_animal_environment(
-    verbose: bool, env_path: str, port: int, hud_hidden: bool
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
 ):
     build_cage_comands = [
         "tp @p 0 -59 0",  # tp player
@@ -283,10 +336,10 @@ def make_find_animal_environment(
                 initialInventoryCommands=[],
                 initialPosition=None,  # nullable
                 initialMobsCommands=[],
-                imageSizeX=114,
-                imageSizeY=64,
-                visibleSizeX=114,
-                visibleSizeY=64,
+                imageSizeX=size_x,
+                imageSizeY=size_y,
+                visibleSizeX=size_x,
+                visibleSizeY=size_y,
                 seed=12345,  # nullable
                 allowMobSpawn=False,
                 alwaysDay=True,
@@ -297,7 +350,8 @@ def make_find_animal_environment(
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=build_cage_comands + summon_animal_commands_list,
                 surrounding_entities_keys=[1, 2, 5],
-                isHudHidden=hud_hidden,
+                isHudHidden=not hud,
+                render_action=render_action,
             )
             super(RandomAnimalWrapper, self).__init__(self.env)
 
@@ -337,7 +391,9 @@ def make_random_husk_environment(
     verbose: bool,
     env_path: str,
     port: int,
-    hud: bool = True,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
     render_action: bool = True,
 ):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
@@ -352,10 +408,10 @@ def make_random_husk_environment(
                     "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
                     # player looks at south (positive Z) when spawn
                 ],
-                imageSizeX=114,
-                imageSizeY=64,
-                visibleSizeX=114,
-                visibleSizeY=64,
+                imageSizeX=size_x,
+                imageSizeY=size_y,
+                visibleSizeX=size_x,
+                visibleSizeY=size_y,
                 seed=12345,  # nullable
                 allowMobSpawn=False,
                 alwaysDay=True,
@@ -404,7 +460,13 @@ def make_random_husk_environment(
 
 
 def make_random_husks_environment(
-    verbose: bool, env_path: str, port: int, hud_hidden: bool
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
 ):
     class RandomHuskWrapper(CleanUpFastResetWrapper):
         def __init__(self):
@@ -418,10 +480,10 @@ def make_random_husks_environment(
                     # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
                     # player looks at south (positive Z) when spawn
                 ],
-                imageSizeX=114,
-                imageSizeY=64,
-                visibleSizeX=114,
-                visibleSizeY=64,
+                imageSizeX=size_x,
+                imageSizeY=size_y,
+                visibleSizeX=size_x,
+                visibleSizeY=size_y,
                 seed=12345,  # nullable
                 allowMobSpawn=False,
                 alwaysDay=True,
@@ -431,7 +493,8 @@ def make_random_husks_environment(
                 isWorldFlat=True,  # superflat world
                 obs_keys=["sound_subtitles"],
                 initialExtraCommands=generate_husks(5, 5, 10),
-                isHudHidden=hud_hidden,
+                isHudHidden=not hud,
+                render_action=render_action,
             )
             super(RandomHuskWrapper, self).__init__(self.env)
 
