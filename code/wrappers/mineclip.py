@@ -24,8 +24,9 @@ class MineCLIPRewardWrapper(CleanUpFastResetWrapper):
             resolution=(160, 256),  # (160, 256),
         ).to(self.device)
         self.model.load_ckpt(ckpt_path, strict=True)
+        self.model.eval()
         self.command = command
-        self.recent_frames = deque(maxlen=16)
+        self.recent_frames_features = deque(maxlen=16)
         self.command_feat = self.model.encode_text([self.command])
         super().__init__(self.env)
 
@@ -34,19 +35,28 @@ class MineCLIPRewardWrapper(CleanUpFastResetWrapper):
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         obs, reward, terminated, truncated, info = self.env.step(action)
         rgb = info["rgb"]
-        self.recent_frames.append(rgb)
-        if len(self.recent_frames) > 4:
-            combined_np = np.stack(list(self.recent_frames), axis=0)
-            combined_tensor = torch.from_numpy(combined_np).to(self.device).unsqueeze(0)
+        with torch.no_grad():
+            image_feat = self.model.forward_image_features(
+                torch.from_numpy(rgb).to(self.device).unsqueeze(0)
+            ).squeeze(0)
+        self.recent_frames_features.append(image_feat)
+        if len(self.recent_frames_features) > 4:
+            combined_tensor = torch.stack(
+                list(self.recent_frames_features), dim=0
+            ).unsqueeze(0)
+            # print(f"{combined_tensor.shape=}, {type(combined_tensor)=}")
             # requires 5D tensor
             with torch.no_grad():
+                video_features = self.model.forward_video_features(combined_tensor)
+                # print(f"{video_features.shape=} {combined_tensor.shape=}")
                 reward, _ = self.model(
-                    combined_tensor,
+                    video_features,
                     text_tokens=self.command_feat,
-                    is_video_features=False,
+                    is_video_features=True,
                 )
+                # print(f"{reward.shape=}")
             del combined_tensor
-            del combined_np
+            del video_features
             reward = reward.cpu().numpy().item()
         return (
             obs,
@@ -65,6 +75,10 @@ class MineCLIPRewardWrapper(CleanUpFastResetWrapper):
     ) -> tuple[WrapperObsType, dict[str, Any]]:
         obs, info = self.env.reset(seed=seed, options=options, fast_reset=fast_reset)
         rgb = info["rgb"]
-        self.recent_frames.clear()
-        self.recent_frames.append(rgb)
+        self.recent_frames_features.clear()
+        with torch.no_grad():
+            image_feat = self.model.forward_image_features(
+                torch.from_numpy(rgb).to(self.device).unsqueeze(0)
+            ).squeeze(0)
+        self.recent_frames_features.append(image_feat)
         return obs, info
