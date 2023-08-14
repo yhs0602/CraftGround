@@ -7,7 +7,15 @@ import mydojo
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
-def make_husk_environment(verbose: bool, env_path: str, port: int):
+def make_husk_environment(
+    verbose: bool,
+    env_path: str,
+    port: int,
+    size_x: int = 114,
+    size_y: int = 64,
+    hud: bool = False,
+    render_action: bool = True,
+):
     return mydojo.make(
         verbose=verbose,
         env_path=env_path,
@@ -19,8 +27,8 @@ def make_husk_environment(verbose: bool, env_path: str, port: int):
             "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
             # player looks at south (positive Z) when spawn
         ],
-        imageSizeX=114,
-        imageSizeY=64,
+        imageSizeX=size_x,
+        imageSizeY=size_y,
         visibleSizeX=114,
         visibleSizeY=64,
         seed=12345,  # nullable
@@ -31,6 +39,8 @@ def make_husk_environment(verbose: bool, env_path: str, port: int):
         isHardCore=False,
         isWorldFlat=True,  # superflat world
         obs_keys=["sound_subtitles"],
+        isHudHidden=not hud,
+        render_action=render_action,
     ), [
         "subtitles.entity.husk.ambient",
         "subtitles.block.generic.footsteps",
