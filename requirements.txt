@@ -44,7 +44,7 @@ Pillow==9.4.0
 proglog==0.1.10
 protobuf==4.22.3
 psutil==5.9.5
-pygame==2.1.0
+pygame==2.5.1
 pyparsing==3.0.9
 python-dateutil==2.8.2
 python-dotenv==1.0.0
