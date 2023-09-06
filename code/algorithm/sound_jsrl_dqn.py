@@ -1,12 +1,12 @@
 import numpy as np
 from torch import optim
 
-from models.dueling_sound_drqn import DuelingSoundDRQN
-from algorithm.drqn import DRQNAlgorithm
+from algorithm.jsrl_dqn import JSRLDQNAlgorithm
 from logger import Logger
+from models.dueling_sound_dqn import DuelingSoundDQN
 
 
-class SoundDRQNAlgorithm(DRQNAlgorithm):
+class SoundJSRLDQNAlgorithm(JSRLDQNAlgorithm):
     def __init__(
         self,
         env,
@@ -25,12 +25,10 @@ class SoundDRQNAlgorithm(DRQNAlgorithm):
         train_frequency,
         replay_buffer_size,
         batch_size,
-        time_step,
         gamma,
         learning_rate,
         weight_decay,
         tau,
-        **kwargs,
     ):
         super().__init__(
             env,
@@ -49,19 +47,17 @@ class SoundDRQNAlgorithm(DRQNAlgorithm):
             train_frequency,
             replay_buffer_size,
             batch_size,
-            time_step,
             gamma,
             learning_rate,
             weight_decay,
             tau,
         )
-
         self.state_dim = (np.prod(env.observation_space.shape),)
-        self.policy_net = DuelingSoundDRQN(
-            self.state_dim, self.action_dim, hidden_dim, device
+        self.policy_net = DuelingSoundDQN(
+            self.state_dim, self.action_dim, hidden_dim
         ).to(device)
-        self.target_net = DuelingSoundDRQN(
-            self.state_dim, self.action_dim, hidden_dim, device
+        self.target_net = DuelingSoundDQN(
+            self.state_dim, self.action_dim, hidden_dim
         ).to(device)
         self.optimizer = optim.Adam(
             self.policy_net.parameters(), lr=learning_rate, weight_decay=weight_decay

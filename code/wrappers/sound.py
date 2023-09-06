@@ -79,7 +79,7 @@ class SoundWrapper(CleanUpFastResetWrapper):
         fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
-        options: Optional[dict[str, Any]] = None
+        options: Optional[dict[str, Any]] = None,
     ):
         obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
         obs_info = info["obs"]

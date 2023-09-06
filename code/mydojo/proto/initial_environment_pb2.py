@@ -21,7 +21,6 @@ _builder.BuildTopDescriptorsAndMessages(
     DESCRIPTOR, "initial_environment_pb2", globals()
 )
 if _descriptor._USE_C_DESCRIPTORS == False:
-
     DESCRIPTOR._options = None
     _BLOCKSTATE._serialized_start = 29
     _BLOCKSTATE._serialized_end = 95

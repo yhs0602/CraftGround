@@ -43,7 +43,7 @@ class FindAnimalWrapper(CleanUpFastResetWrapper):
         fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
-        options: Optional[dict[str, Any]] = None
+        options: Optional[dict[str, Any]] = None,
     ) -> tuple[WrapperObsType, dict[str, Any]]:
         obs, info = self.env.reset(seed=seed, options=options, fast_reset=fast_reset)
         return obs, info

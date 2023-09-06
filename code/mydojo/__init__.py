@@ -10,7 +10,7 @@ def make(
     env_path=None,
     port=8000,
     render_action=False,
-    **kwargs
+    **kwargs,
 ) -> Union[MyEnv, MultiDiscreteEnv]:
     env = InitialEnvironment(**kwargs)
     if multidiscrete:

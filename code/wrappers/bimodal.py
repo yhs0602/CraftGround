@@ -18,7 +18,7 @@ class BimodalWrapper(CleanUpFastResetWrapper):
         y_dim,
         sound_list: List[str],
         sound_coord_dim: int = 2,
-        **kwargs
+        **kwargs,
     ):
         self.env = env
         self.sound_list = sound_list
@@ -67,7 +67,7 @@ class BimodalWrapper(CleanUpFastResetWrapper):
         fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
-        options: Optional[dict[str, Any]] = None
+        options: Optional[dict[str, Any]] = None,
     ):
         obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
         rgb = info["rgb"]

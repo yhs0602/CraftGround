@@ -14,7 +14,7 @@ class AttackKillWrapper(CleanUpFastResetWrapper):
         target_name="minecraft:husk",
         attack_reward=0.1,
         kill_reward=1,
-        **kwargs
+        **kwargs,
     ):
         self.env = env
         self.durabilities = deque(maxlen=2)

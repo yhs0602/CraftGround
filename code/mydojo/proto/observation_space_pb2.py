@@ -19,7 +19,6 @@ DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "observation_space_pb2", globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
-
     DESCRIPTOR._options = None
     _OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY._options = None
     _OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY._serialized_options = b"8\001"

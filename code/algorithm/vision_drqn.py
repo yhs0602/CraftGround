@@ -31,7 +31,7 @@ class VisionDRQNAlgorithm(DRQNAlgorithm):
         learning_rate,
         weight_decay,
         tau,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             env,

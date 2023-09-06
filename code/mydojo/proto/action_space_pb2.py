@@ -19,7 +19,6 @@ DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "action_space_pb2", globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
-
     DESCRIPTOR._options = None
     _ACTIONSPACEMESSAGE._serialized_start = 22
     _ACTIONSPACEMESSAGE._serialized_end = 76
