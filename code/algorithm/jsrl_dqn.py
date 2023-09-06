@@ -39,9 +39,9 @@ class JSRLDQNAlgorithm(abc.ABC):
         replay_buffer_size,
         batch_size,
         gamma,
-        learning_rate,
-        weight_decay,
         tau,
+        guide_policy,  # (s) -> a
+        decrease_guide_step_threshold,  # int
         **kwargs,
     ):
         self.logger = logger
@@ -65,6 +65,9 @@ class JSRLDQNAlgorithm(abc.ABC):
         self.gamma = gamma
         self.tau = tau
 
+        self.guided_policy = guide_policy
+        self.decrease_guide_step_threshold = decrease_guide_step_threshold
+
         self.batch_size = batch_size
 
         self.device = device
@@ -76,6 +79,10 @@ class JSRLDQNAlgorithm(abc.ABC):
 
         self.total_steps = 0
         self.episode = 0
+
+        self.required_guided_policy_steps = (
+            steps_per_episode  # TODO: length of the episode
+        )
 
         solved_criterion_config = solved_criterion
         criterion_cls = getattr(criterion, solved_criterion_config["name"])
@@ -126,6 +133,14 @@ class JSRLDQNAlgorithm(abc.ABC):
                         "epsilon": self.explorer.epsilon,
                     }
                 )
+                if (
+                    episode_reward >= self.decrease_guide_step_threshold
+                    and self.required_guided_policy_steps > 0
+                ):
+                    self.required_guided_policy_steps -= 1
+                    print(
+                        f"Decreased guided policy steps to {self.required_guided_policy_steps}"
+                    )
             if num_steps == 0:
                 num_steps = 1
             print(
@@ -171,7 +186,13 @@ class JSRLDQNAlgorithm(abc.ABC):
 
         for step in range(self.steps_per_episode):
             self.logger.before_step(step, should_record_video=False)
-            if self.explorer.should_explore() or self.episode < self.warmup_episodes:
+            # TODO: Apply guided policy until the needed number of steps is reached
+            # The needed number of steps are determined by the performance of the model.
+            # e.g. the number of guided steps decreases when the model reaches the goal.
+            # Check if the guided policy should be used
+            if step < self.required_guided_policy_steps:
+                action = self.guided_policy(state)
+            elif self.explorer.should_explore() or self.episode < self.warmup_episodes:
                 action = np.random.choice(self.action_dim)
             else:  # exploit
                 action = self.exploit_action(state)
