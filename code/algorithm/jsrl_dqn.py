@@ -135,6 +135,7 @@ class JSRLDQNAlgorithm(abc.ABC):
                         "avg_score": avg_score,
                         "avg_loss": avg_loss,
                         "epsilon": self.explorer.epsilon,
+                        "guided_policy_steps": self.required_guided_policy_steps,
                     }
                 )
                 if (
