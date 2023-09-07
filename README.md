@@ -209,8 +209,8 @@ env_makers = {
 | vision_a2c     | A2C algorithm with visual-based inputs or feedback.                                      |
 | vision_dqn     | DQN variant that utilizes visual observations.                                           |
 | vision_drqn    | Deep Recurrent Q-Network with visual inputs for environments with temporal dependencies. |
-| bimodal_a2c    | A2C variant designed for environments with bimodal action distributions.                 |
-| bimodal_drqn   | DRQN variant for environments with bimodal action distributions.                         |
+| bimodal_a2c    | A2C variant designed for environments with bimodal observations.                         |
+| bimodal_drqn   | DRQN variant for environments with bimodal observations.                                 |
 | drqn           | Deep Recurrent Q-Network for environments with temporal dependencies.                    |
 
 # Models
@@ -219,7 +219,7 @@ env_makers = {
 |-------------------------------|--------------------------------------------------------------------------------------------------|
 | dqn                           | Basic Deep Q-Network model for value function approximation.                                     |
 | dueling_bimodal_attention_dqn | Dueling DQN with attention mechanism for bimodal inputs.                                         |
-| dueling_bimodal_dqn           | Dueling DQN architecture for environments with bimodal action distributions.                     |
+| dueling_bimodal_dqn           | Dueling DQN architecture for environments with bimodal observations.                             |
 | dueling_sound_dqn             | Dueling DQN model that utilizes sound-based observations.                                        |
 | dueling_sound_drqn            | Dueling Deep Recurrent Q-Network with sound inputs for environments with temporal dependencies.  |
 | dueling_vision_dqn            | Dueling DQN model that utilizes visual observations.                                             |
@@ -230,8 +230,8 @@ env_makers = {
 | replay_buffer                 | Basic replay buffer to store and sample experiences.                                             |
 | sound_a2c                     | Advantage Actor-Critic model tailored for sound-based observations.                              |
 | vision_a2c                    | Advantage Actor-Critic model tailored for visual observations.                                   |
-| bimodal_a2c                   | A2C model designed for environments with bimodal action distributions.                           |
-| bimodal_replay_buffer         | Replay buffer tailored for environments with bimodal action distributions.                       |
+| bimodal_a2c                   | A2C model designed for environments with bimodal observations.                                   |
+| bimodal_replay_buffer         | Replay buffer tailored for environments with bimodal observations.                               |
 | sumtree                       | Data structure for efficient computation in prioritized experience replay.                       |
 | transition                    | Data structure or method for representing state transitions in the environment.                  |
 
