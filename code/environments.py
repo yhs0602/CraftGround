@@ -1065,8 +1065,8 @@ def make_fishing_environment(
     size_y: int = 64,
     hud: bool = False,
     render_action: bool = True,
-    render_distance: int = 4,
-    simulation_distance: int = 4,
+    render_distance: int = 2,
+    simulation_distance: int = 5,
 ):
     return mydojo.make(
         verbose=verbose,

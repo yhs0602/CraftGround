@@ -11,10 +11,10 @@ env:
     verbose: false
     port: 8002
     render_action: true
-    size_x: 256
-    size_y: 160
+    size_x: 114
+    size_y: 64
     render_distance: 2
-    simulation_distance: 2
+    simulation_distance: 5
 
 wrappers:
   - name: 'ActionWrapper'
@@ -23,8 +23,8 @@ wrappers:
       - USE
 
   - name: 'VisionWrapper'
-    x_dim: 256
-    y_dim: 160
+    x_dim: 114
+    y_dim: 64
   - name: 'FishCodWrapper'
 
 algorithm:

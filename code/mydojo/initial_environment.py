@@ -26,8 +26,8 @@ class InitialEnvironment:
         obs_keys=None,
         surrounding_entities_keys=None,
         isHudHidden: bool = False,
-        render_distance: int = 6,
-        simulation_distance: int = 6,
+        render_distance: int = 2,
+        simulation_distance: int = 5,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
