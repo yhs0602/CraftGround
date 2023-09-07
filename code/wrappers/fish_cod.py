@@ -19,9 +19,11 @@ class FishCodWrapper(CleanUpFastResetWrapper):
         obs, reward, terminated, truncated, info = self.env.step(action)
         info_obs = info["obs"]
         fish_caught = info_obs.misc_statistics["fish_caught"]
+        # print(fish_caught)
         self.fish_deque.append(fish_caught)
         if len(self.fish_deque) == 2:
-            if self.fish_deque[0] > self.fish_deque[1]:  # fish_caught increased
+            if self.fish_deque[1] > self.fish_deque[0]:  # fish_caught increased
+                # print("Fish Caught")
                 reward += 1
                 terminated = True
 
