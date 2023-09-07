@@ -6,3 +6,4 @@ from .mineclip import MineCLIPRewardWrapper
 from .sound import SoundWrapper
 from .terminate_on_death import TerminateOnDeathWrapper
 from .vision import VisionWrapper
+from .fish_cod import FishCodWrapper

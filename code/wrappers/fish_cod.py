@@ -8,7 +8,7 @@ from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 # Sound wrapper
 class FishCodWrapper(CleanUpFastResetWrapper):
-    def __init__(self, env):
+    def __init__(self, env, **kwargs):
         self.env = env
         self.fish_deque = deque(maxlen=2)
         super().__init__(self.env)

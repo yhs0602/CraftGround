@@ -29,6 +29,8 @@ class SoundJSRLDQNAlgorithm(JSRLDQNAlgorithm):
         learning_rate,
         weight_decay,
         tau,
+        guide_policy,  # (s) -> a
+        decrease_guide_step_threshold,  # int
     ):
         super().__init__(
             env,
@@ -48,9 +50,9 @@ class SoundJSRLDQNAlgorithm(JSRLDQNAlgorithm):
             replay_buffer_size,
             batch_size,
             gamma,
-            learning_rate,
-            weight_decay,
             tau,
+            guide_policy,  # (s) -> a
+            decrease_guide_step_threshold,  # int
         )
         self.state_dim = (np.prod(env.observation_space.shape),)
         self.policy_net = DuelingSoundDQN(

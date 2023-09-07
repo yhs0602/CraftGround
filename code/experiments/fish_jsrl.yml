@@ -51,4 +51,9 @@ algorithm:
     learning_rate: 0.00001
     weight_decay: 0.00001
     tau: 1.0
+    guide_policy:
+      name: 'FishingGuide'
+      params:
+        min_episode: 100
+    decrease_guide_step_threshold: 0.5
 

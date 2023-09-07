@@ -28,7 +28,7 @@ wrappers:
 
 algorithm:
   name:
-    "SoundA2CAlgorithm"
+    "SoundA2Algorithm"
   params:
     num_episodes: 1000
     steps_per_episode: 400
