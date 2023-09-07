@@ -28,4 +28,6 @@ message InitialEnvironmentMessage {
   repeated BlockState initialBlockStates = 18;
   repeated int32 surroundingEntityDistances = 19;
   bool hudHidden = 20;
+  int32 render_distance = 21;
+  int32 simulation_distance = 22;
 }

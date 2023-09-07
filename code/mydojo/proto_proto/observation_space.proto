@@ -76,4 +76,5 @@ message ObservationSpaceMessage {
   map<string, int32> misc_statistics = 17;
   repeated EntityInfo visible_entities = 18;
   map<int32, EntitiesWithinDistance> surrounding_entities = 19;
+  bool bobber_thrown = 20;
 }
