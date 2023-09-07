@@ -1,6 +1,6 @@
 seed: null
 env_path: null
-group: "jsrl_fish"
+group: "jsrl_fish_bimodal"
 record_video: true
 device: null
 
@@ -9,7 +9,7 @@ env:
   params:
     hud: true
     verbose: false
-    port: 8000
+    port: 8001
     render_action: true
     size_x: 256
     size_y: 160
@@ -20,13 +20,15 @@ wrappers:
       - NO_OP
       - USE
 
-  - name: 'SoundWrapper'
-    coord_dim: 2
+  - name: 'BimodalWrapper'
+    x_dim: 114
+    y_dim: 64
+    sound_coord_dim: 2
   - name: 'FishCodWrapper'
 
 algorithm:
   name:
-    "SoundJSRLDQNAlgorithm"
+    "BimodalJSRLDQNAlgorithm"
   params:
     num_episodes: 1000
     warmup_episodes: 10
@@ -36,10 +38,12 @@ algorithm:
       name: 'ScoreCriterion'
       params:
         min_episode: 100
-        min_avg_score: 0.9
+        min_avg_score: 0.8
         min_test_score: 1
         min_avg_test_score: 0.9
     hidden_dim: 128
+    kernel_size: 5
+    stride: 2
     epsilon_init: 1.0
     epsilon_decay: 0.99
     epsilon_min: 0.01
