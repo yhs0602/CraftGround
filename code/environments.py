@@ -1065,6 +1065,8 @@ def make_fishing_environment(
     size_y: int = 64,
     hud: bool = False,
     render_action: bool = True,
+    render_distance: int = 4,
+    simulation_distance: int = 4,
 ):
     return mydojo.make(
         verbose=verbose,
@@ -1091,6 +1093,8 @@ def make_fishing_environment(
         initialExtraCommands=["tp @p -25 62 -277 127.2 -6.8"],  # x y z yaw pitch
         isHudHidden=not hud,
         render_action=render_action,
+        render_distance=render_distance,
+        simulation_distance=simulation_distance,
     ), [
         "subtitles.entity.experience_orb.pickup",
         "subtitles.entity.fishing_bobber.retrieve",

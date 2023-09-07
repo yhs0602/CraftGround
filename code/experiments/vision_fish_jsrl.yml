@@ -13,6 +13,8 @@ env:
     render_action: true
     size_x: 256
     size_y: 160
+    render_distance: 2
+    simulation_distance: 2
 
 wrappers:
   - name: 'ActionWrapper'
@@ -21,8 +23,8 @@ wrappers:
       - USE
 
   - name: 'VisionWrapper'
-    x_dim: 114
-    y_dim: 64
+    x_dim: 256
+    y_dim: 160
   - name: 'FishCodWrapper'
 
 algorithm:
