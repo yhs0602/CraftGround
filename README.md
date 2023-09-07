@@ -1,4 +1,5 @@
 # MinecraftRL
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fyhs0602%2FMinecraftRL)](https://github.com/yhs0602/MinecraftRL)
 
 RL experiments using lightweight minecraft environment
 
