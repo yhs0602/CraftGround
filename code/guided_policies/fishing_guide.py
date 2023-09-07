@@ -6,12 +6,13 @@ class FishingGuide:
         info_obs = info["obs"]
         sound_subtitles = info_obs.sound_subtitles
         for sound in sound_subtitles:
-            print(sound)
             if sound.translate_key == "subtitles.entity.experience_orb.pickup":
                 pass
             elif sound.translate_key == "subtitles.entity.fishing_bobber.retrieve":
+                print("Rethrow")
                 return 1
             elif sound.translate_key == "subtitles.entity.fishing_bobber.splash":
+                print("Splash, Will Retrieve")
                 return 1
             elif sound.translate_key == "subtitles.entity.fishing_bobber.throw":
                 pass
