@@ -159,7 +159,7 @@ class JSRLDQNAlgorithm(abc.ABC):
 
     def test_agent(self, episode):
         self.logger.before_episode(self.env, should_record_video=True, episode=episode)
-        state, reset_info = self.env.reset(fast_reset=True)
+        state, info = self.env.reset(fast_reset=True)
         episode_reward = 0
         steps_in_episode = 0
         start_time = time.time()
@@ -182,7 +182,7 @@ class JSRLDQNAlgorithm(abc.ABC):
         self.logger.before_episode(
             self.env, should_record_video=False, episode=self.episode
         )
-        state, reset_info = self.env.reset(fast_reset=True)
+        state, info = self.env.reset(fast_reset=True)
         episode_reward = 0
         steps_in_episode = 0
         losses = []
@@ -195,7 +195,7 @@ class JSRLDQNAlgorithm(abc.ABC):
             # e.g. the number of guided steps decreases when the model reaches the goal.
             # Check if the guided policy should be used
             if step < self.required_guided_policy_steps:
-                action = self.guided_policy.get_action(state)
+                action = self.guided_policy.get_action(state, info)
             elif self.explorer.should_explore() or self.episode < self.warmup_episodes:
                 action = np.random.choice(self.action_dim)
             else:  # exploit
@@ -219,6 +219,7 @@ class JSRLDQNAlgorithm(abc.ABC):
 
             if done:
                 break
+            state = next_state
 
         end_time = time.time()
         if self.episode > self.warmup_episodes:

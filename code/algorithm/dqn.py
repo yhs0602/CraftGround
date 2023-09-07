@@ -163,7 +163,7 @@ class DQNAlgorithm(abc.ABC):
         self.logger.before_episode(
             self.env, should_record_video=False, episode=self.episode
         )
-        state, reset_info = self.env.reset(fast_reset=True)
+        state, info = self.env.reset(fast_reset=True)
         episode_reward = 0
         steps_in_episode = 0
         losses = []
@@ -194,6 +194,7 @@ class DQNAlgorithm(abc.ABC):
 
             if done:
                 break
+            state = next_state
 
         end_time = time.time()
         if self.episode > self.warmup_episodes:
