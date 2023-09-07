@@ -184,6 +184,7 @@ class JSRLDQNAlgorithm(abc.ABC):
             self.env, should_record_video=False, episode=self.episode
         )
         state, info = self.env.reset(fast_reset=True)
+        self.guided_policy.reset()
         episode_reward = 0
         steps_in_episode = 0
         losses = []
