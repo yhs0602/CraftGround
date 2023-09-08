@@ -32,7 +32,7 @@ algorithm:
   name:
     "BimodalJSRLDQNAlgorithm"
   params:
-    num_episodes: 1000
+    num_episodes: 3000
     warmup_episodes: 10
     steps_per_episode: 400
     test_frequency: 10
@@ -61,5 +61,5 @@ algorithm:
       name: 'FishingGuide'
       params:
         min_episode: 100
-    decrease_guide_step_threshold: 0.5
+    decrease_guide_step_threshold: 0.8
 

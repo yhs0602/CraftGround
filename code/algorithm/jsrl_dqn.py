@@ -139,7 +139,7 @@ class JSRLDQNAlgorithm(abc.ABC):
                     }
                 )
                 if (
-                    episode_reward >= self.decrease_guide_step_threshold
+                    avg_score >= self.decrease_guide_step_threshold
                     and self.required_guided_policy_steps > 0
                 ):
                     self.required_guided_policy_steps -= 1
