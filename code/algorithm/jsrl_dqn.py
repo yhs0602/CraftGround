@@ -114,6 +114,7 @@ class JSRLDQNAlgorithm(abc.ABC):
                     {
                         "test/step": episode,
                         "test/score": test_score,
+                        "test/avg_score": avg_test_score,
                     }
                 )
             else:  # training
