@@ -110,7 +110,7 @@ class BimodalJSRLA2CAlgorithm(JSRLA2CAlgorithm):
                 advantages = None
             else:
                 dist, action, advantages = self.exploit_action(state)
-            action = action.item()
+                action = action.item()
             next_state, reward, done, truncated, info = self.env.step(action)
 
             states.append(state)
