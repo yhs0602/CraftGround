@@ -110,6 +110,7 @@ class JSRLA2CAlgorithm(abc.ABC):
                         "avg_actor_loss": avg_actor_loss,
                         "avg_critic_loss": avg_critic_loss,
                         "action_entropy": action_entropy,
+                        "guided_policy_steps": self.required_guided_policy_steps,
                     }
                 )
                 if (
