@@ -131,6 +131,7 @@ class JSRLDRQNAlgorithm(abc.ABC):
                 scores.append(episode_reward)
                 recent_scores.append(episode_reward)
                 avg_score = np.mean(recent_scores)
+                self.avg_score = avg_score
                 avg_scores.append(avg_score)
                 self.logger.log(
                     {
@@ -239,7 +240,10 @@ class JSRLDRQNAlgorithm(abc.ABC):
         self.replay_buffer.add_episode(episode)
 
         end_time = time.time()
-        if self.episode > self.warmup_episodes:
+        if self.episode > self.warmup_episodes and (
+            self.avg_score is None
+            or self.avg_score >= self.decrease_guide_step_threshold
+        ):
             self.explorer.after_episode()  # update epsilon
         avg_loss = np.mean([loss for loss in losses if loss is not None])
         return (

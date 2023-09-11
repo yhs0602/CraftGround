@@ -53,7 +53,7 @@ algorithm:
     train_frequency: 1
     replay_buffer_size: 1000000
     batch_size: 32
-    time_step: 8
+    time_step: 16
     gamma: 0.99
     learning_rate: 0.00001
     weight_decay: 0.00001
