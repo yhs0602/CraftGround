@@ -4,6 +4,7 @@ from .bimodal_drqn import BimodalDRQNAlgorithm
 from .bimodal_jsrl_a2c import BimodalJSRLA2CAlgorithm
 from .bimodal_jsrl_dqn import BimodalJSRLDQNAlgorithm
 from .bimodal_jsrl_dqn import BimodalJSRLDQNAlgorithm
+from .bimodal_jsrl_drqn import BimodalJSRLDRQNAlgorithm
 from .sound_a2c import SoundA2CAlgorithm
 from .sound_dqn import SoundDQNAlgorithm
 from .sound_drqn import SoundDRQNAlgorithm
@@ -12,3 +13,4 @@ from .vision_a2c import VisionA2CAlgorithm
 from .vision_dqn import VisionDQNAlgorithm
 from .vision_drqn import VisionDRQNAlgorithm
 from .vision_jsrl_dqn import VisionJSRLDQNAlgorithm
+from .vision_jsrl_drqn import VisionJSRLDRQNAlgorithm
