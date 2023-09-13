@@ -48,13 +48,13 @@ algorithm:
     stride: 2
     epsilon_init: 1.0
     epsilon_decay: 0.99
-    epsilon_min: 0.01
+    epsilon_min: 0.3
     update_frequency: 1000
     train_frequency: 1
     replay_buffer_size: 1000000
     batch_size: 32
     time_step: 16
-    gamma: 0.99
+    gamma: 0.995
     learning_rate: 0.00001
     weight_decay: 0.00001
     tau: 1.0
