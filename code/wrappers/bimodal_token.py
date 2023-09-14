@@ -57,11 +57,12 @@ class BimodalTokenWrapper(BimodalWrapper):
         sound_vector = self.encode_sound(
             sound_subtitles, obs_info.x, obs_info.y, obs_info.z, obs_info.yaw
         )
+        token = [obs_info.bobber_thrown]
         return (
             {
                 "vision": rgb,
                 "sound": np.array(sound_vector, dtype=np.float32),
-                "token": np.array(obs_info.token, dtype=np.float32),
+                "token": np.array(token, dtype=np.float32),
             },
             reward,
             terminated,
@@ -83,8 +84,9 @@ class BimodalTokenWrapper(BimodalWrapper):
         sound_vector = self.encode_sound(
             sound_subtitles, obs_info.x, obs_info.y, obs_info.z, obs_info.yaw
         )
+        token = [obs_info.bobber_thrown]
         return {
             "vision": rgb,
             "sound": np.array(sound_vector, dtype=np.float32),
-            "token": np.array(obs_info.token, dtype=np.float32),
+            "token": np.array(token, dtype=np.float32),
         }, info
