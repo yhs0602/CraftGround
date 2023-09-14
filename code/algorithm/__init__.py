@@ -5,6 +5,7 @@ from .bimodal_jsrl_a2c import BimodalJSRLA2CAlgorithm
 from .bimodal_jsrl_dqn import BimodalJSRLDQNAlgorithm
 from .bimodal_jsrl_dqn import BimodalJSRLDQNAlgorithm
 from .bimodal_jsrl_drqn import BimodalJSRLDRQNAlgorithm
+from .bimodal_token_dqn import BimodalTokenDQNAlgorithm
 from .sound_a2c import SoundA2CAlgorithm
 from .sound_dqn import SoundDQNAlgorithm
 from .sound_drqn import SoundDRQNAlgorithm

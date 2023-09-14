@@ -10,5 +10,20 @@ BimodalTransition = namedtuple(
     ("audio", "video", "action", "next_audio", "next_video", "reward", "done"),
 )
 
+BimodalTokenTransition = namedtuple(
+    "BiModalTokenTransition",
+    (
+        "audio",
+        "video",
+        "token",
+        "action",
+        "next_audio",
+        "next_video",
+        "next_token",
+        "reward",
+        "done",
+    ),
+)
+
 Episode: TypeAlias = List[Transition]
 BimodalEpisode: TypeAlias = List[BimodalTransition]

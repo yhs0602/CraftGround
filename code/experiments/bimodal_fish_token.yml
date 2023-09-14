@@ -1,6 +1,6 @@
 seed: null
 env_path: null
-group: "bimodal_jsrl_drqn_fish_exp"
+group: "fish_bimodal_token"
 record_video: true
 device: null
 
@@ -22,15 +22,16 @@ wrappers:
       - NO_OP
       - USE
 
-  - name: 'BimodalWrapper'
+  - name: 'BimodalTokenWrapper'
     x_dim: 114
     y_dim: 64
     sound_coord_dim: 2
-  - name: 'FishCodWrapper'
+    token_dim: 2
+  - name: 'FishAnythingWrapper'
 
 algorithm:
   name:
-    "BimodalJSRLDRQNAlgorithm"
+    "BimodalTokenDQNAlgorithm"
   params:
     num_episodes: 3000
     warmup_episodes: 10
@@ -48,20 +49,13 @@ algorithm:
     stride: 2
     epsilon_init: 1.0
     epsilon_decay: 0.99
-    epsilon_min: 0.3
+    epsilon_min: 0.01
     update_frequency: 1000
     train_frequency: 1
     replay_buffer_size: 1000000
-    batch_size: 32
-    time_step: 16
-    gamma: 0.995
+    batch_size: 256
+    gamma: 0.99
     learning_rate: 0.00001
     weight_decay: 0.00001
     tau: 1.0
-    guide_policy:
-      name: 'FishingGuide'
-      params:
-        min_episode: 100
-    decrease_guide_step_threshold: 0.8
-
 
