@@ -71,7 +71,6 @@ Below are detailed specifications of the environment's architecture:
 | yaw, pitch      | double | Yaw and Pitch of the entity. |
 | health          | double | Health of the entity.        |
 
-### `ObservationSpaceMessage`
 
 ### `ObservationSpaceMessage`
 
@@ -99,10 +98,10 @@ Below are detailed specifications of the environment's architecture:
 
 ### `ActionSpaceMessage`
 
-| Field    | Type            | Description                 |
-|----------|-----------------|-----------------------------|
-| action   | repeated int32  | Available player actions.   |
-| commands | repeated string | Action-associated commands. |
+| Field    | Type            | Description               |
+|----------|-----------------|---------------------------|
+| action   | repeated int32  | Available player actions. |
+| commands | repeated string | Any minecraft commands.   |
 
 # Experiments
 
