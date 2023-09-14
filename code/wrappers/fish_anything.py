@@ -10,7 +10,7 @@ from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 class FishAnythingWrapper(CleanUpFastResetWrapper):
     def __init__(self, env, **kwargs):
         self.env = env
-        self.fish_deque = deque(maxlen=2)
+        self.experience_deque = deque(maxlen=2)
         super().__init__(self.env)
 
     def step(
@@ -18,11 +18,13 @@ class FishAnythingWrapper(CleanUpFastResetWrapper):
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         obs, reward, terminated, truncated, info = self.env.step(action)
         info_obs = info["obs"]
-        fish_caught = info_obs.misc_statistics["fish_caught"]
+        experience = info_obs.misc_statistics["experience"]
         # print(fish_caught)
-        self.fish_deque.append(fish_caught)
-        if len(self.fish_deque) == 2:
-            if self.fish_deque[1] > self.fish_deque[0]:  # fish_caught increased
+        self.experience_deque.append(experience)
+        if len(self.experience_deque) == 2:
+            if (
+                self.experience_deque[1] > self.experience_deque[0]
+            ):  # fish_caught increased
                 # print("Fish Caught")
                 reward += 1
                 terminated = True
@@ -42,5 +44,6 @@ class FishAnythingWrapper(CleanUpFastResetWrapper):
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ) -> tuple[WrapperObsType, dict[str, Any]]:
+        self.experience_deque.clear()
         obs, info = self.env.reset(seed=seed, options=options, fast_reset=fast_reset)
         return obs, info

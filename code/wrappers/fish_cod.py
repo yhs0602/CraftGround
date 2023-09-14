@@ -43,4 +43,5 @@ class FishCodWrapper(CleanUpFastResetWrapper):
         options: Optional[dict[str, Any]] = None,
     ) -> tuple[WrapperObsType, dict[str, Any]]:
         obs, info = self.env.reset(seed=seed, options=options, fast_reset=fast_reset)
+        self.fish_deque.clear()
         return obs, info
