@@ -8,6 +8,102 @@ RL experiments using lightweight minecraft environment
 
 https://github.com/KYHSGeekCode/MinecraftEnv
 
+# Reinforcement Learning Environment for Minecraft
+
+Utilizing protocol buffers, we've constructed a reinforcement learning environment specifically tailored for Minecraft.
+Below are detailed specifications of the environment's architecture:
+
+## Initial Environment
+
+### `BlockState`
+
+| Field       | Type   | Description                                                                                                      |
+|-------------|--------|------------------------------------------------------------------------------------------------------------------|
+| x, y, z     | int32  | Coordinates of the block.                                                                                        |
+| block_state | string | State of the block, e.g., `minecraft:andesite_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]`. |
+
+### `InitialEnvironmentMessage`
+
+| Field                                       | Type                | Description                                   |
+|---------------------------------------------|---------------------|-----------------------------------------------|
+| initialInventoryCommands                    | repeated string     | Commands to setup initial inventory.          |
+| initialPosition                             | repeated int32      | Player's starting coordinates.                |
+| initialMobsCommands                         | repeated string     | Commands for spawning mobs.                   |
+| imageSizeX, imageSizeY                      | int32               | Image dimensions of the environment.          |
+| seed                                        | int64               | World generation seed.                        |
+| allowMobSpawn                               | bool                | Controls mob spawning.                        |
+| alwaysNight, alwaysDay                      | bool                | Control for time of day.                      |
+| initialWeather                              | string              | Initial weather setting.                      |
+| isWorldFlat                                 | bool                | Flat world toggle.                            |
+| visibleSizeX, visibleSizeY                  | int32               | Player's visible dimensions.                  |
+| initialExtraCommands                        | repeated string     | Extra commands for initialization.            |
+| killedStatKeys, minedStatKeys, miscStatKeys | repeated string     | Player's statistic keys.                      |
+| initialBlockStates                          | repeated BlockState | Initial world block states.                   |
+| surroundingEntityDistances                  | repeated int32      | Entity distances from player.                 |
+| hudHidden                                   | bool                | Toggle for HUD visibility.                    |
+| render_distance, simulation_distance        | int32               | Block and entity render/simulation distances. |
+
+## Observation Space
+
+### `ItemStack`
+
+| Field                      | Type   | Description                          |
+|----------------------------|--------|--------------------------------------|
+| raw_id                     | int32  | Unique item identifier.              |
+| translation_key            | string | Item's display name translation key. |
+| count                      | int32  | Amount in the item stack.            |
+| durability, max_durability | int32  | Durability information of item.      |
+
+### `BlockInfo`
+
+| Field           | Type   | Description                           |
+|-----------------|--------|---------------------------------------|
+| x, y, z         | int32  | Block coordinates.                    |
+| translation_key | string | Block's display name translation key. |
+
+### `EntityInfo`
+
+| Field           | Type   | Description                  |
+|-----------------|--------|------------------------------|
+| unique_name     | string | Unique name of the entity.   |
+| translation_key | string | Entity's translation key.    |
+| x, y, z         | double | Entity coordinates.          |
+| yaw, pitch      | double | Yaw and Pitch of the entity. |
+| health          | double | Health of the entity.        |
+
+### `ObservationSpaceMessage`
+
+### `ObservationSpaceMessage`
+
+| Field                | Type                               | Description                                                |
+|----------------------|------------------------------------|------------------------------------------------------------|
+| image                | bytes                              | Image data of the environment.                             |
+| x, y, z              | double                             | Player's coordinates in the world.                         |
+| yaw, pitch           | double                             | Player's orientation (yaw & pitch).                        |
+| health               | double                             | Player's health level.                                     |
+| food_level           | double                             | Player's food level.                                       |
+| saturation_level     | double                             | Player's saturation level.                                 |
+| is_dead              | bool                               | Flag indicating if the player is dead.                     |
+| inventory            | repeated ItemStack                 | List of items in player's inventory.                       |
+| raycast_result       | HitResult                          | Raycasting result to identify targeted blocks or entities. |
+| sound_subtitles      | repeated SoundEntry                | List of recent sounds with subtitles.                      |
+| status_effects       | repeated StatusEffect              | List of active status effects on the player.               |
+| killed_statistics    | map<string, int32>                 | Player's kill statistics with entity names as keys.        |
+| mined_statistics     | map<string, int32>                 | Player's block mining statistics with block types as keys. |
+| misc_statistics      | map<string, int32>                 | Miscellaneous statistics.                                  |
+| visible_entities     | repeated EntityInfo                | List of entities currently visible to the player.          |
+| surrounding_entities | map<int32, EntitiesWithinDistance> | Map of entities around the player with distances as keys.  |
+| bobber_thrown        | bool                               | Flag indicating if a fishing bobber is currently thrown.   |
+
+## Action Space
+
+### `ActionSpaceMessage`
+
+| Field    | Type            | Description                 |
+|----------|-----------------|-----------------------------|
+| action   | repeated int32  | Available player actions.   |
+| commands | repeated string | Action-associated commands. |
+
 # Experiments
 
 Please see [final_experiments](https://github.com/yhs0602/MinecraftRL/tree/main/code/experiments) to see various
