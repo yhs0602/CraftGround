@@ -206,7 +206,7 @@ class DQNAlgorithm(abc.ABC):
             steps_in_episode,
             end_time - start_time,
             avg_loss,
-            reset_info,
+            info,
         )
 
     def exploit_action(self, state) -> int:

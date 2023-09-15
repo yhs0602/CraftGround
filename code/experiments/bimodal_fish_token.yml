@@ -26,7 +26,7 @@ wrappers:
     x_dim: 114
     y_dim: 64
     sound_coord_dim: 2
-    token_dim: 2
+    token_dim: 1
   - name: 'FishAnythingWrapper'
 
 algorithm:
@@ -58,5 +58,5 @@ algorithm:
     learning_rate: 0.00001
     weight_decay: 0.00001
     tau: 1.0
-    token_dim: 2
+    token_dim: 1
 
