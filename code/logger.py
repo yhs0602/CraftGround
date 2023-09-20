@@ -44,3 +44,8 @@ class Logger:
         if self.record_video and self.video_recorder:
             self.video_recorder.close()
             self.video_recorder = None
+
+    def save_checkpoint(self, agent, episode):
+        checkpoint_path = f"checkpoint_{episode}.pth"
+        agent.save(checkpoint_path)
+        wandb.save(checkpoint_path)

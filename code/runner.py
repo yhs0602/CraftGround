@@ -5,8 +5,8 @@ import numpy as np
 import yaml
 
 import algorithm
+import environments
 import wrappers
-from environments import env_makers
 from get_device import get_device
 from logger import Logger
 
@@ -41,9 +41,13 @@ class Runner:
         env_params = self.env_params
         if self.verbose:
             env_params["verbose"] = True
-        inner_env, sound_list = env_makers[self.env_name](
+        env_class = getattr(environments, self.env_name)
+        inner_env, sound_list = env_class().make(
             env_path=self.env_path, **self.env_params
         )
+        # inner_env, sound_list = env_makers[self.env_name](
+        #     env_path=self.env_path, **self.env_params
+        # )
         for wrapper in self.wrappers:
             wrapper_class = getattr(wrappers, wrapper["name"])
             wrapper_instance = wrapper_class(
