@@ -5,7 +5,7 @@ record_video: true
 device: null
 
 env:
-  name: 'fishing'
+  name: 'FishingEnvironment'
   params:
     hud: true
     verbose: false
@@ -14,7 +14,7 @@ env:
     size_x: 114
     size_y: 64
     render_distance: 2
-    simulation_distance: 2
+    simulation_distance: 5
 
 wrappers:
   - name: 'ActionWrapper'

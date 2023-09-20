@@ -8,7 +8,7 @@ from environments.base_environment import BaseEnvironment
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 
-class GeneralHuskEnvironment(BaseEnvironment):
+class HuskEnvironment(BaseEnvironment):
     def make(
         self,
         verbose: bool,

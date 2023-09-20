@@ -6,7 +6,7 @@ from gymnasium.core import WrapperObsType
 
 import mydojo
 from environments.base_environment import BaseEnvironment
-from environments.general_husk_environment import generate_husks
+from environments.husk_environment import generate_husks
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 

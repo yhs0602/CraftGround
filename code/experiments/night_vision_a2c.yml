@@ -13,6 +13,8 @@ env:
     render_action: true
     size_x: 64
     size_y: 64
+    render_distance: 2
+    simulation_distance: 5
 
 wrappers:
   - name: 'ActionWrapper'

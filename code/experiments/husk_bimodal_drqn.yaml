@@ -5,12 +5,16 @@ record_video: true
 device: null
 
 env:
-  name: 'husk-random'
+  name: 'HuskEnvironment'
   params:
     hud: false
     verbose: false
     port: 8000
     render_action: true
+    size_x: 114
+    size_y: 64
+    render_distance: 2
+    simulation_distance: 5
 
 wrappers:
   - name: 'ActionWrapper'

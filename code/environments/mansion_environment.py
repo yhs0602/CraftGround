@@ -2,7 +2,7 @@ import mydojo
 from environments.base_environment import BaseEnvironment
 
 
-class FindVillageEnvironment(BaseEnvironment):
+class MansionEnvironment(BaseEnvironment):
     def make(
         self,
         verbose: bool,

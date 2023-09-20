@@ -5,7 +5,7 @@ record_video: true
 device: null
 
 env:
-  name: 'fishing'
+  name: 'FishEnvironment'
   params:
     hud: true
     verbose: false
