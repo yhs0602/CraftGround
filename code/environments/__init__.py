@@ -1,4 +1,4 @@
+from .find_animal_environment import FindAnimalEnvironment
 from .fishing_environment import FishingEnvironment
 from .flat_night_environment import FlatNightEnvironment
-from .husk_environment import HuskEnvironment
-from .husks_environment import HusksEnvironment
+from .general_husk_environment import GeneralHuskEnvironment

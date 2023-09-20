@@ -12,6 +12,8 @@ class FlatNightEnvironment(BaseEnvironment):
         size_y: int = 64,
         hud: bool = False,
         render_action: bool = True,
+        render_distance: int = 2,
+        simulation_distance: int = 5,
         *args,
         **kwargs,
     ):
@@ -37,6 +39,8 @@ class FlatNightEnvironment(BaseEnvironment):
             initialExtraCommands=["difficulty normal", "gamerule mobGriefing false"],
             isHudHidden=not hud,
             render_action=render_action,
+            render_distance=render_distance,
+            simulation_distance=simulation_distance,
         ), [
             "subtitles.entity.slime.attack",
             "subtitles.entity.slime.death",
