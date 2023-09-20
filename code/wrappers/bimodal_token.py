@@ -72,12 +72,11 @@ class BimodalTokenWrapper(BimodalWrapper):
 
     def reset(
         self,
-        fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ):
-        obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
+        obs, info = self.env.reset(seed=seed, options=options)
         rgb = info["rgb"]
         obs_info = info["obs"]
         sound_subtitles = obs_info.sound_subtitles

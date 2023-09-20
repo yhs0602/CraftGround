@@ -57,12 +57,11 @@ class GoUpWrapper(CleanUpFastResetWrapper):
 
     def reset(
         self,
-        fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ) -> tuple[WrapperObsType, dict[str, Any]]:
-        obs, info = self.env.reset(seed=seed, options=options, fast_reset=fast_reset)
+        obs, info = self.env.reset(seed=seed, options=options)
         info_obs = info["obs"]
         self.height_deque.clear()
         self.height_deque.append(info_obs.y)

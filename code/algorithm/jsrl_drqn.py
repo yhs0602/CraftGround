@@ -165,7 +165,7 @@ class JSRLDRQNAlgorithm(abc.ABC):
 
     def test_agent(self, episode):
         self.logger.before_episode(self.env, should_record_video=True, episode=episode)
-        state, info = self.env.reset(fast_reset=True)
+        state, info = self.env.reset(options={"fast_reset": True})
         hidden_state, cell_state = self.policy_net.init_hidden_states(bsize=1)
         episode_reward = 0
         steps_in_episode = 0
@@ -191,7 +191,7 @@ class JSRLDRQNAlgorithm(abc.ABC):
         self.logger.before_episode(
             self.env, should_record_video=False, episode=self.episode
         )
-        state, info = self.env.reset(fast_reset=True)
+        state, info = self.env.reset(options={"fast_reset": True})
         hidden_state, cell_state = self.policy_net.init_hidden_states(bsize=1)
         episode_reward = 0
         steps_in_episode = 0

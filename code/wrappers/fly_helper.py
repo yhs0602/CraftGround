@@ -42,11 +42,16 @@ class FlyHelperWrapper(CleanUpFastResetWrapper):
 
     def reset(
         self,
-        fast_reset: bool = True,
+        *,
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ) -> Tuple[WrapperObsType, dict[str, Any]]:
-        obs, info = self.env.reset(fast_reset=True, seed=seed, options=options)
+        options.update(
+            {
+                "fast_reset": True,
+            }
+        )
+        obs, info = self.env.reset(seed=seed, options=options)
         info_obs = info["obs"]
         self.prev_flight_distance = info_obs.misc_statistics["aviate_one_cm"]
         self.prev_firework_stock = 64

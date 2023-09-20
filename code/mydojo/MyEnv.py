@@ -68,12 +68,12 @@ class MyEnv(gym.Env):
 
     def reset(
         self,
-        fast_reset: bool = True,
-        extra_commands: Optional[List[str]] = None,
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
     ) -> Tuple[ObsType, Dict[str, Any]]:
+        fast_reset = options.get("fast_reset", False)
+        extra_commands = options.get("extra_commands", [])
         if not self.sock:  # first time
             self.start_server(port=self.port)
         else:

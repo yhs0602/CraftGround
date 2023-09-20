@@ -86,7 +86,7 @@ class FindAnimalEnvironment(BaseEnvironment):
 
             def reset(
                 self,
-                fast_reset: bool = True,
+                *,
                 seed: Optional[int] = None,
                 options: Optional[dict[str, Any]] = None,
             ) -> tuple[WrapperObsType, dict[str, Any]]:
@@ -100,8 +100,8 @@ class FindAnimalEnvironment(BaseEnvironment):
                 extra_commands.extend(summon_animal_commands_list)
 
                 obs = self.env.reset(
-                    fast_reset=fast_reset,
-                    extra_commands=extra_commands,
+                    seed=seed,
+                    options={"fast_reset": True, "extra_commands": extra_commands},
                 )
                 return obs
 

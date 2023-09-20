@@ -115,7 +115,7 @@ class A2CAlgorithm:
         self.logger.before_episode(
             self.env, should_record_video=True, episode=self.episode
         )
-        state, reset_info = self.env.reset(fast_reset=True)
+        state, reset_info = self.env.reset(options={"fast_reset": True})
         episode_reward = 0
         steps_in_episode = 0
         start_time = time.time()
@@ -136,7 +136,7 @@ class A2CAlgorithm:
         self.logger.before_episode(
             self.env, should_record_video=False, episode=self.episode
         )
-        state, reset_info = self.env.reset(fast_reset=True)
+        state, reset_info = self.env.reset(options={"fast_reset": True})
         episode_reward = 0
         steps_in_episode = 0
         actor_losses = []

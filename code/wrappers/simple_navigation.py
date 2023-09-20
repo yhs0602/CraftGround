@@ -44,12 +44,11 @@ class SimpleNavigationWrapper(CleanUpFastResetWrapper):
 
     def reset(
         self,
-        fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ) -> tuple[WrapperObsType, dict[str, Any]]:
-        obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
+        obs, info = self.env.reset(seed=seed, options=options)
         return obs, info
 
     def int_to_action(self, input_act: int) -> List[float]:

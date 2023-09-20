@@ -62,7 +62,7 @@ class ContinuousHuskEnvironment(BaseEnvironment):
 
             def reset(
                 self,
-                fast_reset: bool = True,
+                *,
                 seed: Optional[int] = None,
                 options: Optional[dict[str, Any]] = None,
             ) -> tuple[WrapperObsType, dict[str, Any]]:
@@ -70,7 +70,6 @@ class ContinuousHuskEnvironment(BaseEnvironment):
                 extra_commands.extend(generate_husks(1, 4, 7))
 
                 obs = self.env.reset(
-                    fast_reset=fast_reset,
                     extra_commands=extra_commands,
                     seed=seed,
                     options=options,

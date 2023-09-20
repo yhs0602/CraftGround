@@ -50,11 +50,11 @@ class AttackKillWrapper(CleanUpFastResetWrapper):
 
     def reset(
         self,
-        fast_reset: bool = True,
+        *,
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ) -> tuple[WrapperObsType, dict[str, Any]]:
-        obs, info = self.env.reset(fast_reset=fast_reset, seed=seed, options=options)
+        obs, info = self.env.reset(seed=seed, options=options)
         info_obs = info["obs"]
         self.old_killed_stat = info_obs.killed_statistics[self.target_name]
         self.durabilities.clear()

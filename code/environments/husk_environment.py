@@ -134,16 +134,18 @@ class HuskEnvironment(BaseEnvironment):
 
             def reset(
                 self,
-                fast_reset: bool = True,
+                *,
                 seed: Optional[int] = None,
                 options: Optional[dict[str, Any]] = None,
             ) -> Tuple[WrapperObsType, dict[str, Any]]:
                 extra_commands = ["tp @e[type=!player] ~ -500 ~"]
                 extra_commands.extend(initial_extra_commands)
-
+                options.update(
+                    {
+                        "extra_commands": extra_commands,
+                    }
+                )
                 obs = self.env.reset(
-                    fast_reset=fast_reset,
-                    extra_commands=extra_commands,
                     seed=seed,
                     options=options,
                 )

@@ -46,12 +46,11 @@ class AvoidDamageWrapper(CleanUpFastResetWrapper):
 
     def reset(
         self,
-        fast_reset: bool = True,
         *,
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ) -> tuple[WrapperObsType, dict[str, Any]]:
-        obs, info = self.env.reset(seed=seed, options=options, fast_reset=fast_reset)
+        obs, info = self.env.reset(seed=seed, options=options)
         info_obs = info["obs"]
         self.health_deque.clear()
         self.health_deque.append(info_obs.health)

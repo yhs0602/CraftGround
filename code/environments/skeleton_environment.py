@@ -56,21 +56,22 @@ class SkeletonEnvironment(BaseEnvironment):
 
             def reset(
                 self,
-                fast_reset: bool = True,
+                *,
                 seed: Optional[int] = None,
                 options: Optional[dict[str, Any]] = None,
             ) -> Tuple[WrapperObsType, dict[str, Any]]:
                 dx = self.generate_random_excluding(-10, 10, -5, 5)
                 dz = self.generate_random_excluding(-10, 10, -5, 5)
-                obs, info = self.env.reset(
-                    fast_reset=fast_reset,
-                    extra_commands=[
-                        "tp @e[type=!player] ~ -500 ~",
-                        "summon minecraft:skeleton " + f"~{dx} ~ ~{dz}",
-                    ],
-                    seed=seed,
-                    options=options,
+                options.update(
+                    {
+                        "fast_reset": True,
+                        "extra_commands": [
+                            "tp @e[type=!player] ~ -500 ~",
+                            "summon minecraft:skeleton " + f"~{dx} ~ ~{dz}",
+                        ],
+                    }
                 )
+                obs, info = self.env.reset(seed=seed, options=options)
                 print(f"dx={dx}, dz={dz}")
                 obs["extra_info"] = {
                     "skeleton_dx": dx,

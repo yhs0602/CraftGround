@@ -40,11 +40,11 @@ class JumpHelperWrapper(CleanUpFastResetWrapper):
 
     def reset(
         self,
-        fast_reset: bool = True,
+        *,
         seed: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
     ) -> Tuple[WrapperObsType, dict[str, Any]]:
-        obs, info = self.env.reset(fast_reset=True, seed=seed, options=options)
+        obs, info = self.env.reset(seed=seed, options=options)
         info_obs = info["obs"]
         self.prev_pos = (info_obs.x, info_obs.y, info_obs.z)
         return obs, info
