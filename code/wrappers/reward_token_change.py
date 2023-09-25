@@ -1,4 +1,4 @@
-from typing import SupportsFloat, Any
+from typing import SupportsFloat, Any, Optional
 
 from gymnasium.core import WrapperActType, WrapperObsType
 
@@ -12,17 +12,18 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
         self.token_dim = token_dim
         self.token_rewarded = [False] * token_dim
         self.reward = reward
+        self.last_tokens = None
         super().__init__(self.env)
 
     def step(
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         obs, reward, terminated, truncated, info = self.env.step(action)
-        info_obs = info["obs"]
-        token = info["token"]
+        # info_obs = info["obs"]
+        token = obs["token"]
 
         for i in range(self.token_dim):
-            if token[i] and not self.token_rewarded[i]:
+            if token[i] != self.last_tokens[i] and not self.token_rewarded[i]:
                 reward += self.reward
                 self.token_rewarded[i] = True
                 print(f"Token {i} rewarded")
@@ -34,3 +35,11 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
             truncated,
             info,
         )  # , done: deprecated
+
+    def reset(
+        self, *, seed: Optional[int] = None, options: Optional[dict[str, Any]] = None
+    ) -> tuple[WrapperObsType, dict[str, Any]]:
+        self.token_rewarded = [False] * self.token_dim
+        obs, info = self.env.reset(seed=seed, options=options)
+        self.last_tokens = obs["token"]
+        return obs, info
