@@ -27,7 +27,7 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
                 reward += self.reward
                 self.token_rewarded[i] = True
                 print(f"Token {i} rewarded")
-
+        self.last_tokens = token
         return (
             obs,
             reward,
