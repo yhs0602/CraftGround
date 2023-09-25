@@ -71,7 +71,6 @@ Below are detailed specifications of the environment's architecture:
 | yaw, pitch      | double | Yaw and Pitch of the entity. |
 | health          | double | Health of the entity.        |
 
-
 ### `ObservationSpaceMessage`
 
 | Field                | Type                               | Description                                                |
@@ -93,6 +92,7 @@ Below are detailed specifications of the environment's architecture:
 | visible_entities     | repeated EntityInfo                | List of entities currently visible to the player.          |
 | surrounding_entities | map<int32, EntitiesWithinDistance> | Map of entities around the player with distances as keys.  |
 | bobber_thrown        | bool                               | Flag indicating if a fishing bobber is currently thrown.   |
+| world_time           | int64                              | Current world time.                                        |
 
 ## Action Space
 
@@ -117,6 +117,7 @@ settings for the experiments.
 - Escape three husks in a superflat world using visual information
 - Fish in a normal world
 - Find a village in a normal world using flying
+- Fish using an enchanted fishing rod
 
 # Models
 
@@ -131,6 +132,7 @@ settings for the experiments.
 
 - Vision: 3 channels, w, h rgb array
 - Audio: `[Dx, Dz, [Dy]] * number of sounds, player hit sound, cos(yaw), sin(yaw)`
+- Token: 0 to 1 float32 array, defined by the user
 
 # Example Model Figures (DQN)
 
@@ -143,7 +145,7 @@ settings for the experiments.
 First, there are some concepts you need to know to create a custom experiment.
 
 1. Environment: The environment that the agent interacts with. You may choose one
-   from [environments.py](https://github.com/yhs0602/MinecraftRL/blob/b32c121e68ccdc4b262f64f8f74a1b46e29a0091/code/environments.py#L1103).
+   from [environments](https://github.com/yhs0602/MinecraftRL/tree/main/code/environments).
    The environment need a name and params to be created.
 2. Wrapper: The wrapper helps you to connect your models, algorithms to the environment. It provides custom rewards, or
    observation space conversion.
@@ -216,29 +218,8 @@ algorithm: # Details of the algorithm to be used.
 
 # Environment list
 
-```
-env_makers = {
-    "husk": make_husk_environment,
-    "husks": make_husks_environment,
-    "husk-noisy": make_husk_noisy_environment,
-    "husks-noisy": make_husks_noisy_environment,
-    "husk-darkness": make_husk_darkness_environment,
-    "husks-darkness": make_husks_darkness_environment,
-    "find-animal": make_find_animal_environment,
-    "husk-random": make_random_husk_environment,
-    "husks-random": make_random_husks_environment,
-    "husks-random-darkness": make_random_husks_darkness_environment,
-    "husks-continuous": make_continuous_husks_environment,
-    "husk-random-terrain": make_random_husk_terrain_environment,
-    "husk-random-forest": make_random_husk_forest_environment,
-    "husk-hunt": make_hunt_husk_environment,
-    "mansion": make_mansion_environment,
-    "skeleton-random": make_skeleton_random_environment,
-    "find-village": make_find_village_environment,
-    "flat-night": make_flat_night_environment,
-    "fishing": make_fishing_environment,
-}
-```
+See [code/environments](https://github.com/yhs0602/MinecraftRL/tree/main/code/environments) for the implementations of
+the environments.
 
 | Env name              | Description                                                                   |
 |-----------------------|-------------------------------------------------------------------------------|
@@ -287,26 +268,29 @@ env_makers = {
 | survival                | Enables survival strategies and behaviors for the agent.                                            |
 | terminate_on_death      | Ends the episode or session upon the agent's death.                                                 |
 | vision                  | Incorporates visual feedback or vision-based actions for the agent.                                 |
+| reward_token_change     | Provides token-based rewards for the agent.                                                         |
+| token_providers         | Provides the tokens for the agent.                                                                  |
+| bimodal_token           | Provides bimodal observation and the tokens for the agent.                                          |
 
 # Algorithm list
 
-| Algorithm Name | Description                                                                              |
-|----------------|------------------------------------------------------------------------------------------|
-| a2c            | Advantage Actor-Critic algorithm for policy and value function approximation.            |
-| bimodal_dqn    | DQN variant designed for environments with bimodal observation space.                    |
-| dqn            | Deep Q-Network algorithm for Q-value approximation using deep neural networks.           |
-| epsilon_greedy | A simple exploration strategy using epsilon probability for random actions.              |
-| jsrl_dqn       | Custom DQN variant specifically tailored for JSRL environments.                          |
-| sound_a2c      | A2C algorithm with sound-based inputs or feedback.                                       |
-| sound_dqn      | DQN variant that utilizes sound-based observations.                                      |
-| sound_drqn     | Deep Recurrent Q-Network with sound inputs for environments with temporal dependencies.  |
-| sound_jsrl_dqn | Custom JSRL DQN variant leveraging sound-based observations.                             |
-| vision_a2c     | A2C algorithm with visual-based inputs or feedback.                                      |
-| vision_dqn     | DQN variant that utilizes visual observations.                                           |
-| vision_drqn    | Deep Recurrent Q-Network with visual inputs for environments with temporal dependencies. |
-| bimodal_a2c    | A2C variant designed for environments with bimodal observations.                         |
-| bimodal_drqn   | DRQN variant for environments with bimodal observations.                                 |
-| drqn           | Deep Recurrent Q-Network for environments with temporal dependencies.                    |
+| Algorithm Name | Description                                                                                                                                 |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| a2c            | Advantage Actor-Critic algorithm for policy and value function approximation.                                                               |
+| bimodal_dqn    | DQN variant designed for environments with bimodal observation space.                                                                       |
+| dqn            | Deep Q-Network algorithm for Q-value approximation using deep neural networks.                                                              |
+| epsilon_greedy | A simple exploration strategy using epsilon probability for random actions.                                                                 |
+| jsrl_dqn       | Custom DQN variant base specifically tailored for [JSRL(Jump Start Reinforcement Learning)](https://arxiv.org/abs/2204.02372) environments. |
+| sound_a2c      | A2C algorithm with sound-based inputs or feedback.                                                                                          |
+| sound_dqn      | DQN variant that utilizes sound-based observations.                                                                                         |
+| sound_drqn     | Deep Recurrent Q-Network with sound inputs for environments with temporal dependencies.                                                     |
+| sound_jsrl_dqn | Custom JSRL DQN variant leveraging sound-based observations.                                                                                |
+| vision_a2c     | A2C algorithm with visual-based inputs or feedback.                                                                                         |
+| vision_dqn     | DQN variant that utilizes visual observations.                                                                                              |
+| vision_drqn    | Deep Recurrent Q-Network with visual inputs for environments with temporal dependencies.                                                    |
+| bimodal_a2c    | A2C variant designed for environments with bimodal observations.                                                                            |
+| bimodal_drqn   | DRQN variant for environments with bimodal observations.                                                                                    |
+| drqn           | Deep Recurrent Q-Network for environments with temporal dependencies.                                                                       |
 
 # Models
 
@@ -329,6 +313,8 @@ env_makers = {
 | bimodal_replay_buffer         | Replay buffer tailored for environments with bimodal observations.                               |
 | sumtree                       | Data structure for efficient computation in prioritized experience replay.                       |
 | transition                    | Data structure or method for representing state transitions in the environment.                  |
+| bimodal_token_replay_buffer   | Replay buffer for bimodal observation with tokens.                                               |
+| dueling_bimodal_token_dqn     | Dueling DQN model for bimodal observation with tokens.                                           |
 
 # Devaju font license
 

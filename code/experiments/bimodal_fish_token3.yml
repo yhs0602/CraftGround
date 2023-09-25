@@ -34,7 +34,8 @@ wrappers:
         total_steps: 400
   - name: 'RewardTokenChangeWrapper'
     token_dim: 2
-    reward: [0.1, 0.02]
+    reward: [0.1, 0.001]
+    reward_once: [true, false]
   - name: 'FishAnythingWrapper'
 
 algorithm:
