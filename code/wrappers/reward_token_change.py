@@ -11,7 +11,13 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
         self.env = env
         self.token_dim = token_dim
         self.token_rewarded = [False] * token_dim
-        self.reward = reward
+        if isinstance(reward, float):
+            self.rewards = [reward] * token_dim
+        elif isinstance(reward, list):
+            self.rewards = reward
+        else:
+            raise ValueError(f"Invalid reward type: {type(reward)}")
+        self.rewards = reward
         self.last_tokens = None
         super().__init__(self.env)
 
@@ -23,8 +29,8 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
         token = obs["token"]
 
         for i in range(self.token_dim):
-            if token[i] != self.last_tokens[i] and not self.token_rewarded[i]:
-                reward += self.reward
+            if token[i] > self.last_tokens[i]:  # and not self.token_rewarded[i]:
+                reward += self.rewards[i]
                 self.token_rewarded[i] = True
                 print(f"Token {i} rewarded")
         self.last_tokens = token

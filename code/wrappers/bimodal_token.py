@@ -5,8 +5,8 @@ import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
 from gymnasium.vector.utils import spaces
 
-from . import token_providers
 from wrappers import BimodalWrapper
+from . import token_providers
 
 
 # Sound wrapper
@@ -34,6 +34,7 @@ class BimodalTokenWrapper(BimodalWrapper):
         self.token_dim = sum(
             [token_provider.token_dim for token_provider in self.token_providers]
         )
+        print(f"{self.token_dim=}")
 
         super().__init__(self.env, x_dim, y_dim, sound_list, sound_coord_dim, **kwargs)
         self.observation_space = spaces.Dict(
