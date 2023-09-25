@@ -6,6 +6,7 @@ from .bimodal_token import BimodalTokenWrapper
 from .fish_anything import FishAnythingWrapper
 from .fish_cod import FishCodWrapper
 from .mineclip import MineCLIPRewardWrapper
+from .reward_token_change import RewardTokenChangeWrapper
 from .sound import SoundWrapper
 from .terminate_on_death import TerminateOnDeathWrapper
 from .vision import VisionWrapper
