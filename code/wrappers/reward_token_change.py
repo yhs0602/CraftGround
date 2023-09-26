@@ -13,6 +13,7 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
         token_dim: int,
         reward: Union[float, List[float]],
         reward_once: Union[bool, List[bool]],
+        proportional_reward: Union[bool, List[bool]] = False,
         **kwargs,
     ):
         self.env = env
@@ -30,6 +31,14 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
             self.reward_once = reward_once
         else:
             raise ValueError(f"Invalid reward_once type: {type(reward_once)}")
+        if isinstance(proportional_reward, bool):
+            self.proportional_reward = [proportional_reward] * token_dim
+        elif isinstance(proportional_reward, list):
+            self.proportional_reward = proportional_reward
+        else:
+            raise ValueError(
+                f"Invalid proportional_reward type: {type(proportional_reward)}"
+            )
         self.last_tokens = None
         super().__init__(self.env)
 
@@ -48,7 +57,10 @@ class RewardTokenChangeWrapper(CleanUpFastResetWrapper):
             if (
                 token[i] > self.last_tokens[i] and can_reward
             ):  # and not self.token_rewarded[i]:
-                reward += self.rewards[i]
+                if self.proportional_reward[i]:
+                    reward += token[i] * self.rewards[i]
+                else:
+                    reward += self.rewards[i]
                 self.token_rewarded[i] = True
                 # print(f"Token {i} rewarded")
         self.last_tokens = token
