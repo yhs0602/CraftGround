@@ -8,9 +8,10 @@ from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
 # Sound wrapper
 class FishAnythingWrapper(CleanUpFastResetWrapper):
-    def __init__(self, env, **kwargs):
+    def __init__(self, env, reward: float, **kwargs):
         self.env = env
         self.experience_deque = deque(maxlen=2)
+        self.reward = reward
         super().__init__(self.env)
 
     def step(
@@ -26,7 +27,7 @@ class FishAnythingWrapper(CleanUpFastResetWrapper):
                 self.experience_deque[1] > self.experience_deque[0]
             ):  # fish_caught increased
                 # print("Fish Caught")
-                reward += 1
+                reward += self.reward
                 terminated = True
 
         return (
