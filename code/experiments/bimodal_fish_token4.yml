@@ -1,6 +1,6 @@
 seed: null
 env_path: null
-group: "fish_bimodal_token_reward_acc"
+group: "fish_bimodal_token_reward_acc2"
 record_video: true
 device: null
 
