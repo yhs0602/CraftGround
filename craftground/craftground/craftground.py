@@ -11,7 +11,7 @@ from typing import Tuple, Optional, Union, List, Any, Dict
 import gymnasium as gym
 import numpy as np
 from PIL import Image, ImageDraw
-from gym.core import ActType, ObsType, RenderFrame
+from gymnasium.core import ActType, ObsType, RenderFrame
 
 from font import get_font
 from .initial_environment import InitialEnvironment
