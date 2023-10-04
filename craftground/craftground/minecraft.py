@@ -15,6 +15,7 @@ def wait_for_server(port: int) -> socket.socket:
             socket_path = f"/tmp/minecraftrl_{port}.sock"
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             s.connect(socket_path)
+            s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             # s.connect(("127.0.0.1", port))
             s.settimeout(30)
             return s
