@@ -1,4 +1,4 @@
-import mydojo
+import craftground
 from environments.base_environment import BaseEnvironment
 
 
@@ -28,7 +28,7 @@ class MansionEnvironment(BaseEnvironment):
             "kill @e[type=!player]",  # kill all mobs, items except player
         ]
 
-        return mydojo.make(
+        return craftground.make(
             verbose=verbose,
             env_path=env_path,
             port=port,

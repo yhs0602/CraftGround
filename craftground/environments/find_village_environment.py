@@ -1,4 +1,4 @@
-import mydojo
+import craftground
 from environments.base_environment import BaseEnvironment
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
@@ -20,7 +20,7 @@ class FindVillageEnvironment(BaseEnvironment):
     ):
         class FindVillageWrapper(CleanUpFastResetWrapper):
             def __init__(self):
-                self.env = mydojo.make(
+                self.env = craftground.make(
                     verbose=verbose,
                     env_path=env_path,
                     port=port,

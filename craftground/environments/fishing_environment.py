@@ -1,4 +1,4 @@
-import mydojo
+import craftground
 from environments.base_environment import BaseEnvironment
 
 
@@ -17,7 +17,7 @@ class FishingEnvironment(BaseEnvironment):
         *args,
         **kwargs,
     ):
-        return mydojo.make(
+        return craftground.make(
             verbose=verbose,
             env_path=env_path,
             port=port,

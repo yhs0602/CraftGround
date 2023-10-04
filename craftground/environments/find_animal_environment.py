@@ -3,7 +3,7 @@ from typing import Optional, Any
 
 from gymnasium.core import WrapperObsType
 
-import mydojo
+import craftground
 from environments.base_environment import BaseEnvironment
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 
@@ -55,7 +55,7 @@ class FindAnimalEnvironment(BaseEnvironment):
                     summon_animal_commands("pig", coords[1][0], coords[1][1]),
                     summon_animal_commands("chicken", coords[2][0], coords[2][1]),
                 ] * 7
-                self.env = mydojo.make(
+                self.env = craftground.make(
                     verbose=verbose,
                     env_path=env_path,
                     port=port,
