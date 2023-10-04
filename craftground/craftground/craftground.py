@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from gymnasium.core import ActType, ObsType, RenderFrame
 
-from font import get_font
+from .font import get_font
 from .initial_environment import InitialEnvironment
 from .action_space import ActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
