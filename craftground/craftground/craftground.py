@@ -14,8 +14,8 @@ from PIL import Image, ImageDraw
 from gym.core import ActType, ObsType, RenderFrame
 
 from font import get_font
-from mydojo.initial_environment import InitialEnvironment
-from .MyActionSpace import MyActionSpace, MultiActionSpace
+from .initial_environment import InitialEnvironment
+from .action_space import ActionSpace, MultiActionSpace
 from .buffered_socket import BufferedSocket
 from .minecraft import (
     wait_for_server,
@@ -27,7 +27,7 @@ from .minecraft import (
 from .proto import observation_space_pb2, initial_environment_pb2
 
 
-class MyEnv(gym.Env):
+class CraftGroundEnvironment(gym.Env):
     def __init__(
         self,
         initial_env: InitialEnvironment,
@@ -36,7 +36,7 @@ class MyEnv(gym.Env):
         port=8000,
         render_action: bool = False,
     ):
-        self.action_space = MyActionSpace(6)
+        self.action_space = ActionSpace(6)
         self.observation_space = gym.spaces.Box(
             low=0,
             high=255,
@@ -295,7 +295,7 @@ class MyEnv(gym.Env):
 
 
 # Deprecated
-class MultiDiscreteEnv(MyEnv):
+class MultiDiscreteEnv(CraftGroundEnvironment):
     def __init__(self, initial_env: InitialEnvironment):
         super(MultiDiscreteEnv, self).__init__(initial_env)
         self.action_space = MultiActionSpace([3, 3, 4, 25, 25, 8, 244, 36])

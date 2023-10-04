@@ -1,7 +1,7 @@
 from typing import Union
 
-from mydojo.initial_environment import InitialEnvironment
-from mydojo.MyEnv import MyEnv, MultiDiscreteEnv
+from .craftground import CraftGroundEnvironment, MultiDiscreteEnv
+from .initial_environment import InitialEnvironment
 
 
 def make(
@@ -11,10 +11,10 @@ def make(
     port=8000,
     render_action=False,
     **kwargs,
-) -> Union[MyEnv, MultiDiscreteEnv]:
+) -> Union[CraftGroundEnvironment, MultiDiscreteEnv]:
     env = InitialEnvironment(**kwargs)
     if multidiscrete:
         return MultiDiscreteEnv(env)
-    return MyEnv(
+    return CraftGroundEnvironment(
         env, verbose=verbose, env_path=env_path, port=port, render_action=render_action
     )

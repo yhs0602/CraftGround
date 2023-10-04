@@ -4,12 +4,12 @@ import gymnasium as gym
 import numpy as np
 
 
-class MyActionSpace(gym.spaces.Discrete):
+class ActionSpace(gym.spaces.Discrete):
     def __init__(self, n):
-        super(MyActionSpace, self).__init__(n)
+        super(ActionSpace, self).__init__(n)
 
     def sample(self, mask: Optional[np.ndarray] = None) -> int:
-        super(MyActionSpace, self).sample()
+        super(ActionSpace, self).sample()
         return np.random.randint(self.n)
 
     def contains(self, x):
