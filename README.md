@@ -3,49 +3,55 @@
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fyhs0602%2FMinecraftRL)](https://github.com/yhs0602/MinecraftRL)
 
 RL experiments using lightweight minecraft environment
+
 ## Quick start
-```shell
-pip install git+https://github.com/yhs0602/CraftGround
-```
 
-```python
-from craftground import craftground
-
-if __name__ == "__main__":
-    env = craftground.make(
-        verbose=True,
-        port=8000,
-        initialInventoryCommands=[],
-        initialPosition=None,  # nullable
-        initialMobsCommands=[
-            "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
-            # player looks at south (positive Z) when spawn
-        ],
-        imageSizeX=320,
-        imageSizeY=240,
-        visibleSizeX=320,
-        visibleSizeY=240,
-        seed=12345,  # nullable
-        allowMobSpawn=False,
-        alwaysDay=True,
-        alwaysNight=False,
-        initialWeather="clear",  # nullable
-        isHardCore=False,
-        isWorldFlat=True,  # superflat world
-        obs_keys=["sound_subtitles"],
-        initialExtraCommands=[],
-        isHudHidden=False,
-        render_action=True,
-        render_distance=2,
-        simulation_distance=5,
-    )
-    env.reset(
-        options={
-            "fast_reset": True,
-        }
-    )
-
-```
+1. You need to install JDK >= 17
+1. You need to clone https://github.com/yhs0602/MinecraftEnv, and specify the path to the `env_path` parameter
+   of `make()`.
+1. Then run the following command
+    ```shell
+    pip install git+https://github.com/yhs0602/CraftGround
+    ```
+1. Here is a simple example that uses this environment.
+    ```python
+   from craftground import craftground
+    
+   if __name__ == "__main__":
+        env = craftground.make(
+            env_path="../MinecraftEnv",
+            verbose=True,
+            port=8000,
+            initialInventoryCommands=[],
+            initialPosition=None,  # nullable
+            initialMobsCommands=[
+                "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                # player looks at south (positive Z) when spawn
+            ],
+            imageSizeX=320,
+            imageSizeY=240,
+            visibleSizeX=320,
+            visibleSizeY=240,
+            seed=12345,  # nullable
+            allowMobSpawn=False,
+            alwaysDay=True,
+            alwaysNight=False,
+            initialWeather="clear",  # nullable
+            isHardCore=False,
+            isWorldFlat=True,  # superflat world
+            obs_keys=["sound_subtitles"],
+            initialExtraCommands=[],
+            isHudHidden=False,
+            render_action=True,
+            render_distance=2,
+            simulation_distance=5,
+        )
+        env.reset(
+            options={
+                "fast_reset": True,
+            }
+        )
+    ```
 
 # Environment
 
