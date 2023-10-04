@@ -1,0 +1,3 @@
+[submodule "craftground/MinecraftEnv"]
+	path = craftground/MinecraftEnv
+	url = https://github.com/yhs0602/MinecraftEnv.git
