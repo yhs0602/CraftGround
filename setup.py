@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 packages = find_packages()
 setup(
     name="craftground",
-    version="1.12",
+    version="1.13",
     packages=packages,
     install_requires=["gymnasium", "Pillow", "numpy", "protobuf", "typing_extensions"],
     author="yhs0602",
@@ -13,7 +13,10 @@ setup(
     keywords="minecraft, reinforcement learning, environment",
     url="https://github.com/yhs0602/CraftGround",
     package_data={
-        packages[0]: ["craftground/MinecraftEnv/*", "DejaVuSans-ExtraLight.ttf"]
+        packages[0]: [
+            "craftground/MinecraftEnv/*",
+            "craftground/DejaVuSans-ExtraLight.ttf",
+        ]
     },
     include_package_data=True,
 )
