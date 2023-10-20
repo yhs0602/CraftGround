@@ -79,4 +79,5 @@ message ObservationSpaceMessage {
   bool bobber_thrown = 20;
   int32 experience = 21;
   int64 world_time = 22;
+  string last_death_message = 23;
 }
