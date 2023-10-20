@@ -1,114 +1,28 @@
 from collections import OrderedDict
-from copy import deepcopy
-from typing import Any, Optional, List, Type, Dict
+from typing import List, Callable, Dict, Any, Tuple
 
 import gymnasium as gym
 import numpy as np
-from stable_baselines3.common.vec_env import VecEnv
-from stable_baselines3.common.vec_env.base_vec_env import (
-    VecEnvIndices,
-    VecEnvStepReturn,
-    VecEnvObs,
-)
+from gymnasium import spaces
+from stable_baselines3.common.vec_env import DummyVecEnv, VecEnv
 from stable_baselines3.common.vec_env.patch_gym import _patch_env
-from stable_baselines3.common.vec_env.util import (
-    obs_space_info,
-    dict_to_obs,
-    copy_obs_dict,
-)
 
 
-# Sound wrapper
-class StableBaseline3Wrapper(VecEnv):
-    actions: np.ndarray
-
-    def step_async(self, actions: np.ndarray) -> None:
-        self.actions = actions
-
-    def step_wait(self) -> VecEnvStepReturn:
-        # Avoid circular imports
-        env_idx = 0
-        obs, self.buf_rews[0], terminated, truncated, self.buf_infos[0] = self.env.step(
-            self.actions[0]
-        )
-        # convert to SB3 VecEnv api
-        self.buf_dones[0] = terminated or truncated
-        # See https://github.com/openai/gym/issues/3102
-        # Gym 0.26 introduces a breaking change
-        self.buf_infos[0]["TimeLimit.truncated"] = truncated and not terminated
-
-        if self.buf_dones[0]:
-            # save final observation where user can get it, then reset
-            self.buf_infos[0]["terminal_observation"] = obs
-            obs, self.reset_infos[0] = self.env.reset()
-        self._save_obs(0, obs)
-        return (
-            self._obs_from_buf(),
-            np.copy(self.buf_rews),
-            np.copy(self.buf_dones),
-            deepcopy(self.buf_infos),
-        )
-
-    def close(self) -> None:
-        self.env.close()
-
-    def get_attr(self, attr_name: str, indices: VecEnvIndices = None) -> List[Any]:
-        """Return attribute from vectorized environment (see base class)."""
-        target_envs = self._get_target_envs(indices)
-        return [getattr(env_i, attr_name) for env_i in target_envs]
-
-    def set_attr(
-        self, attr_name: str, value: Any, indices: VecEnvIndices = None
-    ) -> None:
-        """Set attribute inside vectorized environments (see base class)."""
-        target_envs = self._get_target_envs(indices)
-        for env_i in target_envs:
-            setattr(env_i, attr_name, value)
-
-    def env_method(
-        self,
-        method_name: str,
-        *method_args,
-        indices: VecEnvIndices = None,
-        **method_kwargs,
-    ) -> List[Any]:
-        """Call instance methods of vectorized environments."""
-        target_envs = self._get_target_envs(indices)
-        return [
-            getattr(env_i, method_name)(*method_args, **method_kwargs)
-            for env_i in target_envs
-        ]
-
-    def env_is_wrapped(
-        self, wrapper_class: Type[gym.Wrapper], indices: VecEnvIndices = None
-    ) -> List[bool]:
-        """Check if worker environments are wrapped with a given wrapper"""
-        target_envs = self._get_target_envs(indices)
-        # Import here to avoid a circular import
-        from stable_baselines3.common import env_util
-
-        return [env_util.is_wrapped(env_i, wrapper_class) for env_i in target_envs]
-
-    def _get_target_envs(self, indices: VecEnvIndices) -> List[gym.Env]:
-        return [self.env]
-
-    def _save_obs(self, env_idx: int, obs: VecEnvObs) -> None:
-        for key in self.keys:
-            if key is None:
-                self.buf_obs[key][0] = obs
-            else:
-                self.buf_obs[key][0] = obs[key]  # type: ignore[call-overload]
-
-    def _obs_from_buf(self) -> VecEnvObs:
-        return dict_to_obs(self.observation_space, copy_obs_dict(self.buf_obs))
-
-    def __init__(
-        self,
-        env: gym.Env,
-    ):
-        self.env = _patch_env(env)
-        env = self.env
-        super().__init__(1, env.observation_space, env.action_space)
+class StableBaseline3Wrapper(DummyVecEnv):
+    def __init__(self, env_fns: List[Callable[[], gym.Env]]):
+        self.envs = [_patch_env(fn()) for fn in env_fns]
+        if len(set([id(env.unwrapped) for env in self.envs])) != len(self.envs):
+            raise ValueError(
+                "You tried to create multiple environments, but the function to create them returned the same instance "
+                "instead of creating different objects. "
+                "You are probably using `make_vec_env(lambda: env)` or `DummyVecEnv([lambda: env] * n_envs)`. "
+                "You should replace `lambda: env` by a `make_env` function that "
+                "creates a new instance of the environment at every call "
+                "(using `gym.make()` for instance). You can take a look at the documentation for an example. "
+                "Please read https://github.com/DLR-RM/stable-baselines3/issues/1151 for more information."
+            )
+        env = self.envs[0]
+        VecEnv.__init__(self, len(env_fns), env.observation_space, env.action_space)
         obs_space = env.observation_space
         self.keys, shapes, dtypes = obs_space_info(obs_space)
 
@@ -123,13 +37,52 @@ class StableBaseline3Wrapper(VecEnv):
         self.buf_infos: List[Dict[str, Any]] = [{} for _ in range(self.num_envs)]
         self.metadata = env.metadata
 
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-    ):
-        obs, self.reset_infos[0] = self.env.reset(seed=self._seeds[0])
-        self._save_obs(0, obs)
-        # Seeds are only used once
-        self._reset_seeds()
-        return self._obs_from_buf()
+
+def obs_space_info(
+    obs_space: spaces.Space, parent_key: str = None
+) -> Tuple[List[str], Dict[Any, Tuple[int, ...]], Dict[Any, np.dtype]]:
+    """
+    Get dict-structured information about a gym.Space.
+
+    Dict spaces are represented directly by their dict of subspaces.
+    Tuple spaces are converted into a dict with keys indexing into the tuple.
+    Unstructured spaces are represented by {None: obs_space}.
+
+    :param obs_space: an observation space
+    :param parent_key: a prefix to prepend to dict keys
+    :return: A tuple (keys, shapes, dtypes):
+        keys: a list of dict keys.
+        shapes: a dict mapping keys to shapes.
+        dtypes: a dict mapping keys to dtypes.
+    """
+    # check_for_nested_spaces(obs_space)
+    if isinstance(obs_space, spaces.Dict):
+        assert isinstance(
+            obs_space.spaces, OrderedDict
+        ), "Dict space must have ordered subspaces"
+        subspaces = obs_space.spaces
+    elif isinstance(obs_space, spaces.Tuple):
+        subspaces = {i: space for i, space in enumerate(obs_space.spaces)}  # type: ignore[assignment]
+    else:
+        assert not hasattr(
+            obs_space, "spaces"
+        ), f"Unsupported structured space '{type(obs_space)}'"
+        subspaces = {None: obs_space}  # type: ignore[assignment]
+    keys = []
+    shapes = {}
+    dtypes = {}
+    for key, space in subspaces.items():
+        if parent_key is not None:
+            full_key = f"{parent_key}/{key}" if key is not None else parent_key
+        else:
+            full_key = str(key) if key is not None else None
+        if isinstance(space, (spaces.Dict, spaces.Tuple)):
+            nested_keys, nested_shapes, nested_dtypes = obs_space_info(space, full_key)
+            keys.extend(nested_keys)
+            shapes.update(nested_shapes)
+            dtypes.update(nested_dtypes)
+        else:
+            keys.append(full_key)
+            shapes[full_key] = space.shape
+            dtypes[full_key] = space.dtype
+    return keys, shapes, dtypes
