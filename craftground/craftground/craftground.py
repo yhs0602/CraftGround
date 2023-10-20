@@ -243,12 +243,8 @@ class CraftGroundEnvironment(gym.Env):
         self.process = None
         if env_path is None:
             self.env_path = os.path.join(
-                os.path.dirname(
-                    os.path.dirname(
-                        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    )
-                ),
-                "minecraft_env",
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "MinecraftEnv",
             )
         else:
             self.env_path = env_path
