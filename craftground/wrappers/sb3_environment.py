@@ -2,7 +2,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from typing import Any, Optional, List, Type, Dict
 
-import gym
+import gymnasium as gym
 import numpy as np
 from stable_baselines3.common.vec_env import VecEnv
 from stable_baselines3.common.vec_env.base_vec_env import (
