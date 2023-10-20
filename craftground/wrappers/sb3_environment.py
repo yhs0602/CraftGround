@@ -63,6 +63,8 @@ def obs_space_info(
         subspaces = obs_space.spaces
     elif isinstance(obs_space, spaces.Tuple):
         subspaces = {i: space for i, space in enumerate(obs_space.spaces)}  # type: ignore[assignment]
+    elif isinstance(obs_space, spaces.Sequence):
+        subspaces = {}  # type: ignore[assignment]
     else:
         assert not hasattr(
             obs_space, "spaces"
@@ -83,6 +85,6 @@ def obs_space_info(
             dtypes.update(nested_dtypes)
         else:
             keys.append(full_key)
-            shapes[full_key] = space.shape
-            dtypes[full_key] = space.dtype
+            shapes[full_key] = space.shape if space.shape is not None else ()
+            dtypes[full_key] = space.dtype if space.dtype is not None else np.float32
     return keys, shapes, dtypes
