@@ -70,6 +70,8 @@ class CraftGroundEnvironment(gym.Env):
         seed: Optional[int] = None,
         options: Optional[dict] = None,
     ) -> Tuple[ObsType, Dict[str, Any]]:
+        if options is None:
+            options = {}
         fast_reset = options.get("fast_reset", False)
         extra_commands = options.get("extra_commands", [])
         if not self.sock:  # first time
