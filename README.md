@@ -7,9 +7,7 @@ RL experiments using lightweight minecraft environment
 ## Quick start
 
 1. You need to install JDK >= 17
-1. You need to clone https://github.com/yhs0602/MinecraftEnv, and specify the path to the `env_path` parameter
-   of `make()`.
-1. Then run the following command
+1. Run the following command to install the package.
     ```shell
     pip install git+https://github.com/yhs0602/CraftGround
     ```
