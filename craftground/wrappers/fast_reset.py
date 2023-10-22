@@ -18,5 +18,4 @@ class FastResetWrapper(gym.Wrapper):
             options = {}
         options["fast_reset"] = True
         obs, info = self.env.reset(seed=seed, options=options)
-        rgb = info["rgb"]
-        return rgb, info
+        return obs, info
