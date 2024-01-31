@@ -298,3 +298,4 @@ dejavu-fonts-ttf-2.37.zip
 dejavu-fonts-ttf-2.37
 *.pth
 .pdm-python
+.DS_Store
