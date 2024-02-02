@@ -227,3 +227,7 @@ Below are detailed specifications of the environment's architecture:
 https://dejavu-fonts.github.io/License.html
 
 
+# Adding a new paramerter
+1. Edit .proto
+2. protoc
+3. Edit python files

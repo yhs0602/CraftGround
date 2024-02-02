@@ -31,4 +31,5 @@ message InitialEnvironmentMessage {
   int32 render_distance = 21;
   int32 simulation_distance = 22;
   bool biocular = 23;
+  float eye_distance = 24;
 }

@@ -29,6 +29,8 @@ class InitialEnvironment:
         isHudHidden: bool = False,
         render_distance: int = 2,
         simulation_distance: int = 5,
+        eye_distance: float = 0.1,
+        **kwargs,
     ):
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
@@ -54,3 +56,6 @@ class InitialEnvironment:
         self.render_distance = render_distance
         self.simulation_distance = simulation_distance
         self.is_biocular = is_biocular
+        self.eye_distance = eye_distance
+        if kwargs:
+            print(f"Unexpected Kwargs: {kwargs}")

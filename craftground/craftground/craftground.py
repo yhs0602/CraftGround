@@ -34,6 +34,7 @@ class CraftGroundEnvironment(gym.Env):
         env_path=None,
         port=8000,
         render_action: bool = False,
+        render_alternating_eyes: bool = False,
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -247,6 +248,7 @@ class CraftGroundEnvironment(gym.Env):
         self.last_action = None
         self.render_action = render_action
         self.verbose = verbose
+        self.render_alternating_eyes = render_alternating_eyes
         self.port = port
         self.queued_commands = []
         self.process = None
@@ -391,6 +393,7 @@ class CraftGroundEnvironment(gym.Env):
             else 6
         )
         initial_env.biocular = self.initial_env.is_biocular
+        initial_env.eye_distance = self.initial_env.eye_distance
         # print(
         #     "Sending initial environment... ",
         # )
