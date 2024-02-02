@@ -243,12 +243,13 @@ class CraftGroundEnvironment(gym.Env):
         self.initial_env = initial_env
         self.sock = None
         self.buffered_socket = None
-        self.last_rgb_frame = None
-        self.last_image = None
+        self.last_rgb_frames = [None, None]
+        self.last_images = [None, None]
         self.last_action = None
         self.render_action = render_action
         self.verbose = verbose
         self.render_alternating_eyes = render_alternating_eyes
+        self.render_alternating_eyes_counter = 0
         self.port = port
         self.queued_commands = []
         self.process = None
@@ -284,29 +285,34 @@ class CraftGroundEnvironment(gym.Env):
         print_with_time("Reading response...")
         siz, res = self.read_one_observation()
         print_with_time(f"Got response with size {siz}")
-        rgb_1 = self.convert_observation(res.image)
+        rgb_1, img_1, frame_1 = self.convert_observation(res.image)
         rgb_2 = None
+        img_2 = None
+        frame_2 = None
         if res.image_2 is not None and res.image_2 != b"":
-            rgb_2 = self.convert_observation(res.image_2)
+            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2)
         self.queued_commands = []
         final_obs = {
             "obs": res,
             "rgb": rgb_1,
         }
+        self.last_images = [img_1, img_2]
+        self.last_rgb_frames = [frame_1, frame_2]
         if rgb_2 is not None:
             final_obs["rgb_2"] = rgb_2
         return final_obs, final_obs
 
-    def convert_observation(self, png_img: bytes) -> np.ndarray:
+    def convert_observation(
+        self, png_img: bytes
+    ) -> Tuple[np.ndarray, Image, np.ndarray]:
         # decode png byte array to numpy array
         # Create a BytesIO object from the byte array
         bytes_io = io.BytesIO(png_img)
         # Use PIL to open the image from the BytesIO object
         img = Image.open(bytes_io).convert("RGB")
-        self.last_image = img
         # Convert the PIL image to a numpy array
-        self.last_rgb_frame = np.array(img)
-        arr = np.transpose(self.last_rgb_frame, (2, 1, 0))
+        last_rgb_frame = np.array(img)
+        arr = np.transpose(last_rgb_frame, (2, 1, 0))
         # Optionally, you can convert the array to a specific data type, such as uint8
         arr = arr.astype(np.uint8)
         # health = res["health"]
@@ -318,7 +324,7 @@ class CraftGroundEnvironment(gym.Env):
         # for subtitle in soundSubtitles:
         #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
 
-        return arr
+        return arr, img, last_rgb_frame
 
     def start_server(self, port=8000):
         my_env = os.environ.copy()
@@ -410,14 +416,18 @@ class CraftGroundEnvironment(gym.Env):
         # read the response
         print_with_time("Sent action and reading response...")
         siz, res = self.read_one_observation()
-        rgb_1 = self.convert_observation(res.image)
+        rgb_1, img_1, frame_1 = self.convert_observation(res.image)
         rgb_2 = None
+        img_2 = None
+        frame_2 = None
         if res.image_2 is not None and res.image_2 != b"":
-            rgb_2 = self.convert_observation(res.image_2)
+            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2)
         final_obs = {
             "obs": res,
             "rgb": rgb_1,
         }
+        self.last_images = [img_1, img_2]
+        self.last_rgb_frames = [frame_1, frame_2]
         if rgb_2 is not None:
             final_obs["rgb_2"] = rgb_2
 
@@ -434,17 +444,30 @@ class CraftGroundEnvironment(gym.Env):
 
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
         # print("Rendering...")
+        # select last_image and last_frame
+        if self.render_alternating_eyes:
+            last_image = self.last_images[self.render_alternating_eyes_counter]
+            last_rgb_frame = self.last_rgb_frames[self.render_alternating_eyes_counter]
+            self.render_alternating_eyes_counter = (
+                1 - self.render_alternating_eyes_counter
+            )
+        else:
+            last_image = self.last_images[0]
+            last_rgb_frame = self.last_rgb_frames[0]
+        if last_image is None:
+            return None
+
         if self.render_action and self.last_action:
-            draw = ImageDraw.Draw(self.last_image)
+            draw = ImageDraw.Draw(last_image)
             text = self.action_to_symbol(self.last_action)
             position = (0, 0)
             font = get_font()
             font_size = 8
             color = (255, 0, 0)
             draw.text(position, text, font=font, font_size=font_size, fill=color)
-            return np.array(self.last_image)
+            return np.array(last_image)
         else:
-            return self.last_rgb_frame
+            return last_rgb_frame
 
     def action_to_symbol(self, action) -> str:
         res = ""
