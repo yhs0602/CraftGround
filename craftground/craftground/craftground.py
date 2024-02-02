@@ -304,7 +304,7 @@ class CraftGroundEnvironment(gym.Env):
 
     def convert_observation(
         self, png_img: bytes
-    ) -> Tuple[np.ndarray, Image, np.ndarray]:
+    ) -> Tuple[np.ndarray, "Image", np.ndarray]:
         # decode png byte array to numpy array
         # Create a BytesIO object from the byte array
         bytes_io = io.BytesIO(png_img)
