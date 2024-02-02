@@ -226,6 +226,15 @@ class CraftGroundEnvironment(gym.Env):
                         "world_time": spaces.Box(
                             low=-np.inf, high=np.inf, shape=(1,), dtype=np.int64
                         ),
+                        "last_death_message": spaces.Text(
+                            min_length=0, max_length=1000
+                        ),
+                        "image_2": spaces.Box(
+                            low=0,
+                            high=255,
+                            shape=(initial_env.imageSizeX, initial_env.imageSizeY, 3),
+                            dtype=np.uint8,
+                        ),
                     }
                 ),
             }
@@ -273,13 +282,20 @@ class CraftGroundEnvironment(gym.Env):
         print_with_time("Reading response...")
         siz, res = self.read_one_observation()
         print_with_time(f"Got response with size {siz}")
-        arr, done, reward, truncated = self.convert_observation(res)
+        rgb_1 = self.convert_observation(res.image)
+        rgb_2 = None
+        if res.image_2 is not None and res.image_2 != b"":
+            rgb_2 = self.convert_observation(res.image_2)
         self.queued_commands = []
+        final_obs = {
+            "obs": res,
+            "rgb": rgb_1,
+        }
+        if rgb_2 is not None:
+            final_obs["rgb_2"] = rgb_2
+        return final_obs, final_obs
 
-        return {"obs": res, "rgb": arr}, {"obs": res, "rgb": arr}
-
-    def convert_observation(self, res):
-        png_img = res.image  # png byte array
+    def convert_observation(self, png_img: bytes) -> np.ndarray:
         # decode png byte array to numpy array
         # Create a BytesIO object from the byte array
         bytes_io = io.BytesIO(png_img)
@@ -299,10 +315,8 @@ class CraftGroundEnvironment(gym.Env):
         # soundSubtitles = res["soundSubtitles"]
         # for subtitle in soundSubtitles:
         #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
-        reward = 0  # Initialize reward to zero
-        done = False  # Initialize done flag to False
-        truncated = False  # Initialize truncated flag to False
-        return arr, done, reward, truncated
+
+        return arr
 
     def start_server(self, port=8000):
         my_env = os.environ.copy()
@@ -376,6 +390,7 @@ class CraftGroundEnvironment(gym.Env):
             if self.initial_env.simulation_distance is not None
             else 6
         )
+        initial_env.biocular = self.initial_env.is_biocular
         # print(
         #     "Sending initial environment... ",
         # )
@@ -392,14 +407,26 @@ class CraftGroundEnvironment(gym.Env):
         # read the response
         print_with_time("Sent action and reading response...")
         siz, res = self.read_one_observation()
-        arr, done, reward, truncated = self.convert_observation(res)
+        rgb_1 = self.convert_observation(res.image)
+        rgb_2 = None
+        if res.image_2 is not None and res.image_2 != b"":
+            rgb_2 = self.convert_observation(res.image_2)
+        final_obs = {
+            "obs": res,
+            "rgb": rgb_1,
+        }
+        if rgb_2 is not None:
+            final_obs["rgb_2"] = rgb_2
 
+        reward = 0  # Initialize reward to zero
+        done = False  # Initialize done flag to False
+        truncated = False  # Initialize truncated flag to False
         return (
-            {"obs": res, "rgb": arr},
+            final_obs,
             reward,
             done,
             truncated,
-            {"obs": res, "rgb": arr},
+            final_obs,
         )
 
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:

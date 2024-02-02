@@ -17,6 +17,7 @@ class InitialEnvironment:
         initialWeather,
         isHardCore,
         isWorldFlat,
+        is_biocular=False,
         visibleSizeX=None,
         visibleSizeY=None,
         initialExtraCommands=None,
@@ -52,3 +53,4 @@ class InitialEnvironment:
         self.isHudHidden = isHudHidden
         self.render_distance = render_distance
         self.simulation_distance = simulation_distance
+        self.is_biocular = is_biocular
