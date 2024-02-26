@@ -4,6 +4,8 @@
 
 RL experiments using lightweight minecraft environment
 
+This is the latest development repository of CraftGround environment.
+
 ## Quick start
 
 1. You need to install JDK >= 17
