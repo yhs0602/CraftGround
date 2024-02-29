@@ -515,6 +515,7 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.extend(commands)
 
     def terminate(self):
+        raise NotImplementedError("This method is not implemented yet")
         if self.sock is not None:
             send_exit(self.sock)
             self.sock.close()
