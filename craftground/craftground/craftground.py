@@ -35,6 +35,7 @@ class CraftGroundEnvironment(gym.Env):
         port=8000,
         render_action: bool = False,
         render_alternating_eyes: bool = False,
+        use_terminate: bool = False,
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -241,6 +242,7 @@ class CraftGroundEnvironment(gym.Env):
             }
         )
         self.initial_env = initial_env
+        self.use_terminate = use_terminate
         self.sock = None
         self.buffered_socket = None
         self.last_rgb_frames = [None, None]
@@ -506,7 +508,10 @@ class CraftGroundEnvironment(gym.Env):
         return "rgb_array"
 
     def close(self):
-        self.terminate()
+        if not self.use_terminate:
+            self.terminate()
+        else:
+            print("Not terminating the java process")
 
     def add_command(self, command: str):
         self.queued_commands.append(command)
@@ -515,7 +520,6 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.extend(commands)
 
     def terminate(self):
-        raise NotImplementedError("This method is not implemented yet")
         if self.sock is not None:
             send_exit(self.sock)
             self.sock.close()
