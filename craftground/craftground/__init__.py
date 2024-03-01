@@ -8,6 +8,7 @@ def make(
     port=8000,
     render_action=False,
     render_alternating_eyes=False,
+    use_terminate=False,
     **kwargs,
 ) -> CraftGroundEnvironment:
     env = InitialEnvironment(**kwargs)
@@ -18,4 +19,5 @@ def make(
         port=port,
         render_action=render_action,
         render_alternating_eyes=render_alternating_eyes,
+        use_terminate=use_terminate,
     )
