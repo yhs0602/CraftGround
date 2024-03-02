@@ -1,5 +1,6 @@
 import io
 import os
+import signal
 import socket
 import struct
 import subprocess
@@ -529,6 +530,7 @@ class CraftGroundEnvironment(gym.Env):
         # wait for the pid to exit
         try:
             if pid:
+                os.kill(pid, signal.SIGKILL)
                 _, exit_status = os.waitpid(pid, 0)
             else:
                 print("No pid to wait for")
