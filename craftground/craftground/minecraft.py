@@ -111,14 +111,14 @@ def send_commands(sock: socket.socket, commands: List[str]):
 def send_action_and_commands(
     sock: socket.socket, action_array: List[int], commands: List[str]
 ):
-    # print("Sending command")
+    print("Sending action and commands")
     action_space = action_space_pb2.ActionSpaceMessage()
     action_space.action.extend(action_array)
     action_space.commands.extend(commands)
     v = action_space.SerializeToString()
     sock.send(struct.pack("<I", len(v)))
     sock.sendall(v)
-    # print("Sent command")
+    print("Sent actions and commands")
 
 
 def send_fastreset2(sock: socket.socket, extra_commands: List[str] = None):

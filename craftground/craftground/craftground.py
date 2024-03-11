@@ -542,6 +542,6 @@ class CraftGroundEnvironment(gym.Env):
 
 
 def print_with_time(*args, **kwargs):
-    return  # disable
+    # return  # disable
     time_str = datetime.now().strftime("%H:%M:%S.%f")
     print(f"[{time_str}]", *args, **kwargs)
