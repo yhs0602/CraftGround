@@ -37,6 +37,7 @@ class CraftGroundEnvironment(gym.Env):
         render_action: bool = False,
         render_alternating_eyes: bool = False,
         use_terminate: bool = False,
+        cleanup_world: bool = True,  # removes the world when the environment is closed
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -244,6 +245,7 @@ class CraftGroundEnvironment(gym.Env):
         )
         self.initial_env = initial_env
         self.use_terminate = use_terminate
+        self.cleanup_world = cleanup_world
         self.sock = None
         self.buffered_socket = None
         self.last_rgb_frames = [None, None]
