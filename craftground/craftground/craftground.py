@@ -267,7 +267,7 @@ class CraftGroundEnvironment(gym.Env):
             )
         else:
             self.env_path = env_path
-        self.csv_logger = CsvLogger("py.csv")
+        self.csv_logger = CsvLogger("py.csv", enabled=verbose and False)
 
     def reset(
         self,
