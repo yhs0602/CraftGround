@@ -16,6 +16,7 @@ from gymnasium.core import ActType, ObsType, RenderFrame
 
 from .action_space import ActionSpace
 from .buffered_socket import BufferedSocket
+from .csv_logger import CsvLogger
 from .font import get_font
 from .initial_environment import InitialEnvironment
 from .minecraft import (
@@ -25,6 +26,7 @@ from .minecraft import (
     send_exit,
 )
 from .proto import observation_space_pb2, initial_environment_pb2
+import csv
 
 
 class CraftGroundEnvironment(gym.Env):
@@ -265,6 +267,7 @@ class CraftGroundEnvironment(gym.Env):
             )
         else:
             self.env_path = env_path
+        self.csv_logger = CsvLogger("py.csv")
 
     def reset(
         self,
@@ -286,10 +289,13 @@ class CraftGroundEnvironment(gym.Env):
                 self.start_server(port=self.port)
             else:
                 send_fastreset2(self.sock, extra_commands)
+                self.csv_logger.log("Sent fast reset")
                 print_with_time("Sent fast reset")
         print_with_time("Reading response...")
+        self.csv_logger.log("Reading response...")
         siz, res = self.read_one_observation()
         print_with_time(f"Got response with size {siz}")
+        self.csv_logger.log(f"Got response with size {siz}")
         rgb_1, img_1, frame_1 = self.convert_observation(res.image)
         rgb_2 = None
         img_2 = None
@@ -347,6 +353,7 @@ class CraftGroundEnvironment(gym.Env):
         self.buffered_socket = BufferedSocket(self.sock)
         # self.json_socket.send_json_as_base64(self.initial_env.to_dict())
         print_with_time(f"Sent initial environment")
+        self.csv_logger.log(f"Sent initial environment")
 
     def read_one_observation(self) -> (int, ObsType):
         # print("Reading observation size...")
@@ -420,7 +427,10 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.clear()
         # read the response
         print_with_time("Sent action and reading response...")
+        self.csv_logger.log("Sent action and reading response...")
         siz, res = self.read_one_observation()
+        print_with_time("Read observation...")
+        self.csv_logger.log("Read observation...")
         rgb_1, img_1, frame_1 = self.convert_observation(res.image)
         rgb_2 = None
         img_2 = None
