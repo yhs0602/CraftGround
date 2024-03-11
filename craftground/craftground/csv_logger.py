@@ -10,6 +10,7 @@ class CsvLogger:
     def log(self, message):
         time_str = datetime.now().strftime("%H:%M:%S.%f")
         self.file.write(f"{time_str},{message}\n")
+        self.file.flush()
 
     def close(self):
         self.file.close()
