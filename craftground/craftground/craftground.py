@@ -412,6 +412,7 @@ class CraftGroundEnvironment(gym.Env):
         )
         initial_env.biocular = self.initial_env.is_biocular
         initial_env.eye_distance = self.initial_env.eye_distance
+        initial_env.structurePaths.extend(self.initial_env.structure_paths)
         # print(
         #     "Sending initial environment... ",
         # )

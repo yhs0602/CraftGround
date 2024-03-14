@@ -32,4 +32,5 @@ message InitialEnvironmentMessage {
   int32 simulation_distance = 22;
   bool biocular = 23;
   float eye_distance = 24;
+  repeated string structurePaths = 25;
 }

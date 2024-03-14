@@ -30,8 +30,11 @@ class InitialEnvironment:
         render_distance: int = 2,
         simulation_distance: int = 5,
         eye_distance: float = 0.1,
+        structure_paths=None,
         **kwargs,
     ):
+        if structure_paths is None:
+            structure_paths = []
         self.initialInventoryCommands = initialInventoryCommands
         self.initialPosition = initialPosition
         self.initialMobsCommands = initialMobsCommands
@@ -57,5 +60,6 @@ class InitialEnvironment:
         self.simulation_distance = simulation_distance
         self.is_biocular = is_biocular
         self.eye_distance = eye_distance
+        self.structure_paths = structure_paths
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
