@@ -3,10 +3,11 @@ from datetime import datetime
 
 class CsvLogger:
     def __init__(self, filename, enabled: bool = False):
-        self.filename = filename
-        self.file = open(filename, "w")
-        self.file.write("time,message\n")
-        self.enabled = enabled
+        if enabled:
+            self.filename = filename
+            self.file = open(filename, "w")
+            self.file.write("time,message\n")
+            self.enabled = enabled
 
     def log(self, message):
         if not self.enabled:
@@ -16,4 +17,6 @@ class CsvLogger:
         self.file.flush()
 
     def close(self):
+        if not self.enabled:
+            return
         self.file.close()
