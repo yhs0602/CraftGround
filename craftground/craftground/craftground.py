@@ -4,7 +4,6 @@ import signal
 import socket
 import struct
 import subprocess
-from datetime import datetime
 from time import sleep
 from typing import Tuple, Optional, Union, List, Any, Dict
 
@@ -14,6 +13,7 @@ from PIL import Image, ImageDraw
 from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
 
+import print_with_time
 from .action_space import ActionSpace
 from .buffered_socket import BufferedSocket
 from .csv_logger import CsvLogger
@@ -25,10 +25,8 @@ from .minecraft import (
     send_action_and_commands,
     send_exit,
 )
+from .print_with_time import print_with_time
 from .proto import observation_space_pb2, initial_environment_pb2
-import csv
-
-_do_print_with_time = False
 
 
 class CraftGroundEnvironment(gym.Env):
@@ -257,7 +255,7 @@ class CraftGroundEnvironment(gym.Env):
         self.last_action = None
         self.render_action = render_action
         self.verbose = verbose
-        _do_print_with_time = verbose
+        print_with_time.do_print_with_time = verbose
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
         self.port = port
@@ -554,10 +552,3 @@ class CraftGroundEnvironment(gym.Env):
         except ChildProcessError:
             print("Child process already terminated")
         print("Terminated the java process")
-
-
-def print_with_time(*args, **kwargs):
-    if not _do_print_with_time:
-        return
-    time_str = datetime.now().strftime("%H:%M:%S.%f")
-    print(f"[{time_str}]", *args, **kwargs)

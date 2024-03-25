@@ -5,7 +5,7 @@ import struct
 import time
 from typing import List
 
-from .craftground import print_with_time
+from .print_with_time import print_with_time
 from .json_socket import JSONSocket
 from .proto import action_space_pb2
 
