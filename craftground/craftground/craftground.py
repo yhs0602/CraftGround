@@ -13,7 +13,6 @@ from PIL import Image, ImageDraw
 from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
 
-import print_with_time
 from .action_space import ActionSpace
 from .buffered_socket import BufferedSocket
 from .csv_logger import CsvLogger
@@ -25,7 +24,7 @@ from .minecraft import (
     send_action_and_commands,
     send_exit,
 )
-from .print_with_time import print_with_time
+from .print_with_time import print_with_time, enable_print_with_time
 from .proto import observation_space_pb2, initial_environment_pb2
 
 
@@ -255,7 +254,8 @@ class CraftGroundEnvironment(gym.Env):
         self.last_action = None
         self.render_action = render_action
         self.verbose = verbose
-        print_with_time.do_print_with_time = verbose
+        if verbose:
+            enable_print_with_time()
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
         self.port = port
