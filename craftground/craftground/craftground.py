@@ -343,6 +343,7 @@ class CraftGroundEnvironment(gym.Env):
     def start_server(self, port=8000):
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
+        my_env["VERBOSE"] = str(int(self.verbose))
         self.process = subprocess.Popen(
             "./gradlew runClient",
             cwd=self.env_path,
