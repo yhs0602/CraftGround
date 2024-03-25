@@ -28,6 +28,8 @@ from .minecraft import (
 from .proto import observation_space_pb2, initial_environment_pb2
 import csv
 
+_do_print_with_time = False
+
 
 class CraftGroundEnvironment(gym.Env):
     def __init__(
@@ -255,6 +257,7 @@ class CraftGroundEnvironment(gym.Env):
         self.last_action = None
         self.render_action = render_action
         self.verbose = verbose
+        _do_print_with_time = verbose
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
         self.port = port
@@ -553,6 +556,7 @@ class CraftGroundEnvironment(gym.Env):
 
 
 def print_with_time(*args, **kwargs):
-    # return  # disable
+    if not _do_print_with_time:
+        return
     time_str = datetime.now().strftime("%H:%M:%S.%f")
     print(f"[{time_str}]", *args, **kwargs)
