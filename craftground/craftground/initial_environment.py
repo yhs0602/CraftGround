@@ -31,6 +31,7 @@ class InitialEnvironment:
         simulation_distance: int = 5,
         eye_distance: float = 0.1,
         structure_paths=None,
+        noWeatherCycle=True,
         **kwargs,
     ):
         if structure_paths is None:
@@ -61,5 +62,6 @@ class InitialEnvironment:
         self.is_biocular = is_biocular
         self.eye_distance = eye_distance
         self.structure_paths = structure_paths
+        self.noWeatherCycle = noWeatherCycle
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")

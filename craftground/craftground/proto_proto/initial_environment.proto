@@ -33,4 +33,5 @@ message InitialEnvironmentMessage {
   bool biocular = 23;
   float eye_distance = 24;
   repeated string structurePaths = 25;
+  bool noWeatherCycle = 26;
 }
