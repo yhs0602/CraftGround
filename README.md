@@ -223,6 +223,15 @@ Below are detailed specifications of the environment's architecture:
 | sound                   | Provides sound-based feedback or actions for the agent.                                             |
 | vision                  | Incorporates visual feedback or vision-based actions for the agent.                                 |
 
+# How to execute minecraft command in a gymnasium wrapper?
+```python
+self.get_wrapper_attr("add_commands")(
+    [
+        f"setblock 1 2 3 minecraft:cake"
+    ]
+)
+```
+
 
 # Devaju font license
 
