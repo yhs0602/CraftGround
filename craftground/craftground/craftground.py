@@ -268,7 +268,9 @@ class CraftGroundEnvironment(gym.Env):
             )
         else:
             self.env_path = env_path
-        self.csv_logger = CsvLogger("py.csv", enabled=verbose and False)
+        self.csv_logger = CsvLogger(
+            "py_log.csv", enabled=verbose and False, profile=True
+        )
 
     def reset(
         self,
@@ -289,15 +291,21 @@ class CraftGroundEnvironment(gym.Env):
                 sleep(5)
                 self.start_server(port=self.port)
             else:
+                self.csv_logger.profile_start("fast_reset")
                 send_fastreset2(self.sock, extra_commands)
+                self.csv_logger.profile_end("fast_reset")
                 self.csv_logger.log("Sent fast reset")
                 print_with_time("Sent fast reset")
         print_with_time("Reading response...")
         self.csv_logger.log("Reading response...")
+        self.csv_logger.profile_start("read_response")
         siz, res = self.read_one_observation()
+        self.csv_logger.profile_end("read_response")
         print_with_time(f"Got response with size {siz}")
         self.csv_logger.log(f"Got response with size {siz}")
+        self.csv_logger.profile_start("convert_observation")
         rgb_1, img_1, frame_1 = self.convert_observation(res.image)
+        self.csv_logger.profile_end("convert_observation")
         rgb_2 = None
         img_2 = None
         frame_2 = None
@@ -319,14 +327,18 @@ class CraftGroundEnvironment(gym.Env):
     ) -> Tuple[np.ndarray, "Image", np.ndarray]:
         # decode png byte array to numpy array
         # Create a BytesIO object from the byte array
+        self.csv_logger.profile_start("convert_observation/decode_png")
         bytes_io = io.BytesIO(png_img)
         # Use PIL to open the image from the BytesIO object
         img = Image.open(bytes_io).convert("RGB")
+        self.csv_logger.profile_end("convert_observation/decode_png")
+        self.csv_logger.profile_start("convert_observation/convert_to_numpy")
         # Convert the PIL image to a numpy array
         last_rgb_frame = np.array(img)
         arr = np.transpose(last_rgb_frame, (2, 1, 0))
         # Optionally, you can convert the array to a specific data type, such as uint8
         arr = arr.astype(np.uint8)
+        self.csv_logger.profile_end("convert_observation/convert_to_numpy")
         # health = res["health"]
         # foodLevel = res["foodLevel"]
         # saturationLevel = res["saturationLevel"]
@@ -427,15 +439,21 @@ class CraftGroundEnvironment(gym.Env):
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
         self.last_action = action
+        self.csv_logger.profile_start("send_action_and_commands")
         send_action_and_commands(self.sock, action, commands=self.queued_commands)
+        self.csv_logger.profile_end("send_action_and_commands")
         self.queued_commands.clear()
         # read the response
         print_with_time("Sent action and reading response...")
         self.csv_logger.log("Sent action and reading response...")
+        self.csv_logger.profile_start("read_response")
         siz, res = self.read_one_observation()
+        self.csv_logger.profile_end("read_response")
         print_with_time("Read observation...")
         self.csv_logger.log("Read observation...")
+        self.csv_logger.profile_start("convert_observation")
         rgb_1, img_1, frame_1 = self.convert_observation(res.image)
+        self.csv_logger.profile_end("convert_observation")
         rgb_2 = None
         img_2 = None
         frame_2 = None
@@ -475,8 +493,8 @@ class CraftGroundEnvironment(gym.Env):
             last_rgb_frame = self.last_rgb_frames[0]
         if last_image is None:
             return None
-
         if self.render_action and self.last_action:
+            self.csv_logger.profile_start("render_action")
             draw = ImageDraw.Draw(last_image)
             text = self.action_to_symbol(self.last_action)
             position = (0, 0)
@@ -484,6 +502,7 @@ class CraftGroundEnvironment(gym.Env):
             font_size = 8
             color = (255, 0, 0)
             draw.text(position, text, font=font, font_size=font_size, fill=color)
+            self.csv_logger.profile_end("render_action")
             return np.array(last_image)
         else:
             return last_rgb_frame
