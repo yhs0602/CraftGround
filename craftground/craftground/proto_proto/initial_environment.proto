@@ -34,4 +34,6 @@ message InitialEnvironmentMessage {
   float eye_distance = 24;
   repeated string structurePaths = 25;
   bool noWeatherCycle = 26;
+  bool no_pov_effect = 27;
+  bool noTimeCycle = 28;
 }

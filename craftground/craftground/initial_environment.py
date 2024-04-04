@@ -32,6 +32,8 @@ class InitialEnvironment:
         eye_distance: float = 0.1,
         structure_paths=None,
         noWeatherCycle=True,
+        noTimeCycle=True,
+        no_pov_effect=False,
         **kwargs,
     ):
         if structure_paths is None:
@@ -63,5 +65,7 @@ class InitialEnvironment:
         self.eye_distance = eye_distance
         self.structure_paths = structure_paths
         self.noWeatherCycle = noWeatherCycle
+        self.no_pov_effect = no_pov_effect
+        self.noTimeCycle = noTimeCycle
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")

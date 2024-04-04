@@ -428,6 +428,8 @@ class CraftGroundEnvironment(gym.Env):
         initial_env.eye_distance = self.initial_env.eye_distance
         initial_env.structurePaths.extend(self.initial_env.structure_paths)
         initial_env.noWeatherCycle = self.initial_env.noWeatherCycle
+        initial_env.no_pov_effect = self.initial_env.no_pov_effect
+        initial_env.noTimeCycle = self.initial_env.noTimeCycle
         # print(
         #     "Sending initial environment... ",
         # )
