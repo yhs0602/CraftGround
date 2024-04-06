@@ -39,6 +39,7 @@ class CraftGroundEnvironment(gym.Env):
         render_alternating_eyes: bool = False,
         use_terminate: bool = False,
         cleanup_world: bool = True,  # removes the world when the environment is closed
+        use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -247,6 +248,7 @@ class CraftGroundEnvironment(gym.Env):
         self.initial_env = initial_env
         self.use_terminate = use_terminate
         self.cleanup_world = cleanup_world
+        self.use_vglrun = use_vglrun
         self.sock = None
         self.buffered_socket = None
         self.last_rgb_frames = [None, None]
@@ -283,13 +285,14 @@ class CraftGroundEnvironment(gym.Env):
         fast_reset = options.get("fast_reset", False)
         extra_commands = options.get("extra_commands", [])
         if not self.sock:  # first time
-            self.start_server(port=self.port)
+            self.start_server(port=self.port, use_vglrun=self.use_vglrun)
         else:
             if not fast_reset:
                 self.sock.close()
+                self.terminate()
                 # wait for server death and restart server
                 sleep(5)
-                self.start_server(port=self.port)
+                self.start_server(port=self.port, use_vglrun=self.use_vglrun)
             else:
                 self.csv_logger.profile_start("fast_reset")
                 send_fastreset2(self.sock, extra_commands)
@@ -350,17 +353,26 @@ class CraftGroundEnvironment(gym.Env):
 
         return arr, img, last_rgb_frame
 
-    def start_server(self, port=8000):
+    def start_server(self, port=8000, use_vglrun=False):
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose))
-        self.process = subprocess.Popen(
-            "./gradlew runClient",
-            cwd=self.env_path,
-            shell=True,
-            stdout=subprocess.DEVNULL if not self.verbose else None,
-            env=my_env,
-        )
+        if use_vglrun:
+            self.process = subprocess.Popen(
+                "vglrun ./gradlew runClient",
+                cwd=self.env_path,
+                shell=True,
+                stdout=subprocess.DEVNULL if not self.verbose else None,
+                env=my_env,
+            )
+        else:
+            self.process = subprocess.Popen(
+                "./gradlew runClient",
+                cwd=self.env_path,
+                shell=True,
+                stdout=subprocess.DEVNULL if not self.verbose else None,
+                env=my_env,
+            )
         sock: socket.socket = wait_for_server(port)
         self.sock = sock
         self.send_initial_env()
