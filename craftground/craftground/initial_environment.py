@@ -34,6 +34,7 @@ class InitialEnvironment:
         noWeatherCycle=True,
         noTimeCycle=True,
         no_pov_effect=False,
+        request_raycast=False,
         **kwargs,
     ):
         if structure_paths is None:
@@ -67,5 +68,6 @@ class InitialEnvironment:
         self.noWeatherCycle = noWeatherCycle
         self.no_pov_effect = no_pov_effect
         self.noTimeCycle = noTimeCycle
+        self.request_raycast = request_raycast
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")

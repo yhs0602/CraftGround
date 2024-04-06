@@ -442,6 +442,7 @@ class CraftGroundEnvironment(gym.Env):
         initial_env.noWeatherCycle = self.initial_env.noWeatherCycle
         initial_env.no_pov_effect = self.initial_env.no_pov_effect
         initial_env.noTimeCycle = self.initial_env.noTimeCycle
+        initial_env.request_raycast = self.initial_env.request_raycast
         # print(
         #     "Sending initial environment... ",
         # )

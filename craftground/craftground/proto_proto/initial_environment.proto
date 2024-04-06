@@ -36,4 +36,5 @@ message InitialEnvironmentMessage {
   bool noWeatherCycle = 26;
   bool no_pov_effect = 27;
   bool noTimeCycle = 28;
+  bool request_raycast = 29;
 }
