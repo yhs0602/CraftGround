@@ -458,7 +458,7 @@ class CraftGroundEnvironment(gym.Env):
         initial_env.no_pov_effect = self.initial_env.no_pov_effect
         initial_env.noTimeCycle = self.initial_env.noTimeCycle
         initial_env.request_raycast = self.initial_env.request_raycast
-        initial_env.screen_encoding_mode = self.initial_env.screen_encoding_mode
+        initial_env.screen_encoding_mode = self.initial_env.screen_encoding_mode.value
         # print(
         #     "Sending initial environment... ",
         # )
