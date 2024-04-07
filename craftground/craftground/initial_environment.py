@@ -1,5 +1,5 @@
 # import pdb
-from screen_encoding_modes import ScreenEncodingMode
+from craftground.craftground.screen_encoding_modes import ScreenEncodingMode
 
 
 # initial_env = InitialEnvironment(["sword", "shield"], [10, 20], ["summon ", "killMob"], 800, 600, 123456, True, False, False, "sunny")
