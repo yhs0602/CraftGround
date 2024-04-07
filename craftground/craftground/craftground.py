@@ -349,7 +349,7 @@ class CraftGroundEnvironment(gym.Env):
             # decode raw byte array to numpy array
             self.csv_logger.profile_start("convert_observation/decode_raw")
             last_rgb_frame = np.frombuffer(png_img, dtype=np.uint8).reshape(
-                (self.initial_env.imageSizeX, self.initial_env.imageSizeY, 3)
+                (self.initial_env.imageSizeY, self.initial_env.imageSizeX, 3)
             )
             arr = np.transpose(last_rgb_frame, (2, 1, 0))
             img = None
