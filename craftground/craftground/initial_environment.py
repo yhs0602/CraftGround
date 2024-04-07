@@ -1,4 +1,5 @@
 # import pdb
+from screen_encoding_modes import ScreenEncodingMode
 
 
 # initial_env = InitialEnvironment(["sword", "shield"], [10, 20], ["summon ", "killMob"], 800, 600, 123456, True, False, False, "sunny")
@@ -35,6 +36,7 @@ class InitialEnvironment:
         noTimeCycle=True,
         no_pov_effect=False,
         request_raycast=False,
+        screen_encoding_mode: ScreenEncodingMode = ScreenEncodingMode.PNG,
         **kwargs,
     ):
         if structure_paths is None:
@@ -69,5 +71,6 @@ class InitialEnvironment:
         self.no_pov_effect = no_pov_effect
         self.noTimeCycle = noTimeCycle
         self.request_raycast = request_raycast
+        self.screen_encoding_mode = screen_encoding_mode
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")

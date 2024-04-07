@@ -26,6 +26,7 @@ from .minecraft import (
 )
 from .print_with_time import print_with_time, enable_print_with_time
 from .proto import observation_space_pb2, initial_environment_pb2
+from .screen_encoding_modes import ScreenEncodingMode
 
 
 class CraftGroundEnvironment(gym.Env):
@@ -249,6 +250,7 @@ class CraftGroundEnvironment(gym.Env):
         self.use_terminate = use_terminate
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
+        self.encoding_mode = initial_env.screen_encoding_mode
         self.sock = None
         self.buffered_socket = None
         self.last_rgb_frames = [None, None]
@@ -327,21 +329,34 @@ class CraftGroundEnvironment(gym.Env):
 
     def convert_observation(
         self, png_img: bytes
-    ) -> Tuple[np.ndarray, "Image", np.ndarray]:
-        # decode png byte array to numpy array
-        # Create a BytesIO object from the byte array
-        self.csv_logger.profile_start("convert_observation/decode_png")
-        bytes_io = io.BytesIO(png_img)
-        # Use PIL to open the image from the BytesIO object
-        img = Image.open(bytes_io).convert("RGB")
-        self.csv_logger.profile_end("convert_observation/decode_png")
-        self.csv_logger.profile_start("convert_observation/convert_to_numpy")
-        # Convert the PIL image to a numpy array
-        last_rgb_frame = np.array(img)
-        arr = np.transpose(last_rgb_frame, (2, 1, 0))
-        # Optionally, you can convert the array to a specific data type, such as uint8
-        arr = arr.astype(np.uint8)
-        self.csv_logger.profile_end("convert_observation/convert_to_numpy")
+    ) -> Tuple[np.ndarray, Optional["Image"], np.ndarray]:
+        if self.encoding_mode == ScreenEncodingMode.PNG:
+            # decode png byte array to numpy array
+            # Create a BytesIO object from the byte array
+            self.csv_logger.profile_start("convert_observation/decode_png")
+            bytes_io = io.BytesIO(png_img)
+            # Use PIL to open the image from the BytesIO object
+            img = Image.open(bytes_io).convert("RGB")
+            self.csv_logger.profile_end("convert_observation/decode_png")
+            self.csv_logger.profile_start("convert_observation/convert_to_numpy")
+            # Convert the PIL image to a numpy array
+            last_rgb_frame = np.array(img)
+            arr = np.transpose(last_rgb_frame, (2, 1, 0))
+            # Optionally, you can convert the array to a specific data type, such as uint8
+            arr = arr.astype(np.uint8)
+            self.csv_logger.profile_end("convert_observation/convert_to_numpy")
+        elif self.encoding_mode == ScreenEncodingMode.RAW:
+            # decode raw byte array to numpy array
+            self.csv_logger.profile_start("convert_observation/decode_raw")
+            last_rgb_frame = np.frombuffer(png_img, dtype=np.uint8).reshape(
+                (self.initial_env.imageSizeX, self.initial_env.imageSizeY, 3)
+            )
+            arr = np.transpose(last_rgb_frame, (2, 1, 0))
+            img = None
+            self.csv_logger.profile_end("convert_observation/decode_raw")
+        else:
+            raise ValueError(f"Unknown encoding mode: {self.encoding_mode}")
+
         # health = res["health"]
         # foodLevel = res["foodLevel"]
         # saturationLevel = res["saturationLevel"]
@@ -443,6 +458,7 @@ class CraftGroundEnvironment(gym.Env):
         initial_env.no_pov_effect = self.initial_env.no_pov_effect
         initial_env.noTimeCycle = self.initial_env.noTimeCycle
         initial_env.request_raycast = self.initial_env.request_raycast
+        initial_env.screen_encoding_mode = self.initial_env.screen_encoding_mode
         # print(
         #     "Sending initial environment... ",
         # )
@@ -506,9 +522,11 @@ class CraftGroundEnvironment(gym.Env):
         else:
             last_image = self.last_images[0]
             last_rgb_frame = self.last_rgb_frames[0]
-        if last_image is None:
+        if last_image is None and last_rgb_frame is None:
             return None
         if self.render_action and self.last_action:
+            if last_image is None:
+                last_image = Image.fromarray(last_rgb_frame)
             self.csv_logger.profile_start("render_action")
             draw = ImageDraw.Draw(last_image)
             text = self.action_to_symbol(self.last_action)
