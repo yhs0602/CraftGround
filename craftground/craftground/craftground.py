@@ -337,6 +337,8 @@ class CraftGroundEnvironment(gym.Env):
             bytes_io = io.BytesIO(png_img)
             # Use PIL to open the image from the BytesIO object
             img = Image.open(bytes_io).convert("RGB")
+            # Flip y axis
+            img = img.transpose(Image.FLIP_TOP_BOTTOM)
             self.csv_logger.profile_end("convert_observation/decode_png")
             self.csv_logger.profile_start("convert_observation/convert_to_numpy")
             # Convert the PIL image to a numpy array
@@ -351,7 +353,9 @@ class CraftGroundEnvironment(gym.Env):
             last_rgb_frame = np.frombuffer(png_img, dtype=np.uint8).reshape(
                 (self.initial_env.imageSizeY, self.initial_env.imageSizeX, 3)
             )
-            arr = np.transpose(last_rgb_frame, (2, 1, 0))
+            arr = np.transpose(last_rgb_frame, (2, 1, 0))  # channels, width, height
+            # Flip y axis using np
+            arr = np.flip(arr, axis=2)
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
         else:
