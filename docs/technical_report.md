@@ -24,6 +24,7 @@ To further improve the performance of the agent, we have implemented the followi
 - **Optimization 4**: Omitting vertical image flipping in favor of numpy indexing on the Python side, optimizing channel swapping directly in the agent processing.
 - **Optimization 5**: Using Unix domain sockets for communication between Java and Python, reducing latency and improving data exchange efficiency.
 - **Optimization 6**: Adjusting JVM options for better performance.
+
 # For contributors
 ## Fabric Mod
 - Refer to the [Fabric Wiki](https://fabricmc.net/wiki/start) for mod development.

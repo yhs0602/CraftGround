@@ -1,27 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CraftGround: A Minecraft-based Reinforcement Learning Environment</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .container { max-width: 800px; margin: auto; }
-        h1, h2 { color: #333; }
-        p, li { color: #666; }
-        code { background-color: #f9f9f9; padding: 2px 4px; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h1>CraftGround</h1>
-    <p>A <strong>fast</strong>, <strong>up-to-date</strong>, and <strong>feature-rich</strong> Minecraft-based reinforcement learning environment.</p>
-    <h2>Version Support</h2>
-    <p>Supports Minecraft version <code>1.19.4</code>. Current version of CraftGround: <code>1.7.23</code>.</p>
-    <h2>Features</h2>
-    <h3>Initial Environment</h3>
-    <p>Refer to the below proto for the InitialEnvironment:</p>
-    <pre><code>message InitialEnvironmentMessage {
+# CraftGround
+
+A **fast**, **up-to-date**, and **feature-rich** Minecraft-based reinforcement learning environment.
+
+## Version
+
+- Supports Minecraft version `1.19.4`.
+- Current version of CraftGround: `1.7.23`.
+
+## Features
+
+### Initial Environment
+
+Refer to the below proto for the InitialEnvironment:
+
+```proto
+message InitialEnvironmentMessage {
   repeated string initialInventoryCommands = 1;
   repeated int32 initialPosition = 2;
   repeated string initialMobsCommands = 3;
@@ -52,10 +45,14 @@
   bool noTimeCycle = 28;
   bool request_raycast = 29;
   int32 screen_encoding_mode = 30;
-}</code></pre>
-    <h3>Observation Space</h3>
-    <p>Includes basic vision rendering, binocular rendering, list of sounds around the agent, agent's status effects, and more. See the proto file for detailed information.</p>
-    <pre><code>message ItemStack {
+}
+```
+
+### Observation Space
+Includes basic vision rendering, binocular rendering, list of sounds around the agent, agent's status effects, and more. See the proto file for detailed information.
+
+```proto
+message ItemStack {
   int32 raw_id = 1;
   string translation_key = 2;
   int32 count = 3;
@@ -137,22 +134,24 @@ message ObservationSpaceMessage {
   string last_death_message = 23;
   bytes image_2 = 24;
 }
-    </code></pre>
-    <h3>Action Space</h3>
-    <p>Similar to Minedojo. (Crafting Not supported)</p>
-    <pre><code>message ActionSpaceMessage {
+```
+### Action Space
+Similar to Minedojo. (Crafting Not supported)
+```proto
+message ActionSpaceMessage {
   repeated int32 action = 1;
   repeated string commands = 2;
 }
-    </code></pre>
-    <p>Supports headless offscreen rendering using VirtualGL and Xvfb.</p>
-    <h2>Performance</h2>
-    <p>300fps on M1 Pro with a random policy.</p>
-    <h2>Installation</h2>
-    <p><code>pip install git+https://github.com/yhs0602/CraftGround</code></p>
-    <p>Dependencies: JDK 17, OpenGL, GLEW, libpng, zlib</p>
-    <h2>Technical Report</h2>
-    <p>Link to the technical report on how the performance was achieved will be here.</p>
-</div>
-</body>
-</html>
+```
+
+## Headless Server Support
+Supports headless offscreen rendering using VirtualGL and Xvfb.
+
+## Installation
+```shell
+pip install git+https://github.com/yhs0602/CraftGround
+```
+- Dependencies: JDK 17, OpenGL, GLEW, libpng, zlib
+
+## Technical Report
+Refer to the [Technical Report](https://yhs0602.github.io/CraftGround/technical_report) for detailed information on CraftGround's internals, optimizations, and more.
