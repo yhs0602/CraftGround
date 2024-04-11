@@ -4,8 +4,44 @@ A **fast**, **up-to-date**, and **feature-rich** Minecraft-based reinforcement l
 
 ## Version
 
-- Supports Minecraft version `1.19.4`.
-- Current version of CraftGround: `1.7.23`.
+![Static Badge](https://img.shields.io/badge/Minecraft-1.19.4-green)
+![Static Badge](https://img.shields.io/badge/CraftGround-1.7.23-blue)
+
+## Install
+```shell
+pip install git+https://github.com/yhs0602/CraftGround
+```
+
+### Dependencies
+- JDK 17
+- OpenGL
+- GLEW
+- libpng
+- zlib
+
+### Conda setup (Headless Server Support)
+```shell
+conda create -n my-experiment python=3.9
+conda activate my-experiment
+conda install -c conda-forge openjdk=17
+conda update -n base -c defaults conda
+python -m pip install -r requirements.txt
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+wget https://sourceforge.net/projects/virtualgl/files/3.1/virtualgl_3.1_amd64.deb/download
+mv download vgl3.1.deb
+sudo dpkg -i vgl3.1.deb 
+sudo vglserver_config
+sudo systemctl restart gdm
+Xvfb :2 -screen 0 1024x768x24 +extension GLX -ac +extension RENDER &
+export DISPLAY=:2
+VGL_DISPLAY=:0 vglrun /opt/VirtualGL/bin/glxspheres64
+export PYTHONPATH=.
+python my_experiment.py
+```
+You may have to disable screen saver and power management to prevent FPS drop to 1.
+
+## Quick Start
+See [Integration with Stable Baselines3](https://yhs0602.github.io/CraftGround/integration_sb3) for a quick start guide.
 
 ## Features
 
@@ -145,13 +181,11 @@ message ActionSpaceMessage {
 ```
 
 ## Headless Server Support
-Supports headless offscreen rendering using VirtualGL and Xvfb.
+Supports headless offscreen rendering using [VirtualGL](https://virtualgl.org/) and [Xvfb](https://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml).
 
-## Installation
-```shell
-pip install git+https://github.com/yhs0602/CraftGround
-```
-- Dependencies: JDK 17, OpenGL, GLEW, libpng, zlib
+# Performance
+It achieves **~300 TPS** on M1 mac, with screen size 114x64, render distance 5, simulation distance 5, and 1 agent.
+
 
 ## Technical Report
 Refer to the [Technical Report](https://yhs0602.github.io/CraftGround/technical_report) for detailed information on CraftGround's internals, optimizations, and more.
