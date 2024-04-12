@@ -28,8 +28,57 @@ To further improve the performance of the agent, we have implemented the followi
 # For contributors
 ## Fabric Mod
 - Refer to the [Fabric Wiki](https://fabricmc.net/wiki/start) for mod development.
-## Setting Up Building Native Code
+
+## Setting up the Development Environment
+The overall project structure is as follows:
+```tree
+ tree -d -I venv -I build -I __pycache__ 
+.
+├── craftground
+│   ├── MinecraftEnv (Git submodule: https://github.com/yhs0602/MinecraftEnv)
+│   │   ├── gradle
+│   │   │   └── wrapper
+│   │   └── src
+│   │       └── main
+│   │           ├── cpp
+│   │           ├── java
+│   │           │   └── com
+│   │           │       └── kyhsgeekcode
+│   │           │           └── minecraft_env
+│   │           │               ├── client
+│   │           │               ├── mixin
+│   │           │               └── proto
+│   │           ├── proto
+│   │           └── resources
+│   ├── craftground
+│   │   ├── proto
+│   │   └── proto_proto
+│   ├── environments
+│   └── wrappers
+├── dejavu-fonts-ttf-2.37
+│   ├── fontconfig
+│   └── ttf
+├── docs
+├── figures
+├── paper
+└── poster
+    └── _minted-poster
+
+```
+Here the `craftground` directory contains the main project code, with the `MinecraftEnv` directory as a submodule for the Java part. The `dejavu-fonts-ttf-2.37` directory contains the DejaVu fonts for rendering actions in the video. The `docs`, `figures`, `paper`, and `poster` directories contain the documentation, figures, paper, and poster files, respectively.
+
+Currently, you have to make pull requests to two repositories: [CraftGround](https://github.com/yhs0602/Craftground), and [MinecraftEnv](https://github.com/yhs0602/MinecraftEnv), which is a submodule of CraftGround. If you have better idea of managing this, please let us know via GitHub issue.
+
+
+### Setting Up Building Native Code
 - This project uses [Java Native Interface](https://docs.oracle.com/javase/8/docs/technotes/guides/jni/) for native code. Ensure you have the necessary tools installed.
 - [CMake](https://cmake.org/) build system is used for the native code. Install CMake and ensure it is in your system's PATH.
 - As `glBindFramebuffer` is used, the project requires [GLEW](https://glew.sourceforge.net/) (OpenGL Extension Wrangler Library) for OpenGL function loading. Ensure GLEW is installed on your system. Also, you need to call `glewInit()` before using any OpenGL functions. This is actually implemented in the native code. Though JVM side is already using OpenGL 3.0 functions and above, it is necessary to initialize GLEW for the native code, separately. 
 
+## Adding New Observations
+To add new observations, there are some steps to follow:
+1. Add the new observation to the `ObservationSpaceMessage` in `observation_space.proto`.
+2. run `protoc --python_out=../proto observation_space.proto` at `craftground/proto_proto` to generate the Python code.
+3. Apply the same changes to the Java side. `src/main/proto/` contains the proto files for the Java side. You can run `protoc --kotlin_out=../java --java_out=../java observation_space.proto` at `MinecraftEnv/src/main/proto` to generate the Java and Kotlin code.
+4. Now add logics to the Java/Kotlin side to capture the new observation. You can refer to the existing code in `MinecraftEnv/src/main/java/com/kyhsgeekcode/minecraft_env/Minecraft_env.kt` for adding various observations.
+5. Add logics for converting received data to appropriate gymnasium observation data in the Python side. You can refer to the existing code in `craftground/craftground/craftground.py`'s `convert_observation` method.
