@@ -1,4 +1,6 @@
 # CraftGround
+![CraftGround_Logo](./craftground.webp)
+
 
 A **fast**, **up-to-date**, and **feature-rich** Minecraft-based reinforcement learning environment.
 

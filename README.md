@@ -1,4 +1,6 @@
 # CraftGround - Reinforcement Learning Environment for Minecraft
+![CraftGround_Logo](docs/craftground.webp)
+
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fyhs0602%2FMinecraftRL)](https://github.com/yhs0602/MinecraftRL)
 
