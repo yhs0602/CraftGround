@@ -3,8 +3,10 @@
 ## Introduction
 In modern software development, ensuring efficient and reliable data exchange between different programming languages is crucial. This project presents a significant enhancement to the protobuf protocol used between Python and Kotlin, addressing critical issues in the existing implementation and introducing a lightweight solution.
 
-## Problem in Existing Protobuf Kotlin SDK
-The previous implementation of the protobuf Kotlin SDK did not transmit the message length separately. This omission made it impossible to read only the message length from a stream, leading to problems in scenarios involving continuous data exchange. Without knowing the exact size of incoming messages, the system was prone to errors from redundant data, especially in persistent connections.
+## Problem in Existing Protobuf Python SDK
+The previous implementation of the protobuf Python SDK did not transmit the message length separately. This omission made it impossible to read only the message length from a stream, leading to problems in scenarios involving continuous data exchange. Without knowing the exact size of incoming messages, the system was prone to errors from redundant data, especially in persistent connections.
+
+Actually, there are methods like `parseFromDelimited` and `writeToDelimited` in the Java SDK that can be used to read and write length-delimited messages. However, these methods are not available in the Python SDK.
 
 ## Related Posts
 Here are some related posts that I found while researching this issue:
