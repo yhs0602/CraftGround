@@ -59,7 +59,7 @@ def read_one_observation(sock: socket.socket) -> (int, ObsType):
 ```
 
 #### Kotlin(Sender)
-```Kotlin
+```kotlin
 fun writeObservation(observationSpace: ObservationSpace.ObservationSpaceMessage) {
     // Prepare buffer for writing
     val bufferSize = 4 + observationSpace.serializedSize
@@ -80,7 +80,7 @@ fun writeObservation(observationSpace: ObservationSpace.ObservationSpaceMessage)
 ```
 
 #### Kotlin(Reader)
-```Kotlin
+```kotlin
 fun readAction(): ActionSpace.ActionSpaceMessage {
     // First read the length of the message
     val buffer = ByteBuffer.allocate(Integer.BYTES) // 4 bytes
@@ -97,7 +97,7 @@ fun readAction(): ActionSpace.ActionSpaceMessage {
 
 In Kotlin side, we used an extension function `readNBytes` to read `len` bytes from the socket channel. The `fillBuffer` function is used to fill the buffer with data from the socket channel.
 
-```Kotlin
+```kotlin
 fun SocketChannel.fillBuffer(buffer: ByteBuffer) {
     while (buffer.hasRemaining()) {
         read(buffer)
