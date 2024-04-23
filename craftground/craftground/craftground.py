@@ -373,6 +373,12 @@ class CraftGroundEnvironment(gym.Env):
         return arr, img, last_rgb_frame
 
     def start_server(self, port=8000, use_vglrun=False):
+        # Check if a file exists
+        socket_path = f"/tmp/minecraftrl_{port}.sock"
+        if os.path.exists(socket_path):
+            raise FileExistsError(
+                f"Socket file {socket_path} already exists. Please choose another port."
+            )
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose))

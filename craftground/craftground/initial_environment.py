@@ -28,7 +28,7 @@ class InitialEnvironment:
         obs_keys=None,
         surrounding_entities_keys=None,
         isHudHidden: bool = False,
-        render_distance: int = 2,
+        render_distance: int = 5,
         simulation_distance: int = 5,
         eye_distance: float = 0.1,
         structure_paths=None,
@@ -36,7 +36,7 @@ class InitialEnvironment:
         noTimeCycle=True,
         no_pov_effect=False,
         request_raycast=False,
-        screen_encoding_mode: ScreenEncodingMode = ScreenEncodingMode.PNG,
+        screen_encoding_mode: ScreenEncodingMode = ScreenEncodingMode.RAW,
         **kwargs,
     ):
         if structure_paths is None:
@@ -74,3 +74,10 @@ class InitialEnvironment:
         self.screen_encoding_mode = screen_encoding_mode
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
+
+        if self.visibleSizeX != self.imageSizeX or self.visibleSizeY != self.imageSizeY:
+            raise ValueError(
+                "Visible Size is deprecated. Visible size must be equal to image size."
+            )
+        if self.alwaysNight and self.alwaysDay:
+            raise ValueError("Cannot have both alwaysNight and alwaysDay set to true.")
