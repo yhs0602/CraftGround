@@ -9,6 +9,7 @@ from typing import Tuple, Optional, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
+import psutil
 from PIL import Image, ImageDraw
 from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
@@ -373,6 +374,7 @@ class CraftGroundEnvironment(gym.Env):
         return arr, img, last_rgb_frame
 
     def start_server(self, port=8000, use_vglrun=False):
+        self.remove_orphan_java_processes()
         # Check if a file exists
         socket_path = f"/tmp/minecraftrl_{port}.sock"
         if os.path.exists(socket_path):
@@ -615,3 +617,43 @@ class CraftGroundEnvironment(gym.Env):
         except ChildProcessError:
             print("Child process already terminated")
         print("Terminated the java process")
+
+    def remove_orphan_java_processes(self):
+        print("Removing orphan Java processes...")
+        target_directory = "/tmp"
+        file_pattern = "minecraftrl_"
+        file_usage = {}
+        no_such_processes = 0
+        access_denied_processes = 0
+        # 파일 사용 정보 수집
+        for proc in psutil.process_iter(["pid", "name"]):
+            try:
+                for file in proc.open_files():
+                    if (
+                        file.path.startswith(target_directory)
+                        and file_pattern in file.path
+                    ):
+                        if file.path not in file_usage:
+                            file_usage[file.path] = []
+                        file_usage[file.path].append(proc.info)
+            except psutil.NoSuchProcess:
+                no_such_processes += 1
+                continue
+            except psutil.AccessDenied:
+                access_denied_processes += 1
+                continue
+            except Exception as e:
+                print(f"Error: {e}")
+                continue
+
+        # 파일 사용하는 모든 프로세스가 Java인지 확인 및 처리
+        for file_path, processes in file_usage.items():
+            if all(proc["name"].lower() == "java" for proc in processes):
+                for proc in processes:
+                    os.kill(proc["pid"], signal.SIGTERM)
+                    print(f"Killed Java process {proc['pid']} using file {file_path}")
+                os.remove(file_path)
+                print(f"Removed {file_path}")
+        print(
+            f"Removed orphan Java processes: {access_denied_processes} access denied, {no_such_processes} no such process"
+        )
