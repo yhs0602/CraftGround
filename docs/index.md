@@ -1,5 +1,5 @@
 # CraftGround
-<img src="craftground.webp" alt="CraftGround_Logo" width="25%">
+<a href="https://github.com/yhs0602/CraftGround"><img src="craftground.webp" alt="CraftGround_Logo" width="25%"></a>
 
 [//]: # (![CraftGround_Logo]&#40;./craftground.webp&#41;)
 
@@ -22,7 +22,7 @@ pip install git+https://github.com/yhs0602/CraftGround
 - libpng
 - zlib
 
-### Conda setup (Headless Server Support)
+### Conda setup
 ```shell
 conda create -n my-experiment python=3.9
 conda activate my-experiment
@@ -36,6 +36,7 @@ python my_experiment.py
 ```
 
 ### Conda setup (Headless Server Support, continued from above)
+For detailed explanation, refer to [Headless Server Support](https://yhs0602.github.io/CraftGround/headless).
 ```shell
 # To emulate 3D X server, we use VirtualGL.
 wget https://sourceforge.net/projects/virtualgl/files/3.1/virtualgl_3.1_amd64.deb/download
