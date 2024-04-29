@@ -26,10 +26,28 @@ You can choose the first option (install both GLX and EGL), and then choose "do 
 You may meet the message such as 
 > modprobe: FATAL: Module nvidia_drm is in use. You must execute 'modprobe -r nvidia_uvm nvidia_drm nvidia_modeset nvidia' with the display manager stopped in order for the new device permission settings to become effective.
 
-However, you can continue with the below steps unless you had set options such as 'restrict access to vgluser group', etc..
+Then execute the below command
+```shell
+# Stop the display manager
+sudo systemctl stop gdm
+# Unload the nvidia modules
+sudo modprobe -r nvidia_uvm nvidia_drm nvidia_modeset nvidia
+```
+If you meet the message such as
+> modprobe: FATAL: Module nvidia_drm is in use.
 
+Then execute the below command
+```shell
+sudo lsof /dev/nvidia*
+```
+To get the pid of the offending process. Then kill the process.
+```shell
+pkill <pid> && sudo modprobe -r nvidia_uvm nvidia_drm nvidia_modeset nvidia
+```
 Now restart the display manager.
 ```shell
+# Load the nvidia modules again
+sudo modprobe nvidia_uvm nvidia_drm nvidia_modeset nvidia
 sudo systemctl restart gdm
 ```
 
