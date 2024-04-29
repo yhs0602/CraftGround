@@ -78,7 +78,7 @@ sudo nvidia-xconfig --query-gpu-info
 ```
 Let's say it is `PCI:104:0:0`. Now use this command to configure the GPU for VirtualGL. Replace `PCI:104:0:0` with your BusID.
 ```shell
-sudo nvidia-xconfig -a --allow-empty-initial-configuration --use-display-device=None --virtual=1920x1200 --busid PCI:77:0:0
+sudo nvidia-xconfig -a --allow-empty-initial-configuration --use-display-device=None --virtual=1920x1200 --busid PCI:104:0:0
 ```
 Now restart the display manager.
 ```shell
@@ -89,7 +89,7 @@ sudo systemctl restart gdm
 ```shell
 vglrun /opt/VirtualGL/bin/glxspheres64
 ```
-Now it will say something as OpenGL Renderer: NVIDIA GeForce RTX 3090/PCIe/SSE2
+Now it will say something like `OpenGL Renderer: NVIDIA GeForce RTX 3090/PCIe/SSE2`.
 
 ## Prevent FPS drop to 1
 You may have to disable PDMS and screen saver to prevent FPS drop to 1. First, backup your current settings.
