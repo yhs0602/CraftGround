@@ -100,5 +100,6 @@ xset -q # Check if the screen saver is disabled
 xset s off
 xset -dpms # Disable DPMS (Energy Star) features.
 xset -q # Check if the screen saver is disabled
+export DISPLAY=:2 # Change back to the display to the 2D X server
 ```
 This effectively disables the screen saver and DPMS features. You may want to add these commands to your startup scripts such as `.xinitrc` or `.xprofile` to make it permanent even after reboot.
