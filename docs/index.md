@@ -69,8 +69,14 @@ sudo systemctl restart gdm
 # Check if the GPU is used
 vglrun /opt/VirtualGL/bin/glxspheres64
 # Now it will say something as OpenGL Renderer: NVIDIA GeForce RTX 3090/PCIe/SSE2
+
+# You may have to disable PDMS and screen saver to prevent FPS drop to 1 
+export DISPLAY=:0.0
+xset -q # Check if the screen saver is disabled
+xset s off
+xset -dpms # Disable DPMS (Energy Star) features.
+xset -q # Check if the screen saver is disabled
 ```
-You may have to disable screen saver and power management to prevent FPS drop to 1.
 
 ## Quick Start
 See [Integration with Stable Baselines3](https://yhs0602.github.io/CraftGround/integration_sb3) for a quick start guide.
