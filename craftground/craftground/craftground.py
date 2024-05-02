@@ -42,6 +42,7 @@ class CraftGroundEnvironment(gym.Env):
         use_terminate: bool = False,
         cleanup_world: bool = True,  # removes the world when the environment is closed
         use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
+        track_native_memory: bool = False,
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -251,6 +252,7 @@ class CraftGroundEnvironment(gym.Env):
         self.use_terminate = use_terminate
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
+        self.track_native_memory = track_native_memory
         self.encoding_mode = initial_env.screen_encoding_mode
         self.sock = None
         self.buffered_socket = None
@@ -288,14 +290,22 @@ class CraftGroundEnvironment(gym.Env):
         fast_reset = options.get("fast_reset", False)
         extra_commands = options.get("extra_commands", [])
         if not self.sock:  # first time
-            self.start_server(port=self.port, use_vglrun=self.use_vglrun)
+            self.start_server(
+                port=self.port,
+                use_vglrun=self.use_vglrun,
+                track_native_memory=self.track_native_memory,
+            )
         else:
             if not fast_reset:
                 self.sock.close()
                 self.terminate()
                 # wait for server death and restart server
                 sleep(5)
-                self.start_server(port=self.port, use_vglrun=self.use_vglrun)
+                self.start_server(
+                    port=self.port,
+                    use_vglrun=self.use_vglrun,
+                    track_native_memory=self.track_native_memory,
+                )
             else:
                 self.csv_logger.profile_start("fast_reset")
                 send_fastreset2(self.sock, extra_commands)
@@ -373,7 +383,7 @@ class CraftGroundEnvironment(gym.Env):
 
         return arr, img, last_rgb_frame
 
-    def start_server(self, port=8000, use_vglrun=False):
+    def start_server(self, port: int, use_vglrun: bool, track_native_memory: bool):
         self.remove_orphan_java_processes()
         # Check if a file exists
         socket_path = f"/tmp/minecraftrl_{port}.sock"
@@ -384,6 +394,8 @@ class CraftGroundEnvironment(gym.Env):
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose))
+        if track_native_memory:
+            my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
         if use_vglrun:
             self.process = subprocess.Popen(
                 "vglrun ./gradlew runClient",

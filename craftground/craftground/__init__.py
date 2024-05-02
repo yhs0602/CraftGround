@@ -11,6 +11,7 @@ def make(
     use_terminate=False,
     cleanup_world=True,
     use_vglrun=False,
+    track_native_memory=False,
     **kwargs,
 ) -> CraftGroundEnvironment:
     env = InitialEnvironment(**kwargs)
@@ -24,4 +25,5 @@ def make(
         use_terminate=use_terminate,
         cleanup_world=cleanup_world,
         use_vglrun=use_vglrun,
+        track_native_memory=track_native_memory,
     )
