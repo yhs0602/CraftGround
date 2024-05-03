@@ -410,7 +410,7 @@ class CraftGroundEnvironment(gym.Env):
         if use_vglrun:
             cmd = f"vglrun {cmd}"
         if ld_preload:
-            cmd = f'"LD_PRELOAD={ld_preload} {cmd}"'
+            my_env["LD_PRELOAD"] = ld_preload
         print(f"{cmd=}")
         self.process = subprocess.Popen(
             cmd,
