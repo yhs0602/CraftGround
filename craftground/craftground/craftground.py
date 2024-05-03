@@ -43,6 +43,7 @@ class CraftGroundEnvironment(gym.Env):
         cleanup_world: bool = True,  # removes the world when the environment is closed
         use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
         track_native_memory: bool = False,
+        ld_preload: Optional[str] = None,
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -253,6 +254,7 @@ class CraftGroundEnvironment(gym.Env):
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
         self.track_native_memory = track_native_memory
+        self.ld_preload = ld_preload
         self.encoding_mode = initial_env.screen_encoding_mode
         self.sock = None
         self.buffered_socket = None
@@ -294,6 +296,7 @@ class CraftGroundEnvironment(gym.Env):
                 port=self.port,
                 use_vglrun=self.use_vglrun,
                 track_native_memory=self.track_native_memory,
+                ld_preload=self.ld_preload,
             )
         else:
             if not fast_reset:
@@ -305,6 +308,7 @@ class CraftGroundEnvironment(gym.Env):
                     port=self.port,
                     use_vglrun=self.use_vglrun,
                     track_native_memory=self.track_native_memory,
+                    ld_preload=self.ld_preload,
                 )
             else:
                 self.csv_logger.profile_start("fast_reset")
@@ -383,7 +387,13 @@ class CraftGroundEnvironment(gym.Env):
 
         return arr, img, last_rgb_frame
 
-    def start_server(self, port: int, use_vglrun: bool, track_native_memory: bool):
+    def start_server(
+        self,
+        port: int,
+        use_vglrun: bool,
+        track_native_memory: bool,
+        ld_preload: Optional[str],
+    ):
         self.remove_orphan_java_processes()
         # Check if a file exists
         socket_path = f"/tmp/minecraftrl_{port}.sock"
@@ -396,6 +406,8 @@ class CraftGroundEnvironment(gym.Env):
         my_env["VERBOSE"] = str(int(self.verbose))
         if track_native_memory:
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
+        if ld_preload:
+            my_env["LD_PRELOAD"] = ld_preload
         if use_vglrun:
             self.process = subprocess.Popen(
                 "vglrun ./gradlew runClient",
