@@ -408,7 +408,7 @@ class CraftGroundEnvironment(gym.Env):
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
         base_cmd = "./gradlew runClient"
         if ld_preload:
-            base_cmd = f"LD_PRELOAD={ld_preload} {base_cmd}"
+            base_cmd = f'"LD_PRELOAD={ld_preload} {base_cmd}"'
         if use_vglrun:
             cmd = f"vglrun {base_cmd}"
         else:
