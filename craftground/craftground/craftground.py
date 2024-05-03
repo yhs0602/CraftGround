@@ -406,13 +406,11 @@ class CraftGroundEnvironment(gym.Env):
         my_env["VERBOSE"] = str(int(self.verbose))
         if track_native_memory:
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
-        base_cmd = "./gradlew runClient"
-        if ld_preload:
-            base_cmd = f'"LD_PRELOAD={ld_preload} {base_cmd}"'
+        cmd = "./gradlew runClient"
         if use_vglrun:
-            cmd = f"vglrun {base_cmd}"
-        else:
-            cmd = base_cmd
+            cmd = f"vglrun {cmd}"
+        if ld_preload:
+            cmd = f'"LD_PRELOAD={ld_preload} {cmd}"'
         print(f"{cmd=}")
         self.process = subprocess.Popen(
             cmd,
