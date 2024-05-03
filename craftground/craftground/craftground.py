@@ -32,18 +32,18 @@ from .screen_encoding_modes import ScreenEncodingMode
 
 class CraftGroundEnvironment(gym.Env):
     def __init__(
-        self,
-        initial_env: InitialEnvironment,
-        verbose=False,
-        env_path=None,
-        port=8000,
-        render_action: bool = False,
-        render_alternating_eyes: bool = False,
-        use_terminate: bool = False,
-        cleanup_world: bool = True,  # removes the world when the environment is closed
-        use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
-        track_native_memory: bool = False,
-        ld_preload: Optional[str] = None,
+            self,
+            initial_env: InitialEnvironment,
+            verbose=False,
+            env_path=None,
+            port=8000,
+            render_action: bool = False,
+            render_alternating_eyes: bool = False,
+            use_terminate: bool = False,
+            cleanup_world: bool = True,  # removes the world when the environment is closed
+            use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
+            track_native_memory: bool = False,
+            ld_preload: Optional[str] = None,
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -282,10 +282,10 @@ class CraftGroundEnvironment(gym.Env):
         )
 
     def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        options: Optional[dict] = None,
+            self,
+            *,
+            seed: Optional[int] = None,
+            options: Optional[dict] = None,
     ) -> Tuple[ObsType, Dict[str, Any]]:
         if options is None:
             options = {}
@@ -343,7 +343,7 @@ class CraftGroundEnvironment(gym.Env):
         return final_obs, final_obs
 
     def convert_observation(
-        self, png_img: bytes
+            self, png_img: bytes
     ) -> Tuple[np.ndarray, Optional["Image"], np.ndarray]:
         if self.encoding_mode == ScreenEncodingMode.PNG:
             # decode png byte array to numpy array
@@ -388,11 +388,11 @@ class CraftGroundEnvironment(gym.Env):
         return arr, img, last_rgb_frame
 
     def start_server(
-        self,
-        port: int,
-        use_vglrun: bool,
-        track_native_memory: bool,
-        ld_preload: Optional[str],
+            self,
+            port: int,
+            use_vglrun: bool,
+            track_native_memory: bool,
+            ld_preload: Optional[str],
     ):
         self.remove_orphan_java_processes()
         # Check if a file exists
@@ -406,24 +406,21 @@ class CraftGroundEnvironment(gym.Env):
         my_env["VERBOSE"] = str(int(self.verbose))
         if track_native_memory:
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
+        base_cmd = "./gradlew runClient"
         if ld_preload:
-            my_env["LD_PRELOAD"] = ld_preload
+            base_cmd = f"LD_PRELOAD={ld_preload} {base_cmd}"
         if use_vglrun:
-            self.process = subprocess.Popen(
-                "vglrun ./gradlew runClient",
-                cwd=self.env_path,
-                shell=True,
-                stdout=subprocess.DEVNULL if not self.verbose else None,
-                env=my_env,
-            )
+            cmd = f"vglrun {base_cmd}"
         else:
-            self.process = subprocess.Popen(
-                "./gradlew runClient",
-                cwd=self.env_path,
-                shell=True,
-                stdout=subprocess.DEVNULL if not self.verbose else None,
-                env=my_env,
-            )
+            cmd = base_cmd
+        print(f"{cmd=}")
+        self.process = subprocess.Popen(
+            cmd,
+            cwd=self.env_path,
+            shell=True,
+            stdout=subprocess.DEVNULL if not self.verbose else None,
+            env=my_env,
+        )
         sock: socket.socket = wait_for_server(port)
         self.sock = sock
         self.send_initial_env()
@@ -553,7 +550,7 @@ class CraftGroundEnvironment(gym.Env):
             last_image = self.last_images[self.render_alternating_eyes_counter]
             last_rgb_frame = self.last_rgb_frames[self.render_alternating_eyes_counter]
             self.render_alternating_eyes_counter = (
-                1 - self.render_alternating_eyes_counter
+                    1 - self.render_alternating_eyes_counter
             )
         else:
             last_image = self.last_images[0]
@@ -654,8 +651,8 @@ class CraftGroundEnvironment(gym.Env):
             try:
                 for file in proc.open_files():
                     if (
-                        file.path.startswith(target_directory)
-                        and file_pattern in file.path
+                            file.path.startswith(target_directory)
+                            and file_pattern in file.path
                     ):
                         if file.path not in file_usage:
                             file_usage[file.path] = []
