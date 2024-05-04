@@ -32,18 +32,19 @@ from .screen_encoding_modes import ScreenEncodingMode
 
 class CraftGroundEnvironment(gym.Env):
     def __init__(
-            self,
-            initial_env: InitialEnvironment,
-            verbose=False,
-            env_path=None,
-            port=8000,
-            render_action: bool = False,
-            render_alternating_eyes: bool = False,
-            use_terminate: bool = False,
-            cleanup_world: bool = True,  # removes the world when the environment is closed
-            use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
-            track_native_memory: bool = False,
-            ld_preload: Optional[str] = None,
+        self,
+        initial_env: InitialEnvironment,
+        verbose=False,
+        env_path=None,
+        port=8000,
+        render_action: bool = False,
+        render_alternating_eyes: bool = False,
+        use_terminate: bool = False,
+        cleanup_world: bool = True,  # removes the world when the environment is closed
+        use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
+        track_native_memory: bool = False,
+        ld_preload: Optional[str] = None,
+        native_debug: bool = False,
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -253,6 +254,7 @@ class CraftGroundEnvironment(gym.Env):
         self.use_terminate = use_terminate
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
+        self.native_debug = native_debug
         self.track_native_memory = track_native_memory
         self.ld_preload = ld_preload
         self.encoding_mode = initial_env.screen_encoding_mode
@@ -282,10 +284,10 @@ class CraftGroundEnvironment(gym.Env):
         )
 
     def reset(
-            self,
-            *,
-            seed: Optional[int] = None,
-            options: Optional[dict] = None,
+        self,
+        *,
+        seed: Optional[int] = None,
+        options: Optional[dict] = None,
     ) -> Tuple[ObsType, Dict[str, Any]]:
         if options is None:
             options = {}
@@ -343,7 +345,7 @@ class CraftGroundEnvironment(gym.Env):
         return final_obs, final_obs
 
     def convert_observation(
-            self, png_img: bytes
+        self, png_img: bytes
     ) -> Tuple[np.ndarray, Optional["Image"], np.ndarray]:
         if self.encoding_mode == ScreenEncodingMode.PNG:
             # decode png byte array to numpy array
@@ -388,11 +390,11 @@ class CraftGroundEnvironment(gym.Env):
         return arr, img, last_rgb_frame
 
     def start_server(
-            self,
-            port: int,
-            use_vglrun: bool,
-            track_native_memory: bool,
-            ld_preload: Optional[str],
+        self,
+        port: int,
+        use_vglrun: bool,
+        track_native_memory: bool,
+        ld_preload: Optional[str],
     ):
         self.remove_orphan_java_processes()
         # Check if a file exists
@@ -406,6 +408,8 @@ class CraftGroundEnvironment(gym.Env):
         my_env["VERBOSE"] = str(int(self.verbose))
         if track_native_memory:
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
+        if self.native_debug:
+            my_env["CRAFGROUND_NATIVE_DEBUG"] = "True"
         cmd = "./gradlew runClient"
         if use_vglrun:
             cmd = f"vglrun {cmd}"
@@ -548,7 +552,7 @@ class CraftGroundEnvironment(gym.Env):
             last_image = self.last_images[self.render_alternating_eyes_counter]
             last_rgb_frame = self.last_rgb_frames[self.render_alternating_eyes_counter]
             self.render_alternating_eyes_counter = (
-                    1 - self.render_alternating_eyes_counter
+                1 - self.render_alternating_eyes_counter
             )
         else:
             last_image = self.last_images[0]
@@ -649,8 +653,8 @@ class CraftGroundEnvironment(gym.Env):
             try:
                 for file in proc.open_files():
                     if (
-                            file.path.startswith(target_directory)
-                            and file_pattern in file.path
+                        file.path.startswith(target_directory)
+                        and file_pattern in file.path
                     ):
                         if file.path not in file_usage:
                             file_usage[file.path] = []

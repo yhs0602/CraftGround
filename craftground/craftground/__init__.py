@@ -13,6 +13,7 @@ def make(
     use_vglrun=False,
     track_native_memory=False,
     ld_preload=None,
+    native_debug: bool = False,
     **kwargs,
 ) -> CraftGroundEnvironment:
     env = InitialEnvironment(**kwargs)
@@ -28,4 +29,5 @@ def make(
         use_vglrun=use_vglrun,
         track_native_memory=track_native_memory,
         ld_preload=ld_preload,
+        native_debug=native_debug,
     )
