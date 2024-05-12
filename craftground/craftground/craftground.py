@@ -25,7 +25,7 @@ from .minecraft import (
     send_action_and_commands,
     send_exit,
 )
-from .print_with_time import print_with_time, enable_print_with_time
+from .print_with_time import print_with_time
 from .proto import observation_space_pb2, initial_environment_pb2
 from .screen_encoding_modes import ScreenEncodingMode
 
@@ -45,6 +45,10 @@ class CraftGroundEnvironment(gym.Env):
         track_native_memory: bool = False,
         ld_preload: Optional[str] = None,
         native_debug: bool = False,
+        verbose_python: bool = False,
+        verbose_gradle: bool = False,
+        verbose_jvm: bool = False,
+        profile: bool = False,
     ):
         self.action_space = ActionSpace(6)
         entity_info_space = gym.spaces.Dict(
@@ -265,8 +269,11 @@ class CraftGroundEnvironment(gym.Env):
         self.last_action = None
         self.render_action = render_action
         self.verbose = verbose
-        if verbose:
-            enable_print_with_time()
+        self.verbose_python = verbose_python
+        self.verbose_gradle = verbose_gradle
+        self.verbose_jvm = verbose_jvm
+        self.profile = profile
+
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
         self.port = port
@@ -280,7 +287,7 @@ class CraftGroundEnvironment(gym.Env):
         else:
             self.env_path = env_path
         self.csv_logger = CsvLogger(
-            "py_log.csv", enabled=verbose and False, profile=False
+            "py_log.csv", enabled=verbose and False, profile=profile
         )
 
     def reset(
@@ -317,13 +324,16 @@ class CraftGroundEnvironment(gym.Env):
                 send_fastreset2(self.sock, extra_commands)
                 self.csv_logger.profile_end("fast_reset")
                 self.csv_logger.log("Sent fast reset")
-                print_with_time("Sent fast reset")
-        print_with_time("Reading response...")
+                if self.verbose_python:
+                    print_with_time("Sent fast reset")
+        if self.verbose_python:
+            print_with_time("Reading response...")
         self.csv_logger.log("Reading response...")
         self.csv_logger.profile_start("read_response")
         siz, res = self.read_one_observation()
         self.csv_logger.profile_end("read_response")
-        print_with_time(f"Got response with size {siz}")
+        if self.verbose_python:
+            print_with_time(f"Got response with size {siz}")
         self.csv_logger.log(f"Got response with size {siz}")
         self.csv_logger.profile_start("convert_observation")
         rgb_1, img_1, frame_1 = self.convert_observation(res.image)
@@ -405,7 +415,7 @@ class CraftGroundEnvironment(gym.Env):
             )
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
-        my_env["VERBOSE"] = str(int(self.verbose))
+        my_env["VERBOSE"] = str(int(self.verbose_jvm))
         if track_native_memory:
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
         if self.native_debug:
@@ -420,7 +430,7 @@ class CraftGroundEnvironment(gym.Env):
             cmd,
             cwd=self.env_path,
             shell=True,
-            stdout=subprocess.DEVNULL if not self.verbose else None,
+            stdout=subprocess.DEVNULL if not self.verbose_gradle else None,
             env=my_env,
         )
         sock: socket.socket = wait_for_server(port)
@@ -428,7 +438,8 @@ class CraftGroundEnvironment(gym.Env):
         self.send_initial_env()
         self.buffered_socket = BufferedSocket(self.sock)
         # self.json_socket.send_json_as_base64(self.initial_env.to_dict())
-        print_with_time(f"Sent initial environment")
+        if self.verbose_python:
+            print_with_time(f"Sent initial environment")
         self.csv_logger.log(f"Sent initial environment")
 
     def read_one_observation(self) -> (int, ObsType):
@@ -506,16 +517,23 @@ class CraftGroundEnvironment(gym.Env):
         # send the action
         self.last_action = action
         self.csv_logger.profile_start("send_action_and_commands")
-        send_action_and_commands(self.sock, action, commands=self.queued_commands)
+        send_action_and_commands(
+            self.sock,
+            action,
+            commands=self.queued_commands,
+            verbose=self.verbose_python,
+        )
         self.csv_logger.profile_end("send_action_and_commands")
         self.queued_commands.clear()
         # read the response
-        print_with_time("Sent action and reading response...")
+        if self.verbose_python:
+            print_with_time("Sent action and reading response...")
         self.csv_logger.log("Sent action and reading response...")
         self.csv_logger.profile_start("read_response")
         siz, res = self.read_one_observation()
         self.csv_logger.profile_end("read_response")
-        print_with_time("Read observation...")
+        if self.verbose_python:
+            print_with_time("Read observation...")
         self.csv_logger.log("Read observation...")
         self.csv_logger.profile_start("convert_observation")
         rgb_1, img_1, frame_1 = self.convert_observation(res.image)

@@ -14,6 +14,9 @@ def make(
     track_native_memory=False,
     ld_preload=None,
     native_debug: bool = False,
+    verbose_python=False,
+    verbose_jvm=False,
+    verbose_gradle=False,
     **kwargs,
 ) -> CraftGroundEnvironment:
     env = InitialEnvironment(**kwargs)
@@ -30,4 +33,7 @@ def make(
         track_native_memory=track_native_memory,
         ld_preload=ld_preload,
         native_debug=native_debug,
+        verbose_python=verbose_python,
+        verbose_jvm=verbose_jvm,
+        verbose_gradle=verbose_gradle,
     )
