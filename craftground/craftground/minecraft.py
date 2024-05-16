@@ -11,6 +11,9 @@ from .proto import action_space_pb2
 
 
 def wait_for_server(port: int) -> socket.socket:
+    wait_time = 1
+    next_output = 1  # 3 7 15 31 63 127 255  seconds passed
+
     while True:
         try:
             socket_path = f"/tmp/minecraftrl_{port}.sock"
@@ -20,9 +23,14 @@ def wait_for_server(port: int) -> socket.socket:
             s.settimeout(30)
             return s
         except (ConnectionRefusedError, FileNotFoundError):
-            print(
-                f"Waiting for server on port {port}...",
-            )
+            if wait_time == next_output:
+                print(
+                    f"Waiting for server on port {port}...",
+                )
+                next_output *= 2
+                if next_output > 1024:
+                    raise Exception("Server not started within 1024 seconds")
+            wait_time += 1
             time.sleep(1)
 
 
