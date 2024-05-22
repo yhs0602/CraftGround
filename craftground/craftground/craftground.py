@@ -420,7 +420,7 @@ class CraftGroundEnvironment(gym.Env):
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
         if self.native_debug:
             my_env["CRAFGROUND_NATIVE_DEBUG"] = "True"
-        cmd = "./gradlew runClient"
+        cmd = "./gradlew runClient -w"
         if use_vglrun:
             cmd = f"vglrun {cmd}"
         if ld_preload:
