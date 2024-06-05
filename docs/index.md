@@ -7,8 +7,8 @@ A **fast**, **up-to-date**, and **feature-rich** Minecraft-based reinforcement l
 
 ## Version
 
-![Static Badge](https://img.shields.io/badge/Minecraft-1.19.4-green)
-![Static Badge](https://img.shields.io/badge/CraftGround-1.7.37-blue)
+![Static Badge](https://img.shields.io/badge/Minecraft-1.20.6-green)
+![Static Badge](https://img.shields.io/badge/CraftGround-2.0.0-blue)
 
 ## Install
 ```shell
@@ -16,7 +16,7 @@ pip install git+https://github.com/yhs0602/CraftGround
 ```
 
 ### Dependencies
-- JDK 17
+- JDK 21
 - OpenGL
 - GLEW
 - libpng
@@ -26,7 +26,7 @@ pip install git+https://github.com/yhs0602/CraftGround
 ```shell
 conda create -n my-experiment python=3.9
 conda activate my-experiment
-conda install -c conda-forge openjdk=17
+conda install -c conda-forge openjdk=21
 conda update -n base -c defaults conda
 python -m pip install -r requirements.txt
 conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia

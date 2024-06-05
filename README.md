@@ -10,7 +10,7 @@ This is the latest development repository of CraftGround environment.
 
 ## Quick start
 
-1. You need to install JDK >= 17
+1. You need to install JDK >= 21
 1. Run the following command to install the package.
     ```shell
     pip install git+https://github.com/yhs0602/CraftGround
