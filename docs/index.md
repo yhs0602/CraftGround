@@ -8,7 +8,7 @@ A **fast**, **up-to-date**, and **feature-rich** Minecraft-based reinforcement l
 ## Version
 
 ![Static Badge](https://img.shields.io/badge/Minecraft-1.20.6-green)
-![Static Badge](https://img.shields.io/badge/CraftGround-2.0.0-blue)
+![Static Badge](https://img.shields.io/badge/CraftGround-2.0.7-blue)
 
 ## Install
 ```shell
