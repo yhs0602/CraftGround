@@ -21,9 +21,13 @@ pip install git+https://github.com/yhs0602/CraftGround
 - GLEW
 - libpng
 - zlib
+- cmake
 
 ### Conda setup
 ```shell
+sudo apt update
+sudo apt install libglew-dev cmake libpng-dev
+echo $JAVA_HOME
 conda create -n my-experiment python=3.9
 conda activate my-experiment
 conda install -c conda-forge openjdk=21
