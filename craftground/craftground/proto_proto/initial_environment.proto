@@ -38,4 +38,5 @@ message InitialEnvironmentMessage {
   bool noTimeCycle = 28;
   bool request_raycast = 29;
   int32 screen_encoding_mode = 30;
+  bool requiresSurroundingBlocks = 31;
 }
