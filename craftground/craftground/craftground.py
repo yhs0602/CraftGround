@@ -508,6 +508,9 @@ class CraftGroundEnvironment(gym.Env):
         initial_env.requiresSurroundingBlocks = (
             self.initial_env.requiresSurroundingBlocks
         )
+        initial_env.level_display_name_to_play = (
+            self.initial_env.level_display_name_to_play
+        )
         # print(
         #     "Sending initial environment... ",
         # )
@@ -701,3 +704,11 @@ class CraftGroundEnvironment(gym.Env):
         print(
             f"Removed orphan Java processes: {access_denied_processes} access denied, {no_such_processes} no such process"
         )
+
+    # Copy or symlink the save file to the returned folder
+    def get_env_save_path(self) -> str:
+        current_file = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file)
+        parent_dir = os.path.dirname(current_dir)
+        env_dir = os.path.join(parent_dir, "MinecraftEnv", "run", "saves")
+        return env_dir

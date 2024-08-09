@@ -39,4 +39,5 @@ message InitialEnvironmentMessage {
   bool request_raycast = 29;
   int32 screen_encoding_mode = 30;
   bool requiresSurroundingBlocks = 31;
+  string level_display_name_to_play = 32;
 }

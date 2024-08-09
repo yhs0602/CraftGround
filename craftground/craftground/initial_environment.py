@@ -38,6 +38,7 @@ class InitialEnvironment:
         request_raycast=False,
         screen_encoding_mode: ScreenEncodingMode = ScreenEncodingMode.RAW,
         requiresSurroundingBlocks: bool = False,
+        level_display_name_to_play: str = "",
         **kwargs,
     ):
         if structure_paths is None:
@@ -74,6 +75,7 @@ class InitialEnvironment:
         self.request_raycast = request_raycast
         self.screen_encoding_mode = screen_encoding_mode
         self.requiresSurroundingBlocks = requiresSurroundingBlocks
+        self.level_display_name_to_play = level_display_name_to_play
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
 
