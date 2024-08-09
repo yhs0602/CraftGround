@@ -1,0 +1,9 @@
+<script>
+    window.onload = () => {
+        let currentURL = window.location.href;
+        let newURL = currentURL.replace(/craftground/gi, 'CraftGround');
+        if (currentURL != newURL) {
+            location.replace(newURL);
+        }
+    };
+</script>
