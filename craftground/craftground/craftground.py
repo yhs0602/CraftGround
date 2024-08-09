@@ -505,6 +505,9 @@ class CraftGroundEnvironment(gym.Env):
         initial_env.noTimeCycle = self.initial_env.noTimeCycle
         initial_env.request_raycast = self.initial_env.request_raycast
         initial_env.screen_encoding_mode = self.initial_env.screen_encoding_mode.value
+        initial_env.requiresSurroundingBlocks = (
+            self.initial_env.requiresSurroundingBlocks
+        )
         # print(
         #     "Sending initial environment... ",
         # )

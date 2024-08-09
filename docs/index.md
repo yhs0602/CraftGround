@@ -7,8 +7,8 @@ A **fast**, **up-to-date**, and **feature-rich** Minecraft-based reinforcement l
 
 ## Version
 
-![Static Badge](https://img.shields.io/badge/Minecraft-1.20.6-green)
-![Static Badge](https://img.shields.io/badge/CraftGround-2.0.7-blue)
+![Static Badge](https://img.shields.io/badge/Minecraft-1.21.0-green)
+![Static Badge](https://img.shields.io/badge/CraftGround-2.1.0-blue)
 
 ## Install
 ```shell
@@ -124,6 +124,7 @@ message InitialEnvironmentMessage {
   bool noTimeCycle = 28;
   bool request_raycast = 29;
   int32 screen_encoding_mode = 30;
+  bool requiresSurroundingBlocks = 31;
 }
 ```
 
@@ -212,6 +213,7 @@ message ObservationSpaceMessage {
   int64 world_time = 22;
   string last_death_message = 23;
   bytes image_2 = 24;
+  repeated BlockInfo surrounding_blocks = 25; // center, (-1, -1, -1), (0, -1, -1), ...; xyz order: len = 27
 }
 ```
 ### Action Space

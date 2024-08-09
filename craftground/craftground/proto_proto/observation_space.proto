@@ -81,4 +81,5 @@ message ObservationSpaceMessage {
   int64 world_time = 22;
   string last_death_message = 23;
   bytes image_2 = 24;
+  repeated BlockInfo surrounding_blocks = 25; // center, (-1, -1, -1), (0, -1, -1), ...; xyz order: len = 27
 }

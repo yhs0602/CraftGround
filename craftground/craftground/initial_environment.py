@@ -37,6 +37,7 @@ class InitialEnvironment:
         no_pov_effect=False,
         request_raycast=False,
         screen_encoding_mode: ScreenEncodingMode = ScreenEncodingMode.RAW,
+        requiresSurroundingBlocks: bool = False,
         **kwargs,
     ):
         if structure_paths is None:
@@ -72,6 +73,7 @@ class InitialEnvironment:
         self.noTimeCycle = noTimeCycle
         self.request_raycast = request_raycast
         self.screen_encoding_mode = screen_encoding_mode
+        self.requiresSurroundingBlocks = requiresSurroundingBlocks
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
 
