@@ -37,7 +37,8 @@ class InitialEnvironment:
         no_pov_effect=False,
         request_raycast=False,
         screen_encoding_mode: ScreenEncodingMode = ScreenEncodingMode.RAW,
-        requiresSurroundingBlocks: bool = False**kwargs,
+        requiresSurroundingBlocks: bool = False,
+        **kwargs,
     ):
         if structure_paths is None:
             structure_paths = []
