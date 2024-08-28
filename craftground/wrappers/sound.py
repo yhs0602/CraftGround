@@ -70,7 +70,7 @@ class SoundWrapper(gym.Wrapper):
                     sound_vector[offset + 1] = dy / 15
                     sound_vector[offset + 2] = dz / 15
             elif sound.translate_key in self.zeroing_sound_list:
-                idx = self.sound_list.index(sound.translate_key)
+                idx = self.zeroing_sound_list.index(sound.translate_key)
                 offset = self.zero_offset + idx
                 sound_vector[offset] = 1
         # Trigonometric encoding
