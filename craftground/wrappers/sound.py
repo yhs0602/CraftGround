@@ -8,13 +8,18 @@ from gymnasium.core import WrapperActType, WrapperObsType
 
 # Sound wrapper
 class SoundWrapper(gym.Wrapper):
-    def __init__(self, env, sound_list, coord_dim, **kwargs):
+    def __init__(self, env, sound_list, zeroing_sound_list, coord_dim, **kwargs):
         self.sound_list = sound_list
+        self.zeroing_sound_list = zeroing_sound_list
         self.env = env
         self.coord_dim = coord_dim
         super().__init__(self.env)
+        self.zero_offset = len(sound_list) * coord_dim
         self.observation_space = gym.spaces.Box(
-            low=-1, high=1, shape=(len(sound_list) * coord_dim + 3,), dtype=np.float32
+            low=-1,
+            high=1,
+            shape=(len(sound_list) * coord_dim + len(zeroing_sound_list) + 2,),
+            dtype=np.float32,
         )
 
     def step(
@@ -37,38 +42,41 @@ class SoundWrapper(gym.Wrapper):
     def encode_sound(
         self, sound_subtitles: List, x: float, y: float, z: float, yaw: float
     ) -> List[float]:
-        sound_vector = [0] * (len(self.sound_list) * self.coord_dim + 3)
+        sound_vector = [0.0] * (
+            len(self.sound_list) * self.coord_dim + len(self.zeroing_sound_list) + 2
+        )
         for sound in sound_subtitles:
-            if sound.x - x > 16 or sound.z - z > 16:
+            if abs(sound.x - x) > 16 or abs(sound.z - z) > 16:
                 continue
-            if sound.x - x < -16 or sound.z - z < -16:
+            if self.coord_dim == 3 and abs(sound.y - y) > 16:
                 continue
-            if self.coord_dim == 3 and (sound.y - y < -16 or sound.y - y > 16):
-                continue
-            for idx, translation_key in enumerate(self.sound_list):
-                if translation_key == sound.translate_key:
-                    dx = sound.x - x
-                    if self.coord_dim == 3:
-                        dy = sound.y - y
-                    else:
-                        dy = 0
-                    dz = sound.z - z
-                    # distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-                    # if distance > 0:
-                    if self.coord_dim == 2:
-                        sound_vector[idx * self.coord_dim] = dx / 15
-                        sound_vector[idx * self.coord_dim + 1] = dz / 15
-                    else:
-                        sound_vector[idx * self.coord_dim] = dx / 15
-                        sound_vector[idx * self.coord_dim + 1] = dy / 15
-                        sound_vector[idx * self.coord_dim + 2] = dz / 15
-                elif translation_key == "subtitles.entity.player.hurt":
-                    sound_vector[-1] = 1  # player hurt sound
 
+            if sound.translate_key in self.sound_list:
+                dx = sound.x - x
+                if self.coord_dim == 3:
+                    dy = sound.y - y
+                else:
+                    dy = 0
+                dz = sound.z - z
+
+                idx = self.sound_list.index(sound.translate_key)
+                offset = idx * self.coord_dim
+
+                if self.coord_dim == 2:
+                    sound_vector[offset] = dx / 15
+                    sound_vector[offset + 1] = dz / 15
+                else:
+                    sound_vector[offset] = dx / 15
+                    sound_vector[offset + 1] = dy / 15
+                    sound_vector[offset + 2] = dz / 15
+            elif sound.translate_key in self.zeroing_sound_list:
+                idx = self.sound_list.index(sound.translate_key)
+                offset = self.zero_offset + idx
+                sound_vector[offset] = 1
         # Trigonometric encoding
         yaw_radians = math.radians(yaw)
-        sound_vector[-3] = math.cos(yaw_radians)
-        sound_vector[-2] = math.sin(yaw_radians)
+        sound_vector[-2] = math.cos(yaw_radians)
+        sound_vector[-1] = math.sin(yaw_radians)
 
         return sound_vector
 
