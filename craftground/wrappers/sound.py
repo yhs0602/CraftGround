@@ -8,13 +8,16 @@ from gymnasium.core import WrapperActType, WrapperObsType
 
 # Sound wrapper
 class SoundWrapper(gym.Wrapper):
-    def __init__(self, env, sound_list, zeroing_sound_list, coord_dim, **kwargs):
+    def __init__(
+        self, env, sound_list, zeroing_sound_list, coord_dim, null_value=0.0, **kwargs
+    ):
         self.sound_list = sound_list
         self.zeroing_sound_list = zeroing_sound_list
         self.env = env
         self.coord_dim = coord_dim
         super().__init__(self.env)
         self.zero_offset = len(sound_list) * coord_dim
+        self.null_value = null_value
         self.observation_space = gym.spaces.Box(
             low=-1,
             high=1,
@@ -42,7 +45,7 @@ class SoundWrapper(gym.Wrapper):
     def encode_sound(
         self, sound_subtitles: List, x: float, y: float, z: float, yaw: float
     ) -> List[float]:
-        sound_vector = [0.0] * (
+        sound_vector = [self.null_value] * (
             len(self.sound_list) * self.coord_dim + len(self.zeroing_sound_list) + 2
         )
         for sound in sound_subtitles:
