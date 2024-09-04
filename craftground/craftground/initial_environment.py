@@ -43,7 +43,7 @@ class InitialEnvironmentConfig:
         gamemode: GameMode = GameMode.SURVIVAL,
         difficulty: Difficulty = Difficulty.NORMAL,
         world_type: WorldType = WorldType.DEFAULT,
-        world_type_args=None,
+        world_type_args="",
         seed="",
         generate_structures=True,
         bonus_chest=False,
@@ -191,7 +191,7 @@ class InitialEnvironmentConfig:
         initial_env.no_fov_effect = self.no_fov_effect
         initial_env.request_raycast = self.request_raycast
         initial_env.screen_encoding_mode = self.screen_encoding_mode.value
-        initial_env.requires_surrounding_blocks = self.requires_surrounding_blocks
+        initial_env.requiresSurroundingBlocks = self.requires_surrounding_blocks
         initial_env.level_display_name_to_play = self.level_display_name_to_play
         initial_env.fov = self.fov
         return initial_env
