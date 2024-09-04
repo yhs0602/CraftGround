@@ -18,7 +18,7 @@ from .action_space import ActionSpace
 from .buffered_socket import BufferedSocket
 from .csv_logger import CsvLogger
 from .font import get_font
-from .initial_environment import InitialEnvironment
+from .initial_environment import InitialEnvironmentConfig
 from .minecraft import (
     wait_for_server,
     send_fastreset2,
@@ -26,14 +26,14 @@ from .minecraft import (
     send_exit,
 )
 from .print_with_time import print_with_time
-from .proto import observation_space_pb2, initial_environment_pb2
+from .proto import observation_space_pb2
 from .screen_encoding_modes import ScreenEncodingMode
 
 
 class CraftGroundEnvironment(gym.Env):
     def __init__(
         self,
-        initial_env: InitialEnvironment,
+        initial_env: InitialEnvironmentConfig,
         verbose=False,
         env_path=None,
         port=8000,
@@ -455,62 +455,7 @@ class CraftGroundEnvironment(gym.Env):
         return data_len, observation_space
 
     def send_initial_env(self):
-        initial_env = initial_environment_pb2.InitialEnvironmentMessage()
-        initial_env.initialInventoryCommands.extend(
-            self.initial_env.initialInventoryCommands
-        )
-        if self.initial_env.initialPosition is not None:
-            initial_env.initialPosition.extend(self.initial_env.initialPosition)
-        initial_env.initialMobsCommands.extend(self.initial_env.initialMobsCommands)
-        initial_env.imageSizeX = self.initial_env.imageSizeX
-        initial_env.imageSizeY = self.initial_env.imageSizeY
-        initial_env.seed = self.initial_env.seed
-        initial_env.allowMobSpawn = self.initial_env.allowMobSpawn
-        initial_env.alwaysNight = self.initial_env.alwaysNight
-        initial_env.alwaysDay = self.initial_env.alwaysDay
-        initial_env.initialWeather = self.initial_env.initialWeather
-        initial_env.isWorldFlat = self.initial_env.isWorldFlat
-        initial_env.visibleSizeX = self.initial_env.visibleSizeX
-        initial_env.visibleSizeY = self.initial_env.visibleSizeY
-        if self.initial_env.initialExtraCommands is not None:
-            initial_env.initialExtraCommands.extend(
-                self.initial_env.initialExtraCommands
-            )
-        if self.initial_env.killedStatKeys is not None:
-            initial_env.killedStatKeys.extend(self.initial_env.killedStatKeys)
-        if self.initial_env.minedStatKeys is not None:
-            initial_env.minedStatKeys.extend(self.initial_env.minedStatKeys)
-        if self.initial_env.miscStatKeys is not None:
-            initial_env.miscStatKeys.extend(self.initial_env.miscStatKeys)
-        if self.initial_env.surrounding_entities_keys is not None:
-            initial_env.surroundingEntityDistances.extend(
-                self.initial_env.surrounding_entities_keys
-            )
-        initial_env.hudHidden = self.initial_env.isHudHidden
-        initial_env.render_distance = (
-            self.initial_env.render_distance
-            if self.initial_env.render_distance is not None
-            else 6
-        )
-        initial_env.simulation_distance = (
-            self.initial_env.simulation_distance
-            if self.initial_env.simulation_distance is not None
-            else 6
-        )
-        initial_env.biocular = self.initial_env.is_biocular
-        initial_env.eye_distance = self.initial_env.eye_distance
-        initial_env.structurePaths.extend(self.initial_env.structure_paths)
-        initial_env.noWeatherCycle = self.initial_env.noWeatherCycle
-        initial_env.no_pov_effect = self.initial_env.no_pov_effect
-        initial_env.noTimeCycle = self.initial_env.noTimeCycle
-        initial_env.request_raycast = self.initial_env.request_raycast
-        initial_env.screen_encoding_mode = self.initial_env.screen_encoding_mode.value
-        initial_env.requiresSurroundingBlocks = (
-            self.initial_env.requiresSurroundingBlocks
-        )
-        initial_env.level_display_name_to_play = (
-            self.initial_env.level_display_name_to_play
-        )
+        initial_env = self.initial_env.to_initial_environment_message()
         # print(
         #     "Sending initial environment... ",
         # )

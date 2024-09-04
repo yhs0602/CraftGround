@@ -1,8 +1,9 @@
 from .craftground import CraftGroundEnvironment
-from .initial_environment import InitialEnvironment
+from .initial_environment import InitialEnvironmentConfig
 
 
 def make(
+    initial_env_config: InitialEnvironmentConfig = None,
     verbose=False,
     env_path=None,
     port=8000,
@@ -17,11 +18,11 @@ def make(
     verbose_python=False,
     verbose_jvm=False,
     verbose_gradle=False,
-    **kwargs,
 ) -> CraftGroundEnvironment:
-    env = InitialEnvironment(**kwargs)
+    if not initial_env_config:
+        initial_env_config = InitialEnvironmentConfig()
     return CraftGroundEnvironment(
-        env,
+        initial_env_config,
         verbose=verbose,
         env_path=env_path,
         port=port,
