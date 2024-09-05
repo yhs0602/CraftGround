@@ -1,4 +1,4 @@
-from .craftground import CraftGroundEnvironment
+from .craftground import CraftGroundEnvironment, ActionSpaceVersion
 from .initial_environment import InitialEnvironmentConfig
 
 
@@ -7,6 +7,7 @@ def make(
     verbose=False,
     env_path=None,
     port=8000,
+    action_space_version=ActionSpaceVersion.V1_MINEDOJO,
     render_action=False,
     render_alternating_eyes=False,
     use_terminate=False,
@@ -26,6 +27,7 @@ def make(
         verbose=verbose,
         env_path=env_path,
         port=port,
+        action_space_version=action_space_version,
         render_action=render_action,
         render_alternating_eyes=render_alternating_eyes,
         use_terminate=use_terminate,
