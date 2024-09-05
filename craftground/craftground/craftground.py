@@ -655,31 +655,31 @@ class CraftGroundEnvironment(gym.Env):
     def action_v2_to_symbol(self, action_v2: Dict[str, Union[int, float]]) -> str:
         res = ""
 
-        if action_v2["forward"] == 1:
+        if action_v2.get("forward") == 1:
             res += "↑"
-        if action_v2["backward"] == 1:
+        if action_v2.get("backward") == 1:
             res += "↓"
-        if action_v2["left"] == 1:
+        if action_v2.get("left") == 1:
             res += "←"
-        if action_v2["right"] == 1:
+        if action_v2.get("right") == 1:
             res += "→"
-        if action_v2["jump"] == 1:
+        if action_v2.get("jump") == 1:
             res += "JMP"
-        if action_v2["sneak"] == 1:
+        if action_v2.get("sneak") == 1:
             res += "SNK"
-        if action_v2["sprint"] == 1:
+        if action_v2.get("sprint") == 1:
             res += "SPRT"
-        if action_v2["attack"] == 1:
+        if action_v2.get("attack") == 1:
             res += "ATK"
-        if action_v2["use"] == 1:
+        if action_v2.get("use") == 1:
             res += "USE"
-        if action_v2["drop"] == 1:
+        if action_v2.get("drop") == 1:
             res += "Q"
-        if action_v2["inventory"] == 1:
+        if action_v2.get("inventory") == 1:
             res += "I"
 
         for i in range(1, 10):
-            if action_v2[f"hotbar.{i}"] == 1:
+            if action_v2.get(f"hotbar.{i}") == 1:
                 res += f"hotbar.{i}"
 
         return res
