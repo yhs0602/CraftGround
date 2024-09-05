@@ -3,10 +3,9 @@ import struct
 
 # import pdb
 import time
-from typing import List
+from typing import List, Dict, Union
 
 from .print_with_time import print_with_time
-from .json_socket import JSONSocket
 from .proto import action_space_pb2
 
 
@@ -41,75 +40,32 @@ def no_op() -> List[int]:
     return r
 
 
-def int_to_action(input_act: int):
-    act = no_op()
-    # no_op하는 action도 넣어볼까? 말까
-    if input_act == 0:  # go forward
-        act[0] = 1  # 0: noop 1: forward 2 : back
-    elif input_act == 1:  # go backward
-        act[0] = 2  # 0: noop 1: forward 2 : back
-    elif input_act == 2:  # move right
-        act[1] = 1  # 0: noop 1: move right 2: move left
-    elif input_act == 3:  # move left
-        act[1] = 2  # 0: noop 1: move right 2: move left
-    elif input_act == 4:  # Turn left
-        act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
-    elif input_act == 5:  # Turn right
-        act[4] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
-    elif input_act == 6:  # Jump
-        act[2] = 1  # 0: noop 1: jump 2: sneak 3: sprint
-    elif input_act == 7:  # Attack
-        act[5] = 3
-        # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
-    elif input_act == 8:  # Look up
-        act[3] = 12 + 1  # Camera delta pitch (0: -180, 24: 180)
-    elif input_act == 9:  # Look down
-        act[3] = 12 - 1  # Camera delta pitch (0: -180, 24: 180)
-    elif input_act == 10:
-        act[5] = 1  # use
-    elif input_act == 11:
-        act[5] = 4  # craft
-        act[6] = 331  # iron bar?
-    return act
-
-
-def int_to_action_with_no_op(input_act):
-    act = no_op()
-    # act=0: no op
-    if input_act == 1:  # go forward
-        act[0] = 1  # 0: noop 1: forward 2 : back
-    elif input_act == 2:  # go backward
-        act[0] = 2  # 0: noop 1: forward 2 : back
-    elif input_act == 3:  # move right
-        act[1] = 1  # 0: noop 1: move right 2: move left
-    elif input_act == 4:  # move left
-        act[1] = 2  # 0: noop 1: move right 2: move left
-    elif input_act == 5:  # Turn left
-        act[4] = 12 - 1  # Camera delta yaw (0: -180, 24: 180)
-    elif input_act == 6:  # Turn right
-        act[4] = 12 + 1  # Camera delta yaw (0: -180, 24: 180)
-    return act
-
-
-def send_action(sock: JSONSocket, action_array: List[int]):
-    sock.send_json_as_base64({"action": action_array, "command": ""})
-
-
-def send_action2(sock: socket.socket, action_array: List[int]):
-    # print_with_time("Sending action")
-    action_space = action_space_pb2.ActionSpaceMessage()
-    action_space.action.extend(action_array)
-    action_space.command = ""
-    v = action_space.SerializeToString()
-    sock.send(struct.pack("<I", len(v)))
-    sock.sendall(v)
-    # print("Sent action")
+def no_op_v2() -> Dict[str, Union[bool, float]]:
+    noop_dict = {}
+    for bool_key in [
+        "attack",
+        "back",
+        "forward",
+        "jump",
+        "left",
+        "right",
+        "sneak",
+        "sprint",
+        "use",
+        "drop",
+        "inventory",
+    ]:
+        noop_dict[bool_key] = False
+    for i in range(1, 10):
+        noop_dict[f"hotbar.{i}"] = False
+    noop_dict["camera_pitch"] = 0.0
+    noop_dict["camera_yaw"] = 0.0
+    return noop_dict
 
 
 def send_commands(sock: socket.socket, commands: List[str]):
     # print("Sending command")
-    action_space = action_space_pb2.ActionSpaceMessage()
-    action_space.action.extend(no_op())
+    action_space = action_v2_dict_to_message(no_op_v2())
     action_space.commands.extend(commands)
     v = action_space.SerializeToString()
     sock.send(struct.pack("<I", len(v)))
@@ -119,20 +75,47 @@ def send_commands(sock: socket.socket, commands: List[str]):
 
 def send_action_and_commands(
     sock: socket.socket,
-    action_array: List[int],
+    action_v2: Dict[str, Union[bool, float]],
     commands: List[str],
     verbose: bool = False,
 ):
     if verbose:
         print_with_time("Sending action and commands")
-    action_space = action_space_pb2.ActionSpaceMessage()
-    action_space.action.extend(action_array)
+    action_space = action_v2_dict_to_message(action_v2)
+
     action_space.commands.extend(commands)
     v = action_space.SerializeToString()
     sock.send(struct.pack("<I", len(v)))
     sock.sendall(v)
     if verbose:
         print_with_time("Sent actions and commands")
+
+
+def action_v2_dict_to_message(action_v2):
+    action_space = action_space_pb2.ActionSpaceMessageV2()
+    action_space.attack = action_v2["attack"]
+    action_space.back = action_v2["back"]
+    action_space.forward = action_v2["forward"]
+    action_space.jump = action_v2["jump"]
+    action_space.left = action_v2["left"]
+    action_space.right = action_v2["right"]
+    action_space.sneak = action_v2["sneak"]
+    action_space.sprint = action_v2["sprint"]
+    action_space.use = action_v2["use"]
+    action_space.drop = action_v2["drop"]
+    action_space.inventory = action_v2["inventory"]
+    action_space.hotbar_1 = action_v2["hotbar.1"]
+    action_space.hotbar_2 = action_v2["hotbar.2"]
+    action_space.hotbar_3 = action_v2["hotbar.3"]
+    action_space.hotbar_4 = action_v2["hotbar.4"]
+    action_space.hotbar_5 = action_v2["hotbar.5"]
+    action_space.hotbar_6 = action_v2["hotbar.6"]
+    action_space.hotbar_7 = action_v2["hotbar.7"]
+    action_space.hotbar_8 = action_v2["hotbar.8"]
+    action_space.hotbar_9 = action_v2["hotbar.9"]
+    action_space.camera_pitch = action_v2["camera_pitch"]
+    action_space.camera_yaw = action_v2["camera_yaw"]
+    return action_space
 
 
 def send_fastreset2(sock: socket.socket, extra_commands: List[str] = None):

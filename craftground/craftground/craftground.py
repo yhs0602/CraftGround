@@ -4,6 +4,7 @@ import signal
 import socket
 import struct
 import subprocess
+from enum import Enum
 from time import sleep
 from typing import Tuple, Optional, Union, List, Any, Dict
 
@@ -30,10 +31,16 @@ from .proto import observation_space_pb2
 from .screen_encoding_modes import ScreenEncodingMode
 
 
+class ActionSpaceVersion(Enum):
+    V1_MINEDOJO = 1
+    V2_MINERL_HUMAN = 2
+
+
 class CraftGroundEnvironment(gym.Env):
     def __init__(
         self,
         initial_env: InitialEnvironmentConfig,
+        action_space_version: ActionSpaceVersion = ActionSpaceVersion.V1_MINEDOJO,
         verbose=False,
         env_path=None,
         port=8000,
@@ -50,7 +57,42 @@ class CraftGroundEnvironment(gym.Env):
         verbose_jvm: bool = False,
         profile: bool = False,
     ):
-        self.action_space = ActionSpace(6)
+        self.action_space_version = action_space_version
+        if action_space_version == ActionSpaceVersion.V1_MINEDOJO:
+            self.action_space = ActionSpace(6)
+        elif action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
+            self.action_space = gym.spaces.Dict(
+                {
+                    "attack": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "back": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "forward": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "jump": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "left": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "right": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "sneak": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "sprint": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "use": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "drop": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "inventory": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.1": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.2": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.3": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.4": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.5": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.6": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.7": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.8": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.9": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "camera": gym.spaces.Box(
+                        low=np.array([-180, -180]),
+                        high=np.array([180, 180]),
+                        dtype=np.float32,
+                    )
+                    # Camera pitch/yaw between -180 and 180 degrees
+                }
+            )
+        else:
+            raise ValueError(f"Unknown action space version: {action_space_version}")
         entity_info_space = gym.spaces.Dict(
             {
                 "unique_name": spaces.Box(
@@ -464,13 +506,40 @@ class CraftGroundEnvironment(gym.Env):
         self.sock.send(struct.pack("<I", len(v)))
         self.sock.sendall(v)
 
+    def translate_action_to_v2(self, action: ActType) -> Dict[str, Union[bool, float]]:
+        translated_action = {
+            "attack": action[5] == 3,
+            "back": action[0] == 2,
+            "forward": action[0] == 1,
+            "jump": action[2] == 1,
+            "left": action[1] == 1,
+            "right": action[1] == 2,
+            "sneak": action[2] == 2,
+            "sprint": action[2] == 3,
+            "use": action[5] == 1,
+            "drop": action[5] == 2,
+            "inventory": False,
+        }
+        for i in range(1, 10):
+            translated_action[f"hotbar_{i}"] = False
+
+        translated_action["camera_pitch"] = action[3] * 15 - 180.0
+        translated_action["camera_yaw"] = action[4] * 15 - 180.0
+
+        return translated_action
+
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
         self.last_action = action
         self.csv_logger.profile_start("send_action_and_commands")
+        # Translate the action v1 to v2
+        if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
+            translated_action = self.translate_action_to_v2(action)
+        else:
+            translated_action = action
         send_action_and_commands(
             self.sock,
-            action,
+            translated_action,
             commands=self.queued_commands,
             verbose=self.verbose_python,
         )
@@ -533,7 +602,14 @@ class CraftGroundEnvironment(gym.Env):
                 last_image = Image.fromarray(last_rgb_frame)
             self.csv_logger.profile_start("render_action")
             draw = ImageDraw.Draw(last_image)
-            text = self.action_to_symbol(self.last_action)
+            if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
+                text = self.action_to_symbol(self.last_action)
+            elif self.action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
+                text = self.action_v2_to_symbol(self.last_action)
+            else:
+                raise ValueError(
+                    f"Unknown action space version {self.action_space_version}"
+                )
             position = (0, 0)
             font = get_font()
             font_size = 8
@@ -574,6 +650,38 @@ class CraftGroundEnvironment(gym.Env):
             res += "drop"  # "🤮"
         elif action[5] == 3:  # attack
             res += "attack"  # "⚔"
+        return res
+
+    def action_v2_to_symbol(self, action_v2: Dict[str, Union[int, float]]) -> str:
+        res = ""
+
+        if action_v2["forward"] == 1:
+            res += "↑"
+        if action_v2["backward"] == 1:
+            res += "↓"
+        if action_v2["left"] == 1:
+            res += "←"
+        if action_v2["right"] == 1:
+            res += "→"
+        if action_v2["jump"] == 1:
+            res += "JMP"
+        if action_v2["sneak"] == 1:
+            res += "SNK"
+        if action_v2["sprint"] == 1:
+            res += "SPRT"
+        if action_v2["attack"] == 1:
+            res += "ATK"
+        if action_v2["use"] == 1:
+            res += "USE"
+        if action_v2["drop"] == 1:
+            res += "Q"
+        if action_v2["inventory"] == 1:
+            res += "I"
+
+        for i in range(1, 10):
+            if action_v2[f"hotbar.{i}"] == 1:
+                res += f"hotbar.{i}"
+
         return res
 
     @property
@@ -651,7 +759,8 @@ class CraftGroundEnvironment(gym.Env):
         )
 
     # Copy or symlink the save file to the returned folder
-    def get_env_save_path(self) -> str:
+    @staticmethod
+    def get_env_save_path() -> str:
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
         parent_dir = os.path.dirname(current_dir)
