@@ -521,7 +521,7 @@ class CraftGroundEnvironment(gym.Env):
             "inventory": False,
         }
         for i in range(1, 10):
-            translated_action[f"hotbar_{i}"] = False
+            translated_action[f"hotbar.{i}"] = False
 
         translated_action["camera_pitch"] = action[3] * 15 - 180.0
         translated_action["camera_yaw"] = action[4] * 15 - 180.0
