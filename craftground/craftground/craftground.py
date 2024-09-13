@@ -455,6 +455,22 @@ class CraftGroundEnvironment(gym.Env):
             raise FileExistsError(
                 f"Socket file {socket_path} already exists. Please choose another port."
             )
+        # Edit options.txt in 1.16
+        options_txt = CraftGroundEnvironment.get_env_options_path()
+        with open(options_txt, "r") as file:
+            lines = file.readlines()
+        settings = {}
+        for line in lines:
+            if ":" in line:
+                key, value = line.strip().split(":", 1)
+                settings[key] = value
+
+        settings["overrideHeight"] = str(self.initial_env.imageSizeY)
+        settings["overrideWidth"] = str(self.initial_env.imageSizeX)
+        with open(options_txt, "w") as file:
+            for key, value in settings.items():
+                file.write(f"{key}:{value}\n")
+
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
@@ -766,3 +782,11 @@ class CraftGroundEnvironment(gym.Env):
         parent_dir = os.path.dirname(current_dir)
         env_dir = os.path.join(parent_dir, "MinecraftEnv", "run", "saves")
         return env_dir
+
+    @staticmethod
+    def get_env_options_path() -> str:
+        current_file = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file)
+        parent_dir = os.path.dirname(current_dir)
+        options_txt = os.path.join(parent_dir, "MinecraftEnv", "run", "options.txt")
+        return options_txt
