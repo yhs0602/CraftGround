@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 packages = find_packages()
 setup(
     name="craftground",
-    version="2.4.69+1.16.5",
+    version="2.4.70+1.16.5",
     packages=packages,
     install_requires=["gymnasium", "Pillow", "numpy", "protobuf", "typing_extensions"],
     author="yhs0602",
