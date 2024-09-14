@@ -44,7 +44,7 @@ class CraftGroundEnvironment(gym.Env):
         verbose=False,
         env_path=None,
         port=8000,
-        render_action: bool = False,
+        render_action_font_size: float = 0,
         render_alternating_eyes: bool = False,
         use_terminate: bool = False,
         cleanup_world: bool = True,  # removes the world when the environment is closed
@@ -309,7 +309,7 @@ class CraftGroundEnvironment(gym.Env):
         self.last_rgb_frames = [None, None]
         self.last_images = [None, None]
         self.last_action = None
-        self.render_action = render_action
+        self.render_action_font_size = render_action_font_size
         self.verbose = verbose
         self.verbose_python = verbose_python
         self.verbose_gradle = verbose_gradle
@@ -613,7 +613,7 @@ class CraftGroundEnvironment(gym.Env):
             last_rgb_frame = self.last_rgb_frames[0]
         if last_image is None and last_rgb_frame is None:
             return None
-        if self.render_action and self.last_action:
+        if self.render_action_font_size > 0 and self.last_action:
             if last_image is None:
                 last_image = Image.fromarray(last_rgb_frame)
             self.csv_logger.profile_start("render_action")
@@ -628,9 +628,14 @@ class CraftGroundEnvironment(gym.Env):
                 )
             position = (0, 0)
             font = get_font()
-            font_size = 8
             color = (255, 0, 0)
-            draw.text(position, text, font=font, font_size=font_size, fill=color)
+            draw.text(
+                position,
+                text,
+                font=font,
+                font_size=self.render_action_font_size,
+                fill=color,
+            )
             self.csv_logger.profile_end("render_action")
             return np.array(last_image)
         else:
