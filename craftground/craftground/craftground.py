@@ -627,7 +627,7 @@ class CraftGroundEnvironment(gym.Env):
                     f"Unknown action space version {self.action_space_version}"
                 )
             position = (0, 0)
-            font = get_font()
+            font = get_font(size=int(self.render_action_font_size))
             color = (255, 0, 0)
             draw.text(
                 position,
