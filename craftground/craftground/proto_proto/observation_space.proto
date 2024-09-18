@@ -56,6 +56,12 @@ message EntitiesWithinDistance {
   repeated EntityInfo entities = 1;
 }
 
+message ChatMessageInfo {
+  int64 added_time = 1; // TODO: always 0
+  string message = 2;
+  string indicator = 3; // TODO;; always empty
+}
+
 message ObservationSpaceMessage {
   bytes image = 1;
   double x = 2;
@@ -84,4 +90,5 @@ message ObservationSpaceMessage {
   repeated BlockInfo surrounding_blocks = 25; // center, (-1, -1, -1), (0, -1, -1), ...; xyz order: len = 27
   bool eye_in_block = 26;
   bool suffocating = 27;
+  repeated ChatMessageInfo chat_messages = 28;
 }
