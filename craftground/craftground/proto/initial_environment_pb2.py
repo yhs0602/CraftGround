@@ -9,30 +9,34 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
-
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC, 5, 27, 3, "", "initial_environment.proto"
+    _runtime_version.Domain.PUBLIC,
+    5,
+    27,
+    3,
+    '',
+    'initial_environment.proto'
 )
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x19initial_environment.proto"\xae\x05\n\x19InitialEnvironmentMessage\x12\x12\n\nimageSizeX\x18\x01 \x01(\x05\x12\x12\n\nimageSizeY\x18\x02 \x01(\x05\x12\x1b\n\x08gamemode\x18\x03 \x01(\x0e\x32\t.GameMode\x12\x1f\n\ndifficulty\x18\x04 \x01(\x0e\x32\x0b.Difficulty\x12\x1d\n\tworldType\x18\x05 \x01(\x0e\x32\n.WorldType\x12\x15\n\rworldTypeArgs\x18\x06 \x01(\t\x12\x0c\n\x04seed\x18\x07 \x01(\t\x12\x1b\n\x13generate_structures\x18\x08 \x01(\x08\x12\x13\n\x0b\x62onus_chest\x18\t \x01(\x08\x12\x15\n\rdatapackPaths\x18\n \x03(\t\x12\x1c\n\x14initialExtraCommands\x18\x0b \x03(\t\x12\x16\n\x0ekilledStatKeys\x18\x0c \x03(\t\x12\x15\n\rminedStatKeys\x18\r \x03(\t\x12\x14\n\x0cmiscStatKeys\x18\x0e \x03(\t\x12"\n\x1asurroundingEntityDistances\x18\x0f \x03(\x05\x12\x11\n\thudHidden\x18\x10 \x01(\x08\x12\x17\n\x0frender_distance\x18\x11 \x01(\x05\x12\x1b\n\x13simulation_distance\x18\x12 \x01(\x05\x12\x14\n\x0c\x65ye_distance\x18\x13 \x01(\x02\x12\x16\n\x0estructurePaths\x18\x14 \x03(\t\x12\x15\n\rno_fov_effect\x18\x15 \x01(\x08\x12\x17\n\x0frequest_raycast\x18\x16 \x01(\x08\x12\x1c\n\x14screen_encoding_mode\x18\x17 \x01(\x05\x12!\n\x19requiresSurroundingBlocks\x18\x18 \x01(\x08\x12"\n\x1alevel_display_name_to_play\x18\x19 \x01(\t\x12\x0b\n\x03\x66ov\x18\x1a \x01(\x02*4\n\x08GameMode\x12\x0c\n\x08SURVIVAL\x10\x00\x12\x0c\n\x08HARDCORE\x10\x01\x12\x0c\n\x08\x43REATIVE\x10\x02*:\n\nDifficulty\x12\x0c\n\x08PEACEFUL\x10\x00\x12\x08\n\x04\x45\x41SY\x10\x01\x12\n\n\x06NORMAL\x10\x02\x12\x08\n\x04HARD\x10\x03*Z\n\tWorldType\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\r\n\tSUPERFLAT\x10\x01\x12\x10\n\x0cLARGE_BIOMES\x10\x02\x12\r\n\tAMPLIFIED\x10\x03\x12\x10\n\x0cSINGLE_BIOME\x10\x04\x62\x06proto3'
-)
+
+
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19initial_environment.proto\"\xae\x05\n\x19InitialEnvironmentMessage\x12\x12\n\nimageSizeX\x18\x01 \x01(\x05\x12\x12\n\nimageSizeY\x18\x02 \x01(\x05\x12\x1b\n\x08gamemode\x18\x03 \x01(\x0e\x32\t.GameMode\x12\x1f\n\ndifficulty\x18\x04 \x01(\x0e\x32\x0b.Difficulty\x12\x1d\n\tworldType\x18\x05 \x01(\x0e\x32\n.WorldType\x12\x15\n\rworldTypeArgs\x18\x06 \x01(\t\x12\x0c\n\x04seed\x18\x07 \x01(\t\x12\x1b\n\x13generate_structures\x18\x08 \x01(\x08\x12\x13\n\x0b\x62onus_chest\x18\t \x01(\x08\x12\x15\n\rdatapackPaths\x18\n \x03(\t\x12\x1c\n\x14initialExtraCommands\x18\x0b \x03(\t\x12\x16\n\x0ekilledStatKeys\x18\x0c \x03(\t\x12\x15\n\rminedStatKeys\x18\r \x03(\t\x12\x14\n\x0cmiscStatKeys\x18\x0e \x03(\t\x12\"\n\x1asurroundingEntityDistances\x18\x0f \x03(\x05\x12\x11\n\thudHidden\x18\x10 \x01(\x08\x12\x17\n\x0frender_distance\x18\x11 \x01(\x05\x12\x1b\n\x13simulation_distance\x18\x12 \x01(\x05\x12\x14\n\x0c\x65ye_distance\x18\x13 \x01(\x02\x12\x16\n\x0estructurePaths\x18\x14 \x03(\t\x12\x15\n\rno_fov_effect\x18\x15 \x01(\x08\x12\x17\n\x0frequest_raycast\x18\x16 \x01(\x08\x12\x1c\n\x14screen_encoding_mode\x18\x17 \x01(\x05\x12!\n\x19requiresSurroundingBlocks\x18\x18 \x01(\x08\x12\"\n\x1alevel_display_name_to_play\x18\x19 \x01(\t\x12\x0b\n\x03\x66ov\x18\x1a \x01(\x02*4\n\x08GameMode\x12\x0c\n\x08SURVIVAL\x10\x00\x12\x0c\n\x08HARDCORE\x10\x01\x12\x0c\n\x08\x43REATIVE\x10\x02*:\n\nDifficulty\x12\x0c\n\x08PEACEFUL\x10\x00\x12\x08\n\x04\x45\x41SY\x10\x01\x12\n\n\x06NORMAL\x10\x02\x12\x08\n\x04HARD\x10\x03*Z\n\tWorldType\x12\x0b\n\x07\x44\x45\x46\x41ULT\x10\x00\x12\r\n\tSUPERFLAT\x10\x01\x12\x10\n\x0cLARGE_BIOMES\x10\x02\x12\r\n\tAMPLIFIED\x10\x03\x12\x10\n\x0cSINGLE_BIOME\x10\x04\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "initial_environment_pb2", _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'initial_environment_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-    DESCRIPTOR._loaded_options = None
-    _globals["_GAMEMODE"]._serialized_start = 718
-    _globals["_GAMEMODE"]._serialized_end = 770
-    _globals["_DIFFICULTY"]._serialized_start = 772
-    _globals["_DIFFICULTY"]._serialized_end = 830
-    _globals["_WORLDTYPE"]._serialized_start = 832
-    _globals["_WORLDTYPE"]._serialized_end = 922
-    _globals["_INITIALENVIRONMENTMESSAGE"]._serialized_start = 30
-    _globals["_INITIALENVIRONMENTMESSAGE"]._serialized_end = 716
+  DESCRIPTOR._loaded_options = None
+  _globals['_GAMEMODE']._serialized_start=718
+  _globals['_GAMEMODE']._serialized_end=770
+  _globals['_DIFFICULTY']._serialized_start=772
+  _globals['_DIFFICULTY']._serialized_end=830
+  _globals['_WORLDTYPE']._serialized_start=832
+  _globals['_WORLDTYPE']._serialized_end=922
+  _globals['_INITIALENVIRONMENTMESSAGE']._serialized_start=30
+  _globals['_INITIALENVIRONMENTMESSAGE']._serialized_end=716
 # @@protoc_insertion_point(module_scope)
