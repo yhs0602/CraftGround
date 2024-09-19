@@ -48,4 +48,5 @@ message InitialEnvironmentMessage {
   bool requiresSurroundingBlocks = 24;
   string level_display_name_to_play = 25;
   float fov = 26; // Default = 70
+  bool requiresBiomeInfo = 27;
 }

@@ -196,5 +196,5 @@ class InitialEnvironmentConfig:
         initial_env.requiresSurroundingBlocks = self.requires_surrounding_blocks
         initial_env.level_display_name_to_play = self.level_display_name_to_play
         initial_env.fov = self.fov
-        initial_env.requires_biome_info = self.requires_biome_info
+        initial_env.requiresBiomeInfo = self.requires_biome_info
         return initial_env
