@@ -189,7 +189,7 @@ class InitialEnvironmentConfig:
         initial_env.simulation_distance = self.simulation_distance
         initial_env.eye_distance = self.eye_distance
         if self.structure_paths:
-            initial_env.structure_paths.extend(self.structure_paths)
+            initial_env.structurePaths.extend(self.structure_paths)
         initial_env.no_fov_effect = self.no_fov_effect
         initial_env.request_raycast = self.request_raycast
         initial_env.screen_encoding_mode = self.screen_encoding_mode.value
