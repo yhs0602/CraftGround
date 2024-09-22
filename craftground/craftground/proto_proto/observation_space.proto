@@ -69,6 +69,13 @@ message BiomeInfo {
   int32 center_z = 4;   // 바이옴 중심의 z 좌표
 }
 
+message NearbyBiome {
+  string biome_name = 1;
+  int32 x = 2;
+  int32 y = 3;
+  int32 z = 4;
+}
+
 message ObservationSpaceMessage {
   bytes image = 1;
   double x = 2;
@@ -99,4 +106,5 @@ message ObservationSpaceMessage {
   bool suffocating = 27;
   repeated ChatMessageInfo chat_messages = 28;
   BiomeInfo biome_info = 29;
+  repeated NearbyBiome nearby_biomes = 30;
 }
