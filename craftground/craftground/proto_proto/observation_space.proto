@@ -76,6 +76,13 @@ message NearbyBiome {
   int32 z = 4;
 }
 
+message HeightInfo {
+  int32 x = 1;
+  int32 z = 2;
+  int32 height = 3;
+  string block_name = 4;
+}
+
 message ObservationSpaceMessage {
   bytes image = 1;
   double x = 2;
@@ -107,4 +114,8 @@ message ObservationSpaceMessage {
   repeated ChatMessageInfo chat_messages = 28;
   BiomeInfo biome_info = 29;
   repeated NearbyBiome nearby_biomes = 30;
+  bool submerged_in_water = 31;
+  bool is_in_lava = 32;
+  bool submerged_in_lava = 33;
+  repeated HeightInfo height_info = 34;
 }

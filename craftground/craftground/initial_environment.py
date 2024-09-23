@@ -65,6 +65,7 @@ class InitialEnvironmentConfig:
         level_display_name_to_play: str = "",
         fov=70,
         requires_biome_info=False,
+        requires_heightmap=False,
         **kwargs,
     ):
         self.imageSizeX = image_width
@@ -95,6 +96,7 @@ class InitialEnvironmentConfig:
         self.level_display_name_to_play = level_display_name_to_play
         self.fov = fov
         self.requires_biome_info = requires_biome_info
+        self.requires_heightmap = requires_heightmap
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
 
@@ -197,4 +199,5 @@ class InitialEnvironmentConfig:
         initial_env.level_display_name_to_play = self.level_display_name_to_play
         initial_env.fov = self.fov
         initial_env.requiresBiomeInfo = self.requires_biome_info
+        initial_env.requiresHeightmap = self.requires_heightmap
         return initial_env
