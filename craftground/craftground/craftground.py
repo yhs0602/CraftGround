@@ -422,10 +422,10 @@ class CraftGroundEnvironment(gym.Env):
             last_rgb_frame = np.frombuffer(png_img, dtype=np.uint8).reshape(
                 (self.initial_env.imageSizeY, self.initial_env.imageSizeX, 3)
             )
-            arr = last_rgb_frame
             # Flip y axis using np
             # last_rgb_frame = np.transpose(last_rgb_frame, (1, 0, 2))
-            # np.flip(last_rgb_frame, axis=0)
+            last_rgb_frame = np.flip(last_rgb_frame, axis=0)
+            arr = last_rgb_frame
             # arr = np.transpose(last_rgb_frame, (2, 1, 0))  # channels, width, height
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
