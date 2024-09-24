@@ -570,6 +570,7 @@ class CraftGroundEnvironment(gym.Env):
             "obs": res,
             "rgb": rgb_1,
         }
+        res.yaw = ((res.yaw + 180) % 360) - 180
         self.last_images = [img_1, img_2]
         self.last_rgb_frames = [frame_1, frame_2]
         if rgb_2 is not None:
