@@ -386,6 +386,7 @@ class CraftGroundEnvironment(gym.Env):
         if res.image_2 is not None and res.image_2 != b"":
             rgb_2, img_2, frame_2 = self.convert_observation(res.image_2)
         self.queued_commands = []
+        res.yaw = ((res.yaw + 180) % 360) - 180
         final_obs = {
             "obs": res,
             "rgb": rgb_1,
