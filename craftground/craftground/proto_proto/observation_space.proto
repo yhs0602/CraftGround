@@ -118,4 +118,5 @@ message ObservationSpaceMessage {
   bool is_in_lava = 32;
   bool submerged_in_lava = 33;
   repeated HeightInfo height_info = 34;
+  bool is_on_ground = 35;
 }
