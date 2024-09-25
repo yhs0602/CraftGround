@@ -340,7 +340,7 @@ class CraftGroundEnvironment(gym.Env):
     ) -> Tuple[ObsType, Dict[str, Any]]:
         if options is None:
             options = {}
-        fast_reset = options.get("fast_reset", False)
+        fast_reset = options.get("fast_reset", True)
         extra_commands = options.get("extra_commands", [])
         if not self.sock:  # first time
             self.start_server(
