@@ -177,7 +177,7 @@ class CraftGroundEnvironment(gym.Env):
                         "image": spaces.Box(
                             low=0,
                             high=255,
-                            shape=(initial_env.imageSizeX, initial_env.imageSizeY, 3),
+                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
                             dtype=np.uint8,
                         ),
                         "position": spaces.Box(
@@ -289,7 +289,7 @@ class CraftGroundEnvironment(gym.Env):
                         "image_2": spaces.Box(
                             low=0,
                             high=255,
-                            shape=(initial_env.imageSizeX, initial_env.imageSizeY, 3),
+                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
                             dtype=np.uint8,
                         ),
                     }
