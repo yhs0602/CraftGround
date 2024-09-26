@@ -13,7 +13,7 @@ class VisionWrapper(gym.Wrapper):
         self.observation_space = gym.spaces.Box(
             low=0,
             high=255,
-            shape=(x_dim, y_dim, 3),
+            shape=(y_dim, x_dim, 3),
             dtype=np.uint8,
         )
 
