@@ -8,7 +8,7 @@ A **fast**, **up-to-date**, and **feature-rich** Minecraft-based reinforcement l
 ## Version
 
 ![Static Badge](https://img.shields.io/badge/Minecraft-1.21.0-green)
-![Static Badge](https://img.shields.io/badge/CraftGround-2.1.0-blue)
+![Static Badge](https://img.shields.io/badge/CraftGround-2.5.9-blue)
 
 ## Install
 ```shell
@@ -216,7 +216,7 @@ message ObservationSpaceMessage {
   repeated BlockInfo surrounding_blocks = 25; // center, (-1, -1, -1), (0, -1, -1), ...; xyz order: len = 27
 }
 ```
-### Action Space
+### Action Space V1
 Similar to Minedojo. (Crafting Not supported)
 ```proto
 message ActionSpaceMessage {
@@ -224,6 +224,43 @@ message ActionSpaceMessage {
   repeated string commands = 2;
 }
 ```
+
+### Action Space V2
+Similar to MineRL 1.0. Human action space.
+```proto
+message ActionSpaceMessageV2 {
+  // Discrete actions for movement and other commands as bool
+  bool attack = 1;
+  bool back = 2;
+  bool forward = 3;
+  bool jump = 4;
+  bool left = 5;
+  bool right = 6;
+  bool sneak = 7;
+  bool sprint = 8;
+  bool use = 9;
+  bool drop = 10;
+  bool inventory = 11;
+
+  // Hotbar selection (1-9) as bool
+  bool hotbar_1 = 12;
+  bool hotbar_2 = 13;
+  bool hotbar_3 = 14;
+  bool hotbar_4 = 15;
+  bool hotbar_5 = 16;
+  bool hotbar_6 = 17;
+  bool hotbar_7 = 18;
+  bool hotbar_8 = 19;
+  bool hotbar_9 = 20;
+
+  // Camera movement (pitch and yaw)
+  float camera_pitch = 21;
+  float camera_yaw = 22;
+
+  repeated string commands = 23;
+}
+```
+
 
 ## Headless Server Support
 Supports headless offscreen rendering using [VirtualGL](https://virtualgl.org/) and [Xvfb](https://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml).
@@ -234,3 +271,16 @@ It achieves **~300 TPS** on M1 mac, with screen size 114x64, render distance 5, 
 
 ## Technical Report
 Refer to the [Technical Report](https://yhs0602.github.io/CraftGround/technical_report) for detailed information on CraftGround's internals, optimizations, and more.
+
+# Troubleshooting
+## Cannot find glew
+```shell
+cmake -DOPENGL_opengl_LIBRARY=/usr/lib/x86_64-linux-gnu/libGL.so -DOPENGL_glx_LIBRARY=/usr/lib/x86_64-linux-gnu/libGLX.so -DGLEW_LIBRARY=/usr/lib/x86_64-linux-gnu/libGLEW.so src/main/cpp
+```
+
+## Other CMake errors
+```shell
+rm -rf CMakeFiles
+rm CMakeCache.txt
+cmake src/main/cpp
+```
