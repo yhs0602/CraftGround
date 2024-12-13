@@ -1,0 +1,2 @@
+/// maven.modrinth:lithium:mc1.21-0.12.7 /// For general performance
+/// curse.maven:ferritecore-fabric-459857:5434182 /// For reduced RAM usage

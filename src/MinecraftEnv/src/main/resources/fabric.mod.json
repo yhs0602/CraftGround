@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "minecraft_env",
+  "version": "${version}",
+  "name": "minecraft_env",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/yanghyeonseo/minecraft_env"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/minecraft_env/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.kyhsgeekcode.minecraft_env.client.Minecraft_envClient"
+    ],
+    "main": [
+      "com.kyhsgeekcode.minecraft_env.Minecraft_env"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  },
+  "mixins": [
+    "com.kyhsgeekcode.minecraft_env.mixin.json"
+  ],
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_761": [
+        "com/kyhsgeekcode/minecraft_env/AddListenerInterface"
+      ]
+    }
+  }
+}
