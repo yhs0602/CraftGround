@@ -56,7 +56,7 @@ message(PNG_LIBRARIES="${PNG_LIBRARIES}")
 
 # Add your source files here
 set(SOURCE_FILES
-    src/main/cpp/framebuffer_capturer.cpp
+    framebuffer_capturer.cpp
     # Add more source files as needed
 )
 

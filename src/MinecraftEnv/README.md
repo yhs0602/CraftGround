@@ -48,3 +48,11 @@ Controlled by this reinforcement learning agent: https://github.com/yhs0602/Craf
 
 renderDistance:6
 simulationDistance:6
+
+
+# Build cpp
+```
+mkdir build
+cd build
+cmake ../src/main/cpp
+```

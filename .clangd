@@ -1,0 +1,13 @@
+If:
+  PathMath: /src/cpp/.*
+
+CompileFlags:
+  CompilationDatabase: /build
+
+---
+
+If:
+  PathMath: /src/MinecraftEnv/src/main/cpp/.*
+
+CompileFlags:
+  CompilationDatabase: /src/MinecraftEnv/build
