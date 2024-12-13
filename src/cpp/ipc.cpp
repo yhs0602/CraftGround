@@ -49,6 +49,6 @@ PYBIND11_MODULE(ipc, m) {
     m.attr("__version__") = VERSION_INFO;
 #else
     m.attr("__version__") = "dev";
-}
 #endif
+}
 
