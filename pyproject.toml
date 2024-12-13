@@ -1,0 +1,42 @@
+[build-system]
+requires = [
+    "scikit-build-core",
+    "pybind11",
+    "setuptools>=42",
+    "wheel",
+    "cmake>=3.12",
+    "ninja",  # Optional, for Ninja builds
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "craftground"
+version = "2.5.12"
+description = "Lightweight Minecraft Environment for Reinforcement Learning"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "yhs0602", email = "jourhyang123@gmail.com" }
+]
+keywords = ["minecraft", "reinforcement learning", "environment"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "gymnasium",
+    "Pillow",
+    "numpy",
+    "protobuf",
+    "typing_extensions"
+]
+
+[project.urls]
+Source = "https://github.com/yhs0602/CraftGround"
+Tracker = "https://github.com/yhs0602/CraftGround/issues"
+
+
+[tool.scikit-build]
+wheel.expand-macos-universal-tags = true
