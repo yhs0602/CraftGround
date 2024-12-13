@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15...3.29)
-project(craftground_py LANGUAGES CXX)
+project(craftground LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(pybind11)
@@ -30,13 +30,15 @@ elseif(CUDAToolkit_FOUND)
 endif()
 
 # Add the module
-pybind11_add_module(craftground_py ${CRAFTGROUND_PY_SOURCES})
+pybind11_add_module(craftground ${CRAFTGROUND_PY_SOURCES})
 
-target_include_directories(craftground_py PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
+target_include_directories(craftground PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
 
-target_compile_options(craftground_py PRIVATE ${CRAFTGROUND_PY_COMPILE_OPTIONS})
+target_compile_options(craftground PRIVATE ${CRAFTGROUND_PY_COMPILE_OPTIONS})
 
 target_compile_definitions(
-    craftground_py
+    craftground
     PRIVATE VERSION_INFO=${PRIVATE_VERSION_INFO}
 )
+
+install(TARGETS craftground DESTINATION craftground)

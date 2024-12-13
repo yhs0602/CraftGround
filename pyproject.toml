@@ -38,5 +38,5 @@ Source = "https://github.com/yhs0602/CraftGround"
 Tracker = "https://github.com/yhs0602/CraftGround/issues"
 
 
-[tool.scikit-build]
-wheel.expand-macos-universal-tags = true
+# [tool.scikit-build]
+# wheel.expand-macos-universal-tags = true
