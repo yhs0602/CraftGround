@@ -4,7 +4,7 @@ from typing import Tuple, Optional, Any
 from gymnasium.core import ActType, ObsType
 from gymnasium.core import WrapperObsType
 
-import craftground
+import src
 from environments.base_environment import BaseEnvironment
 from environments.husk_environment import generate_husks
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
@@ -30,7 +30,7 @@ class ContinuousHuskEnvironment(BaseEnvironment):
             def __init__(self):
                 initialExtraCommands = []
                 initialExtraCommands.extend(generate_husks(1, 3, 5))
-                self.env = craftground.make(
+                self.env = src.make(
                     verbose=verbose,
                     env_path=env_path,
                     port=port,

@@ -2,8 +2,8 @@
 from enum import Enum
 from typing import List, Tuple, Optional
 
-from craftground.craftground.proto import initial_environment_pb2
-from craftground.craftground.screen_encoding_modes import ScreenEncodingMode
+from src.craftground.proto import initial_environment_pb2
+from src.craftground.screen_encoding_modes import ScreenEncodingMode
 
 
 class GameMode(Enum):
