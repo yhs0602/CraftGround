@@ -127,7 +127,7 @@ class CMakeBuild(build_ext):
 packages = find_packages()
 setup(
     name="craftground",
-    version="2.5.10",
+    version="2.5.11",
     packages=packages,
     install_requires=["gymnasium", "Pillow", "numpy", "protobuf", "typing_extensions"],
     author="yhs0602",
@@ -136,13 +136,8 @@ setup(
     license="MIT",
     keywords="minecraft, reinforcement learning, environment",
     url="https://github.com/yhs0602/CraftGround",
-    package_data={
-        packages[0]: [
-            "craftground/MinecraftEnv/*",
-            "craftground/DejaVuSans-ExtraLight.ttf",
-        ]
-    },
+    package_data={},
     include_package_data=True,
-    ext_modules=[CMakeExtension("cmake_example")],
+    ext_modules=[CMakeExtension("craftground_py")],
     cmdclass={"build_ext": CMakeBuild},
 )
