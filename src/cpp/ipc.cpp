@@ -40,3 +40,15 @@ py::object mtl_tensor_from_cuda_mem_handle(void *cuda_ipc_handle, int width, int
     return py::none();
 }
 #endif
+
+PYBIND11_MODULE(ipc, m) {
+    m.def("initialize_from_mach_port", &initialize_from_mach_port);
+    m.def("mtl_tensor_from_cuda_mem_handle", &mtl_tensor_from_cuda_mem_handle);
+
+#ifdef VERSION_INFO
+    m.attr("__version__") = VERSION_INFO;
+#else
+    m.attr("__version__") = "dev";
+}
+#endif
+
