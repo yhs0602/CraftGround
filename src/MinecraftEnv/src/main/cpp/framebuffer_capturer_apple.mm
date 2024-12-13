@@ -27,18 +27,17 @@ static mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface) {
 }
 
 static IOSurfaceRef ioSurface;
-static GLuint textureID;
 static bool initialized = false;    
 
-int initializeIoSurface(int width, int height) {
+// TODO: Depth buffer
+int initializeIoSurface(int width, int height, int colorAttachment, int depthAttachment) {
     if (initialized) {
         return 0;
     }
 
     ioSurface = createSharedIOSurface(width, height);
-    glGenTextures(1, &textureID);
     mach_port_t machPort = createMachPortForIOSurface(ioSurface);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, textureID);
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, colorAttachment);
     CGLContextObj cglContext = CGLGetCurrentContext();
     CGLTexImageIOSurface2D(cglContext, GL_TEXTURE_RECTANGLE_ARB, GL_RGBA,
                            width,

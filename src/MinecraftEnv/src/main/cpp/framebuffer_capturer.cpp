@@ -374,9 +374,11 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_Frameb
 
 extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeIoSurface(
     JNIEnv *env, jclass clazz,
-    jint width, jint height
+    jint width, jint height,
+    jint colorAttachment,
+    jint depthAttachment
 ) {
-    return initializeIoSurface(width, height);
+    return initializeIoSurface(width, height, colorAttachment, depthAttachment);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopyApple(
