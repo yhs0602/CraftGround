@@ -23,7 +23,7 @@ id<MTLTexture> createMetalTextureFromIOSurface(id<MTLDevice> device, IOSurfaceRe
     return texture;
 }
 
-void deleteDLManagedTensor(DLManagedTensor* self) {
+static void deleteDLManagedTensor(DLManagedTensor* self) {
     free(self->dl_tensor.shape);
     free(self);
 }
