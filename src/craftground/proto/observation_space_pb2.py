@@ -28,17 +28,17 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "observation_space_pb2", _gl
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
     _globals["_OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY"]._loaded_options = None
-    _globals[
-        "_OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY"
-    ]._serialized_options = b"8\001"
+    _globals["_OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY"]._serialized_options = (
+        b"8\001"
+    )
     _globals["_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"]._loaded_options = None
-    _globals[
-        "_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"
-    ]._serialized_options = b"8\001"
+    _globals["_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"]._serialized_options = (
+        b"8\001"
+    )
     _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._loaded_options = None
-    _globals[
-        "_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"
-    ]._serialized_options = b"8\001"
+    _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._serialized_options = (
+        b"8\001"
+    )
     _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._loaded_options = None
     _globals[
         "_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"
@@ -75,8 +75,8 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals["_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"]._serialized_end = 2261
     _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._serialized_start = 2263
     _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._serialized_end = 2316
-    _globals[
-        "_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"
-    ]._serialized_start = 2318
+    _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._serialized_start = (
+        2318
+    )
     _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._serialized_end = 2401
 # @@protoc_insertion_point(module_scope)

@@ -89,13 +89,13 @@ class ActionWrapper(gym.Wrapper):
         elif input_act == Action.LOOK_DOWN:  # Look down
             act[3] = 12 + 1  # Camera delta pitch (0: -180, 24: 180)
         elif input_act == Action.ATTACK:  # attack
-            act[
-                5
-            ] = 3  # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
+            act[5] = (
+                3  # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
+            )
         elif input_act == Action.USE:  # use
-            act[
-                5
-            ] = 1  # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
+            act[5] = (
+                1  # 0: noop 1: use 2: drop 3: attack 4: craft 5: equip 6: place 7: destroy
+            )
         elif input_act == Action.JUMP_USE:  # use while jumping
             act[2] = 1  # 0: noop 1: jump
             act[5] = 1

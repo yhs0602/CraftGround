@@ -87,7 +87,7 @@ class CraftGroundEnvironment(gym.Env):
                         low=np.array([-180, -180]),
                         high=np.array([180, 180]),
                         dtype=np.float32,
-                    )
+                    ),
                     # Camera pitch/yaw between -180 and 180 degrees
                 }
             )
