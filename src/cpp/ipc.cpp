@@ -1,4 +1,6 @@
 #include "ipc.h"
+#define STRINGIFY(x) #x
+#define MACRO_STRINGIFY(x) STRINGIFY(x)
 
 #ifdef __APPLE__
 #include "ipc_apple.h"
