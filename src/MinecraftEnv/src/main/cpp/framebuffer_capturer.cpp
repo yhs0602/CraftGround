@@ -406,7 +406,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
         glDisable(GL_TEXTURE_2D);
     }
 
-    captureFramebuffer(targetSizeX, targetSizeY);
+    // the rendered image is already being shared
 }
 
 #endif

@@ -38,11 +38,6 @@ int initializeIoSurface(int width, int height) {
     ioSurface = createSharedIOSurface(width, height);
     glGenTextures(1, &textureID);
     mach_port_t machPort = createMachPortForIOSurface(ioSurface);
-    initialized = true;
-    return machPort;
-}
-
-void captureFramebuffer(int width, int height) {
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, textureID);
     CGLContextObj cglContext = CGLGetCurrentContext();
     CGLTexImageIOSurface2D(cglContext, GL_TEXTURE_RECTANGLE_ARB, GL_RGBA,
@@ -50,4 +45,6 @@ void captureFramebuffer(int width, int height) {
                            height,
                            GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
                            ioSurface, 0);
+    initialized = true;
+    return machPort;
 }
