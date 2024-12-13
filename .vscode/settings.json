@@ -1,0 +1,7 @@
+{
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/craftground/MinecraftEnv/compile_commands.json",
+    "clangd.arguments": [
+        "--background-index",
+        "--compile-commands-dir=${workspaceFolder}/craftground/MinecraftEnv/"
+    ],
+}

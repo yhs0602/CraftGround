@@ -291,7 +291,6 @@ data/
 saved_models_400
 *.pt
 wandb/
-*.json
 *.mp4
 
 dejavu-fonts-ttf-2.37.zip
