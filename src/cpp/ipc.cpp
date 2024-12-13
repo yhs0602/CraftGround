@@ -46,7 +46,7 @@ PYBIND11_MODULE(ipc, m) {
     m.def("mtl_tensor_from_cuda_mem_handle", &mtl_tensor_from_cuda_mem_handle);
 
 #ifdef VERSION_INFO
-    m.attr("__version__") = VERSION_INFO;
+    m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
 #else
     m.attr("__version__") = "dev";
 #endif
