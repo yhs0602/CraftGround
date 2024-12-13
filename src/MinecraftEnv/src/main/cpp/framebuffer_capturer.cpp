@@ -372,16 +372,16 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_Frameb
 
 #ifdef __APPLE__
 
-extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeIoSurface(
+extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopy(
     JNIEnv *env, jclass clazz,
-    jint width, jint height
-    // jint colorAttachment,
-    // jint depthAttachment
+    jint width, jint height,
+    jint colorAttachment,
+    jint depthAttachment
 ) {
     return initializeIoSurface(width, height);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopyApple(
+extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
@@ -410,7 +410,87 @@ extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
     copyFramebufferToIOSurface(targetSizeX, targetSizeY);
 }
 
-#elif defined(_WIN32)
+#elif defined(HAS_CUDA)
+#include "framebuffer_capturer_cuda.h"
 
+extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopy(
+    JNIEnv *env,
+    jclass clazz,
+    jint width,
+    jint height,
+    jint colorAttachment,
+    jint depthAttachment
+) {
+    cudaIpcMemHandle_t memHandle;
+    return initialize_cuda_ipc(width, height, colorAttachment, depthAttachment, &memHandle);
+}
+
+
+extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
+    JNIEnv *env,
+    jclass clazz,
+    jint frameBufferId,
+    jint targetSizeX,
+    jint targetSizeY,
+    jboolean drawCursor,
+    jint mouseX,
+    jint mouseY
+) {
+    if (drawCursor) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
+        glBindTexture(GL_TEXTURE_2D, cursorTexID);
+
+        glEnable(GL_TEXTURE_2D);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f); glVertex2f(mouseX, mouseY);
+            glTexCoord2f(1.0f, 0.0f); glVertex2f(mouseX + 16, mouseY);
+            glTexCoord2f(1.0f, 1.0f); glVertex2f(mouseX + 16, mouseY - 16);
+            glTexCoord2f(0.0f, 1.0f); glVertex2f(mouseX, mouseY - 16);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+    }
+    
+    // CUDA IPC handles are used to share the framebuffer with the Python side
+}
+
+#else
+
+extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopy(
+    JNIEnv *env,
+    jclass clazz,
+    jint width,
+    jint height,
+    jint colorAttachment,
+    jint depthAttachment
+) {
+    return -1;
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
+    JNIEnv *env,
+    jclass clazz,
+    jint frameBufferId,
+    jint targetSizeX,
+    jint targetSizeY,
+    jboolean drawCursor,
+    jint mouseX,
+    jint mouseY
+) {
+    Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebuffer(
+        env,
+        clazz,
+        0,
+        frameBufferId,
+        targetSizeX,
+        targetSizeY,
+        targetSizeX,
+        targetSizeY,
+        RAW,
+        false,
+        drawCursor,
+        mouseX,
+        mouseY
+    );
+}
 
 #endif

@@ -53,6 +53,16 @@ message(PNG_LIBRARIES="${PNG_LIBRARIES}")
 # Find zlib
 # find_package(ZLIB REQUIRED)
 # include_directories(${ZLIB_INCLUDE_DIRS})
+# find CUDA
+
+find_package(CUDAToolkit QUIET)
+if(CUDAToolkit_FOUND)
+    message(STATUS "CUDA is available")
+    add_definitions(-DHAS_CUDA)
+else()
+    message(STATUS "CUDA is not available")
+endif()
+
 
 # Add your source files here
 set(SOURCE_FILES
@@ -86,6 +96,10 @@ if (APPLE)
         "-framework Foundation"
         "-lobjc"
     )
+endif()
+
+if(CUDAToolkit_FOUND)
+    target_link_libraries(native-lib PRIVATE CUDA::cudart)
 endif()
 
 # If you are using additional libraries, like GLFW for OpenGL context creation,
