@@ -2,7 +2,7 @@
 
 #define __FRAMEBUFFER_CAPTURER_APPLE_H__
 
-int initializeIoSurface(int width, int height, int colorAttachment, int depthAttachment);
-void captureFramebuffer(int width, int height);
+int initializeIoSurface(int width, int height); // , int colorAttachment, int depthAttachment
+void copyFramebufferToIOSurface(int width, int height);
 
 #endif

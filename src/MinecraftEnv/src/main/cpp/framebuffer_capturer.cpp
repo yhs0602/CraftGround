@@ -374,27 +374,24 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_Frameb
 
 extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeIoSurface(
     JNIEnv *env, jclass clazz,
-    jint width, jint height,
-    jint colorAttachment,
-    jint depthAttachment
+    jint width, jint height
+    // jint colorAttachment,
+    // jint depthAttachment
 ) {
-    return initializeIoSurface(width, height, colorAttachment, depthAttachment);
+    return initializeIoSurface(width, height);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopyApple(
     JNIEnv *env,
     jclass clazz,
-    jint textureId,
     jint frameBufferId,
-    jint textureWidth,
-    jint textureHeight,
     jint targetSizeX,
     jint targetSizeY,
-    jboolean isExtensionAvailable,
     jboolean drawCursor,
     jint mouseX,
     jint mouseY
 ) {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
     if (drawCursor) {
         glBindTexture(GL_TEXTURE_2D, cursorTexID);
 
@@ -407,8 +404,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
         glEnd();
         glDisable(GL_TEXTURE_2D);
     }
-
-    // the rendered image is already being shared
+    
+    // It could have been that the rendered image is already being shared,
+    // but the original texture is TEXTURE_2D, so we need to convert to TEXTURE_2D_RECTANGLE_ARB
+    copyFramebufferToIOSurface(targetSizeX, targetSizeY);
 }
+
+#elif defined(_WIN32)
+
 
 #endif
