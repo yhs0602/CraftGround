@@ -3,6 +3,7 @@
     #define GL_SILENCE_DEPRECATION
     #include <OpenGL/OpenGL.h>
     #include <OpenGL/gl.h>
+    #include "framebuffer_capturer_apple.h"
 #else
 //    #include <GL/gl.h>
     #include <GL/glew.h>
@@ -138,6 +139,53 @@ const GLubyte cursor[16][16] = {
     {2, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0}
 };
+
+GLuint cursorTexID;
+
+void initCursorTexture() {
+    glGenTextures(1, &cursorTexID);
+    glBindTexture(GL_TEXTURE_2D, cursorTexID);
+
+    // convert cursor to RGBA format to cursorTexture
+    // 0: transparent, 1: white, 2: black
+    GLubyte cursorTexture[16 * 16 * 4];
+
+    for (int y = 0; y < 16; y++) {
+        for (int x = 0; x < 16; x++) {
+            int index = (y * 16 + x) * 4;
+            switch (cursor[y][x]) {
+                case 0:
+                    cursorTexture[index] = 0;
+                    cursorTexture[index + 1] = 0;
+                    cursorTexture[index + 2] = 0;
+                    cursorTexture[index + 3] = 0;
+                    break;
+                case 1:
+                    cursorTexture[index] = 255;
+                    cursorTexture[index + 1] = 255;
+                    cursorTexture[index + 2] = 255;
+                    cursorTexture[index + 3] = 255;
+                    break;
+                case 2:
+                    cursorTexture[index] = 0;
+                    cursorTexture[index + 1] = 0;
+                    cursorTexture[index + 2] = 0;
+                    cursorTexture[index + 3] = 255;
+                    break;
+            }
+        }
+    }
+
+    // Upload the cursor texture
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, cursorTexture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+
 
 extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebuffer(
     JNIEnv *env,
@@ -321,3 +369,44 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_Frameb
     delete[] pixels;
     return byteStringObject;
 }
+
+#ifdef __APPLE__
+
+extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeIoSurface(
+    JNIEnv *env, jclass clazz,
+    jint width, jint height
+) {
+    return initializeIoSurface(width, height);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopyApple(
+    JNIEnv *env,
+    jclass clazz,
+    jint textureId,
+    jint frameBufferId,
+    jint textureWidth,
+    jint textureHeight,
+    jint targetSizeX,
+    jint targetSizeY,
+    jboolean isExtensionAvailable,
+    jboolean drawCursor,
+    jint mouseX,
+    jint mouseY
+) {
+    if (drawCursor) {
+        glBindTexture(GL_TEXTURE_2D, cursorTexID);
+
+        glEnable(GL_TEXTURE_2D);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f); glVertex2f(mouseX, mouseY);
+            glTexCoord2f(1.0f, 0.0f); glVertex2f(mouseX + 16, mouseY);
+            glTexCoord2f(1.0f, 1.0f); glVertex2f(mouseX + 16, mouseY - 16);
+            glTexCoord2f(0.0f, 1.0f); glVertex2f(mouseX, mouseY - 16);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+    }
+
+    captureFramebuffer(targetSizeX, targetSizeY);
+}
+
+#endif

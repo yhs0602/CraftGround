@@ -57,8 +57,11 @@ message(PNG_LIBRARIES="${PNG_LIBRARIES}")
 # Add your source files here
 set(SOURCE_FILES
     framebuffer_capturer.cpp
-    # Add more source files as needed
 )
+
+if(APPLE)
+    list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm)
+endif()
 
 # Add a library target for your native library
 add_library(native-lib SHARED ${SOURCE_FILES})
@@ -72,6 +75,17 @@ endif()
 target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} ${PNG_LIBRARIES} ${ZLIB_LIBRARIES})
 if (NOT APPLE)
     target_link_libraries(native-lib ${GLEW_LIBRARIES})
+endif()
+
+if (APPLE)
+    target_link_libraries(
+        native-lib
+        "-framework Metal"
+        "-framework CoreGraphics"
+        "-framework IOSurface"
+        "-framework Foundation"
+        "-lobjc"
+    )
 endif()
 
 # If you are using additional libraries, like GLFW for OpenGL context creation,
