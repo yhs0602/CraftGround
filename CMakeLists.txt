@@ -17,7 +17,7 @@ set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp)
 
 if (APPLE)
     # Add Apple-specific source files
-    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.cpp src/cpp/ipc_apple.mm)
+    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.mm)
 
     # Apple-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -fobjc-arc)
