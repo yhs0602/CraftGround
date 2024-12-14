@@ -4,7 +4,7 @@ from typing import SupportsFloat, Any, List, Optional
 import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
 
-from craftground.craftground.minecraft import no_op
+from minecraft import no_op
 
 
 # Converts the int action space to a box action space

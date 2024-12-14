@@ -19,7 +19,7 @@ from .action_space import ActionSpace
 from .buffered_socket import BufferedSocket
 from .csv_logger import CsvLogger
 from .font import get_font
-from .initial_environment import InitialEnvironmentConfig
+from .initial_environment_config import InitialEnvironmentConfig
 from .minecraft import (
     wait_for_server,
     send_fastreset2,
@@ -399,7 +399,7 @@ class CraftGroundEnvironment(gym.Env):
 
     def convert_observation(
         self, png_img: bytes
-    ) -> Tuple[np.ndarray, Optional["Image"], np.ndarray]:
+    ) -> Tuple[np.ndarray, Optional[Image.Image], np.ndarray]:
         if self.encoding_mode == ScreenEncodingMode.PNG:
             # decode png byte array to numpy array
             # Create a BytesIO object from the byte array
@@ -487,7 +487,7 @@ class CraftGroundEnvironment(gym.Env):
             print_with_time(f"Sent initial environment")
         self.csv_logger.log(f"Sent initial environment")
 
-    def read_one_observation(self) -> (int, ObsType):
+    def read_one_observation(self) -> Tuple[int, ObsType]:
         # print("Reading observation size...")
         data_len_bytes = self.buffered_socket.read(4, True)
         # print("Reading observation...")

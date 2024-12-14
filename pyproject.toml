@@ -30,7 +30,8 @@ dependencies = [
     "Pillow",
     "numpy",
     "protobuf",
-    "typing_extensions"
+    "typing_extensions",
+    "psutil",
 ]
 
 [project.urls]
@@ -40,3 +41,6 @@ Tracker = "https://github.com/yhs0602/CraftGround/issues"
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
+
+[tool.black]
+force-exclude = 'pybind11'
