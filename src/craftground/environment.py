@@ -323,7 +323,7 @@ class CraftGroundEnvironment(gym.Env):
         self.process = None
         if env_path is None:
             self.env_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                os.path.dirname(os.path.abspath(__file__)),
                 "MinecraftEnv",
             )
         else:
@@ -767,6 +767,5 @@ class CraftGroundEnvironment(gym.Env):
     def get_env_save_path() -> str:
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
-        parent_dir = os.path.dirname(current_dir)
-        env_dir = os.path.join(parent_dir, "MinecraftEnv", "run", "saves")
+        env_dir = os.path.join(current_dir, "MinecraftEnv", "run", "saves")
         return env_dir
