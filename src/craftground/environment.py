@@ -465,6 +465,11 @@ class CraftGroundEnvironment(gym.Env):
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
         if self.native_debug:
             my_env["CRAFGROUND_NATIVE_DEBUG"] = "True"
+        # configure permission of the gradlew
+        gradlew_path = os.path.join(self.env_path, "gradlew")
+        if not os.access(gradlew_path, os.X_OK):
+            os.chmod(gradlew_path, 0o755)
+
         cmd = "./gradlew runClient -w --no-daemon"
         if use_vglrun:
             cmd = f"vglrun {cmd}"
