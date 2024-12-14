@@ -1,9 +1,10 @@
-from .craftground import CraftGroundEnvironment, ActionSpaceVersion
+from typing import Optional
+from .craftground import ActionSpaceVersion, CraftGroundEnvironment
 from .initial_environment import InitialEnvironmentConfig
 
 
 def make(
-    initial_env_config: InitialEnvironmentConfig = None,
+    initial_env_config: Optional[InitialEnvironmentConfig] = None,
     verbose=False,
     env_path=None,
     port=8000,

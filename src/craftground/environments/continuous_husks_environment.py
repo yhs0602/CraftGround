@@ -1,10 +1,10 @@
 import random
 from typing import Tuple, Optional, Any
 
+from craftground import make
 from gymnasium.core import ActType, ObsType
 from gymnasium.core import WrapperObsType
 
-import src
 from environments.base_environment import BaseEnvironment
 from environments.husk_environment import generate_husks
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
@@ -30,7 +30,7 @@ class ContinuousHuskEnvironment(BaseEnvironment):
             def __init__(self):
                 initialExtraCommands = []
                 initialExtraCommands.extend(generate_husks(1, 3, 5))
-                self.env = src.make(
+                self.env = make(
                     verbose=verbose,
                     env_path=env_path,
                     port=port,
