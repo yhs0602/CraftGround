@@ -1,6 +1,6 @@
 from typing import Optional
-from environment import ActionSpaceVersion, CraftGroundEnvironment
-from .initial_environment import InitialEnvironmentConfig
+from .environment import ActionSpaceVersion, CraftGroundEnvironment
+from .initial_environment_config import InitialEnvironmentConfig
 
 
 def make(
