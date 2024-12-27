@@ -9,25 +9,64 @@ object FramebufferCapturer {
         System.loadLibrary("native-lib")
     }
 
-    external fun captureFramebuffer(
-        textureId: Int,
-        frameBufferId: Int,
-        textureWidth: Int,
-        textureHeight: Int,
-        targetSizeX: Int,
-        targetSizeY: Int,
-        encodingMode: Int,
-        isExtensionAvailable: Boolean,
-        drawCursor: Boolean,
-        xPos: Int,
-        yPos: Int,
+    fun captureFramebuffer(
+            textureId: Int,
+            frameBufferId: Int,
+            textureWidth: Int,
+            textureHeight: Int,
+            targetSizeX: Int,
+            targetSizeY: Int,
+            encodingMode: Int,
+            isExtensionAvailable: Boolean,
+            drawCursor: Boolean,
+            xPos: Int,
+            yPos: Int,
+    ): ByteString {
+        if (encodingMode == ZEROCOPY) {
+            captureFramebufferZerocopyImpl(
+                    frameBufferId,
+                    targetSizeX,
+                    targetSizeY,
+                    drawCursor,
+                    xPos,
+                    yPos
+            )
+            return ByteString.EMPTY
+        } else {
+            return captureFramebufferImpl(
+                    textureId,
+                    frameBufferId,
+                    textureWidth,
+                    textureHeight,
+                    targetSizeX,
+                    targetSizeY,
+                    encodingMode,
+                    isExtensionAvailable,
+                    drawCursor,
+                    xPos,
+                    yPos
+            )
+        }
+    }
+
+    external fun captureFramebufferImpl(
+            textureId: Int,
+            frameBufferId: Int,
+            textureWidth: Int,
+            textureHeight: Int,
+            targetSizeX: Int,
+            targetSizeY: Int,
+            encodingMode: Int,
+            isExtensionAvailable: Boolean,
+            drawCursor: Boolean,
+            xPos: Int,
+            yPos: Int,
     ): ByteString
 
     external fun initializeGLEW(): Boolean
 
     fun checkGLEW(): Boolean {
-        if (hasInitializedGLEW)
-            return true
+        if (hasInitializedGLEW) return true
         val result = initializeGLEW()
         hasInitializedGLEW = result
         println("FramebufferCapturer: GLEW initialized: $result")
@@ -36,8 +75,7 @@ object FramebufferCapturer {
 
     //    private external fun checkExtension(): Boolean
     fun checkExtensionJVM() {
-        if (hasCheckedExtension)
-            return
+        if (hasCheckedExtension) return
         val vendor = GL11.glGetString(GL11.GL_VENDOR)
         if (vendor == null) {
             println("FramebufferCapturer: Vendor is null")
@@ -61,10 +99,38 @@ object FramebufferCapturer {
         hasCheckedExtension = true
     }
 
+    fun initializeZeroCopy(width: Int, height: Int, colorAttachment: Int, depthAttachment: Int) {
+        val result = initializeZerocopyImpl(width, height, colorAttachment, depthAttachment)
+        if (result == null) {
+            println("FramebufferCapturer: ZeroCopy initialization failed")
+            throw RuntimeException("ZeroCopy initialization failed")
+        }
+        ipcHandle = result
+    }
+
+    external fun initializeZerocopyImpl(
+            width: Int,
+            height: Int,
+            colorAttachment: Int,
+            depthAttachment: Int
+    ): ByteString?
+
+    external fun captureFramebufferZerocopyImpl(
+            frameBufferId: Int,
+            targetSizeX: Int,
+            targetSizeY: Int,
+            drawCursor: Boolean,
+            mouseX: Int,
+            mouseY: Int
+    )
 
     const val RAW = 0
     const val PNG = 1
+    const val ZEROCOPY = 2
+
     var isExtensionAvailable: Boolean = false
     private var hasCheckedExtension: Boolean = false
     private var hasInitializedGLEW: Boolean = false
+    lateinit var ipcHandle: ByteString
+        private set
 }

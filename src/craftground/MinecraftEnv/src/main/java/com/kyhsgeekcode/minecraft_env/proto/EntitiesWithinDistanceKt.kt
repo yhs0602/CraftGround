@@ -20,12 +20,12 @@ public object EntitiesWithinDistanceKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntitiesWithinDistance.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntitiesWithinDistance = _builder.build()
 
     /**
@@ -40,7 +40,7 @@ public object EntitiesWithinDistanceKt {
      public val entities: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntityInfo, EntitiesProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getEntitiesList()
+        _builder.entitiesList
       )
     /**
      * `repeated .EntityInfo entities = 1;`

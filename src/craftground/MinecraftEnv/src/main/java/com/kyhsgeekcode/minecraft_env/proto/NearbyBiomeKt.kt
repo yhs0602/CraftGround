@@ -20,12 +20,12 @@ public object NearbyBiomeKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.NearbyBiome.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.NearbyBiome = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object NearbyBiomeKt {
      */
     public var biomeName: kotlin.String
       @JvmName("getBiomeName")
-      get() = _builder.getBiomeName()
+      get() = _builder.biomeName
       @JvmName("setBiomeName")
       set(value) {
-        _builder.setBiomeName(value)
+        _builder.biomeName = value
       }
     /**
      * `string biome_name = 1;`
@@ -50,10 +50,10 @@ public object NearbyBiomeKt {
      */
     public var x: kotlin.Int
       @JvmName("getX")
-      get() = _builder.getX()
+      get() = _builder.x
       @JvmName("setX")
       set(value) {
-        _builder.setX(value)
+        _builder.x = value
       }
     /**
      * `int32 x = 2;`
@@ -67,10 +67,10 @@ public object NearbyBiomeKt {
      */
     public var y: kotlin.Int
       @JvmName("getY")
-      get() = _builder.getY()
+      get() = _builder.y
       @JvmName("setY")
       set(value) {
-        _builder.setY(value)
+        _builder.y = value
       }
     /**
      * `int32 y = 3;`
@@ -84,10 +84,10 @@ public object NearbyBiomeKt {
      */
     public var z: kotlin.Int
       @JvmName("getZ")
-      get() = _builder.getZ()
+      get() = _builder.z
       @JvmName("setZ")
       set(value) {
-        _builder.setZ(value)
+        _builder.z = value
       }
     /**
      * `int32 z = 4;`

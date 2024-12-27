@@ -20,12 +20,12 @@ public object ItemStackKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ItemStack.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ItemStack = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object ItemStackKt {
      */
     public var rawId: kotlin.Int
       @JvmName("getRawId")
-      get() = _builder.getRawId()
+      get() = _builder.rawId
       @JvmName("setRawId")
       set(value) {
-        _builder.setRawId(value)
+        _builder.rawId = value
       }
     /**
      * `int32 raw_id = 1;`
@@ -50,10 +50,10 @@ public object ItemStackKt {
      */
     public var translationKey: kotlin.String
       @JvmName("getTranslationKey")
-      get() = _builder.getTranslationKey()
+      get() = _builder.translationKey
       @JvmName("setTranslationKey")
       set(value) {
-        _builder.setTranslationKey(value)
+        _builder.translationKey = value
       }
     /**
      * `string translation_key = 2;`
@@ -67,10 +67,10 @@ public object ItemStackKt {
      */
     public var count: kotlin.Int
       @JvmName("getCount")
-      get() = _builder.getCount()
+      get() = _builder.count
       @JvmName("setCount")
       set(value) {
-        _builder.setCount(value)
+        _builder.count = value
       }
     /**
      * `int32 count = 3;`
@@ -84,10 +84,10 @@ public object ItemStackKt {
      */
     public var durability: kotlin.Int
       @JvmName("getDurability")
-      get() = _builder.getDurability()
+      get() = _builder.durability
       @JvmName("setDurability")
       set(value) {
-        _builder.setDurability(value)
+        _builder.durability = value
       }
     /**
      * `int32 durability = 4;`
@@ -101,10 +101,10 @@ public object ItemStackKt {
      */
     public var maxDurability: kotlin.Int
       @JvmName("getMaxDurability")
-      get() = _builder.getMaxDurability()
+      get() = _builder.maxDurability
       @JvmName("setMaxDurability")
       set(value) {
-        _builder.setMaxDurability(value)
+        _builder.maxDurability = value
       }
     /**
      * `int32 max_durability = 5;`

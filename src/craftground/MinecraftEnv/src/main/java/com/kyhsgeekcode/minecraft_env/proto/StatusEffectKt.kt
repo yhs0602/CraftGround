@@ -20,12 +20,12 @@ public object StatusEffectKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.StatusEffect.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.StatusEffect = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object StatusEffectKt {
      */
     public var translationKey: kotlin.String
       @JvmName("getTranslationKey")
-      get() = _builder.getTranslationKey()
+      get() = _builder.translationKey
       @JvmName("setTranslationKey")
       set(value) {
-        _builder.setTranslationKey(value)
+        _builder.translationKey = value
       }
     /**
      * `string translation_key = 1;`
@@ -50,10 +50,10 @@ public object StatusEffectKt {
      */
     public var duration: kotlin.Int
       @JvmName("getDuration")
-      get() = _builder.getDuration()
+      get() = _builder.duration
       @JvmName("setDuration")
       set(value) {
-        _builder.setDuration(value)
+        _builder.duration = value
       }
     /**
      * `int32 duration = 2;`
@@ -67,10 +67,10 @@ public object StatusEffectKt {
      */
     public var amplifier: kotlin.Int
       @JvmName("getAmplifier")
-      get() = _builder.getAmplifier()
+      get() = _builder.amplifier
       @JvmName("setAmplifier")
       set(value) {
-        _builder.setAmplifier(value)
+        _builder.amplifier = value
       }
     /**
      * `int32 amplifier = 3;`

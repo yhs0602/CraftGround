@@ -20,12 +20,12 @@ public object HitResultKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HitResult.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HitResult = _builder.build()
 
     /**
@@ -33,17 +33,17 @@ public object HitResultKt {
      */
     public var type: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HitResult.Type
       @JvmName("getType")
-      get() = _builder.getType()
+      get() = _builder.type
       @JvmName("setType")
       set(value) {
-        _builder.setType(value)
+        _builder.type = value
       }
     public var typeValue: kotlin.Int
       @JvmName("getTypeValue")
-      get() = _builder.getTypeValue()
+      get() = _builder.typeValue
       @JvmName("setTypeValue")
       set(value) {
-        _builder.setTypeValue(value)
+        _builder.typeValue = value
       }
     /**
      * `.HitResult.Type type = 1;`
@@ -57,10 +57,10 @@ public object HitResultKt {
      */
     public var targetBlock: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BlockInfo
       @JvmName("getTargetBlock")
-      get() = _builder.getTargetBlock()
+      get() = _builder.targetBlock
       @JvmName("setTargetBlock")
       set(value) {
-        _builder.setTargetBlock(value)
+        _builder.targetBlock = value
       }
     /**
      * `.BlockInfo target_block = 2;`
@@ -75,6 +75,7 @@ public object HitResultKt {
     public fun hasTargetBlock(): kotlin.Boolean {
       return _builder.hasTargetBlock()
     }
+
     public val HitResultKt.Dsl.targetBlockOrNull: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BlockInfo?
       get() = _builder.targetBlockOrNull
 
@@ -83,10 +84,10 @@ public object HitResultKt {
      */
     public var targetEntity: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntityInfo
       @JvmName("getTargetEntity")
-      get() = _builder.getTargetEntity()
+      get() = _builder.targetEntity
       @JvmName("setTargetEntity")
       set(value) {
-        _builder.setTargetEntity(value)
+        _builder.targetEntity = value
       }
     /**
      * `.EntityInfo target_entity = 3;`
@@ -101,6 +102,7 @@ public object HitResultKt {
     public fun hasTargetEntity(): kotlin.Boolean {
       return _builder.hasTargetEntity()
     }
+
     public val HitResultKt.Dsl.targetEntityOrNull: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntityInfo?
       get() = _builder.targetEntityOrNull
   }

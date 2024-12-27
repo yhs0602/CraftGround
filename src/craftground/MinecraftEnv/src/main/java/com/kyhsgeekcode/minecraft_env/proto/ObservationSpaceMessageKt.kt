@@ -20,12 +20,12 @@ public object ObservationSpaceMessageKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ObservationSpaceMessage.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ObservationSpaceMessage = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object ObservationSpaceMessageKt {
      */
     public var image: com.google.protobuf.ByteString
       @JvmName("getImage")
-      get() = _builder.getImage()
+      get() = _builder.image
       @JvmName("setImage")
       set(value) {
-        _builder.setImage(value)
+        _builder.image = value
       }
     /**
      * `bytes image = 1;`
@@ -50,10 +50,10 @@ public object ObservationSpaceMessageKt {
      */
     public var x: kotlin.Double
       @JvmName("getX")
-      get() = _builder.getX()
+      get() = _builder.x
       @JvmName("setX")
       set(value) {
-        _builder.setX(value)
+        _builder.x = value
       }
     /**
      * `double x = 2;`
@@ -67,10 +67,10 @@ public object ObservationSpaceMessageKt {
      */
     public var y: kotlin.Double
       @JvmName("getY")
-      get() = _builder.getY()
+      get() = _builder.y
       @JvmName("setY")
       set(value) {
-        _builder.setY(value)
+        _builder.y = value
       }
     /**
      * `double y = 3;`
@@ -84,10 +84,10 @@ public object ObservationSpaceMessageKt {
      */
     public var z: kotlin.Double
       @JvmName("getZ")
-      get() = _builder.getZ()
+      get() = _builder.z
       @JvmName("setZ")
       set(value) {
-        _builder.setZ(value)
+        _builder.z = value
       }
     /**
      * `double z = 4;`
@@ -101,10 +101,10 @@ public object ObservationSpaceMessageKt {
      */
     public var yaw: kotlin.Double
       @JvmName("getYaw")
-      get() = _builder.getYaw()
+      get() = _builder.yaw
       @JvmName("setYaw")
       set(value) {
-        _builder.setYaw(value)
+        _builder.yaw = value
       }
     /**
      * `double yaw = 5;`
@@ -118,10 +118,10 @@ public object ObservationSpaceMessageKt {
      */
     public var pitch: kotlin.Double
       @JvmName("getPitch")
-      get() = _builder.getPitch()
+      get() = _builder.pitch
       @JvmName("setPitch")
       set(value) {
-        _builder.setPitch(value)
+        _builder.pitch = value
       }
     /**
      * `double pitch = 6;`
@@ -135,10 +135,10 @@ public object ObservationSpaceMessageKt {
      */
     public var health: kotlin.Double
       @JvmName("getHealth")
-      get() = _builder.getHealth()
+      get() = _builder.health
       @JvmName("setHealth")
       set(value) {
-        _builder.setHealth(value)
+        _builder.health = value
       }
     /**
      * `double health = 7;`
@@ -152,10 +152,10 @@ public object ObservationSpaceMessageKt {
      */
     public var foodLevel: kotlin.Double
       @JvmName("getFoodLevel")
-      get() = _builder.getFoodLevel()
+      get() = _builder.foodLevel
       @JvmName("setFoodLevel")
       set(value) {
-        _builder.setFoodLevel(value)
+        _builder.foodLevel = value
       }
     /**
      * `double food_level = 8;`
@@ -169,10 +169,10 @@ public object ObservationSpaceMessageKt {
      */
     public var saturationLevel: kotlin.Double
       @JvmName("getSaturationLevel")
-      get() = _builder.getSaturationLevel()
+      get() = _builder.saturationLevel
       @JvmName("setSaturationLevel")
       set(value) {
-        _builder.setSaturationLevel(value)
+        _builder.saturationLevel = value
       }
     /**
      * `double saturation_level = 9;`
@@ -186,10 +186,10 @@ public object ObservationSpaceMessageKt {
      */
     public var isDead: kotlin.Boolean
       @JvmName("getIsDead")
-      get() = _builder.getIsDead()
+      get() = _builder.isDead
       @JvmName("setIsDead")
       set(value) {
-        _builder.setIsDead(value)
+        _builder.isDead = value
       }
     /**
      * `bool is_dead = 10;`
@@ -210,7 +210,7 @@ public object ObservationSpaceMessageKt {
      public val inventory: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ItemStack, InventoryProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getInventoryList()
+        _builder.inventoryList
       )
     /**
      * `repeated .ItemStack inventory = 11;`
@@ -275,10 +275,10 @@ public object ObservationSpaceMessageKt {
      */
     public var raycastResult: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HitResult
       @JvmName("getRaycastResult")
-      get() = _builder.getRaycastResult()
+      get() = _builder.raycastResult
       @JvmName("setRaycastResult")
       set(value) {
-        _builder.setRaycastResult(value)
+        _builder.raycastResult = value
       }
     /**
      * `.HitResult raycast_result = 12;`
@@ -293,6 +293,7 @@ public object ObservationSpaceMessageKt {
     public fun hasRaycastResult(): kotlin.Boolean {
       return _builder.hasRaycastResult()
     }
+
     public val ObservationSpaceMessageKt.Dsl.raycastResultOrNull: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HitResult?
       get() = _builder.raycastResultOrNull
 
@@ -308,7 +309,7 @@ public object ObservationSpaceMessageKt {
      public val soundSubtitles: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.SoundEntry, SoundSubtitlesProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getSoundSubtitlesList()
+        _builder.soundSubtitlesList
       )
     /**
      * `repeated .SoundEntry sound_subtitles = 13;`
@@ -380,7 +381,7 @@ public object ObservationSpaceMessageKt {
      public val statusEffects: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.StatusEffect, StatusEffectsProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getStatusEffectsList()
+        _builder.statusEffectsList
       )
     /**
      * `repeated .StatusEffect status_effects = 14;`
@@ -453,7 +454,7 @@ public object ObservationSpaceMessageKt {
       @kotlin.jvm.JvmSynthetic
       @JvmName("getKilledStatisticsMap")
       get() = com.google.protobuf.kotlin.DslMap(
-        _builder.getKilledStatisticsMap()
+        _builder.killedStatisticsMap
       )
     /**
      * `map<string, int32> killed_statistics = 15;`
@@ -514,7 +515,7 @@ public object ObservationSpaceMessageKt {
       @kotlin.jvm.JvmSynthetic
       @JvmName("getMinedStatisticsMap")
       get() = com.google.protobuf.kotlin.DslMap(
-        _builder.getMinedStatisticsMap()
+        _builder.minedStatisticsMap
       )
     /**
      * `map<string, int32> mined_statistics = 16;`
@@ -575,7 +576,7 @@ public object ObservationSpaceMessageKt {
       @kotlin.jvm.JvmSynthetic
       @JvmName("getMiscStatisticsMap")
       get() = com.google.protobuf.kotlin.DslMap(
-        _builder.getMiscStatisticsMap()
+        _builder.miscStatisticsMap
       )
     /**
      * `map<string, int32> misc_statistics = 17;`
@@ -635,7 +636,7 @@ public object ObservationSpaceMessageKt {
      public val visibleEntities: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntityInfo, VisibleEntitiesProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getVisibleEntitiesList()
+        _builder.visibleEntitiesList
       )
     /**
      * `repeated .EntityInfo visible_entities = 18;`
@@ -708,7 +709,7 @@ public object ObservationSpaceMessageKt {
       @kotlin.jvm.JvmSynthetic
       @JvmName("getSurroundingEntitiesMap")
       get() = com.google.protobuf.kotlin.DslMap(
-        _builder.getSurroundingEntitiesMap()
+        _builder.surroundingEntitiesMap
       )
     /**
      * `map<int32, .EntitiesWithinDistance> surrounding_entities = 19;`
@@ -761,10 +762,10 @@ public object ObservationSpaceMessageKt {
      */
     public var bobberThrown: kotlin.Boolean
       @JvmName("getBobberThrown")
-      get() = _builder.getBobberThrown()
+      get() = _builder.bobberThrown
       @JvmName("setBobberThrown")
       set(value) {
-        _builder.setBobberThrown(value)
+        _builder.bobberThrown = value
       }
     /**
      * `bool bobber_thrown = 20;`
@@ -778,10 +779,10 @@ public object ObservationSpaceMessageKt {
      */
     public var experience: kotlin.Int
       @JvmName("getExperience")
-      get() = _builder.getExperience()
+      get() = _builder.experience
       @JvmName("setExperience")
       set(value) {
-        _builder.setExperience(value)
+        _builder.experience = value
       }
     /**
      * `int32 experience = 21;`
@@ -795,10 +796,10 @@ public object ObservationSpaceMessageKt {
      */
     public var worldTime: kotlin.Long
       @JvmName("getWorldTime")
-      get() = _builder.getWorldTime()
+      get() = _builder.worldTime
       @JvmName("setWorldTime")
       set(value) {
-        _builder.setWorldTime(value)
+        _builder.worldTime = value
       }
     /**
      * `int64 world_time = 22;`
@@ -812,10 +813,10 @@ public object ObservationSpaceMessageKt {
      */
     public var lastDeathMessage: kotlin.String
       @JvmName("getLastDeathMessage")
-      get() = _builder.getLastDeathMessage()
+      get() = _builder.lastDeathMessage
       @JvmName("setLastDeathMessage")
       set(value) {
-        _builder.setLastDeathMessage(value)
+        _builder.lastDeathMessage = value
       }
     /**
      * `string last_death_message = 23;`
@@ -829,10 +830,10 @@ public object ObservationSpaceMessageKt {
      */
     public var image2: com.google.protobuf.ByteString
       @JvmName("getImage2")
-      get() = _builder.getImage2()
+      get() = _builder.image2
       @JvmName("setImage2")
       set(value) {
-        _builder.setImage2(value)
+        _builder.image2 = value
       }
     /**
      * `bytes image_2 = 24;`
@@ -857,7 +858,7 @@ public object ObservationSpaceMessageKt {
      public val surroundingBlocks: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BlockInfo, SurroundingBlocksProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getSurroundingBlocksList()
+        _builder.surroundingBlocksList
       )
     /**
      * ```
@@ -946,10 +947,10 @@ public object ObservationSpaceMessageKt {
      */
     public var eyeInBlock: kotlin.Boolean
       @JvmName("getEyeInBlock")
-      get() = _builder.getEyeInBlock()
+      get() = _builder.eyeInBlock
       @JvmName("setEyeInBlock")
       set(value) {
-        _builder.setEyeInBlock(value)
+        _builder.eyeInBlock = value
       }
     /**
      * `bool eye_in_block = 26;`
@@ -963,10 +964,10 @@ public object ObservationSpaceMessageKt {
      */
     public var suffocating: kotlin.Boolean
       @JvmName("getSuffocating")
-      get() = _builder.getSuffocating()
+      get() = _builder.suffocating
       @JvmName("setSuffocating")
       set(value) {
-        _builder.setSuffocating(value)
+        _builder.suffocating = value
       }
     /**
      * `bool suffocating = 27;`
@@ -987,7 +988,7 @@ public object ObservationSpaceMessageKt {
      public val chatMessages: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ChatMessageInfo, ChatMessagesProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getChatMessagesList()
+        _builder.chatMessagesList
       )
     /**
      * `repeated .ChatMessageInfo chat_messages = 28;`
@@ -1052,10 +1053,10 @@ public object ObservationSpaceMessageKt {
      */
     public var biomeInfo: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BiomeInfo
       @JvmName("getBiomeInfo")
-      get() = _builder.getBiomeInfo()
+      get() = _builder.biomeInfo
       @JvmName("setBiomeInfo")
       set(value) {
-        _builder.setBiomeInfo(value)
+        _builder.biomeInfo = value
       }
     /**
      * `.BiomeInfo biome_info = 29;`
@@ -1070,6 +1071,7 @@ public object ObservationSpaceMessageKt {
     public fun hasBiomeInfo(): kotlin.Boolean {
       return _builder.hasBiomeInfo()
     }
+
     public val ObservationSpaceMessageKt.Dsl.biomeInfoOrNull: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BiomeInfo?
       get() = _builder.biomeInfoOrNull
 
@@ -1085,7 +1087,7 @@ public object ObservationSpaceMessageKt {
      public val nearbyBiomes: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.NearbyBiome, NearbyBiomesProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getNearbyBiomesList()
+        _builder.nearbyBiomesList
       )
     /**
      * `repeated .NearbyBiome nearby_biomes = 30;`
@@ -1150,10 +1152,10 @@ public object ObservationSpaceMessageKt {
      */
     public var submergedInWater: kotlin.Boolean
       @JvmName("getSubmergedInWater")
-      get() = _builder.getSubmergedInWater()
+      get() = _builder.submergedInWater
       @JvmName("setSubmergedInWater")
       set(value) {
-        _builder.setSubmergedInWater(value)
+        _builder.submergedInWater = value
       }
     /**
      * `bool submerged_in_water = 31;`
@@ -1167,10 +1169,10 @@ public object ObservationSpaceMessageKt {
      */
     public var isInLava: kotlin.Boolean
       @JvmName("getIsInLava")
-      get() = _builder.getIsInLava()
+      get() = _builder.isInLava
       @JvmName("setIsInLava")
       set(value) {
-        _builder.setIsInLava(value)
+        _builder.isInLava = value
       }
     /**
      * `bool is_in_lava = 32;`
@@ -1184,10 +1186,10 @@ public object ObservationSpaceMessageKt {
      */
     public var submergedInLava: kotlin.Boolean
       @JvmName("getSubmergedInLava")
-      get() = _builder.getSubmergedInLava()
+      get() = _builder.submergedInLava
       @JvmName("setSubmergedInLava")
       set(value) {
-        _builder.setSubmergedInLava(value)
+        _builder.submergedInLava = value
       }
     /**
      * `bool submerged_in_lava = 33;`
@@ -1208,7 +1210,7 @@ public object ObservationSpaceMessageKt {
      public val heightInfo: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HeightInfo, HeightInfoProxy>
       @kotlin.jvm.JvmSynthetic
       get() = com.google.protobuf.kotlin.DslList(
-        _builder.getHeightInfoList()
+        _builder.heightInfoList
       )
     /**
      * `repeated .HeightInfo height_info = 34;`
@@ -1273,10 +1275,10 @@ public object ObservationSpaceMessageKt {
      */
     public var isOnGround: kotlin.Boolean
       @JvmName("getIsOnGround")
-      get() = _builder.getIsOnGround()
+      get() = _builder.isOnGround
       @JvmName("setIsOnGround")
       set(value) {
-        _builder.setIsOnGround(value)
+        _builder.isOnGround = value
       }
     /**
      * `bool is_on_ground = 35;`
@@ -1290,16 +1292,33 @@ public object ObservationSpaceMessageKt {
      */
     public var isTouchingWater: kotlin.Boolean
       @JvmName("getIsTouchingWater")
-      get() = _builder.getIsTouchingWater()
+      get() = _builder.isTouchingWater
       @JvmName("setIsTouchingWater")
       set(value) {
-        _builder.setIsTouchingWater(value)
+        _builder.isTouchingWater = value
       }
     /**
      * `bool is_touching_water = 36;`
      */
     public fun clearIsTouchingWater() {
       _builder.clearIsTouchingWater()
+    }
+
+    /**
+     * `bytes ipc_handle = 37;`
+     */
+    public var ipcHandle: com.google.protobuf.ByteString
+      @JvmName("getIpcHandle")
+      get() = _builder.ipcHandle
+      @JvmName("setIpcHandle")
+      set(value) {
+        _builder.ipcHandle = value
+      }
+    /**
+     * `bytes ipc_handle = 37;`
+     */
+    public fun clearIpcHandle() {
+      _builder.clearIpcHandle()
     }
   }
 }

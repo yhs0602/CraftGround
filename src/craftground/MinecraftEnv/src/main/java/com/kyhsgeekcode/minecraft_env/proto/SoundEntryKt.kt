@@ -20,12 +20,12 @@ public object SoundEntryKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.SoundEntry.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.SoundEntry = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object SoundEntryKt {
      */
     public var translateKey: kotlin.String
       @JvmName("getTranslateKey")
-      get() = _builder.getTranslateKey()
+      get() = _builder.translateKey
       @JvmName("setTranslateKey")
       set(value) {
-        _builder.setTranslateKey(value)
+        _builder.translateKey = value
       }
     /**
      * `string translate_key = 1;`
@@ -50,10 +50,10 @@ public object SoundEntryKt {
      */
     public var age: kotlin.Long
       @JvmName("getAge")
-      get() = _builder.getAge()
+      get() = _builder.age
       @JvmName("setAge")
       set(value) {
-        _builder.setAge(value)
+        _builder.age = value
       }
     /**
      * `int64 age = 2;`
@@ -67,10 +67,10 @@ public object SoundEntryKt {
      */
     public var x: kotlin.Double
       @JvmName("getX")
-      get() = _builder.getX()
+      get() = _builder.x
       @JvmName("setX")
       set(value) {
-        _builder.setX(value)
+        _builder.x = value
       }
     /**
      * `double x = 3;`
@@ -84,10 +84,10 @@ public object SoundEntryKt {
      */
     public var y: kotlin.Double
       @JvmName("getY")
-      get() = _builder.getY()
+      get() = _builder.y
       @JvmName("setY")
       set(value) {
-        _builder.setY(value)
+        _builder.y = value
       }
     /**
      * `double y = 4;`
@@ -101,10 +101,10 @@ public object SoundEntryKt {
      */
     public var z: kotlin.Double
       @JvmName("getZ")
-      get() = _builder.getZ()
+      get() = _builder.z
       @JvmName("setZ")
       set(value) {
-        _builder.setZ(value)
+        _builder.z = value
       }
     /**
      * `double z = 5;`

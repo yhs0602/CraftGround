@@ -121,6 +121,17 @@ class Minecraft_env : ModInitializer, CommandExecutor {
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
+        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+            val client = MinecraftClient.getInstance()
+            FramebufferCapturer.initializeZerocopy(
+                initialEnvironment.imageSizeX,
+                initialEnvironment.imageSizeY,
+                client.framebuffer.colorAttachment,
+                client.framebuffer.depthAttachment
+            )
+            csvLogger.log("Initialized zerocopy")
+        }
+
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
         resetPhase = ResetPhase.WAIT_INIT_ENDS
         csvLogger.log("Initial environment read; $ioPhase $resetPhase")
@@ -657,6 +668,9 @@ class Minecraft_env : ModInitializer, CommandExecutor {
                 }
                 isOnGround = player.isOnGround
                 isTouchingWater = player.isTouchingWater
+                if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+                    ipcHandle = FramebufferCapturer.ipcHandle
+                }
             }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
 //                csvLogger.log("Sent observation; $ioPhase")

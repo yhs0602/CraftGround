@@ -20,12 +20,12 @@ public object BiomeInfoKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BiomeInfo.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BiomeInfo = _builder.build()
 
     /**
@@ -37,10 +37,10 @@ public object BiomeInfoKt {
      */
     public var biomeName: kotlin.String
       @JvmName("getBiomeName")
-      get() = _builder.getBiomeName()
+      get() = _builder.biomeName
       @JvmName("setBiomeName")
       set(value) {
-        _builder.setBiomeName(value)
+        _builder.biomeName = value
       }
     /**
      * ```
@@ -62,10 +62,10 @@ public object BiomeInfoKt {
      */
     public var centerX: kotlin.Int
       @JvmName("getCenterX")
-      get() = _builder.getCenterX()
+      get() = _builder.centerX
       @JvmName("setCenterX")
       set(value) {
-        _builder.setCenterX(value)
+        _builder.centerX = value
       }
     /**
      * ```
@@ -87,10 +87,10 @@ public object BiomeInfoKt {
      */
     public var centerY: kotlin.Int
       @JvmName("getCenterY")
-      get() = _builder.getCenterY()
+      get() = _builder.centerY
       @JvmName("setCenterY")
       set(value) {
-        _builder.setCenterY(value)
+        _builder.centerY = value
       }
     /**
      * ```
@@ -112,10 +112,10 @@ public object BiomeInfoKt {
      */
     public var centerZ: kotlin.Int
       @JvmName("getCenterZ")
-      get() = _builder.getCenterZ()
+      get() = _builder.centerZ
       @JvmName("setCenterZ")
       set(value) {
-        _builder.setCenterZ(value)
+        _builder.centerZ = value
       }
     /**
      * ```

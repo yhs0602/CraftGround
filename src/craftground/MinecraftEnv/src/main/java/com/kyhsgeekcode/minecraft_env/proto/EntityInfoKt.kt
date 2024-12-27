@@ -20,12 +20,12 @@ public object EntityInfoKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntityInfo.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.EntityInfo = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object EntityInfoKt {
      */
     public var uniqueName: kotlin.String
       @JvmName("getUniqueName")
-      get() = _builder.getUniqueName()
+      get() = _builder.uniqueName
       @JvmName("setUniqueName")
       set(value) {
-        _builder.setUniqueName(value)
+        _builder.uniqueName = value
       }
     /**
      * `string unique_name = 1;`
@@ -50,10 +50,10 @@ public object EntityInfoKt {
      */
     public var translationKey: kotlin.String
       @JvmName("getTranslationKey")
-      get() = _builder.getTranslationKey()
+      get() = _builder.translationKey
       @JvmName("setTranslationKey")
       set(value) {
-        _builder.setTranslationKey(value)
+        _builder.translationKey = value
       }
     /**
      * `string translation_key = 2;`
@@ -67,10 +67,10 @@ public object EntityInfoKt {
      */
     public var x: kotlin.Double
       @JvmName("getX")
-      get() = _builder.getX()
+      get() = _builder.x
       @JvmName("setX")
       set(value) {
-        _builder.setX(value)
+        _builder.x = value
       }
     /**
      * `double x = 3;`
@@ -84,10 +84,10 @@ public object EntityInfoKt {
      */
     public var y: kotlin.Double
       @JvmName("getY")
-      get() = _builder.getY()
+      get() = _builder.y
       @JvmName("setY")
       set(value) {
-        _builder.setY(value)
+        _builder.y = value
       }
     /**
      * `double y = 4;`
@@ -101,10 +101,10 @@ public object EntityInfoKt {
      */
     public var z: kotlin.Double
       @JvmName("getZ")
-      get() = _builder.getZ()
+      get() = _builder.z
       @JvmName("setZ")
       set(value) {
-        _builder.setZ(value)
+        _builder.z = value
       }
     /**
      * `double z = 5;`
@@ -118,10 +118,10 @@ public object EntityInfoKt {
      */
     public var yaw: kotlin.Double
       @JvmName("getYaw")
-      get() = _builder.getYaw()
+      get() = _builder.yaw
       @JvmName("setYaw")
       set(value) {
-        _builder.setYaw(value)
+        _builder.yaw = value
       }
     /**
      * `double yaw = 6;`
@@ -135,10 +135,10 @@ public object EntityInfoKt {
      */
     public var pitch: kotlin.Double
       @JvmName("getPitch")
-      get() = _builder.getPitch()
+      get() = _builder.pitch
       @JvmName("setPitch")
       set(value) {
-        _builder.setPitch(value)
+        _builder.pitch = value
       }
     /**
      * `double pitch = 7;`
@@ -152,10 +152,10 @@ public object EntityInfoKt {
      */
     public var health: kotlin.Double
       @JvmName("getHealth")
-      get() = _builder.getHealth()
+      get() = _builder.health
       @JvmName("setHealth")
       set(value) {
-        _builder.setHealth(value)
+        _builder.health = value
       }
     /**
      * `double health = 8;`

@@ -20,12 +20,12 @@ public object BlockInfoKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BlockInfo.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.BlockInfo = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object BlockInfoKt {
      */
     public var x: kotlin.Int
       @JvmName("getX")
-      get() = _builder.getX()
+      get() = _builder.x
       @JvmName("setX")
       set(value) {
-        _builder.setX(value)
+        _builder.x = value
       }
     /**
      * `int32 x = 1;`
@@ -50,10 +50,10 @@ public object BlockInfoKt {
      */
     public var y: kotlin.Int
       @JvmName("getY")
-      get() = _builder.getY()
+      get() = _builder.y
       @JvmName("setY")
       set(value) {
-        _builder.setY(value)
+        _builder.y = value
       }
     /**
      * `int32 y = 2;`
@@ -67,10 +67,10 @@ public object BlockInfoKt {
      */
     public var z: kotlin.Int
       @JvmName("getZ")
-      get() = _builder.getZ()
+      get() = _builder.z
       @JvmName("setZ")
       set(value) {
-        _builder.setZ(value)
+        _builder.z = value
       }
     /**
      * `int32 z = 3;`
@@ -84,10 +84,10 @@ public object BlockInfoKt {
      */
     public var translationKey: kotlin.String
       @JvmName("getTranslationKey")
-      get() = _builder.getTranslationKey()
+      get() = _builder.translationKey
       @JvmName("setTranslationKey")
       set(value) {
-        _builder.setTranslationKey(value)
+        _builder.translationKey = value
       }
     /**
      * `string translation_key = 4;`

@@ -20,12 +20,12 @@ public object HeightInfoKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HeightInfo.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.HeightInfo = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object HeightInfoKt {
      */
     public var x: kotlin.Int
       @JvmName("getX")
-      get() = _builder.getX()
+      get() = _builder.x
       @JvmName("setX")
       set(value) {
-        _builder.setX(value)
+        _builder.x = value
       }
     /**
      * `int32 x = 1;`
@@ -50,10 +50,10 @@ public object HeightInfoKt {
      */
     public var z: kotlin.Int
       @JvmName("getZ")
-      get() = _builder.getZ()
+      get() = _builder.z
       @JvmName("setZ")
       set(value) {
-        _builder.setZ(value)
+        _builder.z = value
       }
     /**
      * `int32 z = 2;`
@@ -67,10 +67,10 @@ public object HeightInfoKt {
      */
     public var height: kotlin.Int
       @JvmName("getHeight")
-      get() = _builder.getHeight()
+      get() = _builder.height
       @JvmName("setHeight")
       set(value) {
-        _builder.setHeight(value)
+        _builder.height = value
       }
     /**
      * `int32 height = 3;`
@@ -84,10 +84,10 @@ public object HeightInfoKt {
      */
     public var blockName: kotlin.String
       @JvmName("getBlockName")
-      get() = _builder.getBlockName()
+      get() = _builder.blockName
       @JvmName("setBlockName")
       set(value) {
-        _builder.setBlockName(value)
+        _builder.blockName = value
       }
     /**
      * `string block_name = 4;`

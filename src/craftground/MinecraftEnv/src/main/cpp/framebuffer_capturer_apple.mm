@@ -1,6 +1,5 @@
 #include <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
-#import <IOSurface/IOSurface.h>
 #import <Metal/Metal.h>
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/OpenGL.h>
@@ -30,7 +29,7 @@ static bool initialized = false;
 static GLuint textureID;
 
 // TODO: Depth buffer
-int initializeIoSurface(int width, int height) {
+int initializeIoSurface(int width, int height, void** return_value) {
   if (initialized) {
     return 0;
   }
@@ -50,7 +49,14 @@ int initializeIoSurface(int width, int height) {
                          height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
                          ioSurface, 0);
   initialized = true;
-  return machPort;
+  const int size = sizeof(machPort);
+  void* bytes = malloc(size);
+  if(bytes == NULL) {
+    return -1;
+  }
+  memcpy(bytes, &machPort, size);
+  *return_value = bytes;
+  return size;
 }
 
 void copyFramebufferToIOSurface(int width, int height) {

@@ -187,7 +187,7 @@ void initCursorTexture() {
 
 
 
-extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebuffer(
+extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferImpl(
     JNIEnv *env,
     jclass clazz,
     jint textureId,
@@ -372,16 +372,49 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_Frameb
 
 #ifdef __APPLE__
 
-extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopy(
+extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env, jclass clazz,
     jint width, jint height,
     jint colorAttachment,
     jint depthAttachment
 ) {
-    return initializeIoSurface(width, height);
+    jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
+    if (byteStringClass == nullptr || env->ExceptionCheck()) {
+        return nullptr;
+    }
+    jmethodID copyFromMethod = env->GetStaticMethodID(byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;");
+    if (copyFromMethod == nullptr || env->ExceptionCheck()) {
+        return nullptr;
+    }
+    void* mach_port;
+    int size = initializeIoSurface(width, height, &mach_port);
+    if(size < 0 || mach_port == nullptr) {
+        return nullptr;
+    }
+
+    jbyteArray byteArray = env->NewByteArray(size);
+    if (byteArray == nullptr || env->ExceptionCheck()) {
+        // Handle error
+        free(mach_port);
+        return nullptr;
+    }
+    
+    env->SetByteArrayRegion(byteArray, 0, size, reinterpret_cast<jbyte*>(mach_port));
+    jobject byteStringObject = env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
+    if (byteStringObject == nullptr || env->ExceptionCheck()) {
+        // Handle error
+        if (byteArray != nullptr) {
+            env->DeleteLocalRef(byteArray);
+        }
+        free(mach_port);
+        return nullptr;
+    }
+    env->DeleteLocalRef(byteArray);
+    free(mach_port);
+    return byteStringObject;
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
+extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
@@ -413,7 +446,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
 #elif defined(HAS_CUDA)
 #include "framebuffer_capturer_cuda.h"
 
-extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopy(
+extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint width,
@@ -455,7 +488,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
 
 #else
 
-extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopy(
+extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint width,

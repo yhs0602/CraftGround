@@ -20,12 +20,12 @@ public object ChatMessageInfoKt {
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
+    @kotlin.PublishedApi
       internal fun _create(builder: com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ChatMessageInfo.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
+  @kotlin.PublishedApi
     internal fun _build(): com.kyhsgeekcode.minecraft_env.proto.ObservationSpace.ChatMessageInfo = _builder.build()
 
     /**
@@ -33,10 +33,10 @@ public object ChatMessageInfoKt {
      */
     public var addedTime: kotlin.Long
       @JvmName("getAddedTime")
-      get() = _builder.getAddedTime()
+      get() = _builder.addedTime
       @JvmName("setAddedTime")
       set(value) {
-        _builder.setAddedTime(value)
+        _builder.addedTime = value
       }
     /**
      * `int64 added_time = 1;`
@@ -50,10 +50,10 @@ public object ChatMessageInfoKt {
      */
     public var message: kotlin.String
       @JvmName("getMessage")
-      get() = _builder.getMessage()
+      get() = _builder.message
       @JvmName("setMessage")
       set(value) {
-        _builder.setMessage(value)
+        _builder.message = value
       }
     /**
      * `string message = 2;`
@@ -71,10 +71,10 @@ public object ChatMessageInfoKt {
      */
     public var indicator: kotlin.String
       @JvmName("getIndicator")
-      get() = _builder.getIndicator()
+      get() = _builder.indicator
       @JvmName("setIndicator")
       set(value) {
-        _builder.setIndicator(value)
+        _builder.indicator = value
       }
     /**
      * ```

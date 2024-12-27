@@ -121,4 +121,5 @@ message ObservationSpaceMessage {
   repeated HeightInfo height_info = 34;
   bool is_on_ground = 35;
   bool is_touching_water = 36;
+  bytes ipc_handle = 37;
 }
