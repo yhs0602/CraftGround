@@ -275,7 +275,9 @@ class CraftGroundEnvironment(gym.Env):
                         "mined_statistics": spaces.Dict(),
                         "misc_statistics": spaces.Dict(),
                         "visible_entities": spaces.Sequence(entity_info_space),
-                        "surrounding_entities": spaces.Dict(),  # you need to decide how to handle this
+                        "surrounding_entities": spaces.Dict(
+                            entities_within_distance_space
+                        ),  # you need to decide how to handle this
                         "bobber_thrown": spaces.Discrete(2),
                         "experience": spaces.Box(
                             low=0, high=np.inf, shape=(1,), dtype=np.int32
@@ -489,8 +491,8 @@ class CraftGroundEnvironment(gym.Env):
         self.buffered_socket = BufferedSocket(self.sock)
         # self.json_socket.send_json_as_base64(self.initial_env.to_dict())
         if self.verbose_python:
-            print_with_time(f"Sent initial environment")
-        self.csv_logger.log(f"Sent initial environment")
+            print_with_time("Sent initial environment")
+        self.csv_logger.log("Sent initial environment")
 
     def read_one_observation(self) -> Tuple[int, ObsType]:
         # print("Reading observation size...")
@@ -629,7 +631,7 @@ class CraftGroundEnvironment(gym.Env):
         else:
             return last_rgb_frame
 
-    def action_to_symbol(self, action) -> str:
+    def action_to_symbol(self, action) -> str:  # noqa: C901
         res = ""
         if action[0] == 1:
             res += "↑"
@@ -661,7 +663,9 @@ class CraftGroundEnvironment(gym.Env):
             res += "attack"  # "⚔"
         return res
 
-    def action_v2_to_symbol(self, action_v2: Dict[str, Union[int, float]]) -> str:
+    def action_v2_to_symbol(  # noqa: C901
+        self, action_v2: Dict[str, Union[int, float]]
+    ) -> str:
         res = ""
 
         if action_v2.get("forward") == 1:
@@ -727,14 +731,13 @@ class CraftGroundEnvironment(gym.Env):
             print("Child process already terminated")
         print("Terminated the java process")
 
-    def remove_orphan_java_processes(self):
+    def remove_orphan_java_processes(self):  # noqa: C901
         print("Removing orphan Java processes...")
         target_directory = "/tmp"
         file_pattern = "minecraftrl_"
         file_usage = {}
         no_such_processes = 0
         access_denied_processes = 0
-        # 파일 사용 정보 수집
         for proc in psutil.process_iter(["pid", "name"]):
             try:
                 for file in proc.open_files():
@@ -755,7 +758,6 @@ class CraftGroundEnvironment(gym.Env):
                 print(f"Error: {e}")
                 continue
 
-        # 파일 사용하는 모든 프로세스가 Java인지 확인 및 처리
         for file_path, processes in file_usage.items():
             if all(proc["name"].lower() == "java" for proc in processes):
                 for proc in processes:

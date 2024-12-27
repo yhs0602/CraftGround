@@ -59,6 +59,7 @@ class HuskEnvironment(BaseEnvironment):
             is_baby=is_baby,
             randomize=random_pos,
         )
+        killedStatKeys = []
         if can_hunt:
             inventory_commands = [
                 "item replace entity @p weapon.offhand with minecraft:shield",
@@ -106,29 +107,32 @@ class HuskEnvironment(BaseEnvironment):
                     verbose=verbose,
                     env_path=env_path,
                     port=port,
-                    initialInventoryCommands=[],
-                    initialPosition=initialPosition,  # nullable
-                    initialMobsCommands=[
-                        # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
-                        # player looks at south (positive Z) when spawn
-                    ],
-                    imageSizeX=size_x,
-                    imageSizeY=size_y,
-                    visibleSizeX=size_x,
-                    visibleSizeY=size_y,
-                    seed=seed,  # nullable
-                    allowMobSpawn=False,
-                    alwaysDay=True,
-                    alwaysNight=False,
-                    initialWeather="clear",  # nullable
-                    isHardCore=False,
-                    isWorldFlat=isWorldFlat,  # superflat world
-                    obs_keys=["sound_subtitles"],
-                    initialExtraCommands=initial_extra_commands,
-                    isHudHidden=not hud,
-                    render_action=render_action,
-                    render_distance=render_distance,
-                    simulation_distance=simulation_distance,
+                    initial_env_config=craftground.InitialEnvironmentConfig(
+                        initialInventoryCommands=[],
+                        initialPosition=initialPosition,  # nullable
+                        initialMobsCommands=[
+                            # "minecraft:husk ~ ~ ~5 {HandItems:[{Count:1,id:iron_shovel},{}]}",
+                            # player looks at south (positive Z) when spawn
+                        ],
+                        imageSizeX=size_x,
+                        imageSizeY=size_y,
+                        visibleSizeX=size_x,
+                        visibleSizeY=size_y,
+                        seed=seed,  # nullable
+                        allowMobSpawn=False,
+                        alwaysDay=True,
+                        alwaysNight=False,
+                        initialWeather="clear",  # nullable
+                        isHardCore=False,
+                        isWorldFlat=isWorldFlat,  # superflat world
+                        obs_keys=["sound_subtitles"],
+                        initialExtraCommands=initial_extra_commands,
+                        isHudHidden=not hud,
+                        render_action=render_action,
+                        render_distance=render_distance,
+                        simulation_distance=simulation_distance,
+                        killed_stat_keys=killedStatKeys,
+                    ),
                 )
                 super(RandomHuskWrapper, self).__init__(self.env)
 
@@ -166,6 +170,7 @@ def generate_husks(
     is_baby: bool = False,
     shovel: bool = False,
     randomize: bool = True,
+    reduce_zombie_health: bool = False,
 ):
     commands = []
     success_count = 0
@@ -182,14 +187,18 @@ def generate_husks(
         if dx * dx + dz * dz + dy * dy < min_distnace * min_distnace:
             continue
         shovel_command = "HandItems:[{Count:1,id:iron_shovel},{}],"
-        health_command = 'Health:5,Attributes:[{Name:"generic.max_health",Base:5f}],'
+        health_command = (
+            'Health:5,Attributes:[{Name:"generic.max_health",Base:5f}],'
+            if reduce_zombie_health
+            else ""
+        )
         if not shovel:
             shovel_command = ""
         commands.append(
             "summon minecraft:husk "
             + f"~{dx} ~{dy} ~{dz}"
             + " {"
-            # + health_command
+            + health_command
             + shovel_command
             + f" IsBaby:{is_baby_int}"
             + "}"

@@ -2,7 +2,7 @@ import random
 from typing import Optional, Any
 
 from gymnasium.core import WrapperObsType
-
+from craftground import make
 from environments.base_environment import BaseEnvironment
 from wrappers.CleanUpFastResetWrapper import CleanUpFastResetWrapper
 

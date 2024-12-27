@@ -10,9 +10,7 @@ from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
 
-_runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC, 5, 27, 3, "", "observation_space.proto"
-)
+_runtime_version.ValidateProtobufRuntimeVersion(_runtime_version.Domain.PUBLIC, 5, 27, 3, "", "observation_space.proto")
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -28,21 +26,13 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "observation_space_pb2", _gl
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
     _globals["_OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY"]._loaded_options = None
-    _globals["_OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY"]._serialized_options = (
-        b"8\001"
-    )
+    _globals["_OBSERVATIONSPACEMESSAGE_KILLEDSTATISTICSENTRY"]._serialized_options = b"8\001"
     _globals["_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"]._loaded_options = None
-    _globals["_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"]._serialized_options = (
-        b"8\001"
-    )
+    _globals["_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"]._serialized_options = b"8\001"
     _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._loaded_options = None
-    _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._serialized_options = (
-        b"8\001"
-    )
+    _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._serialized_options = b"8\001"
     _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._loaded_options = None
-    _globals[
-        "_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"
-    ]._serialized_options = b"8\001"
+    _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._serialized_options = b"8\001"
     _globals["_ITEMSTACK"]._serialized_start = 27
     _globals["_ITEMSTACK"]._serialized_end = 138
     _globals["_BLOCKINFO"]._serialized_start = 140
@@ -75,8 +65,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals["_OBSERVATIONSPACEMESSAGE_MINEDSTATISTICSENTRY"]._serialized_end = 2261
     _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._serialized_start = 2263
     _globals["_OBSERVATIONSPACEMESSAGE_MISCSTATISTICSENTRY"]._serialized_end = 2316
-    _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._serialized_start = (
-        2318
-    )
+    _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._serialized_start = 2318
     _globals["_OBSERVATIONSPACEMESSAGE_SURROUNDINGENTITIESENTRY"]._serialized_end = 2401
 # @@protoc_insertion_point(module_scope)

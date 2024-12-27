@@ -6,3 +6,14 @@ from .flat_night_environment import FlatNightEnvironment
 from .husk_environment import HuskEnvironment
 from .mansion_environment import MansionEnvironment
 from .skeleton_environment import SkeletonEnvironment
+
+__all__ = [
+    "ContinuousHuskEnvironment",
+    "FindAnimalEnvironment",
+    "FindVillageEnvironment",
+    "FishingEnvironment",
+    "FlatNightEnvironment",
+    "HuskEnvironment",
+    "MansionEnvironment",
+    "SkeletonEnvironment",
+]

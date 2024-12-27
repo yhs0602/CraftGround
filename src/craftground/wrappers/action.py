@@ -67,7 +67,7 @@ class ActionWrapper(gym.Wrapper):
         obs, info = self.env.reset(seed=seed, options=options)
         return obs, info
 
-    def int_to_action(self, input_act: Action) -> List[float]:
+    def int_to_action(self, input_act: Action) -> List[float]:  # noqa: C901
         act = no_op()
         # act=0: no op
         if input_act == Action.FORWARD:  # go forward

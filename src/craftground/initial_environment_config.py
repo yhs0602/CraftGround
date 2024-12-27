@@ -34,7 +34,6 @@ class DaylightMode(Enum):
     FREEZED = 3
 
 
-# initial_env = InitialEnvironment(["sword", "shield"], [10, 20], ["summon ", "killMob"], 800, 600, 123456, True, False, False, "sunny")
 class InitialEnvironmentConfig:
     def __init__(
         self,
@@ -150,15 +149,15 @@ class InitialEnvironmentConfig:
 
     def set_daylight_cycle_mode(self, mode: DaylightMode):
         if mode == DaylightMode.ALWAYS_DAY:
-            self.initialExtraCommands.append(f"time set day")
-            self.initialExtraCommands.append(f"gamerule doDaylightCycle false")
+            self.initialExtraCommands.append("time set day")
+            self.initialExtraCommands.append("gamerule doDaylightCycle false")
         elif mode == DaylightMode.ALWAYS_NIGHT:
-            self.initialExtraCommands.append(f"time set midnight")
-            self.initialExtraCommands.append(f"gamerule doDaylightCycle false")
+            self.initialExtraCommands.append("time set midnight")
+            self.initialExtraCommands.append("gamerule doDaylightCycle false")
         elif mode == DaylightMode.FREEZED:
-            self.initialExtraCommands.append(f"gamerule doDaylightCycle false")
+            self.initialExtraCommands.append("gamerule doDaylightCycle false")
         else:
-            self.initialExtraCommands.append(f"gamerule doDaylightCycle true")
+            self.initialExtraCommands.append("gamerule doDaylightCycle true")
         return self
 
     def to_initial_environment_message(self):
