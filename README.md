@@ -1,5 +1,10 @@
 # CraftGround - Reinforcement Learning Environment for Minecraft
-![CraftGround_Logo](docs/craftground.webp)
+[![Wheels](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package.yml)
+[![Python package](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml)
+[![CMake Build](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml)
+[![Gradle Build](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml)
+
+<img src="docs/craftground.webp" alt="CraftGround_Logo" width="50%"/>
 
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fyhs0602%2FMinecraftRL)](https://github.com/yhs0602/MinecraftRL)
