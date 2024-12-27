@@ -1,0 +1,55 @@
+syntax = "proto3";
+option java_package = "com.kyhsgeekcode.minecraft_env.proto";
+
+
+enum GameMode {
+  SURVIVAL = 0;
+  HARDCORE = 1;
+  CREATIVE = 2;
+}
+
+enum Difficulty {
+  PEACEFUL = 0;
+  EASY = 1;
+  NORMAL = 2;
+  HARD = 3;
+}
+
+enum WorldType {
+  DEFAULT = 0;
+  SUPERFLAT = 1;
+  LARGE_BIOMES = 2;
+  AMPLIFIED = 3;
+  SINGLE_BIOME = 4;
+}
+
+message InitialEnvironmentMessage {
+  int32 imageSizeX = 1;  // Required. The width of the image.
+  int32 imageSizeY = 2;  // Required. The height of the image.
+  GameMode gamemode = 3; // Default = SURVIVAL
+  Difficulty difficulty = 4; // Default = NORMAL
+  WorldType worldType = 5; // Default = DEFAULT
+  string worldTypeArgs = 6; // Empty for no value
+  string seed = 7; // Empty for no value
+  bool generate_structures = 8; // Default = true
+  bool bonus_chest = 9; // Default = false
+  repeated string datapackPaths = 10;
+  repeated string initialExtraCommands = 11;
+  repeated string killedStatKeys = 12;
+  repeated string minedStatKeys = 13;
+  repeated string miscStatKeys = 14;
+  repeated int32 surroundingEntityDistances = 15;
+  bool hudHidden = 16;
+  int32 render_distance = 17;
+  int32 simulation_distance = 18;
+  float eye_distance = 19; // If > 0, binocular mode
+  repeated string structurePaths = 20;
+  bool no_fov_effect = 21;
+  bool request_raycast = 22;
+  int32 screen_encoding_mode = 23;
+  bool requiresSurroundingBlocks = 24;
+  string level_display_name_to_play = 25;
+  float fov = 26; // Default = 70
+  bool requiresBiomeInfo = 27;
+  bool requiresHeightmap = 28;
+}

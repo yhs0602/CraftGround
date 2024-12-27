@@ -1,0 +1,125 @@
+syntax = "proto3";
+option java_package = "com.kyhsgeekcode.minecraft_env.proto";
+
+message ItemStack {
+  int32 raw_id = 1;
+  string translation_key = 2;
+  int32 count = 3;
+  int32 durability = 4;
+  int32 max_durability = 5;
+}
+
+message BlockInfo {
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+  string translation_key = 4;
+}
+
+message EntityInfo {
+  string unique_name = 1;
+  string translation_key = 2;
+  double x = 3;
+  double y = 4;
+  double z = 5;
+  double yaw = 6;
+  double pitch = 7;
+  double health = 8;
+}
+
+message HitResult {
+  enum Type {
+    MISS = 0;
+    BLOCK = 1;
+    ENTITY = 2;
+  }
+
+  Type type = 1;
+  BlockInfo target_block = 2;
+  EntityInfo target_entity = 3;
+}
+
+message StatusEffect {
+  string translation_key = 1;
+  int32 duration = 2;
+  int32 amplifier = 3;
+}
+
+message SoundEntry {
+  string translate_key = 1;
+  int64 age = 2;
+  double x = 3;
+  double y = 4;
+  double z = 5;
+}
+
+message EntitiesWithinDistance {
+  repeated EntityInfo entities = 1;
+}
+
+message ChatMessageInfo {
+  int64 added_time = 1;
+  string message = 2;
+  string indicator = 3; // TODO;; always empty
+}
+
+message BiomeInfo {
+  string biome_name = 1; // 바이옴의 이름
+  int32 center_x = 2;   // 바이옴 중심의 x 좌표
+  int32 center_y = 3;   // 바이옴 중심의 y 좌표
+  int32 center_z = 4;   // 바이옴 중심의 z 좌표
+}
+
+message NearbyBiome {
+  string biome_name = 1;
+  int32 x = 2;
+  int32 y = 3;
+  int32 z = 4;
+}
+
+message HeightInfo {
+  int32 x = 1;
+  int32 z = 2;
+  int32 height = 3;
+  string block_name = 4;
+}
+
+message ObservationSpaceMessage {
+  bytes image = 1;
+  double x = 2;
+  double y = 3;
+  double z = 4;
+  double yaw = 5;
+  double pitch = 6;
+  double health = 7;
+  double food_level = 8;
+  double saturation_level = 9;
+  bool is_dead = 10;
+  repeated ItemStack inventory = 11;
+  HitResult raycast_result = 12;
+  repeated SoundEntry sound_subtitles = 13;
+  repeated StatusEffect status_effects = 14;
+  map<string, int32> killed_statistics = 15;
+  map<string, int32> mined_statistics = 16;
+  map<string, int32> misc_statistics = 17;
+  repeated EntityInfo visible_entities = 18;
+  map<int32, EntitiesWithinDistance> surrounding_entities = 19;
+  bool bobber_thrown = 20;
+  int32 experience = 21;
+  int64 world_time = 22;
+  string last_death_message = 23;
+  bytes image_2 = 24;
+  repeated BlockInfo surrounding_blocks = 25; // center, (-1, -1, -1), (0, -1, -1), ...; xyz order: len = 27
+  bool eye_in_block = 26;
+  bool suffocating = 27;
+  repeated ChatMessageInfo chat_messages = 28;
+  BiomeInfo biome_info = 29;
+  repeated NearbyBiome nearby_biomes = 30;
+  bool submerged_in_water = 31;
+  bool is_in_lava = 32;
+  bool submerged_in_lava = 33;
+  repeated HeightInfo height_info = 34;
+  bool is_on_ground = 35;
+  bool is_touching_water = 36;
+  bytes ipc_handle = 37;
+}

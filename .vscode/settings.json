@@ -1,7 +1,8 @@
 {
-    "C_Cpp.default.compileCommands": "${workspaceFolder}/craftground/MinecraftEnv/compile_commands.json",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/src/MinecraftEnv/compile_commands.json",
     "clangd.arguments": [
         "--background-index",
-        "--compile-commands-dir=${workspaceFolder}/craftground/MinecraftEnv/"
+        "--compile-commands-dir=${workspaceFolder}/src/MinecraftEnv/"
     ],
+    "java.compile.nullAnalysis.mode": "automatic",
 }

@@ -32,8 +32,8 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle 8.8
       uses: gradle/actions/setup-gradle@v4
-      with:
-         gradle-version: "8.8" # Quotes required to prevent YAML converting to number
+      # with:
+      #    gradle-version: "8.8" # Quotes required to prevent YAML converting to number
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
@@ -56,3 +56,5 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
+      with:
+        build-root-directory: src/craftground/MinecraftEnv
