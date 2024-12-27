@@ -56,4 +56,4 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
-      working-directory: src/craftground/MinecraftEnv
+      build-root-directory: src/craftground/MinecraftEnv
