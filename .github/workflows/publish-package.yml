@@ -43,7 +43,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13, macos-latest, windows-latest]
+        # macos-13 is an intel runner, macos-14 is apple silicon
+        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -52,10 +53,14 @@ jobs:
 
     - uses: astral-sh/setup-uv@v4
 
-    - uses: pypa/cibuildwheel@v2.22
+    - name: Build wheels
+      uses: pypa/cibuildwheel@v2.22.0
       env:
+        CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
-        CIBW_ARCHS_WINDOWS: auto ARM64
+        CIBW_ARCHS_WINDOWS: "AMD64 x86"
+        CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+        CIBW_ARCHS_LINUX: "x86_64 aarch64"
 
     - name: Verify clean directory
       run: git diff --exit-code
