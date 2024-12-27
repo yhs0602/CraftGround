@@ -1,6 +1,5 @@
 #include "ipc.h"
-#define MACRO_STRINGIFY(x) STRINGIFY(x)
-#define STRINGIFY(x) #x
+#define MACRO_STRINGIFY(x) #x
 
 #ifdef __APPLE__
 #include "ipc_apple.h"
@@ -54,4 +53,3 @@ PYBIND11_MODULE(craftground, m) {
     m.attr("__version__") = "dev";
 #endif
 }
-
