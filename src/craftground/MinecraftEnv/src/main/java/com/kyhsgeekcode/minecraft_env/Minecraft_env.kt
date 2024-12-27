@@ -123,7 +123,7 @@ class Minecraft_env : ModInitializer, CommandExecutor {
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
             val client = MinecraftClient.getInstance()
-            FramebufferCapturer.initializeZerocopy(
+            FramebufferCapturer.initializeZeroCopy(
                 initialEnvironment.imageSizeX,
                 initialEnvironment.imageSizeY,
                 client.framebuffer.colorAttachment,
