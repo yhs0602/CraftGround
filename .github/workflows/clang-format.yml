@@ -20,5 +20,5 @@ jobs:
         run: |
           FILES=$(find . -type f \( -name '*.cpp' -o -name '*.c' -o -name '*.h' -o -name '*.mm' -o -name '*.m' \))
           for file in $FILES; do
-            clang-format --dry-run -Werror $file || exit 1
+            clang-format --dry-run -Werror -style=file $file || exit 1
           done
