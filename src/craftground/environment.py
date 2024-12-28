@@ -275,9 +275,7 @@ class CraftGroundEnvironment(gym.Env):
                         "mined_statistics": spaces.Dict(),
                         "misc_statistics": spaces.Dict(),
                         "visible_entities": spaces.Sequence(entity_info_space),
-                        "surrounding_entities": spaces.Dict(
-                            entities_within_distance_space
-                        ),  # you need to decide how to handle this
+                        "surrounding_entities": entities_within_distance_space, # This is actually 
                         "bobber_thrown": spaces.Discrete(2),
                         "experience": spaces.Box(
                             low=0, high=np.inf, shape=(1,), dtype=np.int32
