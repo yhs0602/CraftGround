@@ -1,5 +1,5 @@
 syntax = "proto3";
-option java_package = "com.kyhsgeekcode.minecraft_env.proto";
+option java_package = "com.kyhsgeekcode.minecraftenv.proto";
 
 message ActionSpaceMessageV2 {
   // Discrete actions for movement and other commands as bool

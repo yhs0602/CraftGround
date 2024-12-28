@@ -11,7 +11,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "craftground"
-version = "2.5.27"
+version = "2.5.28"
 description = "Lightweight Minecraft Environment for Reinforcement Learning"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -32,6 +32,7 @@ dependencies = [
     "protobuf",
     "typing_extensions",
     "psutil",
+    "torch",
 ]
 
 [project.urls]
