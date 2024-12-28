@@ -53,7 +53,7 @@ mtl_tensor_from_cuda_mem_handle(void *cuda_ipc_handle, int width, int height) {
 }
 #endif
 
-PYBIND11_MODULE(craftground, m) {
+PYBIND11_MODULE(craftground_native, m) {
     m.doc() = "Craftground Native Module";
     m.def("initialize_from_mach_port", &initialize_from_mach_port);
     m.def("mtl_tensor_from_cuda_mem_handle", &mtl_tensor_from_cuda_mem_handle);

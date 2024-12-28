@@ -1,13 +1,13 @@
 [build-system]
 requires = [
-    "scikit-build",
+    "scikit-build-core",
     "pybind11",
     "setuptools>=42",
     "wheel",
     "cmake>=3.12",
     "ninja",  # Optional, for Ninja builds
 ]
-bbuild-backend = "setuptools.build_meta"
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "craftground"
