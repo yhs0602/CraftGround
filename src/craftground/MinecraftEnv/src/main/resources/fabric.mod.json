@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "id": "minecraft_env",
+  "id": "minecraftenv",
   "version": "${version}",
-  "name": "minecraft_env",
+  "name": "minecraftenv",
   "description": "",
   "authors": [],
   "contact": {
-    "repo": "https://github.com/yhs0602/minecraft_env"
+    "repo": "https://github.com/yhs0602/craftground"
   },
   "license": "All-Rights-Reserved",
-  "icon": "assets/minecraft_env/icon.png",
+  "icon": "assets/minecraftenv/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "com.kyhsgeekcode.minecraft_env.client.Minecraft_envClient"
+      "com.kyhsgeekcode.minecraftenv.client.Minecraft_envClient"
     ],
     "main": [
-      "com.kyhsgeekcode.minecraft_env.Minecraft_env"
+      "com.kyhsgeekcode.minecraftenv.MinecraftEnv"
     ]
   },
   "depends": {
@@ -25,12 +25,12 @@
     "minecraft": "${minecraft_version}"
   },
   "mixins": [
-    "com.kyhsgeekcode.minecraft_env.mixin.json"
+    "com.kyhsgeekcode.minecraftenv.mixin.json"
   ],
   "custom": {
     "loom:injected_interfaces": {
       "net/minecraft/class_761": [
-        "com/kyhsgeekcode/minecraft_env/AddListenerInterface"
+        "com/kyhsgeekcode/minecraftenv/AddListenerInterface"
       ]
     }
   }

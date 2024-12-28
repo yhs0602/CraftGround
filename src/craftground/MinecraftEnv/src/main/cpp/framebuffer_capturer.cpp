@@ -114,7 +114,7 @@ bool isExtensionSupported(const char *extName) {
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_checkExtension(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_checkExtension(
     JNIEnv *env, jclass clazz
 ) {
     // Check for the GL_ARB_pixel_buffer_object extension
@@ -122,7 +122,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_checkExtension(
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeGLEW(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeGLEW(
     JNIEnv *env, jclass clazz
 ) {
 #ifdef __APPLE__
@@ -222,7 +222,7 @@ void initCursorTexture() {
 }
 
 extern "C" JNIEXPORT jobject JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferImpl(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     JNIEnv *env,
     jclass clazz,
     jint textureId,
@@ -369,7 +369,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferImpl(
 #ifdef __APPLE__
 
 extern "C" JNIEXPORT jobject JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint width,
@@ -419,7 +419,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopyImpl(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
@@ -457,7 +457,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZeroc
 #include "framebuffer_capturer_cuda.h"
 
 extern "C" JNIEXPORT jobject JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint width,
@@ -472,7 +472,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopy(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
@@ -508,7 +508,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZeroc
 // TODO: Implement this function for normal mmap IPC based one copy. (GPU ->
 // CPU)
 extern "C" JNIEXPORT jobject JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint width,
@@ -534,7 +534,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
 // TODO: Implement this function for normal mmap IPC based one copy. (GPU ->
 // CPU)
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopy(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
@@ -544,7 +544,7 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZeroc
     jint mouseX,
     jint mouseY
 ) {
-    Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebuffer(
+    Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebuffer(
         env,
         clazz,
         0,
