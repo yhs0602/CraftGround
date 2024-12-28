@@ -43,4 +43,4 @@ target_compile_definitions(
     PRIVATE VERSION_INFO=${PRIVATE_VERSION_INFO}
 )
 
-install(TARGETS craftground_native DESTINATION craftground_native)
+install(TARGETS craftground_native DESTINATION .)
