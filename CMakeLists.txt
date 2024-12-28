@@ -32,15 +32,15 @@ elseif(CUDAToolkit_FOUND)
 endif()
 
 # Add the module
-pybind11_add_module(craftground ${CRAFTGROUND_PY_SOURCES})
+pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
 
-target_include_directories(craftground PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
+target_include_directories(craftground_native PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
 
-target_compile_options(craftground PRIVATE ${CRAFTGROUND_PY_COMPILE_OPTIONS})
+target_compile_options(craftground_native PRIVATE ${CRAFTGROUND_PY_COMPILE_OPTIONS})
 
 target_compile_definitions(
-    craftground
+    craftground_native
     PRIVATE VERSION_INFO=${PRIVATE_VERSION_INFO}
 )
 
-install(TARGETS craftground DESTINATION craftground)
+install(TARGETS craftground_native DESTINATION craftground_native)

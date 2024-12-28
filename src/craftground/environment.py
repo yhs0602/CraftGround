@@ -275,7 +275,7 @@ class CraftGroundEnvironment(gym.Env):
                         "mined_statistics": spaces.Dict(),
                         "misc_statistics": spaces.Dict(),
                         "visible_entities": spaces.Sequence(entity_info_space),
-                        "surrounding_entities": entities_within_distance_space, # This is actually 
+                        "surrounding_entities": entities_within_distance_space,  # This is actually
                         "bobber_thrown": spaces.Discrete(2),
                         "experience": spaces.Box(
                             low=0, high=np.inf, shape=(1,), dtype=np.int32
@@ -431,13 +431,17 @@ class CraftGroundEnvironment(gym.Env):
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
         elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
-            from . import initialize_from_mach_port
-            from . import mtl_tensor_from_cuda_mem_handle
+            from craftground_native import initialize_from_mach_port
+            from craftground_native import mtl_tensor_from_cuda_mem_handle
+
             apple_dl_tensor = initialize_from_mach_port()
             cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle()
             import torch.utils.dlpack
+
             # TODO: Handle cuda case also
-            dl_tensor_to_use = apple_dl_tensor if apple_dl_tensor is not None else cuda_dl_tensor
+            dl_tensor_to_use = (
+                apple_dl_tensor if apple_dl_tensor is not None else cuda_dl_tensor
+            )
             if dl_tensor_to_use is not None:
                 image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
                 print(image_tensor.shape)
