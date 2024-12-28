@@ -431,8 +431,8 @@ class CraftGroundEnvironment(gym.Env):
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
         elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
-            from craftground_native import initialize_from_mach_port
-            from craftground_native import mtl_tensor_from_cuda_mem_handle
+            from .craftground_native import initialize_from_mach_port
+            from .craftground_native import mtl_tensor_from_cuda_mem_handle
 
             apple_dl_tensor = initialize_from_mach_port()
             cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle()
