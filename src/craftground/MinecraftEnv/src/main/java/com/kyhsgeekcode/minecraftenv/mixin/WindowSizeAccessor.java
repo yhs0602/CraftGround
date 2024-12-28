@@ -5,9 +5,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(net.minecraft.client.util.Window.class)
 public interface WindowSizeAccessor {
-    @Accessor("windowedWidth")
-    int getWindowedWidth();
+  @Accessor("windowedWidth")
+  int getWindowedWidth();
 
-    @Accessor("windowedHeight")
-    int getWindowedHeight();
+  @Accessor("windowedHeight")
+  int getWindowedHeight();
 }

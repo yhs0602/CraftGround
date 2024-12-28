@@ -6,12 +6,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(RenderTickCounter.Dynamic.class)
 public interface RenderTickCounterAccessor {
-    @Accessor("prevTimeMillis")
-    void setPrevTimeMillis(long prevTimeMillis);
+  @Accessor("prevTimeMillis")
+  void setPrevTimeMillis(long prevTimeMillis);
 
-    @Accessor("lastFrameDuration")
-    void setLastFrameDuration(float lastFrameDuration);
+  @Accessor("lastFrameDuration")
+  void setLastFrameDuration(float lastFrameDuration);
 
-    @Accessor("tickDelta")
-    void setTickDelta(float tickDelta);
+  @Accessor("tickDelta")
+  void setTickDelta(float tickDelta);
 }

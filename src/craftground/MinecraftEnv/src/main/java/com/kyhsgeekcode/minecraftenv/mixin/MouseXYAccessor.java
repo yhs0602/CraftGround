@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Mouse.class)
 public interface MouseXYAccessor {
-    @Accessor("x")
-    void setX(double x);
+  @Accessor("x")
+  void setX(double x);
 
-    @Accessor("y")
-    void setY(double y);
+  @Accessor("y")
+  void setY(double y);
 }

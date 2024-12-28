@@ -1,18 +1,17 @@
 package com.kyhsgeekcode.minecraftenv;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public interface AddListenerInterface {
-    List<EntityRenderListener> listeners = new ArrayList<>();
+  List<EntityRenderListener> listeners = new ArrayList<>();
 
-    default void addRenderListener(@NotNull EntityRenderListener listener) {
-        listeners.add(listener);
-    }
+  default void addRenderListener(@NotNull EntityRenderListener listener) {
+    listeners.add(listener);
+  }
 
-    default List<EntityRenderListener> getRenderListeners() {
-        return listeners;
-    }
+  default List<EntityRenderListener> getRenderListeners() {
+    return listeners;
+  }
 }

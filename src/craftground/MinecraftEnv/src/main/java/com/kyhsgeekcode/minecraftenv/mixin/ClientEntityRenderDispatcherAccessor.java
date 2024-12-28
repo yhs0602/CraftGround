@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(net.minecraft.client.MinecraftClient.class)
 public interface ClientEntityRenderDispatcherAccessor {
-    @Accessor("entityRenderDispatcher")
-    EntityRenderDispatcher getEntityRenderDispatcher();
+  @Accessor("entityRenderDispatcher")
+  EntityRenderDispatcher getEntityRenderDispatcher();
 }

@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(MinecraftClient.class)
 public class ClientIsWindowFocusedMixin {
-    @Overwrite
-    public boolean isWindowFocused() {
-        return true;
-    }
+  @Overwrite
+  public boolean isWindowFocused() {
+    return true;
+  }
 }

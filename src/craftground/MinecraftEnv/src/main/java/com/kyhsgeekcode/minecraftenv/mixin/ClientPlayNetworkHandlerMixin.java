@@ -13,16 +13,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public class ClientPlayNetworkHandlerMixin implements GetMessagesInterface {
-    @Shadow
-    private ClientWorld world;
+  @Shadow private ClientWorld world;
 
-    @Inject(method = "onDeathMessage", at = @At("HEAD"), cancellable = false)
-    public void onDeathMessage(DeathMessageS2CPacket packet, CallbackInfo ci) {
-        Entity entity = this.world.getEntityById(packet.playerId());
-        if (entity == ((ClientCommonNetworkHandlerClientAccessor) this).getClient().player) {
-            var message = packet.message();
-            this.lastDeathMessage.clear();
-            this.lastDeathMessage.add(message.getString());
-        }
+  @Inject(method = "onDeathMessage", at = @At("HEAD"), cancellable = false)
+  public void onDeathMessage(DeathMessageS2CPacket packet, CallbackInfo ci) {
+    Entity entity = this.world.getEntityById(packet.playerId());
+    if (entity == ((ClientCommonNetworkHandlerClientAccessor) this).getClient().player) {
+      var message = packet.message();
+      this.lastDeathMessage.clear();
+      this.lastDeathMessage.add(message.getString());
     }
+  }
 }

@@ -7,244 +7,284 @@ package com.kyhsgeekcode.minecraftenv.proto;
 
 public final class ActionSpace {
   private ActionSpace() {}
+
   static {
     com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
-      com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
-      /* major= */ 4,
-      /* minor= */ 27,
-      /* patch= */ 3,
-      /* suffix= */ "",
-      ActionSpace.class.getName());
-  }
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 27,
+        /* patch= */ 3,
+        /* suffix= */ "",
+        ActionSpace.class.getName());
   }
 
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
+  public static void registerAllExtensions(com.google.protobuf.ExtensionRegistryLite registry) {}
+
+  public static void registerAllExtensions(com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions((com.google.protobuf.ExtensionRegistryLite) registry);
   }
-  public interface ActionSpaceMessageV2OrBuilder extends
+
+  public interface ActionSpaceMessageV2OrBuilder
+      extends
       // @@protoc_insertion_point(interface_extends:ActionSpaceMessageV2)
       com.google.protobuf.MessageOrBuilder {
 
     /**
+     *
+     *
      * <pre>
      * Discrete actions for movement and other commands as bool
      * </pre>
      *
      * <code>bool attack = 1;</code>
+     *
      * @return The attack.
      */
     boolean getAttack();
 
     /**
      * <code>bool back = 2;</code>
+     *
      * @return The back.
      */
     boolean getBack();
 
     /**
      * <code>bool forward = 3;</code>
+     *
      * @return The forward.
      */
     boolean getForward();
 
     /**
      * <code>bool jump = 4;</code>
+     *
      * @return The jump.
      */
     boolean getJump();
 
     /**
      * <code>bool left = 5;</code>
+     *
      * @return The left.
      */
     boolean getLeft();
 
     /**
      * <code>bool right = 6;</code>
+     *
      * @return The right.
      */
     boolean getRight();
 
     /**
      * <code>bool sneak = 7;</code>
+     *
      * @return The sneak.
      */
     boolean getSneak();
 
     /**
      * <code>bool sprint = 8;</code>
+     *
      * @return The sprint.
      */
     boolean getSprint();
 
     /**
      * <code>bool use = 9;</code>
+     *
      * @return The use.
      */
     boolean getUse();
 
     /**
      * <code>bool drop = 10;</code>
+     *
      * @return The drop.
      */
     boolean getDrop();
 
     /**
      * <code>bool inventory = 11;</code>
+     *
      * @return The inventory.
      */
     boolean getInventory();
 
     /**
+     *
+     *
      * <pre>
      * Hotbar selection (1-9) as bool
      * </pre>
      *
      * <code>bool hotbar_1 = 12;</code>
+     *
      * @return The hotbar1.
      */
     boolean getHotbar1();
 
     /**
      * <code>bool hotbar_2 = 13;</code>
+     *
      * @return The hotbar2.
      */
     boolean getHotbar2();
 
     /**
      * <code>bool hotbar_3 = 14;</code>
+     *
      * @return The hotbar3.
      */
     boolean getHotbar3();
 
     /**
      * <code>bool hotbar_4 = 15;</code>
+     *
      * @return The hotbar4.
      */
     boolean getHotbar4();
 
     /**
      * <code>bool hotbar_5 = 16;</code>
+     *
      * @return The hotbar5.
      */
     boolean getHotbar5();
 
     /**
      * <code>bool hotbar_6 = 17;</code>
+     *
      * @return The hotbar6.
      */
     boolean getHotbar6();
 
     /**
      * <code>bool hotbar_7 = 18;</code>
+     *
      * @return The hotbar7.
      */
     boolean getHotbar7();
 
     /**
      * <code>bool hotbar_8 = 19;</code>
+     *
      * @return The hotbar8.
      */
     boolean getHotbar8();
 
     /**
      * <code>bool hotbar_9 = 20;</code>
+     *
      * @return The hotbar9.
      */
     boolean getHotbar9();
 
     /**
+     *
+     *
      * <pre>
      * Camera movement (pitch and yaw)
      * </pre>
      *
      * <code>float camera_pitch = 21;</code>
+     *
      * @return The cameraPitch.
      */
     float getCameraPitch();
 
     /**
      * <code>float camera_yaw = 22;</code>
+     *
      * @return The cameraYaw.
      */
     float getCameraYaw();
 
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @return A list containing the commands.
      */
-    java.util.List<java.lang.String>
-        getCommandsList();
+    java.util.List<java.lang.String> getCommandsList();
+
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @return The count of commands.
      */
     int getCommandsCount();
+
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @param index The index of the element to return.
      * @return The commands at the given index.
      */
     java.lang.String getCommands(int index);
+
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @param index The index of the value to return.
      * @return The bytes of the commands at the given index.
      */
-    com.google.protobuf.ByteString
-        getCommandsBytes(int index);
+    com.google.protobuf.ByteString getCommandsBytes(int index);
   }
-  /**
-   * Protobuf type {@code ActionSpaceMessageV2}
-   */
-  public static final class ActionSpaceMessageV2 extends
-      com.google.protobuf.GeneratedMessage implements
+
+  /** Protobuf type {@code ActionSpaceMessageV2} */
+  public static final class ActionSpaceMessageV2 extends com.google.protobuf.GeneratedMessage
+      implements
       // @@protoc_insertion_point(message_implements:ActionSpaceMessageV2)
       ActionSpaceMessageV2OrBuilder {
-  private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 0L;
+
     static {
       com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
-        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
-        /* major= */ 4,
-        /* minor= */ 27,
-        /* patch= */ 3,
-        /* suffix= */ "",
-        ActionSpaceMessageV2.class.getName());
+          com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+          /* major= */ 4,
+          /* minor= */ 27,
+          /* patch= */ 3,
+          /* suffix= */ "",
+          ActionSpaceMessageV2.class.getName());
     }
+
     // Use ActionSpaceMessageV2.newBuilder() to construct.
     private ActionSpaceMessageV2(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
     }
+
     private ActionSpaceMessageV2() {
-      commands_ =
-          com.google.protobuf.LazyStringArrayList.emptyList();
+      commands_ = com.google.protobuf.LazyStringArrayList.emptyList();
     }
 
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.kyhsgeekcode.minecraftenv.proto.ActionSpace.internal_static_ActionSpaceMessageV2_descriptor;
+    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+      return com.kyhsgeekcode.minecraftenv.proto.ActionSpace
+          .internal_static_ActionSpaceMessageV2_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.kyhsgeekcode.minecraftenv.proto.ActionSpace.internal_static_ActionSpaceMessageV2_fieldAccessorTable
+      return com.kyhsgeekcode.minecraftenv.proto.ActionSpace
+          .internal_static_ActionSpaceMessageV2_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.class, com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.Builder.class);
+              com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.class,
+              com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.Builder.class);
     }
 
     public static final int ATTACK_FIELD_NUMBER = 1;
     private boolean attack_ = false;
+
     /**
+     *
+     *
      * <pre>
      * Discrete actions for movement and other commands as bool
      * </pre>
      *
      * <code>bool attack = 1;</code>
+     *
      * @return The attack.
      */
     @java.lang.Override
@@ -254,8 +294,10 @@ public final class ActionSpace {
 
     public static final int BACK_FIELD_NUMBER = 2;
     private boolean back_ = false;
+
     /**
      * <code>bool back = 2;</code>
+     *
      * @return The back.
      */
     @java.lang.Override
@@ -265,8 +307,10 @@ public final class ActionSpace {
 
     public static final int FORWARD_FIELD_NUMBER = 3;
     private boolean forward_ = false;
+
     /**
      * <code>bool forward = 3;</code>
+     *
      * @return The forward.
      */
     @java.lang.Override
@@ -276,8 +320,10 @@ public final class ActionSpace {
 
     public static final int JUMP_FIELD_NUMBER = 4;
     private boolean jump_ = false;
+
     /**
      * <code>bool jump = 4;</code>
+     *
      * @return The jump.
      */
     @java.lang.Override
@@ -287,8 +333,10 @@ public final class ActionSpace {
 
     public static final int LEFT_FIELD_NUMBER = 5;
     private boolean left_ = false;
+
     /**
      * <code>bool left = 5;</code>
+     *
      * @return The left.
      */
     @java.lang.Override
@@ -298,8 +346,10 @@ public final class ActionSpace {
 
     public static final int RIGHT_FIELD_NUMBER = 6;
     private boolean right_ = false;
+
     /**
      * <code>bool right = 6;</code>
+     *
      * @return The right.
      */
     @java.lang.Override
@@ -309,8 +359,10 @@ public final class ActionSpace {
 
     public static final int SNEAK_FIELD_NUMBER = 7;
     private boolean sneak_ = false;
+
     /**
      * <code>bool sneak = 7;</code>
+     *
      * @return The sneak.
      */
     @java.lang.Override
@@ -320,8 +372,10 @@ public final class ActionSpace {
 
     public static final int SPRINT_FIELD_NUMBER = 8;
     private boolean sprint_ = false;
+
     /**
      * <code>bool sprint = 8;</code>
+     *
      * @return The sprint.
      */
     @java.lang.Override
@@ -331,8 +385,10 @@ public final class ActionSpace {
 
     public static final int USE_FIELD_NUMBER = 9;
     private boolean use_ = false;
+
     /**
      * <code>bool use = 9;</code>
+     *
      * @return The use.
      */
     @java.lang.Override
@@ -342,8 +398,10 @@ public final class ActionSpace {
 
     public static final int DROP_FIELD_NUMBER = 10;
     private boolean drop_ = false;
+
     /**
      * <code>bool drop = 10;</code>
+     *
      * @return The drop.
      */
     @java.lang.Override
@@ -353,8 +411,10 @@ public final class ActionSpace {
 
     public static final int INVENTORY_FIELD_NUMBER = 11;
     private boolean inventory_ = false;
+
     /**
      * <code>bool inventory = 11;</code>
+     *
      * @return The inventory.
      */
     @java.lang.Override
@@ -364,12 +424,16 @@ public final class ActionSpace {
 
     public static final int HOTBAR_1_FIELD_NUMBER = 12;
     private boolean hotbar1_ = false;
+
     /**
+     *
+     *
      * <pre>
      * Hotbar selection (1-9) as bool
      * </pre>
      *
      * <code>bool hotbar_1 = 12;</code>
+     *
      * @return The hotbar1.
      */
     @java.lang.Override
@@ -379,8 +443,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_2_FIELD_NUMBER = 13;
     private boolean hotbar2_ = false;
+
     /**
      * <code>bool hotbar_2 = 13;</code>
+     *
      * @return The hotbar2.
      */
     @java.lang.Override
@@ -390,8 +456,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_3_FIELD_NUMBER = 14;
     private boolean hotbar3_ = false;
+
     /**
      * <code>bool hotbar_3 = 14;</code>
+     *
      * @return The hotbar3.
      */
     @java.lang.Override
@@ -401,8 +469,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_4_FIELD_NUMBER = 15;
     private boolean hotbar4_ = false;
+
     /**
      * <code>bool hotbar_4 = 15;</code>
+     *
      * @return The hotbar4.
      */
     @java.lang.Override
@@ -412,8 +482,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_5_FIELD_NUMBER = 16;
     private boolean hotbar5_ = false;
+
     /**
      * <code>bool hotbar_5 = 16;</code>
+     *
      * @return The hotbar5.
      */
     @java.lang.Override
@@ -423,8 +495,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_6_FIELD_NUMBER = 17;
     private boolean hotbar6_ = false;
+
     /**
      * <code>bool hotbar_6 = 17;</code>
+     *
      * @return The hotbar6.
      */
     @java.lang.Override
@@ -434,8 +508,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_7_FIELD_NUMBER = 18;
     private boolean hotbar7_ = false;
+
     /**
      * <code>bool hotbar_7 = 18;</code>
+     *
      * @return The hotbar7.
      */
     @java.lang.Override
@@ -445,8 +521,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_8_FIELD_NUMBER = 19;
     private boolean hotbar8_ = false;
+
     /**
      * <code>bool hotbar_8 = 19;</code>
+     *
      * @return The hotbar8.
      */
     @java.lang.Override
@@ -456,8 +534,10 @@ public final class ActionSpace {
 
     public static final int HOTBAR_9_FIELD_NUMBER = 20;
     private boolean hotbar9_ = false;
+
     /**
      * <code>bool hotbar_9 = 20;</code>
+     *
      * @return The hotbar9.
      */
     @java.lang.Override
@@ -467,12 +547,16 @@ public final class ActionSpace {
 
     public static final int CAMERA_PITCH_FIELD_NUMBER = 21;
     private float cameraPitch_ = 0F;
+
     /**
+     *
+     *
      * <pre>
      * Camera movement (pitch and yaw)
      * </pre>
      *
      * <code>float camera_pitch = 21;</code>
+     *
      * @return The cameraPitch.
      */
     @java.lang.Override
@@ -482,8 +566,10 @@ public final class ActionSpace {
 
     public static final int CAMERA_YAW_FIELD_NUMBER = 22;
     private float cameraYaw_ = 0F;
+
     /**
      * <code>float camera_yaw = 22;</code>
+     *
      * @return The cameraYaw.
      */
     @java.lang.Override
@@ -492,43 +578,51 @@ public final class ActionSpace {
     }
 
     public static final int COMMANDS_FIELD_NUMBER = 23;
+
     @SuppressWarnings("serial")
     private com.google.protobuf.LazyStringArrayList commands_ =
         com.google.protobuf.LazyStringArrayList.emptyList();
+
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @return A list containing the commands.
      */
-    public com.google.protobuf.ProtocolStringList
-        getCommandsList() {
+    public com.google.protobuf.ProtocolStringList getCommandsList() {
       return commands_;
     }
+
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @return The count of commands.
      */
     public int getCommandsCount() {
       return commands_.size();
     }
+
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @param index The index of the element to return.
      * @return The commands at the given index.
      */
     public java.lang.String getCommands(int index) {
       return commands_.get(index);
     }
+
     /**
      * <code>repeated string commands = 23;</code>
+     *
      * @param index The index of the value to return.
      * @return The bytes of the commands at the given index.
      */
-    public com.google.protobuf.ByteString
-        getCommandsBytes(int index) {
+    public com.google.protobuf.ByteString getCommandsBytes(int index) {
       return commands_.getByteString(index);
     }
 
     private byte memoizedIsInitialized = -1;
+
     @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -540,8 +634,7 @@ public final class ActionSpace {
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
+    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
       if (attack_ != false) {
         output.writeBool(1, attack_);
       }
@@ -621,92 +714,70 @@ public final class ActionSpace {
 
       size = 0;
       if (attack_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(1, attack_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(1, attack_);
       }
       if (back_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(2, back_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(2, back_);
       }
       if (forward_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(3, forward_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(3, forward_);
       }
       if (jump_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(4, jump_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(4, jump_);
       }
       if (left_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(5, left_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(5, left_);
       }
       if (right_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(6, right_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(6, right_);
       }
       if (sneak_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(7, sneak_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(7, sneak_);
       }
       if (sprint_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(8, sprint_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(8, sprint_);
       }
       if (use_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(9, use_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(9, use_);
       }
       if (drop_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(10, drop_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(10, drop_);
       }
       if (inventory_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(11, inventory_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(11, inventory_);
       }
       if (hotbar1_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(12, hotbar1_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(12, hotbar1_);
       }
       if (hotbar2_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(13, hotbar2_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(13, hotbar2_);
       }
       if (hotbar3_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(14, hotbar3_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(14, hotbar3_);
       }
       if (hotbar4_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(15, hotbar4_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(15, hotbar4_);
       }
       if (hotbar5_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(16, hotbar5_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(16, hotbar5_);
       }
       if (hotbar6_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(17, hotbar6_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(17, hotbar6_);
       }
       if (hotbar7_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(18, hotbar7_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(18, hotbar7_);
       }
       if (hotbar8_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(19, hotbar8_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(19, hotbar8_);
       }
       if (hotbar9_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(20, hotbar9_);
+        size += com.google.protobuf.CodedOutputStream.computeBoolSize(20, hotbar9_);
       }
       if (java.lang.Float.floatToRawIntBits(cameraPitch_) != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(21, cameraPitch_);
+        size += com.google.protobuf.CodedOutputStream.computeFloatSize(21, cameraPitch_);
       }
       if (java.lang.Float.floatToRawIntBits(cameraYaw_) != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(22, cameraYaw_);
+        size += com.google.protobuf.CodedOutputStream.computeFloatSize(22, cameraYaw_);
       }
       {
         int dataSize = 0;
@@ -724,61 +795,39 @@ public final class ActionSpace {
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
-       return true;
+        return true;
       }
       if (!(obj instanceof com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2)) {
         return super.equals(obj);
       }
-      com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 other = (com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2) obj;
+      com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 other =
+          (com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2) obj;
 
-      if (getAttack()
-          != other.getAttack()) return false;
-      if (getBack()
-          != other.getBack()) return false;
-      if (getForward()
-          != other.getForward()) return false;
-      if (getJump()
-          != other.getJump()) return false;
-      if (getLeft()
-          != other.getLeft()) return false;
-      if (getRight()
-          != other.getRight()) return false;
-      if (getSneak()
-          != other.getSneak()) return false;
-      if (getSprint()
-          != other.getSprint()) return false;
-      if (getUse()
-          != other.getUse()) return false;
-      if (getDrop()
-          != other.getDrop()) return false;
-      if (getInventory()
-          != other.getInventory()) return false;
-      if (getHotbar1()
-          != other.getHotbar1()) return false;
-      if (getHotbar2()
-          != other.getHotbar2()) return false;
-      if (getHotbar3()
-          != other.getHotbar3()) return false;
-      if (getHotbar4()
-          != other.getHotbar4()) return false;
-      if (getHotbar5()
-          != other.getHotbar5()) return false;
-      if (getHotbar6()
-          != other.getHotbar6()) return false;
-      if (getHotbar7()
-          != other.getHotbar7()) return false;
-      if (getHotbar8()
-          != other.getHotbar8()) return false;
-      if (getHotbar9()
-          != other.getHotbar9()) return false;
+      if (getAttack() != other.getAttack()) return false;
+      if (getBack() != other.getBack()) return false;
+      if (getForward() != other.getForward()) return false;
+      if (getJump() != other.getJump()) return false;
+      if (getLeft() != other.getLeft()) return false;
+      if (getRight() != other.getRight()) return false;
+      if (getSneak() != other.getSneak()) return false;
+      if (getSprint() != other.getSprint()) return false;
+      if (getUse() != other.getUse()) return false;
+      if (getDrop() != other.getDrop()) return false;
+      if (getInventory() != other.getInventory()) return false;
+      if (getHotbar1() != other.getHotbar1()) return false;
+      if (getHotbar2() != other.getHotbar2()) return false;
+      if (getHotbar3() != other.getHotbar3()) return false;
+      if (getHotbar4() != other.getHotbar4()) return false;
+      if (getHotbar5() != other.getHotbar5()) return false;
+      if (getHotbar6() != other.getHotbar6()) return false;
+      if (getHotbar7() != other.getHotbar7()) return false;
+      if (getHotbar8() != other.getHotbar8()) return false;
+      if (getHotbar9() != other.getHotbar9()) return false;
       if (java.lang.Float.floatToIntBits(getCameraPitch())
-          != java.lang.Float.floatToIntBits(
-              other.getCameraPitch())) return false;
+          != java.lang.Float.floatToIntBits(other.getCameraPitch())) return false;
       if (java.lang.Float.floatToIntBits(getCameraYaw())
-          != java.lang.Float.floatToIntBits(
-              other.getCameraYaw())) return false;
-      if (!getCommandsList()
-          .equals(other.getCommandsList())) return false;
+          != java.lang.Float.floatToIntBits(other.getCameraYaw())) return false;
+      if (!getCommandsList().equals(other.getCommandsList())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -791,71 +840,49 @@ public final class ActionSpace {
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + ATTACK_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getAttack());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getAttack());
       hash = (37 * hash) + BACK_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getBack());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getBack());
       hash = (37 * hash) + FORWARD_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getForward());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getForward());
       hash = (37 * hash) + JUMP_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getJump());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getJump());
       hash = (37 * hash) + LEFT_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getLeft());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getLeft());
       hash = (37 * hash) + RIGHT_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getRight());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getRight());
       hash = (37 * hash) + SNEAK_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getSneak());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getSneak());
       hash = (37 * hash) + SPRINT_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getSprint());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getSprint());
       hash = (37 * hash) + USE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getUse());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getUse());
       hash = (37 * hash) + DROP_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getDrop());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getDrop());
       hash = (37 * hash) + INVENTORY_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getInventory());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getInventory());
       hash = (37 * hash) + HOTBAR_1_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar1());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar1());
       hash = (37 * hash) + HOTBAR_2_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar2());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar2());
       hash = (37 * hash) + HOTBAR_3_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar3());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar3());
       hash = (37 * hash) + HOTBAR_4_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar4());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar4());
       hash = (37 * hash) + HOTBAR_5_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar5());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar5());
       hash = (37 * hash) + HOTBAR_6_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar6());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar6());
       hash = (37 * hash) + HOTBAR_7_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar7());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar7());
       hash = (37 * hash) + HOTBAR_8_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar8());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar8());
       hash = (37 * hash) + HOTBAR_9_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getHotbar9());
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getHotbar9());
       hash = (37 * hash) + CAMERA_PITCH_FIELD_NUMBER;
-      hash = (53 * hash) + java.lang.Float.floatToIntBits(
-          getCameraPitch());
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(getCameraPitch());
       hash = (37 * hash) + CAMERA_YAW_FIELD_NUMBER;
-      hash = (53 * hash) + java.lang.Float.floatToIntBits(
-          getCameraYaw());
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(getCameraYaw());
       if (getCommandsCount() > 0) {
         hash = (37 * hash) + COMMANDS_FIELD_NUMBER;
         hash = (53 * hash) + getCommandsList().hashCode();
@@ -866,127 +893,131 @@ public final class ActionSpace {
     }
 
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        java.nio.ByteBuffer data) throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
+        byte[] data) throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input);
-    }
+
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input, extensionRegistry);
+        java.io.InputStream input) throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage.parseWithIOException(PARSER, input);
     }
 
-    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseDelimitedFrom(java.io.InputStream input)
+    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
+        java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseDelimitedWithIOException(PARSER, input);
+      return com.google.protobuf.GeneratedMessage.parseWithIOException(
+          PARSER, input, extensionRegistry);
     }
 
-    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+        parseDelimitedFrom(java.io.InputStream input) throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage.parseDelimitedWithIOException(PARSER, input);
     }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+        parseDelimitedFrom(
+            java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage.parseDelimitedWithIOException(
+          PARSER, input, extensionRegistry);
+    }
+
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input);
+        com.google.protobuf.CodedInputStream input) throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage.parseWithIOException(PARSER, input);
     }
+
     public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessage
-          .parseWithIOException(PARSER, input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessage.parseWithIOException(
+          PARSER, input, extensionRegistry);
     }
 
     @java.lang.Override
-    public Builder newBuilderForType() { return newBuilder(); }
+    public Builder newBuilderForType() {
+      return newBuilder();
+    }
+
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 prototype) {
+
+    public static Builder newBuilder(
+        com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    @java.lang.Override
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
     }
 
     @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-    /**
-     * Protobuf type {@code ActionSpaceMessageV2}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+
+    /** Protobuf type {@code ActionSpaceMessageV2} */
+    public static final class Builder extends com.google.protobuf.GeneratedMessage.Builder<Builder>
+        implements
         // @@protoc_insertion_point(builder_implements:ActionSpaceMessageV2)
         com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2OrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace.internal_static_ActionSpaceMessageV2_descriptor;
+      public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace
+            .internal_static_ActionSpaceMessageV2_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace.internal_static_ActionSpaceMessageV2_fieldAccessorTable
+        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace
+            .internal_static_ActionSpaceMessageV2_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.class, com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.Builder.class);
+                com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.class,
+                com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.Builder.class);
       }
 
-      // Construct using com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.newBuilder()
-      private Builder() {
+      // Construct using
+      // com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.newBuilder()
+      private Builder() {}
 
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      private Builder(com.google.protobuf.GeneratedMessage.BuilderParent parent) {
         super(parent);
-
       }
+
       @java.lang.Override
       public Builder clear() {
         super.clear();
@@ -1013,25 +1044,27 @@ public final class ActionSpace {
         hotbar9_ = false;
         cameraPitch_ = 0F;
         cameraYaw_ = 0F;
-        commands_ =
-            com.google.protobuf.LazyStringArrayList.emptyList();
+        commands_ = com.google.protobuf.LazyStringArrayList.emptyList();
         return this;
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace.internal_static_ActionSpaceMessageV2_descriptor;
+      public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace
+            .internal_static_ActionSpaceMessageV2_descriptor;
       }
 
       @java.lang.Override
-      public com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 getDefaultInstanceForType() {
-        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.getDefaultInstance();
+      public com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+          getDefaultInstanceForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+            .getDefaultInstance();
       }
 
       @java.lang.Override
       public com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 build() {
-        com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 result = buildPartial();
+        com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 result =
+            buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -1040,13 +1073,17 @@ public final class ActionSpace {
 
       @java.lang.Override
       public com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 buildPartial() {
-        com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 result = new com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2(this);
-        if (bitField0_ != 0) { buildPartial0(result); }
+        com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 result =
+            new com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2(this);
+        if (bitField0_ != 0) {
+          buildPartial0(result);
+        }
         onBuilt();
         return result;
       }
 
-      private void buildPartial0(com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 result) {
+      private void buildPartial0(
+          com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 result) {
         int from_bitField0_ = bitField0_;
         if (((from_bitField0_ & 0x00000001) != 0)) {
           result.attack_ = attack_;
@@ -1123,15 +1160,19 @@ public final class ActionSpace {
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2) {
-          return mergeFrom((com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2)other);
+          return mergeFrom(
+              (com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2) other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 other) {
-        if (other == com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2.getDefaultInstance()) return this;
+      public Builder mergeFrom(
+          com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 other) {
+        if (other
+            == com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+                .getDefaultInstance()) return this;
         if (other.getAttack() != false) {
           setAttack(other.getAttack());
         }
@@ -1234,128 +1275,152 @@ public final class ActionSpace {
               case 0:
                 done = true;
                 break;
-              case 8: {
-                attack_ = input.readBool();
-                bitField0_ |= 0x00000001;
-                break;
-              } // case 8
-              case 16: {
-                back_ = input.readBool();
-                bitField0_ |= 0x00000002;
-                break;
-              } // case 16
-              case 24: {
-                forward_ = input.readBool();
-                bitField0_ |= 0x00000004;
-                break;
-              } // case 24
-              case 32: {
-                jump_ = input.readBool();
-                bitField0_ |= 0x00000008;
-                break;
-              } // case 32
-              case 40: {
-                left_ = input.readBool();
-                bitField0_ |= 0x00000010;
-                break;
-              } // case 40
-              case 48: {
-                right_ = input.readBool();
-                bitField0_ |= 0x00000020;
-                break;
-              } // case 48
-              case 56: {
-                sneak_ = input.readBool();
-                bitField0_ |= 0x00000040;
-                break;
-              } // case 56
-              case 64: {
-                sprint_ = input.readBool();
-                bitField0_ |= 0x00000080;
-                break;
-              } // case 64
-              case 72: {
-                use_ = input.readBool();
-                bitField0_ |= 0x00000100;
-                break;
-              } // case 72
-              case 80: {
-                drop_ = input.readBool();
-                bitField0_ |= 0x00000200;
-                break;
-              } // case 80
-              case 88: {
-                inventory_ = input.readBool();
-                bitField0_ |= 0x00000400;
-                break;
-              } // case 88
-              case 96: {
-                hotbar1_ = input.readBool();
-                bitField0_ |= 0x00000800;
-                break;
-              } // case 96
-              case 104: {
-                hotbar2_ = input.readBool();
-                bitField0_ |= 0x00001000;
-                break;
-              } // case 104
-              case 112: {
-                hotbar3_ = input.readBool();
-                bitField0_ |= 0x00002000;
-                break;
-              } // case 112
-              case 120: {
-                hotbar4_ = input.readBool();
-                bitField0_ |= 0x00004000;
-                break;
-              } // case 120
-              case 128: {
-                hotbar5_ = input.readBool();
-                bitField0_ |= 0x00008000;
-                break;
-              } // case 128
-              case 136: {
-                hotbar6_ = input.readBool();
-                bitField0_ |= 0x00010000;
-                break;
-              } // case 136
-              case 144: {
-                hotbar7_ = input.readBool();
-                bitField0_ |= 0x00020000;
-                break;
-              } // case 144
-              case 152: {
-                hotbar8_ = input.readBool();
-                bitField0_ |= 0x00040000;
-                break;
-              } // case 152
-              case 160: {
-                hotbar9_ = input.readBool();
-                bitField0_ |= 0x00080000;
-                break;
-              } // case 160
-              case 173: {
-                cameraPitch_ = input.readFloat();
-                bitField0_ |= 0x00100000;
-                break;
-              } // case 173
-              case 181: {
-                cameraYaw_ = input.readFloat();
-                bitField0_ |= 0x00200000;
-                break;
-              } // case 181
-              case 186: {
-                java.lang.String s = input.readStringRequireUtf8();
-                ensureCommandsIsMutable();
-                commands_.add(s);
-                break;
-              } // case 186
-              default: {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
+              case 8:
+                {
+                  attack_ = input.readBool();
+                  bitField0_ |= 0x00000001;
+                  break;
+                } // case 8
+              case 16:
+                {
+                  back_ = input.readBool();
+                  bitField0_ |= 0x00000002;
+                  break;
+                } // case 16
+              case 24:
+                {
+                  forward_ = input.readBool();
+                  bitField0_ |= 0x00000004;
+                  break;
+                } // case 24
+              case 32:
+                {
+                  jump_ = input.readBool();
+                  bitField0_ |= 0x00000008;
+                  break;
+                } // case 32
+              case 40:
+                {
+                  left_ = input.readBool();
+                  bitField0_ |= 0x00000010;
+                  break;
+                } // case 40
+              case 48:
+                {
+                  right_ = input.readBool();
+                  bitField0_ |= 0x00000020;
+                  break;
+                } // case 48
+              case 56:
+                {
+                  sneak_ = input.readBool();
+                  bitField0_ |= 0x00000040;
+                  break;
+                } // case 56
+              case 64:
+                {
+                  sprint_ = input.readBool();
+                  bitField0_ |= 0x00000080;
+                  break;
+                } // case 64
+              case 72:
+                {
+                  use_ = input.readBool();
+                  bitField0_ |= 0x00000100;
+                  break;
+                } // case 72
+              case 80:
+                {
+                  drop_ = input.readBool();
+                  bitField0_ |= 0x00000200;
+                  break;
+                } // case 80
+              case 88:
+                {
+                  inventory_ = input.readBool();
+                  bitField0_ |= 0x00000400;
+                  break;
+                } // case 88
+              case 96:
+                {
+                  hotbar1_ = input.readBool();
+                  bitField0_ |= 0x00000800;
+                  break;
+                } // case 96
+              case 104:
+                {
+                  hotbar2_ = input.readBool();
+                  bitField0_ |= 0x00001000;
+                  break;
+                } // case 104
+              case 112:
+                {
+                  hotbar3_ = input.readBool();
+                  bitField0_ |= 0x00002000;
+                  break;
+                } // case 112
+              case 120:
+                {
+                  hotbar4_ = input.readBool();
+                  bitField0_ |= 0x00004000;
+                  break;
+                } // case 120
+              case 128:
+                {
+                  hotbar5_ = input.readBool();
+                  bitField0_ |= 0x00008000;
+                  break;
+                } // case 128
+              case 136:
+                {
+                  hotbar6_ = input.readBool();
+                  bitField0_ |= 0x00010000;
+                  break;
+                } // case 136
+              case 144:
+                {
+                  hotbar7_ = input.readBool();
+                  bitField0_ |= 0x00020000;
+                  break;
+                } // case 144
+              case 152:
+                {
+                  hotbar8_ = input.readBool();
+                  bitField0_ |= 0x00040000;
+                  break;
+                } // case 152
+              case 160:
+                {
+                  hotbar9_ = input.readBool();
+                  bitField0_ |= 0x00080000;
+                  break;
+                } // case 160
+              case 173:
+                {
+                  cameraPitch_ = input.readFloat();
+                  bitField0_ |= 0x00100000;
+                  break;
+                } // case 173
+              case 181:
+                {
+                  cameraYaw_ = input.readFloat();
+                  bitField0_ |= 0x00200000;
+                  break;
+                } // case 181
+              case 186:
+                {
+                  java.lang.String s = input.readStringRequireUtf8();
+                  ensureCommandsIsMutable();
+                  commands_.add(s);
+                  break;
+                } // case 186
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
             } // switch (tag)
           } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1365,27 +1430,36 @@ public final class ActionSpace {
         } // finally
         return this;
       }
+
       private int bitField0_;
 
-      private boolean attack_ ;
+      private boolean attack_;
+
       /**
+       *
+       *
        * <pre>
        * Discrete actions for movement and other commands as bool
        * </pre>
        *
        * <code>bool attack = 1;</code>
+       *
        * @return The attack.
        */
       @java.lang.Override
       public boolean getAttack() {
         return attack_;
       }
+
       /**
+       *
+       *
        * <pre>
        * Discrete actions for movement and other commands as bool
        * </pre>
        *
        * <code>bool attack = 1;</code>
+       *
        * @param value The attack to set.
        * @return This builder for chaining.
        */
@@ -1396,12 +1470,16 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
+       *
+       *
        * <pre>
        * Discrete actions for movement and other commands as bool
        * </pre>
        *
        * <code>bool attack = 1;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearAttack() {
@@ -1411,17 +1489,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean back_ ;
+      private boolean back_;
+
       /**
        * <code>bool back = 2;</code>
+       *
        * @return The back.
        */
       @java.lang.Override
       public boolean getBack() {
         return back_;
       }
+
       /**
        * <code>bool back = 2;</code>
+       *
        * @param value The back to set.
        * @return This builder for chaining.
        */
@@ -1432,8 +1514,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool back = 2;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearBack() {
@@ -1443,17 +1527,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean forward_ ;
+      private boolean forward_;
+
       /**
        * <code>bool forward = 3;</code>
+       *
        * @return The forward.
        */
       @java.lang.Override
       public boolean getForward() {
         return forward_;
       }
+
       /**
        * <code>bool forward = 3;</code>
+       *
        * @param value The forward to set.
        * @return This builder for chaining.
        */
@@ -1464,8 +1552,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool forward = 3;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearForward() {
@@ -1475,17 +1565,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean jump_ ;
+      private boolean jump_;
+
       /**
        * <code>bool jump = 4;</code>
+       *
        * @return The jump.
        */
       @java.lang.Override
       public boolean getJump() {
         return jump_;
       }
+
       /**
        * <code>bool jump = 4;</code>
+       *
        * @param value The jump to set.
        * @return This builder for chaining.
        */
@@ -1496,8 +1590,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool jump = 4;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearJump() {
@@ -1507,17 +1603,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean left_ ;
+      private boolean left_;
+
       /**
        * <code>bool left = 5;</code>
+       *
        * @return The left.
        */
       @java.lang.Override
       public boolean getLeft() {
         return left_;
       }
+
       /**
        * <code>bool left = 5;</code>
+       *
        * @param value The left to set.
        * @return This builder for chaining.
        */
@@ -1528,8 +1628,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool left = 5;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearLeft() {
@@ -1539,17 +1641,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean right_ ;
+      private boolean right_;
+
       /**
        * <code>bool right = 6;</code>
+       *
        * @return The right.
        */
       @java.lang.Override
       public boolean getRight() {
         return right_;
       }
+
       /**
        * <code>bool right = 6;</code>
+       *
        * @param value The right to set.
        * @return This builder for chaining.
        */
@@ -1560,8 +1666,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool right = 6;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearRight() {
@@ -1571,17 +1679,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean sneak_ ;
+      private boolean sneak_;
+
       /**
        * <code>bool sneak = 7;</code>
+       *
        * @return The sneak.
        */
       @java.lang.Override
       public boolean getSneak() {
         return sneak_;
       }
+
       /**
        * <code>bool sneak = 7;</code>
+       *
        * @param value The sneak to set.
        * @return This builder for chaining.
        */
@@ -1592,8 +1704,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool sneak = 7;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearSneak() {
@@ -1603,17 +1717,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean sprint_ ;
+      private boolean sprint_;
+
       /**
        * <code>bool sprint = 8;</code>
+       *
        * @return The sprint.
        */
       @java.lang.Override
       public boolean getSprint() {
         return sprint_;
       }
+
       /**
        * <code>bool sprint = 8;</code>
+       *
        * @param value The sprint to set.
        * @return This builder for chaining.
        */
@@ -1624,8 +1742,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool sprint = 8;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearSprint() {
@@ -1635,17 +1755,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean use_ ;
+      private boolean use_;
+
       /**
        * <code>bool use = 9;</code>
+       *
        * @return The use.
        */
       @java.lang.Override
       public boolean getUse() {
         return use_;
       }
+
       /**
        * <code>bool use = 9;</code>
+       *
        * @param value The use to set.
        * @return This builder for chaining.
        */
@@ -1656,8 +1780,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool use = 9;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearUse() {
@@ -1667,17 +1793,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean drop_ ;
+      private boolean drop_;
+
       /**
        * <code>bool drop = 10;</code>
+       *
        * @return The drop.
        */
       @java.lang.Override
       public boolean getDrop() {
         return drop_;
       }
+
       /**
        * <code>bool drop = 10;</code>
+       *
        * @param value The drop to set.
        * @return This builder for chaining.
        */
@@ -1688,8 +1818,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool drop = 10;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearDrop() {
@@ -1699,17 +1831,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean inventory_ ;
+      private boolean inventory_;
+
       /**
        * <code>bool inventory = 11;</code>
+       *
        * @return The inventory.
        */
       @java.lang.Override
       public boolean getInventory() {
         return inventory_;
       }
+
       /**
        * <code>bool inventory = 11;</code>
+       *
        * @param value The inventory to set.
        * @return This builder for chaining.
        */
@@ -1720,8 +1856,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool inventory = 11;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearInventory() {
@@ -1731,25 +1869,33 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar1_ ;
+      private boolean hotbar1_;
+
       /**
+       *
+       *
        * <pre>
        * Hotbar selection (1-9) as bool
        * </pre>
        *
        * <code>bool hotbar_1 = 12;</code>
+       *
        * @return The hotbar1.
        */
       @java.lang.Override
       public boolean getHotbar1() {
         return hotbar1_;
       }
+
       /**
+       *
+       *
        * <pre>
        * Hotbar selection (1-9) as bool
        * </pre>
        *
        * <code>bool hotbar_1 = 12;</code>
+       *
        * @param value The hotbar1 to set.
        * @return This builder for chaining.
        */
@@ -1760,12 +1906,16 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
+       *
+       *
        * <pre>
        * Hotbar selection (1-9) as bool
        * </pre>
        *
        * <code>bool hotbar_1 = 12;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar1() {
@@ -1775,17 +1925,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar2_ ;
+      private boolean hotbar2_;
+
       /**
        * <code>bool hotbar_2 = 13;</code>
+       *
        * @return The hotbar2.
        */
       @java.lang.Override
       public boolean getHotbar2() {
         return hotbar2_;
       }
+
       /**
        * <code>bool hotbar_2 = 13;</code>
+       *
        * @param value The hotbar2 to set.
        * @return This builder for chaining.
        */
@@ -1796,8 +1950,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_2 = 13;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar2() {
@@ -1807,17 +1963,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar3_ ;
+      private boolean hotbar3_;
+
       /**
        * <code>bool hotbar_3 = 14;</code>
+       *
        * @return The hotbar3.
        */
       @java.lang.Override
       public boolean getHotbar3() {
         return hotbar3_;
       }
+
       /**
        * <code>bool hotbar_3 = 14;</code>
+       *
        * @param value The hotbar3 to set.
        * @return This builder for chaining.
        */
@@ -1828,8 +1988,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_3 = 14;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar3() {
@@ -1839,17 +2001,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar4_ ;
+      private boolean hotbar4_;
+
       /**
        * <code>bool hotbar_4 = 15;</code>
+       *
        * @return The hotbar4.
        */
       @java.lang.Override
       public boolean getHotbar4() {
         return hotbar4_;
       }
+
       /**
        * <code>bool hotbar_4 = 15;</code>
+       *
        * @param value The hotbar4 to set.
        * @return This builder for chaining.
        */
@@ -1860,8 +2026,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_4 = 15;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar4() {
@@ -1871,17 +2039,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar5_ ;
+      private boolean hotbar5_;
+
       /**
        * <code>bool hotbar_5 = 16;</code>
+       *
        * @return The hotbar5.
        */
       @java.lang.Override
       public boolean getHotbar5() {
         return hotbar5_;
       }
+
       /**
        * <code>bool hotbar_5 = 16;</code>
+       *
        * @param value The hotbar5 to set.
        * @return This builder for chaining.
        */
@@ -1892,8 +2064,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_5 = 16;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar5() {
@@ -1903,17 +2077,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar6_ ;
+      private boolean hotbar6_;
+
       /**
        * <code>bool hotbar_6 = 17;</code>
+       *
        * @return The hotbar6.
        */
       @java.lang.Override
       public boolean getHotbar6() {
         return hotbar6_;
       }
+
       /**
        * <code>bool hotbar_6 = 17;</code>
+       *
        * @param value The hotbar6 to set.
        * @return This builder for chaining.
        */
@@ -1924,8 +2102,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_6 = 17;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar6() {
@@ -1935,17 +2115,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar7_ ;
+      private boolean hotbar7_;
+
       /**
        * <code>bool hotbar_7 = 18;</code>
+       *
        * @return The hotbar7.
        */
       @java.lang.Override
       public boolean getHotbar7() {
         return hotbar7_;
       }
+
       /**
        * <code>bool hotbar_7 = 18;</code>
+       *
        * @param value The hotbar7 to set.
        * @return This builder for chaining.
        */
@@ -1956,8 +2140,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_7 = 18;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar7() {
@@ -1967,17 +2153,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar8_ ;
+      private boolean hotbar8_;
+
       /**
        * <code>bool hotbar_8 = 19;</code>
+       *
        * @return The hotbar8.
        */
       @java.lang.Override
       public boolean getHotbar8() {
         return hotbar8_;
       }
+
       /**
        * <code>bool hotbar_8 = 19;</code>
+       *
        * @param value The hotbar8 to set.
        * @return This builder for chaining.
        */
@@ -1988,8 +2178,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_8 = 19;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar8() {
@@ -1999,17 +2191,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private boolean hotbar9_ ;
+      private boolean hotbar9_;
+
       /**
        * <code>bool hotbar_9 = 20;</code>
+       *
        * @return The hotbar9.
        */
       @java.lang.Override
       public boolean getHotbar9() {
         return hotbar9_;
       }
+
       /**
        * <code>bool hotbar_9 = 20;</code>
+       *
        * @param value The hotbar9 to set.
        * @return This builder for chaining.
        */
@@ -2020,8 +2216,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>bool hotbar_9 = 20;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearHotbar9() {
@@ -2031,25 +2229,33 @@ public final class ActionSpace {
         return this;
       }
 
-      private float cameraPitch_ ;
+      private float cameraPitch_;
+
       /**
+       *
+       *
        * <pre>
        * Camera movement (pitch and yaw)
        * </pre>
        *
        * <code>float camera_pitch = 21;</code>
+       *
        * @return The cameraPitch.
        */
       @java.lang.Override
       public float getCameraPitch() {
         return cameraPitch_;
       }
+
       /**
+       *
+       *
        * <pre>
        * Camera movement (pitch and yaw)
        * </pre>
        *
        * <code>float camera_pitch = 21;</code>
+       *
        * @param value The cameraPitch to set.
        * @return This builder for chaining.
        */
@@ -2060,12 +2266,16 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
+       *
+       *
        * <pre>
        * Camera movement (pitch and yaw)
        * </pre>
        *
        * <code>float camera_pitch = 21;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearCameraPitch() {
@@ -2075,17 +2285,21 @@ public final class ActionSpace {
         return this;
       }
 
-      private float cameraYaw_ ;
+      private float cameraYaw_;
+
       /**
        * <code>float camera_yaw = 22;</code>
+       *
        * @return The cameraYaw.
        */
       @java.lang.Override
       public float getCameraYaw() {
         return cameraYaw_;
       }
+
       /**
        * <code>float camera_yaw = 22;</code>
+       *
        * @param value The cameraYaw to set.
        * @return This builder for chaining.
        */
@@ -2096,8 +2310,10 @@ public final class ActionSpace {
         onChanged();
         return this;
       }
+
       /**
        * <code>float camera_yaw = 22;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearCameraYaw() {
@@ -2109,107 +2325,125 @@ public final class ActionSpace {
 
       private com.google.protobuf.LazyStringArrayList commands_ =
           com.google.protobuf.LazyStringArrayList.emptyList();
+
       private void ensureCommandsIsMutable() {
         if (!commands_.isModifiable()) {
           commands_ = new com.google.protobuf.LazyStringArrayList(commands_);
         }
         bitField0_ |= 0x00400000;
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @return A list containing the commands.
        */
-      public com.google.protobuf.ProtocolStringList
-          getCommandsList() {
+      public com.google.protobuf.ProtocolStringList getCommandsList() {
         commands_.makeImmutable();
         return commands_;
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @return The count of commands.
        */
       public int getCommandsCount() {
         return commands_.size();
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @param index The index of the element to return.
        * @return The commands at the given index.
        */
       public java.lang.String getCommands(int index) {
         return commands_.get(index);
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @param index The index of the value to return.
        * @return The bytes of the commands at the given index.
        */
-      public com.google.protobuf.ByteString
-          getCommandsBytes(int index) {
+      public com.google.protobuf.ByteString getCommandsBytes(int index) {
         return commands_.getByteString(index);
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @param index The index to set the value at.
        * @param value The commands to set.
        * @return This builder for chaining.
        */
-      public Builder setCommands(
-          int index, java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
+      public Builder setCommands(int index, java.lang.String value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
         ensureCommandsIsMutable();
         commands_.set(index, value);
         bitField0_ |= 0x00400000;
         onChanged();
         return this;
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @param value The commands to add.
        * @return This builder for chaining.
        */
-      public Builder addCommands(
-          java.lang.String value) {
-        if (value == null) { throw new NullPointerException(); }
+      public Builder addCommands(java.lang.String value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
         ensureCommandsIsMutable();
         commands_.add(value);
         bitField0_ |= 0x00400000;
         onChanged();
         return this;
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @param values The commands to add.
        * @return This builder for chaining.
        */
-      public Builder addAllCommands(
-          java.lang.Iterable<java.lang.String> values) {
+      public Builder addAllCommands(java.lang.Iterable<java.lang.String> values) {
         ensureCommandsIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, commands_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(values, commands_);
         bitField0_ |= 0x00400000;
         onChanged();
         return this;
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @return This builder for chaining.
        */
       public Builder clearCommands() {
-        commands_ =
-          com.google.protobuf.LazyStringArrayList.emptyList();
-        bitField0_ = (bitField0_ & ~0x00400000);;
+        commands_ = com.google.protobuf.LazyStringArrayList.emptyList();
+        bitField0_ = (bitField0_ & ~0x00400000);
+        ;
         onChanged();
         return this;
       }
+
       /**
        * <code>repeated string commands = 23;</code>
+       *
        * @param value The bytes of the commands to add.
        * @return This builder for chaining.
        */
-      public Builder addCommandsBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
+      public Builder addCommandsBytes(com.google.protobuf.ByteString value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
         checkByteStringIsUtf8(value);
         ensureCommandsIsMutable();
         commands_.add(value);
@@ -2222,36 +2456,40 @@ public final class ActionSpace {
     }
 
     // @@protoc_insertion_point(class_scope:ActionSpaceMessageV2)
-    private static final com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 DEFAULT_INSTANCE;
+    private static final com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+        DEFAULT_INSTANCE;
+
     static {
       DEFAULT_INSTANCE = new com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2();
     }
 
-    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 getDefaultInstance() {
+    public static com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+        getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<ActionSpaceMessageV2>
-        PARSER = new com.google.protobuf.AbstractParser<ActionSpaceMessageV2>() {
-      @java.lang.Override
-      public ActionSpaceMessageV2 parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        Builder builder = newBuilder();
-        try {
-          builder.mergeFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(builder.buildPartial());
-        } catch (com.google.protobuf.UninitializedMessageException e) {
-          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(e)
-              .setUnfinishedMessage(builder.buildPartial());
-        }
-        return builder.buildPartial();
-      }
-    };
+    private static final com.google.protobuf.Parser<ActionSpaceMessageV2> PARSER =
+        new com.google.protobuf.AbstractParser<ActionSpaceMessageV2>() {
+          @java.lang.Override
+          public ActionSpaceMessageV2 parsePartialFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
+          }
+        };
 
     public static com.google.protobuf.Parser<ActionSpaceMessageV2> parser() {
       return PARSER;
@@ -2263,50 +2501,87 @@ public final class ActionSpace {
     }
 
     @java.lang.Override
-    public com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2 getDefaultInstanceForType() {
+    public com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
+        getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
-
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ActionSpaceMessageV2_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_ActionSpaceMessageV2_descriptor;
+  private static final com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_ActionSpaceMessageV2_fieldAccessorTable;
 
-  public static com.google.protobuf.Descriptors.FileDescriptor
-      getDescriptor() {
+  public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
     return descriptor;
   }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
+
+  private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
+
   static {
     java.lang.String[] descriptorData = {
-      "\n\022action_space.proto\"\233\003\n\024ActionSpaceMess" +
-      "ageV2\022\016\n\006attack\030\001 \001(\010\022\014\n\004back\030\002 \001(\010\022\017\n\007f" +
-      "orward\030\003 \001(\010\022\014\n\004jump\030\004 \001(\010\022\014\n\004left\030\005 \001(\010" +
-      "\022\r\n\005right\030\006 \001(\010\022\r\n\005sneak\030\007 \001(\010\022\016\n\006sprint" +
-      "\030\010 \001(\010\022\013\n\003use\030\t \001(\010\022\014\n\004drop\030\n \001(\010\022\021\n\tinv" +
-      "entory\030\013 \001(\010\022\020\n\010hotbar_1\030\014 \001(\010\022\020\n\010hotbar" +
-      "_2\030\r \001(\010\022\020\n\010hotbar_3\030\016 \001(\010\022\020\n\010hotbar_4\030\017" +
-      " \001(\010\022\020\n\010hotbar_5\030\020 \001(\010\022\020\n\010hotbar_6\030\021 \001(\010" +
-      "\022\020\n\010hotbar_7\030\022 \001(\010\022\020\n\010hotbar_8\030\023 \001(\010\022\020\n\010" +
-      "hotbar_9\030\024 \001(\010\022\024\n\014camera_pitch\030\025 \001(\002\022\022\n\n" +
-      "camera_yaw\030\026 \001(\002\022\020\n\010commands\030\027 \003(\tB&\n$co" +
-      "m.kyhsgeekcode.minecraftenv.protob\006prot" +
-      "o3"
+      "\n"
+          + "\022action_space.proto\"\233\003\n"
+          + "\024ActionSpaceMessageV2\022\016\n"
+          + "\006attack\030\001 \001(\010\022\014\n"
+          + "\004back\030\002 \001(\010\022\017\n"
+          + "\007forward\030\003 \001(\010\022\014\n"
+          + "\004jump\030\004 \001(\010\022\014\n"
+          + "\004left\030\005 \001(\010\022\r\n"
+          + "\005right\030\006 \001(\010\022\r\n"
+          + "\005sneak\030\007 \001(\010\022\016\n"
+          + "\006sprint\030\010 \001(\010\022\013\n"
+          + "\003use\030\t \001(\010\022\014\n"
+          + "\004drop\030\n"
+          + " \001(\010\022\021\n"
+          + "\tinventory\030\013 \001(\010\022\020\n"
+          + "\010hotbar_1\030\014 \001(\010\022\020\n"
+          + "\010hotbar_2\030\r"
+          + " \001(\010\022\020\n"
+          + "\010hotbar_3\030\016 \001(\010\022\020\n"
+          + "\010hotbar_4\030\017 \001(\010\022\020\n"
+          + "\010hotbar_5\030\020 \001(\010\022\020\n"
+          + "\010hotbar_6\030\021 \001(\010\022\020\n"
+          + "\010hotbar_7\030\022 \001(\010\022\020\n"
+          + "\010hotbar_8\030\023 \001(\010\022\020\n"
+          + "\010hotbar_9\030\024 \001(\010\022\024\n"
+          + "\014camera_pitch\030\025 \001(\002\022\022\n\n"
+          + "camera_yaw\030\026 \001(\002\022\020\n"
+          + "\010commands\030\027 \003(\tB&\n"
+          + "$com.kyhsgeekcode.minecraftenv.protob\006proto3"
     };
-    descriptor = com.google.protobuf.Descriptors.FileDescriptor
-      .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {
-        });
-    internal_static_ActionSpaceMessageV2_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_ActionSpaceMessageV2_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_ActionSpaceMessageV2_descriptor,
-        new java.lang.String[] { "Attack", "Back", "Forward", "Jump", "Left", "Right", "Sneak", "Sprint", "Use", "Drop", "Inventory", "Hotbar1", "Hotbar2", "Hotbar3", "Hotbar4", "Hotbar5", "Hotbar6", "Hotbar7", "Hotbar8", "Hotbar9", "CameraPitch", "CameraYaw", "Commands", });
+    descriptor =
+        com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(
+            descriptorData, new com.google.protobuf.Descriptors.FileDescriptor[] {});
+    internal_static_ActionSpaceMessageV2_descriptor = getDescriptor().getMessageTypes().get(0);
+    internal_static_ActionSpaceMessageV2_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+            internal_static_ActionSpaceMessageV2_descriptor,
+            new java.lang.String[] {
+              "Attack",
+              "Back",
+              "Forward",
+              "Jump",
+              "Left",
+              "Right",
+              "Sneak",
+              "Sprint",
+              "Use",
+              "Drop",
+              "Inventory",
+              "Hotbar1",
+              "Hotbar2",
+              "Hotbar3",
+              "Hotbar4",
+              "Hotbar5",
+              "Hotbar6",
+              "Hotbar7",
+              "Hotbar8",
+              "Hotbar9",
+              "CameraPitch",
+              "CameraYaw",
+              "Commands",
+            });
     descriptor.resolveAllFeaturesImmutable();
   }
 
