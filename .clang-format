@@ -4,3 +4,4 @@ PointerAlignment: Right
 AlignAfterOpenBracket: BlockIndent
 BinPackArguments: false
 BinPackParameters: false
+InsertTrailingCommas: Wrapped
