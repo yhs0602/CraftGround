@@ -1,17 +1,17 @@
 [build-system]
 requires = [
-    "scikit-build-core",
+    "scikit-build",
     "pybind11",
     "setuptools>=42",
     "wheel",
     "cmake>=3.12",
     "ninja",  # Optional, for Ninja builds
 ]
-build-backend = "scikit_build_core.build"
+bbuild-backend = "setuptools.build_meta"
 
 [project]
 name = "craftground"
-version = "2.5.30"
+version = "2.5.31"
 description = "Lightweight Minecraft Environment for Reinforcement Learning"
 readme = "README.md"
 license = { file = "LICENSE" }
