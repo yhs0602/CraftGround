@@ -272,3 +272,12 @@ protoc proto/action_space.proto --java_out=craftground/MinecraftEnv/src/main/jav
 protoc proto/initial_environment.proto --java_out=craftground/MinecraftEnv/src/main/java/ --kotlin_out=craftground/MinecraftEnv/src/main/java/
 protoc proto/observation_space.proto --java_out=craftground/MinecraftEnv/src/main/java/ --kotlin_out=craftground/MinecraftEnv/src/main/java/
 ```
+
+# Troubleshooting
+## Protobuf runtime version error
+> google.protobuf.runtime_version.VersionError: Detected incompatible Protobuf Gencode/Runtime versions when loading proto/initial_environment.proto: gencode 5.29.1 runtime 5.27.3. Runtime version cannot be older than the linked gencode version. See Protobuf version guarantees at https://protobuf.dev/support/cross-version-runtime-guarantee.
+
+### Solution
+```bash
+pip install --upgrade protobuf
+```
