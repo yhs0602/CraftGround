@@ -378,13 +378,13 @@ class CraftGroundEnvironment(gym.Env):
             print_with_time(f"Got response with size {siz}")
         self.csv_logger.log(f"Got response with size {siz}")
         self.csv_logger.profile_start("convert_observation")
-        rgb_1, img_1, frame_1 = self.convert_observation(res.image)
+        rgb_1, img_1, frame_1 = self.convert_observation(res.image, res)
         self.csv_logger.profile_end("convert_observation")
         rgb_2 = None
         img_2 = None
         frame_2 = None
         if res.image_2 is not None and res.image_2 != b"":
-            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2)
+            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2, res)
         self.queued_commands = []
         res.yaw = ((res.yaw + 180) % 360) - 180
         final_obs = {
@@ -398,7 +398,7 @@ class CraftGroundEnvironment(gym.Env):
         return final_obs, final_obs
 
     def convert_observation(
-        self, png_img: bytes
+        self, png_img: bytes, res: ObsType
     ) -> Tuple[np.ndarray, Optional[Image.Image], np.ndarray]:
         if self.encoding_mode == ScreenEncodingMode.PNG:
             # decode png byte array to numpy array
@@ -431,11 +431,15 @@ class CraftGroundEnvironment(gym.Env):
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
         elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
-            from .craftground_native import initialize_from_mach_port
-            from .craftground_native import mtl_tensor_from_cuda_mem_handle
+            from .craftground_native import initialize_from_mach_port  # type: ignore
+            from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
-            apple_dl_tensor = initialize_from_mach_port()
-            cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle()
+            apple_dl_tensor = initialize_from_mach_port(
+                res.ipc_handle, self.initial_env.imageSizeX, self.initial_env.imageSizeY
+            )
+            cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
+                res.ipc_handle, self.initial_env.imageSizeX, self.initial_env.imageSizeY
+            )
             import torch.utils.dlpack
 
             # TODO: Handle cuda case also
@@ -584,13 +588,13 @@ class CraftGroundEnvironment(gym.Env):
             print_with_time("Read observation...")
         self.csv_logger.log("Read observation...")
         self.csv_logger.profile_start("convert_observation")
-        rgb_1, img_1, frame_1 = self.convert_observation(res.image)
+        rgb_1, img_1, frame_1 = self.convert_observation(res.image, res)
         self.csv_logger.profile_end("convert_observation")
         rgb_2 = None
         img_2 = None
         frame_2 = None
         if res.image_2 is not None and res.image_2 != b"":
-            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2)
+            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2, res)
         final_obs = {
             "obs": res,
             "rgb": rgb_1,
