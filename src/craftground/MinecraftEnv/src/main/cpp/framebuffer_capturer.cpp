@@ -56,8 +56,15 @@ void WritePngToMemory(
     ASSERT_EX(info_ptr, "png_create_info_struct() failed");
     ASSERT_EX(0 == setjmp(png_jmpbuf(p)), "setjmp(png_jmpbuf(p) failed");
     png_set_IHDR(
-        p, info_ptr, w, h, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-        PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT
+        p,
+        info_ptr,
+        w,
+        h,
+        8,
+        PNG_COLOR_TYPE_RGB,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_FILTER_TYPE_DEFAULT
     );
     // png_set_compression_level(p, 1);
     std::vector<ui8 *> rows(h);
@@ -198,7 +205,14 @@ void initCursorTexture() {
 
     // Upload the cursor texture
     glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,
+        16,
+        16,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
         cursorTexture
     );
 
@@ -210,10 +224,19 @@ void initCursorTexture() {
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferImpl(
-    JNIEnv *env, jclass clazz, jint textureId, jint frameBufferId,
-    jint textureWidth, jint textureHeight, jint targetSizeX, jint targetSizeY,
-    jint encodingMode, jboolean isExtensionAvailable, jboolean drawCursor,
-    jint xPos, jint yPos
+    JNIEnv *env,
+    jclass clazz,
+    jint textureId,
+    jint frameBufferId,
+    jint textureWidth,
+    jint textureHeight,
+    jint targetSizeX,
+    jint targetSizeY,
+    jint encodingMode,
+    jboolean isExtensionAvailable,
+    jboolean drawCursor,
+    jint xPos,
+    jint yPos
 ) {
     //    glBindTexture(GL_TEXTURE_2D, textureId);
     //    glPixelStorei(GL_PACK_ALIGNMENT, 1); // Set pixel data alignment
@@ -313,12 +336,16 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferImpl(
         );
         byteArray = env->NewByteArray(imageBytes.size());
         env->SetByteArrayRegion(
-            byteArray, 0, imageBytes.size(),
+            byteArray,
+            0,
+            imageBytes.size(),
             reinterpret_cast<jbyte *>(imageBytes.data())
         );
     } else if (encodingMode == RAW) {
         env->SetByteArrayRegion(
-            byteArray, 0, targetSizeX * targetSizeY * 3,
+            byteArray,
+            0,
+            targetSizeX * targetSizeY * 3,
             reinterpret_cast<jbyte *>(pixels)
         );
     }
@@ -344,7 +371,11 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferImpl(
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
-    JNIEnv *env, jclass clazz, jint width, jint height, jint colorAttachment,
+    JNIEnv *env,
+    jclass clazz,
+    jint width,
+    jint height,
+    jint colorAttachment,
     jint depthAttachment
 ) {
     jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
@@ -390,8 +421,14 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopyImpl(
-    JNIEnv *env, jclass clazz, jint frameBufferId, jint targetSizeX,
-    jint targetSizeY, jboolean drawCursor, jint mouseX, jint mouseY
+    JNIEnv *env,
+    jclass clazz,
+    jint frameBufferId,
+    jint targetSizeX,
+    jint targetSizeY,
+    jboolean drawCursor,
+    jint mouseX,
+    jint mouseY
 ) {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
     if (drawCursor) {
@@ -422,7 +459,11 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZeroc
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
-    JNIEnv *env, jclass clazz, jint width, jint height, jint colorAttachment,
+    JNIEnv *env,
+    jclass clazz,
+    jint width,
+    jint height,
+    jint colorAttachment,
     jint depthAttachment
 ) {
     cudaIpcMemHandle_t memHandle;
@@ -433,8 +474,14 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
-    JNIEnv *env, jclass clazz, jint frameBufferId, jint targetSizeX,
-    jint targetSizeY, jboolean drawCursor, jint mouseX, jint mouseY
+    JNIEnv *env,
+    jclass clazz,
+    jint frameBufferId,
+    jint targetSizeX,
+    jint targetSizeY,
+    jboolean drawCursor,
+    jint mouseX,
+    jint mouseY
 ) {
     if (drawCursor) {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
@@ -463,7 +510,11 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZeroc
 // CPU)
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
-    JNIEnv *env, jclass clazz, jint width, jint height, jint colorAttachment,
+    JNIEnv *env,
+    jclass clazz,
+    jint width,
+    jint height,
+    jint colorAttachment,
     jint depthAttachment
 ) {
     jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
@@ -485,12 +536,29 @@ Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
 // CPU)
 extern "C" JNIEXPORT void JNICALL
 Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
-    JNIEnv *env, jclass clazz, jint frameBufferId, jint targetSizeX,
-    jint targetSizeY, jboolean drawCursor, jint mouseX, jint mouseY
+    JNIEnv *env,
+    jclass clazz,
+    jint frameBufferId,
+    jint targetSizeX,
+    jint targetSizeY,
+    jboolean drawCursor,
+    jint mouseX,
+    jint mouseY
 ) {
     Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebuffer(
-        env, clazz, 0, frameBufferId, targetSizeX, targetSizeY, targetSizeX,
-        targetSizeY, RAW, false, drawCursor, mouseX, mouseY
+        env,
+        clazz,
+        0,
+        frameBufferId,
+        targetSizeX,
+        targetSizeY,
+        targetSizeX,
+        targetSizeY,
+        RAW,
+        false,
+        drawCursor,
+        mouseX,
+        mouseY
     );
 }
 

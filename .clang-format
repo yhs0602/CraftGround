@@ -2,3 +2,5 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 PointerAlignment: Right
 AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
+BinPackParameters: false

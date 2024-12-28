@@ -1,14 +1,19 @@
 #include "framebuffer_capturer_cuda.h"
 
 void initialize_cuda_ipc(
-    int width, int height, int colorAttachment, int depthAttachment,
+    int width,
+    int height,
+    int colorAttachment,
+    int depthAttachment,
     cudaIpcMemHandle_t *memHandlePtr
 ) {
     cudaGraphicsResource *cudaResource;
 
     // register the texture with CUDA
     cudaGraphicsGLRegisterImage(
-        &cudaResource, textureID, GL_TEXTURE_2D,
+        &cudaResource,
+        textureID,
+        GL_TEXTURE_2D,
         cudaGraphicsRegisterFlagsReadOnly
     );
 

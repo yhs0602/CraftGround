@@ -6,7 +6,10 @@
 #include <cuda_runtime.h>
 
 void initialize_cuda_ipc(
-    int width, int height, int colorAttachment, int depthAttachment,
+    int width,
+    int height,
+    int colorAttachment,
+    int depthAttachment,
     cudaIpcMemHandle_t *memHandlePtr
 );
 
