@@ -18,7 +18,7 @@ This is the latest development repository of CraftGround environment.
 1. You need to install JDK >= 21
 1. Run the following command to install the package.
     ```shell
-    pip install git+https://github.com/yhs0602/CraftGround
+    pip install craftground
     ```
 1. Take a look at the [the demo repository](https://github.com/yhs0602/CraftGround-Baselines3)!
 1. Here is a simple example that uses this environment.
@@ -249,3 +249,15 @@ https://dejavu-fonts.github.io/License.html
 1. Edit .proto
 2. protoc
 3. Edit python files
+
+
+# Formatting
+## Install formatters
+```zsh
+brew install ktlint clang-format google-java-format
+```
+```bash
+find . \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.mm' \) | xargs clang-format -i
+ktlint '!src/craftground/MinecraftEnv/src/main/java/com/kyhsgeekcode/minecraftenv/proto/**'
+find . -name '*.java' -print0 | xargs -0 -P 4 google-java-format -i
+```

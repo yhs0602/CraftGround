@@ -1,0 +1,26 @@
+name: Java Format Check
+
+on:
+  pull_request:
+    paths:
+      - '**/*.java'
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install google-java-format
+        run: |
+          curl -Lo google-java-format.jar https://github.com/google/google-java-format/releases/download/v1.25.2/google-java-format-1.25.2-all-deps.jar
+
+      - name: Check formatting
+        run: |
+          java -jar google-java-format.jar --dry-run --set-exit-if-changed $(find . -name '*.java')
