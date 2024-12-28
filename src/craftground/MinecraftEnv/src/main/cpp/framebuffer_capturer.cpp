@@ -446,7 +446,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
 #elif defined(HAS_CUDA)
 #include "framebuffer_capturer_cuda.h"
 
-extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
+extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint width,
@@ -487,8 +487,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
 }
 
 #else
-
-extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
+// Returns an empty ByteString object.
+// TODO: Implement this function for normal mmap IPC based one copy. (GPU -> CPU)
+extern "C" JNIEXPORT jobject JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint width,
@@ -496,9 +497,19 @@ extern "C" JNIEXPORT jint JNICALL Java_com_kyhsgeekcode_minecraft_1env_Framebuff
     jint colorAttachment,
     jint depthAttachment
 ) {
-    return -1;
+    jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
+    if (byteStringClass == nullptr || env->ExceptionCheck()) {
+        return nullptr;
+    }
+    jfieldID emptyField = env->GetStaticFieldID(byteStringClass, "EMPTY", "Lcom/google/protobuf/ByteString;");
+    if (emptyField == nullptr || env->ExceptionCheck()) {
+        return nullptr;
+    }
+    jobject emptyByteString = env->GetStaticObjectField(byteStringClass, emptyField);
+    return emptyByteString;
 }
 
+// TODO: Implement this function for normal mmap IPC based one copy. (GPU -> CPU)
 extern "C" JNIEXPORT void JNICALL Java_com_kyhsgeekcode_minecraft_1env_FramebufferCapturer_captureFramebufferZerocopy(
     JNIEnv *env,
     jclass clazz,

@@ -27,6 +27,8 @@ elseif(CUDAToolkit_FOUND)
 
     # CUDA-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_CUDA)
+    target_include_directories(craftground PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+    target_link_libraries(craftground PRIVATE ${CUDAToolkit_LIBRARIES})
 endif()
 
 # Add the module
