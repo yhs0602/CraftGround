@@ -128,16 +128,6 @@ class MinecraftEnv :
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
-        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
-            val client = MinecraftClient.getInstance()
-            FramebufferCapturer.initializeZeroCopy(
-                initialEnvironment.imageSizeX,
-                initialEnvironment.imageSizeY,
-                0, //                client.framebuffer.colorAttachment,
-                0, //                client.framebuffer.depthAttachment,
-            )
-            csvLogger.log("Initialized zerocopy")
-        }
 
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
         resetPhase = ResetPhase.WAIT_INIT_ENDS
@@ -422,6 +412,16 @@ class MinecraftEnv :
             printWithTime("GLEW not initialized")
             throw RuntimeException("GLEW not initialized")
         }
+        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+            FramebufferCapturer.initializeZeroCopy(
+                initialEnvironment.imageSizeX,
+                initialEnvironment.imageSizeY,
+                0, //                client.framebuffer.colorAttachment,
+                0, //                client.framebuffer.depthAttachment,
+            )
+            csvLogger.log("Initialized zerocopy")
+        }
+
 //        FramebufferCapturer.checkExtensionJVM()
         // request stats from server
         // TODO: Use server player stats directly instead of client player stats
