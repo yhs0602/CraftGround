@@ -65,3 +65,12 @@ target_compile_definitions(
 )
 
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
+
+if(APPLE AND Torch_FOUND)
+    install(FILES
+        /usr/local/libtorch/lib/libc10.dylib
+        /usr/local/libtorch/lib/libtorch.dylib
+        /usr/local/libtorch/lib/libtorch_cpu.dylib
+        DESTINATION craftground
+    )
+endif()
