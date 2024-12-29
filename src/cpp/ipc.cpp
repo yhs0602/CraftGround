@@ -54,7 +54,7 @@ py::object initialize_from_mach_port(unsigned int machPort, int width, int heigh
 }
 
 py::object
-mtl_tensor_from_cuda_mem_handle(void *cuda_ipc_handle, int width, int height) {
+mtl_tensor_from_cuda_mem_handle(const std::vector<uint8_t>& cuda_ipc_handle, int width, int height) {
     return py::none();
 }
 #endif

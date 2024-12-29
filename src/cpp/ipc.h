@@ -5,6 +5,6 @@
 namespace py = pybind11;
 py::object initialize_from_mach_port(unsigned int machPort, int width, int height);
 py::object
-mtl_tensor_from_cuda_mem_handle(void *cuda_ipc_handle, int width, int height);
+mtl_tensor_from_cuda_mem_handle(const std::vector<uint8_t>& cuda_ipc_handle, int width, int height);
 
 #endif
