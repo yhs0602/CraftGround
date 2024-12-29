@@ -53,12 +53,7 @@ static mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface, int python
         printf("Successfully shared Mach Port with Python process\n");
     }
 
-    // Insert the Mach Port right
-    // result = mach_port_insert_right(mach_task_self(), machPort, machPort, MACH_MSG_TYPE_MAKE_SEND);
-    // if (result != KERN_SUCCESS) {
-    //     fprintf(stderr, "Failed to insert Mach Port right: %s\n", mach_error_string(result));
-    // }
-    // If we want it need not send mach port to another process
+    // If we want it need not send mach port to another process. However this requires launchd
     // result = bootstrap_check_in(machPort, "com.yhs0602.craftground.machport", &machPort);
     // if (result != KERN_SUCCESS) {
     //     fprintf(stderr, "Failed to register Mach Port: %s\n", mach_error_string(result));

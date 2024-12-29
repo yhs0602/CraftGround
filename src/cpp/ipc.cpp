@@ -17,7 +17,10 @@ py::object initialize_from_mach_port(unsigned int machPort, int width, int heigh
     ));
 }
 py::object
-mtl_tensor_from_cuda_mem_handle(void *cuda_ipc_handle, int width, int height) {
+mtl_tensor_from_cuda_mem_handle(const std::vector<uint8_t>& cuda_ipc_handle, int width, int height) {
+    if (cuda_ipc_handle.empty()) {
+        throw std::runtime_error("CUDA IPC handle is empty");
+    }
     return py::none();
 }
 
@@ -28,9 +31,12 @@ py::object initialize_from_mach_port(int machPort, int width, int height) {
 }
 
 py::object
-mtl_tensor_from_cuda_mem_handle(void *cuda_ipc_handle, int width, int height) {
+mtl_tensor_from_cuda_mem_handle(const std::vector<uint8_t>& cuda_ipc_handle, int width, int height) {
+    if (cuda_ipc_handle.empty()) {
+        throw std::runtime_error("CUDA IPC handle is empty");
+    }
     DLManagedTensor *tensor =
-        mtl_tensor_from_cuda_ipc_handle(cuda_ipc_handle, width, height);
+        mtl_tensor_from_cuda_ipc_handle(const_cast<void *>(cuda_ipc_handle.data()), width, height);
     return py::reinterpret_steal<py::object>(PyCapsule_New(
         tensor,
         "dltensor",
