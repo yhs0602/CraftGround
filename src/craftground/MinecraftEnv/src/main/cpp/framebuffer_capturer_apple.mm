@@ -43,7 +43,8 @@ int initializeIoSurface(int width, int height, void **return_value) {
     glGenTextures(1, &textureID);
     ioSurface = createSharedIOSurface(width, height);
     mach_port_t machPort = createMachPortForIOSurface(ioSurface);
-    printf("machPort: %u\n", machPort);
+    printf("\n\nmachPort: %u\n\n\n", machPort);
+    fflush(stdout);
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, textureID);
     CGLContextObj cglContext = CGLGetCurrentContext();
     CGLTexImageIOSurface2D(
