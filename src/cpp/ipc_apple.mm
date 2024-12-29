@@ -14,7 +14,7 @@
 
 // Sad news: PyTorch does not support from_dlpack for Metal tensors.
 // Therefore, we should create a OpenCL dlpack tensor from the IOSurface.
-#define USE_OPENCL_DL_PACK_TENSOR 1
+#define USE_OPENCL_DL_PACK_TENSOR 0
 
 IOSurfaceRef getIOSurfaceFromMachPort(mach_port_t machPort) {
     mach_port_type_t portType;
