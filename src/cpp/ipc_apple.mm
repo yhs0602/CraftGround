@@ -187,7 +187,7 @@ createDLPackTensor(IOSurfaceRef ioSurface, size_t width, size_t height) {
         (DLDataType){kDLUInt, 8, 1}; // Unsigned 8-bit integer
     tensor->dl_tensor.device = (DLDevice){kDLMetal, 0}; // metal gpu
 
-    // 메모리 해제 삭제자 설정
+    // Set memory deleter
     tensor->deleter = deleteDLManagedTensor;
     return tensor;
 }
