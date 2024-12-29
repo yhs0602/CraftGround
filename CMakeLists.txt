@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.15...3.29)
 project(craftground LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
 add_subdirectory(pybind11)
 
 find_package(CUDAToolkit QUIET)
@@ -26,12 +31,12 @@ set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp)
 
 if (APPLE)
     # Add Apple-specific source files
-    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.mm)
+    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.mm src/cpp/ipc_apple_torch.cpp)
 
     # Apple-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -fobjc-arc)
     if(Torch_FOUND)
-    set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_TORCH)
+        set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_TORCH)
     endif()
 elseif(CUDAToolkit_FOUND)
     # Add CUDA-specific source files
@@ -48,6 +53,7 @@ if(APPLE)
     if(Torch_FOUND)
         target_link_libraries(craftground_native PRIVATE "${TORCH_LIBRARIES}")
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
+        target_compile_definitions(craftground_native PRIVATE HAS_TORCH)
         add_custom_command(
         TARGET craftground_native POST_BUILD
         COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
