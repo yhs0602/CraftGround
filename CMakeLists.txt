@@ -14,7 +14,7 @@ endif()
 
 set(CMAKE_PREFIX_PATH "/usr/local/libtorch")
 find_package(Torch QUIET)
-if(Torch_FOUND)
+if(APPLE AND Torch_FOUND)
     message(STATUS "Torch is available")
     add_definitions(-DHAS_TORCH)
 else()
@@ -48,6 +48,14 @@ if(APPLE)
     if(Torch_FOUND)
         target_link_libraries(craftground_native PRIVATE "${TORCH_LIBRARIES}")
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
+        add_custom_command(
+        TARGET craftground_native POST_BUILD
+        COMMAND install_name_tool -change @rpath/libc10.dylib ./libc10.dylib $<TARGET_FILE:craftground_native>
+        COMMAND install_name_tool -change @rpath/libtorch.dylib ./libtorch.dylib $<TARGET_FILE:craftground_native>
+        COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib ./libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
+        COMMENT "Updating RPATH to use relative paths"
+    )
+
     endif()
 elseif(CUDAToolkit_FOUND)
     target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
@@ -64,12 +72,7 @@ target_compile_definitions(
     PRIVATE VERSION_INFO=${PRIVATE_VERSION_INFO}
 )
 
-install(TARGETS craftground_native LIBRARY DESTINATION craftground)
-
 if(APPLE AND Torch_FOUND)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    set(CMAKE_INSTALL_RPATH "@loader_path")
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     install(FILES
         /usr/local/libtorch/lib/libc10.dylib
         /usr/local/libtorch/lib/libtorch.dylib
@@ -77,3 +80,5 @@ if(APPLE AND Torch_FOUND)
         DESTINATION craftground
     )
 endif()
+
+install(TARGETS craftground_native LIBRARY DESTINATION craftground)
