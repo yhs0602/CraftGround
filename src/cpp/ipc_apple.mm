@@ -6,8 +6,22 @@
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 #include <stdexcept>
+#include <string>
 
 IOSurfaceRef getIOSurfaceFromMachPort(mach_port_t machPort) {
+    mach_port_type_t portType;
+    kern_return_t result = mach_port_type(mach_task_self(), machPort, &portType);
+    if (result != KERN_SUCCESS) {
+        std::string error_msg = "Failed to query Mach Port type: ";
+        error_msg += mach_error_string(result);
+        throw std::runtime_error(error_msg);
+    }
+    if (!(portType & MACH_PORT_TYPE_SEND)) {
+        std::string error_msg = "Mach Port does not have SEND rights. Type: 0x";
+        error_msg += std::to_string(portType);
+        throw std::runtime_error(error_msg);
+    }
+
     IOSurfaceRef ioSurface = IOSurfaceLookupFromMachPort(machPort);
     return ioSurface;
 }
