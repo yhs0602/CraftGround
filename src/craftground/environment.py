@@ -434,7 +434,8 @@ class CraftGroundEnvironment(gym.Env):
             from .craftground_native import initialize_from_mach_port  # type: ignore
             from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
-            mach_port = int.from_bytes(res.ipc_handle, byteorder="little")
+            mach_port = int.from_bytes(res.ipc_handle, byteorder="little", signed=False)
+            print(f"{mach_port=}")
             apple_dl_tensor = initialize_from_mach_port(
                 mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
             )

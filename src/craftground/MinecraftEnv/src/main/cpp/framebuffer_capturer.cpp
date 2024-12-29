@@ -387,7 +387,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     if (copyFromMethod == nullptr || env->ExceptionCheck()) {
         return nullptr;
     }
-    void *mach_port;
+    void *mach_port = nullptr;
     int size = initializeIoSurface(width, height, &mach_port);
     if (size < 0 || mach_port == nullptr) {
         return nullptr;
