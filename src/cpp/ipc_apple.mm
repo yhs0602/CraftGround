@@ -56,7 +56,7 @@ createDLPackTensor(IOSurfaceRef ioSurface, size_t width, size_t height) {
 }
 
 DLManagedTensor *
-mtl_tensor_from_mach_port(int machPort, int width, int height) {
+mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
     IOSurfaceRef ioSurface = getIOSurfaceFromMachPort((mach_port_t)machPort);
     if (!ioSurface) {
         throw std::runtime_error("Failed to initialize IOSurface");

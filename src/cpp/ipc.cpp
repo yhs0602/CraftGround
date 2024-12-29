@@ -3,7 +3,7 @@
 
 #ifdef __APPLE__
 #include "ipc_apple.h"
-py::object initialize_from_mach_port(int machPort, int width, int height) {
+py::object initialize_from_mach_port(unsigned int machPort, int width, int height) {
     DLManagedTensor *tensor =
         mtl_tensor_from_mach_port(machPort, width, height);
     return py::reinterpret_steal<py::object>(PyCapsule_New(
