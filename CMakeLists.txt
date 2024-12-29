@@ -67,6 +67,9 @@ target_compile_definitions(
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
 
 if(APPLE AND Torch_FOUND)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    set(CMAKE_INSTALL_RPATH "@loader_path")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     install(FILES
         /usr/local/libtorch/lib/libc10.dylib
         /usr/local/libtorch/lib/libtorch.dylib
