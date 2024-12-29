@@ -21,6 +21,20 @@ IOSurfaceRef createSharedIOSurface(int width, int height) {
 static mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface) {
     mach_port_t machPort = MACH_PORT_NULL;
     machPort = IOSurfaceCreateMachPort(ioSurface);
+    if (machPort == MACH_PORT_NULL) {
+        fprintf(stderr, "Failed to create Mach Port\n");
+        return -1;
+    }
+    // Insert the Mach Port right
+    kern_return_t result = mach_port_insert_right(mach_task_self(), machPort, machPort, MACH_MSG_TYPE_MAKE_SEND);
+    if (result != KERN_SUCCESS) {
+        fprintf(stderr, "Failed to insert Mach Port right: %s\n", mach_error_string(result));
+    }
+    // TODO: If we want it need not send mach port to another process
+    // result = bootstrap_register(bootstrap_port, "com.example.machport", machPort);
+    // if (result != KERN_SUCCESS) {
+    //     fprintf(stderr, "Failed to register Mach Port: %s\n", mach_error_string(result));
+    // }
     return machPort;
 }
 
