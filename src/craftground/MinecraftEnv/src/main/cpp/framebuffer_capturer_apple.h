@@ -5,7 +5,8 @@
 int initializeIoSurface(
     int width,
     int height,
-    void **return_value
+    void **return_value,
+    int python_pid
 ); // , int colorAttachment, int depthAttachment
 void copyFramebufferToIOSurface(int width, int height);
 

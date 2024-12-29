@@ -51,4 +51,5 @@ message InitialEnvironmentMessage {
   float fov = 26; // Default = 70
   bool requiresBiomeInfo = 27;
   bool requiresHeightmap = 28;
+  int32 python_pid = 29;
 }

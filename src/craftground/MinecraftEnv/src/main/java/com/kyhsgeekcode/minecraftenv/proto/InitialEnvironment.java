@@ -823,6 +823,12 @@ public final class InitialEnvironment {
      * @return The requiresHeightmap.
      */
     boolean getRequiresHeightmap();
+
+    /**
+     * <code>int32 python_pid = 29;</code>
+     * @return The pythonPid.
+     */
+    int getPythonPid();
   }
   /**
    * Protobuf type {@code InitialEnvironmentMessage}
@@ -1532,6 +1538,17 @@ public final class InitialEnvironment {
       return requiresHeightmap_;
     }
 
+    public static final int PYTHON_PID_FIELD_NUMBER = 29;
+    private int pythonPid_ = 0;
+    /**
+     * <code>int32 python_pid = 29;</code>
+     * @return The pythonPid.
+     */
+    @java.lang.Override
+    public int getPythonPid() {
+      return pythonPid_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -1634,6 +1651,9 @@ public final class InitialEnvironment {
       }
       if (requiresHeightmap_ != false) {
         output.writeBool(28, requiresHeightmap_);
+      }
+      if (pythonPid_ != 0) {
+        output.writeInt32(29, pythonPid_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1787,6 +1807,10 @@ public final class InitialEnvironment {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(28, requiresHeightmap_);
       }
+      if (pythonPid_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(29, pythonPid_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -1857,6 +1881,8 @@ public final class InitialEnvironment {
           != other.getRequiresBiomeInfo()) return false;
       if (getRequiresHeightmap()
           != other.getRequiresHeightmap()) return false;
+      if (getPythonPid()
+          != other.getPythonPid()) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -1948,6 +1974,8 @@ public final class InitialEnvironment {
       hash = (37 * hash) + REQUIRESHEIGHTMAP_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getRequiresHeightmap());
+      hash = (37 * hash) + PYTHON_PID_FIELD_NUMBER;
+      hash = (53 * hash) + getPythonPid();
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -2113,6 +2141,7 @@ public final class InitialEnvironment {
         fov_ = 0F;
         requiresBiomeInfo_ = false;
         requiresHeightmap_ = false;
+        pythonPid_ = 0;
         return this;
       }
 
@@ -2236,6 +2265,9 @@ public final class InitialEnvironment {
         }
         if (((from_bitField0_ & 0x08000000) != 0)) {
           result.requiresHeightmap_ = requiresHeightmap_;
+        }
+        if (((from_bitField0_ & 0x10000000) != 0)) {
+          result.pythonPid_ = pythonPid_;
         }
       }
 
@@ -2390,6 +2422,9 @@ public final class InitialEnvironment {
         }
         if (other.getRequiresHeightmap() != false) {
           setRequiresHeightmap(other.getRequiresHeightmap());
+        }
+        if (other.getPythonPid() != 0) {
+          setPythonPid(other.getPythonPid());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
@@ -2574,6 +2609,11 @@ public final class InitialEnvironment {
                 bitField0_ |= 0x08000000;
                 break;
               } // case 224
+              case 232: {
+                pythonPid_ = input.readInt32();
+                bitField0_ |= 0x10000000;
+                break;
+              } // case 232
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -4368,6 +4408,38 @@ public final class InitialEnvironment {
         return this;
       }
 
+      private int pythonPid_ ;
+      /**
+       * <code>int32 python_pid = 29;</code>
+       * @return The pythonPid.
+       */
+      @java.lang.Override
+      public int getPythonPid() {
+        return pythonPid_;
+      }
+      /**
+       * <code>int32 python_pid = 29;</code>
+       * @param value The pythonPid to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPythonPid(int value) {
+
+        pythonPid_ = value;
+        bitField0_ |= 0x10000000;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 python_pid = 29;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPythonPid() {
+        bitField0_ = (bitField0_ & ~0x10000000);
+        pythonPid_ = 0;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:InitialEnvironmentMessage)
     }
 
@@ -4433,7 +4505,7 @@ public final class InitialEnvironment {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\037proto/initial_environment.proto\"\344\005\n\031In" +
+      "\n\037proto/initial_environment.proto\"\370\005\n\031In" +
       "itialEnvironmentMessage\022\022\n\nimageSizeX\030\001 " +
       "\001(\005\022\022\n\nimageSizeY\030\002 \001(\005\022\033\n\010gamemode\030\003 \001(" +
       "\0162\t.GameMode\022\037\n\ndifficulty\030\004 \001(\0162\013.Diffi" +
@@ -4452,13 +4524,14 @@ public final class InitialEnvironment {
       "\n\031requiresSurroundingBlocks\030\030 \001(\010\022\"\n\032lev" +
       "el_display_name_to_play\030\031 \001(\t\022\013\n\003fov\030\032 \001" +
       "(\002\022\031\n\021requiresBiomeInfo\030\033 \001(\010\022\031\n\021require" +
-      "sHeightmap\030\034 \001(\010*4\n\010GameMode\022\014\n\010SURVIVAL" +
-      "\020\000\022\014\n\010HARDCORE\020\001\022\014\n\010CREATIVE\020\002*:\n\nDiffic" +
-      "ulty\022\014\n\010PEACEFUL\020\000\022\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002" +
-      "\022\010\n\004HARD\020\003*Z\n\tWorldType\022\013\n\007DEFAULT\020\000\022\r\n\t" +
-      "SUPERFLAT\020\001\022\020\n\014LARGE_BIOMES\020\002\022\r\n\tAMPLIFI" +
-      "ED\020\003\022\020\n\014SINGLE_BIOME\020\004B%\n#com.kyhsgeekco" +
-      "de.minecraftenv.protob\006proto3"
+      "sHeightmap\030\034 \001(\010\022\022\n\npython_pid\030\035 \001(\005*4\n\010" +
+      "GameMode\022\014\n\010SURVIVAL\020\000\022\014\n\010HARDCORE\020\001\022\014\n\010" +
+      "CREATIVE\020\002*:\n\nDifficulty\022\014\n\010PEACEFUL\020\000\022\010" +
+      "\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004HARD\020\003*Z\n\tWorldT" +
+      "ype\022\013\n\007DEFAULT\020\000\022\r\n\tSUPERFLAT\020\001\022\020\n\014LARGE" +
+      "_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003\022\020\n\014SINGLE_BIOME" +
+      "\020\004B%\n#com.kyhsgeekcode.minecraftenv.prot" +
+      "ob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -4469,7 +4542,7 @@ public final class InitialEnvironment {
     internal_static_InitialEnvironmentMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_InitialEnvironmentMessage_descriptor,
-        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", });
+        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", });
     descriptor.resolveAllFeaturesImmutable();
   }
 
