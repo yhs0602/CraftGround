@@ -50,9 +50,9 @@ if(APPLE)
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
         add_custom_command(
         TARGET craftground_native POST_BUILD
-        COMMAND install_name_tool -change @rpath/libc10.dylib ./libc10.dylib $<TARGET_FILE:craftground_native>
-        COMMAND install_name_tool -change @rpath/libtorch.dylib ./libtorch.dylib $<TARGET_FILE:craftground_native>
-        COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib ./libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
+        COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
+        COMMAND install_name_tool -change @rpath/libtorch.dylib @loader_path/libtorch.dylib $<TARGET_FILE:craftground_native>
+        COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib @loader_path/libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
         COMMENT "Updating RPATH to use relative paths"
     )
 
