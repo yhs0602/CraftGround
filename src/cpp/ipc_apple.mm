@@ -16,6 +16,8 @@
 // Therefore, we should create a OpenCL dlpack tensor from the IOSurface.
 #define USE_OPENCL_DL_PACK_TENSOR 0
 
+#define USE_CUSTOM_DL_PACK_TENSOR 1
+
 IOSurfaceRef getIOSurfaceFromMachPort(mach_port_t machPort) {
     mach_port_type_t portType;
     kern_return_t result =
@@ -168,6 +170,58 @@ DLManagedTensor *createDLPackTensorFromOpenCL(
 }
 
 #else
+
+#if USE_CUSTOM_DL_PACK_TENSOR
+#include <ATen/ATen.h>
+Tensor tensor_fromDLPack(DLManagedTensor* dlMTensor) {
+  auto deleter_with_gil = [dlMTensor](void*) {
+    if (dlMTensor->deleter) {
+      pybind11::gil_scoped_acquire gil;
+      dlMTensor->deleter(dlMTensor);
+    }
+  };
+
+  // atensor steals the ownership of the underlying storage. It also passes a
+  // destructor function that will be called when the underlying storage goes
+  // out of scope. When the destructor is called, the dlMTensor is destructed
+  // too.
+  auto atensor = fromDLPack(dlMTensor);
+
+  // Make sure this capsule will never be used again.
+  PyCapsule_SetName(data, "used_dltensor");
+
+  // It is possible that the call to at::fromDLPack is the very first
+  // call to create a Tensor in PyTorch. If so, then _lazy_init has
+  // not been called, and the attempt to call createPyObject will fail
+  // because cuda ATen types have not been registered in Python yet.
+  // so if we have a cuda tensor, then we need to make sure
+  // we have called _lazy_init here
+  // maybe_initialize_device(atensor.device()); : MPS는 해당안함
+  return atensor;
+}
+
+Tensor fromDLPack(DLManagedTensor* src, std::function<void(void*)> deleter) {
+  Device device = at::Device(DeviceType::Metal, static_cast<c10::DeviceIndex>(0));;
+  ScalarType stype = toScalarType(src->dl_tensor.dtype);
+  if (!src->dl_tensor.strides) {
+    return at::from_blob(
+        src->dl_tensor.data,
+        IntArrayRef(src->dl_tensor.shape, src->dl_tensor.ndim),
+        std::move(deleter),
+        at::device(device).dtype(stype),
+        {device});
+  }
+  return at::from_blob(
+      src->dl_tensor.data,
+      IntArrayRef(src->dl_tensor.shape, src->dl_tensor.ndim),
+      IntArrayRef(src->dl_tensor.strides, src->dl_tensor.ndim),
+      deleter,
+      at::device(device).dtype(stype),
+      {device});
+}
+
+
+#endif
 
 DLManagedTensor *
 createDLPackTensor(IOSurfaceRef ioSurface, size_t width, size_t height) {

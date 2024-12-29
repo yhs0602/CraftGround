@@ -2,6 +2,3 @@
 	path = pybind11
 	url = ../../pybind/pybind11
 	branch = stable
-[submodule "pytorch_aten"]
-	path = pytorch_aten
-	url = https://github.com/pytorch/pytorch.git
