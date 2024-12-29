@@ -1,20 +1,12 @@
+#include <pybind11/pybind11.h>
 #include "ipc.h"
 #define MACRO_STRINGIFY(x) #x
 
 #ifdef __APPLE__
+
 #include "ipc_apple.h"
 py::object initialize_from_mach_port(unsigned int machPort, int width, int height) {
-    DLManagedTensor *tensor =
-        mtl_tensor_from_mach_port(machPort, width, height);
-    return py::reinterpret_steal<py::object>(PyCapsule_New(
-        tensor,
-        "dltensor",
-        [](PyObject *capsule) {
-            DLManagedTensor *tensor =
-                (DLManagedTensor *)PyCapsule_GetPointer(capsule, "dltensor");
-            tensor->deleter(tensor);
-        }
-    ));
+    return mtl_tensor_from_mach_port(machPort, width, height);
 }
 py::object
 mtl_tensor_from_cuda_mem_handle(const char* cuda_ipc_handle, int width, int height) {

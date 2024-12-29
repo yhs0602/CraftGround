@@ -12,6 +12,15 @@ else()
     message(STATUS "CUDA is not available")
 endif()
 
+set(CMAKE_PREFIX_PATH "/usr/local/libtorch")
+find_package(Torch QUIET)
+if(Torch_FOUND)
+    message(STATUS "Torch is available")
+    add_definitions(-DHAS_TORCH)
+else()
+    message(STATUS "Torch is not available")
+endif()
+
 # Collect source files for the module
 set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp)
 
@@ -21,18 +30,30 @@ if (APPLE)
 
     # Apple-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -fobjc-arc)
+    if(Torch_FOUND)
+    set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_TORCH)
+    endif()
 elseif(CUDAToolkit_FOUND)
     # Add CUDA-specific source files
     list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_cuda.cpp)
 
     # CUDA-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_CUDA)
-    target_include_directories(craftground PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-    target_link_libraries(craftground PRIVATE ${CUDAToolkit_LIBRARIES})
 endif()
 
 # Add the module
 pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
+
+if(APPLE)
+    if(Torch_FOUND)
+        target_link_libraries(craftground_native PRIVATE "${TORCH_LIBRARIES}")
+        target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
+    endif()
+elseif(CUDAToolkit_FOUND)
+    target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+    target_link_libraries(craftground_native PRIVATE ${CUDAToolkit_LIBRARIES})
+endif()
+
 
 target_include_directories(craftground_native PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
 

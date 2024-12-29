@@ -1,7 +1,10 @@
 #ifndef __IPC_APPLE_H__
 #define __IPC_APPLE_H__
 
-#include "dlpack.h"
-DLManagedTensor *mtl_tensor_from_mach_port(unsigned int machPort, int width, int height);
+
+#define USE_OPENCL_DL_PACK_TENSOR 0
+#define USE_CUSTOM_DL_PACK_TENSOR (HAS_TORCH)
+
+py::object mtl_tensor_from_mach_port(unsigned int machPort, int width, int height);
 
 #endif // __IPC_APPLE_H__
