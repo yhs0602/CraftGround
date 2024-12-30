@@ -439,6 +439,8 @@ class CraftGroundEnvironment(gym.Env):
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
         elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
+            print("locals:", "torch" in locals())  # False여야 함
+            print("Torch module type:", type(torch))  # <class 'module'>여야 함
             if self.initial_env.eye_distance > 0:  # binocular vision
                 # TODO: Handle binocular vision
                 if (
@@ -479,6 +481,9 @@ class CraftGroundEnvironment(gym.Env):
 
                 raise ValueError("No dl tensor found.")
             img = None
+
+            # overwrite the torch import
+            import torch
         else:
             raise ValueError(f"Unknown encoding mode: {self.encoding_mode}")
         return rgb_array_or_tensor, img
