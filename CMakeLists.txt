@@ -52,15 +52,22 @@ pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
 if(APPLE)
     if(Torch_FOUND)
         target_link_libraries(craftground_native PRIVATE "${TORCH_LIBRARIES}")
+        set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
+        target_link_libraries(craftground_native PRIVATE
+           ${LIBTORCH_DIR}/libtorch_cpu.a
+            ${LIBTORCH_DIR}/libc10.a
+        )
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
         target_compile_definitions(craftground_native PRIVATE HAS_TORCH)
-        add_custom_command(
-        TARGET craftground_native POST_BUILD
-        COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
-        COMMAND install_name_tool -change @rpath/libtorch.dylib @loader_path/libtorch.dylib $<TARGET_FILE:craftground_native>
-        COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib @loader_path/libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
-        COMMENT "Updating RPATH to use relative paths"
-    )
+        target_compile_options(craftground_native PRIVATE -ffunction-sections -fdata-sections)
+        target_link_options(craftground_native PRIVATE -Wl,-dead_strip)
+        # add_custom_command(
+        # TARGET craftground_native POST_BUILD
+        # COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
+        # COMMAND install_name_tool -change @rpath/libtorch.dylib @loader_path/libtorch.dylib $<TARGET_FILE:craftground_native>
+        # COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib @loader_path/libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
+        # COMMENT "Updating RPATH to use relative paths"
+        # )
 
     endif()
 elseif(CUDAToolkit_FOUND)
@@ -79,12 +86,12 @@ target_compile_definitions(
 )
 
 if(APPLE AND Torch_FOUND)
-    install(FILES
-        /usr/local/libtorch/lib/libc10.dylib
-        /usr/local/libtorch/lib/libtorch.dylib
-        /usr/local/libtorch/lib/libtorch_cpu.dylib
-        DESTINATION craftground
-    )
+    # install(FILES
+    #     /usr/local/libtorch/lib/libc10.dylib
+    #     /usr/local/libtorch/lib/libtorch.dylib
+    #     /usr/local/libtorch/lib/libtorch_cpu.dylib
+    #     DESTINATION craftground
+    # )
 endif()
 
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
