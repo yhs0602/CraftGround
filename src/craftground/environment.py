@@ -467,6 +467,7 @@ class CraftGroundEnvironment(gym.Env):
                 print(rgb_array_or_tensor.dtype)
                 print(rgb_array_or_tensor.device)
                 # print(image_tensor)
+                self.observation_tensors[0] = rgb_array_or_tensor
             else:
                 # TODO: Handle cuda case also
                 cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
