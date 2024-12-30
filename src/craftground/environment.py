@@ -30,7 +30,6 @@ from .minecraft import (
 from .print_with_time import print_with_time
 from .proto import observation_space_pb2
 from .screen_encoding_modes import ScreenEncodingMode
-import torch
 
 
 class ActionSpaceVersion(Enum):
