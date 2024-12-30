@@ -447,11 +447,11 @@ class CraftGroundEnvironment(gym.Env):
                     and self.observation_tensors[1] is not None
                 ):
                     # already intialized
-                    return self.observation_tensors[0][:, :, :3], None
+                    return torch.Tensor(self.observation_tensors[0])[:, :, :3], None
             else:
                 if self.observation_tensors[0] is not None:
                     # already intialized
-                    return self.observation_tensors[0][:, :, :3], None
+                    return torch.Tensor(self.observation_tensors[0])[:, :, :3], None
 
             from .craftground_native import initialize_from_mach_port  # type: ignore
             from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
