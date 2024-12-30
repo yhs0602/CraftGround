@@ -6,8 +6,7 @@
 
 #if USE_CUSTOM_DL_PACK_TENSOR
 at::Tensor fromDLPack(DLManagedTensor *src, std::function<void(void *)> deleter) {
-    at::Device device =
-        at::Device(at::DeviceType::Metal, static_cast<c10::DeviceIndex>(0));
+    at::Device device = at::Device(at::DeviceType::MPS, static_cast<c10::DeviceIndex>(0));
     at::ScalarType stype = at::toScalarType(src->dl_tensor.dtype);
     if (!src->dl_tensor.strides) {
         return at::from_blob(
