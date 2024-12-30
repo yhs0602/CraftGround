@@ -78,7 +78,9 @@ static DLManagedTensor * createDLPackTensorMetal(IOSurfaceRef ioSurface, size_t 
         (DLDataType){kDLUInt, 8, 1}; // Unsigned 8-bit integer
     tensor->dl_tensor.device = (DLDevice){kDLMetal, 0}; // metal gpu
 
-    IOSurfaceIncrementUseCount(ioSurface);
+    // IOSurfaceIncrementUseCount(ioSurface);
+    // avoid crash
+    CFRetain(ioSurface);
     // Set memory deleter
     tensor->deleter = [](DLManagedTensor *self) {
         // IOSurfaceDecrementUseCount(ioSurface);
