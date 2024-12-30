@@ -439,22 +439,22 @@ class CraftGroundEnvironment(gym.Env):
             apple_dl_tensor = initialize_from_mach_port(
                 mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
             )
-            cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
-                res.ipc_handle, self.initial_env.imageSizeX, self.initial_env.imageSizeY
-            )
-            import torch.utils.dlpack
-
-            # TODO: Handle cuda case also
-            dl_tensor_to_use = (
-                apple_dl_tensor if apple_dl_tensor is not None else cuda_dl_tensor
-            )
-            if dl_tensor_to_use is not None:
-                image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
+            if apple_dl_tensor is not None:
+                # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
+                image_tensor = apple_dl_tensor
                 print(image_tensor.shape)
                 print(image_tensor.dtype)
                 print(image_tensor.device)
-                print(image_tensor)
+                # print(image_tensor)
             else:
+                # TODO: Handle cuda case also
+                cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
+                    res.ipc_handle,
+                    self.initial_env.imageSizeX,
+                    self.initial_env.imageSizeY,
+                )
+                import torch.utils.dlpack
+
                 raise ValueError("No dl tensor found.")
         else:
             raise ValueError(f"Unknown encoding mode: {self.encoding_mode}")

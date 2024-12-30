@@ -200,6 +200,6 @@ class InitialEnvironmentConfig:
         initial_env.fov = self.fov
         initial_env.requiresBiomeInfo = self.requires_biome_info
         initial_env.requiresHeightmap = self.requires_heightmap
-        # retrieve self pid 
+        # retrieve self pid
         initial_env.python_pid = os.getpid()
         return initial_env
