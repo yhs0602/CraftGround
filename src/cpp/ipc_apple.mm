@@ -37,6 +37,8 @@ IOSurfaceRef getIOSurfaceFromMachPort(mach_port_t machPort) {
     return ioSurface;
 }
 
+/*
+Unused
 id<MTLTexture> createMetalTextureFromIOSurface(
     id<MTLDevice> device, IOSurfaceRef ioSurface, int width, int height
 ) {
@@ -51,6 +53,7 @@ id<MTLTexture> createMetalTextureFromIOSurface(
                                                         plane:0];
     return texture;
 }
+*/
 
 static void deleteDLManagedTensor(DLManagedTensor *self) {
     free(self->dl_tensor.shape);
@@ -75,8 +78,12 @@ static DLManagedTensor * createDLPackTensorMetal(IOSurfaceRef ioSurface, size_t 
         (DLDataType){kDLUInt, 8, 1}; // Unsigned 8-bit integer
     tensor->dl_tensor.device = (DLDevice){kDLMetal, 0}; // metal gpu
 
+    IOSurfaceIncrementUseCount(ioSurface);
     // Set memory deleter
-    tensor->deleter = deleteDLManagedTensor;
+    tensor->deleter = [](DLManagedTensor *self) {
+        // IOSurfaceDecrementUseCount(ioSurface);
+        deleteDLManagedTensor(self);
+    };
     return tensor;
 }
 
