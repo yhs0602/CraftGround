@@ -260,6 +260,7 @@ https://dejavu-fonts.github.io/License.html
 ```zsh
 brew install ktlint clang-format google-java-format
 ```
+## Run formatters
 ```bash
 find . \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.mm' \) | xargs clang-format -i
 ktlint '!src/craftground/MinecraftEnv/src/main/java/com/kyhsgeekcode/minecraftenv/proto/**'
