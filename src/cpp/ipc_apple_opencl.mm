@@ -62,7 +62,7 @@ static cl_context createOpenCLContext() {
 
     // 3. Create OpenCL context
     cl_context_properties properties[] = {
-        CL_CONTEXT_PLATFORM, (cl_context_properties)selectedPlatform, 0
+        CL_CONTEXT_PLATFORM, (cl_context_properties)selectedPlatform, 0,
     };
 
     cl_context context =
