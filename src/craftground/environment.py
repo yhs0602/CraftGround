@@ -440,6 +440,7 @@ class CraftGroundEnvironment(gym.Env):
             self.csv_logger.profile_end("convert_observation/decode_raw")
         elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
             import torch
+
             if self.initial_env.eye_distance > 0:  # binocular vision
                 # TODO: Handle binocular vision
                 if (
@@ -469,6 +470,7 @@ class CraftGroundEnvironment(gym.Env):
                 print(rgb_array_or_tensor.device)
                 # print(image_tensor)
                 self.observation_tensors[0] = rgb_array_or_tensor
+                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, :3]
             else:
                 # TODO: Handle cuda case also
                 cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
