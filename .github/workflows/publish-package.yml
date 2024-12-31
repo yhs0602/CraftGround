@@ -66,13 +66,17 @@ jobs:
 
     - name: Install CUDA Toolkit (Windows/Linux only)
       if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+      uses: Jimver/cuda-toolkit@v0.2.19
+      id: cuda-toolkit
+      with:
+        cuda: '12.5.0'
+
+    - name: Check CUDA installation
+      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
       run: |
-        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-          sudo apt-get update && sudo apt-get install -y cuda-toolkit-11-8;
-        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-          choco install cuda --version=11.8;
-        fi
-      shell: bash
+        echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+        echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+        nvcc -V
 
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
