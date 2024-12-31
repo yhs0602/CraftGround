@@ -451,7 +451,7 @@ class CraftGroundEnvironment(gym.Env):
                     # already intialized
                     # drop alpha, flip y axis, and clone
                     return (
-                        self.observation_tensors[0].clone()[:, :, :[2, 1, 0]].flip(0),
+                        self.observation_tensors[0].clone()[:, :, [2, 1, 0]].flip(0),
                         None,
                     )
             else:
@@ -459,7 +459,7 @@ class CraftGroundEnvironment(gym.Env):
                     # already intialized
                     # drop alpha, flip y axis, and clone
                     return (
-                        self.observation_tensors[0].clone()[:, :, :[2, 1, 0]].flip(0),
+                        self.observation_tensors[0].clone()[:, :, [2, 1, 0]].flip(0),
                         None,
                     )
 
@@ -480,9 +480,9 @@ class CraftGroundEnvironment(gym.Env):
                 # print(image_tensor)
                 self.observation_tensors[0] = rgb_array_or_tensor
                 # drop alpha, flip y axis, and clone
-                rgb_array_or_tensor = rgb_array_or_tensor.clone()[
-                    :, :, :[2, 1, 0]
-                ].flip(0)
+                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(
+                    0
+                )
             else:
                 # TODO: Handle cuda case also
                 cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
