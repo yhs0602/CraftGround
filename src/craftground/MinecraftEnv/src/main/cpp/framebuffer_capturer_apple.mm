@@ -108,7 +108,7 @@ int initializeIoSurface(
         GL_RGBA,
         width,
         height,
-        GL_RGBA,
+        GL_BGRA,
         GL_UNSIGNED_INT_8_8_8_8_REV,
         ioSurface,
         0
