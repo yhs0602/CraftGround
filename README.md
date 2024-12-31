@@ -288,9 +288,10 @@ pip install --upgrade protobuf
 ```
 
 
-# Dev setup
+# Dev setup & build (conda, linux)
 ```
 conda create --name craftground python=3.11
 conda activate craftground
-conda install gymnasium Pillow numpy protobuf typing_extensions psutil pytorch ninja
+conda install gymnasium Pillow numpy protobuf typing_extensions psutil pytorch ninja build
+python -m build
 ```
