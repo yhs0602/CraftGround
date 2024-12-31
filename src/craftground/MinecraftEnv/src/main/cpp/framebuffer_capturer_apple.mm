@@ -13,7 +13,7 @@ IOSurfaceRef createSharedIOSurface(int width, int height) {
         (id)kIOSurfaceWidth : @(width),
         (id)kIOSurfaceHeight : @(height),
         (id)kIOSurfaceBytesPerElement : @(4),     // RGBA8
-        (id)kIOSurfacePixelFormat : @(0x42475241) // 'RGBA'
+        (id)kIOSurfacePixelFormat : @(0x52474241) // 'RGBA'
     };
 
     return IOSurfaceCreate((CFDictionaryRef)surfaceAttributes);
