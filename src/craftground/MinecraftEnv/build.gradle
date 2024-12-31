@@ -11,15 +11,18 @@ shadowJar {
 }
 
 tasks.register('configureCppProject', Exec) {
-    // CMake로 C++ 프로젝트 구성
-    commandLine 'cmake', 'src/main/cpp' // ,
+    def useConda = System.getenv('CRAFTGROUND_USE_CONDA')?.toBoolean() ?: false
+    if (useConda) {
+        commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+    } else {
+        commandLine 'cmake', 'src/main/cpp'
+    }
     inputs.dir("src/main/cpp")
     outputs.files("MakeFile", "CMakeCache.txt", "cmake_install.cmake")
     outputs.dir("CMakeFiles")
 }
 
 tasks.register('compileCpp', Exec) {
-    // 구성된 C++ 프로젝트 빌드
     commandLine 'cmake', '--build', '.'
     inputs.dir("src/main/cpp")
     def os = org.gradle.internal.os.OperatingSystem.current()
@@ -30,7 +33,6 @@ tasks.register('compileCpp', Exec) {
     } else if (os.isWindows()) {
         outputs.file("native-lib.dll")
     }
-    // 'configureCppProject' 태스크가 먼저 실행되도록 의존성 설정
     dependsOn 'configureCppProject'
 }
 
