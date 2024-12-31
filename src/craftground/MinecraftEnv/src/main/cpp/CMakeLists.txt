@@ -103,7 +103,7 @@ if (APPLE)
 endif()
 
 if(CUDAToolkit_FOUND)
-    target_link_libraries(native-lib PRIVATE CUDA::cudart)
+    target_link_libraries(native-lib CUDA::cudart)
 endif()
 
 # If you are using additional libraries, like GLFW for OpenGL context creation,
