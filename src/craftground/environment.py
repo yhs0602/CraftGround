@@ -466,25 +466,33 @@ class CraftGroundEnvironment(gym.Env):
             from .craftground_native import initialize_from_mach_port  # type: ignore
             from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
-            mach_port = int.from_bytes(res.ipc_handle, byteorder="little", signed=False)
-            print(f"{mach_port=}")
-            apple_dl_tensor = initialize_from_mach_port(
-                mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
-            )
-            if apple_dl_tensor is not None:
-                # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
-                rgb_array_or_tensor = apple_dl_tensor
-                print(rgb_array_or_tensor.shape)
-                print(rgb_array_or_tensor.dtype)
-                print(rgb_array_or_tensor.device)
-                # print(image_tensor)
-                self.observation_tensors[0] = rgb_array_or_tensor
-                # drop alpha, flip y axis, and clone
-                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(
-                    0
+            if len(res.ipc_handle) == 0:
+                raise ValueError("No ipc handle found.")
+            if len(res.ipc_handle) == 4:
+                mach_port = int.from_bytes(
+                    res.ipc_handle, byteorder="little", signed=False
                 )
+                print(f"{mach_port=}")
+                apple_dl_tensor = initialize_from_mach_port(
+                    mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
+                )
+                if apple_dl_tensor is not None:
+                    # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
+                    rgb_array_or_tensor = apple_dl_tensor
+                    print(rgb_array_or_tensor.shape)
+                    print(rgb_array_or_tensor.dtype)
+                    print(rgb_array_or_tensor.device)
+                    # print(image_tensor)
+                    self.observation_tensors[0] = rgb_array_or_tensor
+                    # drop alpha, flip y axis, and clone
+                    rgb_array_or_tensor = rgb_array_or_tensor.clone()[
+                        :, :, [2, 1, 0]
+                    ].flip(0)
+                else:
+                    raise ValueError(
+                        f"Failed to initialize from mach port {res.ipc_handle}."
+                    )
             else:
-                # TODO: Handle cuda case also
                 cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
                     res.ipc_handle,
                     self.initial_env.imageSizeX,
@@ -492,7 +500,14 @@ class CraftGroundEnvironment(gym.Env):
                 )
                 import torch.utils.dlpack
 
-                raise ValueError("No dl tensor found.")
+                rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(cuda_dl_tensor)
+                print(rgb_array_or_tensor.shape)
+                print(rgb_array_or_tensor.dtype)
+                print(rgb_array_or_tensor.device)
+                # print(image_tensor)
+                self.observation_tensors[0] = rgb_array_or_tensor
+                # drop alpha, flip y axis, and clone
+                rgb_array_or_tensor = rgb_array_or_tensor[:, :, [2, 1, 0]].flip(0)
             img = None
 
         else:
