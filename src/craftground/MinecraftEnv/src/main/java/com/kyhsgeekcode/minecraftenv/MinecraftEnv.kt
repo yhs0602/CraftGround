@@ -42,7 +42,6 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.World
 import net.minecraft.world.biome.source.BiomeCoords
-import org.lwjgl.glfw.GLFW
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.StandardProtocolFamily

@@ -135,19 +135,19 @@ void copyFramebufferToIOSurface(int width, int height) {
     glBindTexture(GL_TEXTURE_2D, renderedTextureId);
     int textureWidth, textureHeight;
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight);
-    printf("width: %d, height: %d\n", textureWidth, textureHeight);
+    glGetTexLevelParameteriv(
+        GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight
+    );
+    // printf("width: %d, height: %d\n", textureWidth, textureHeight);
     glViewport(0, 0, width, height);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, textureID);
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    GLenum status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer is not complete!\n");
-    } else {
-        printf("Framebuffer is not complete. Status: 0x%x\n", status);
+        printf("Framebuffer is not complete! Status: 0x%x\n", status);
+        fflush(stdout);
+        assert(status == GL_FRAMEBUFFER_COMPLETE);
     }
-    fflush(stdout);
-    assert(status == GL_FRAMEBUFFER_COMPLETE);
     assert(glGetError() == GL_NO_ERROR);
     assert(width == textureWidth);
     assert(height == textureHeight);
