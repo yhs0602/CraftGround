@@ -73,6 +73,10 @@ if(APPLE)
     list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm)
 endif()
 
+if(CUDAToolkit_FOUND)
+    list(APPEND SOURCE_FILES framebuffer_capturer_cuda.cpp)
+endif()
+
 # Add a library target for your native library
 add_library(native-lib SHARED ${SOURCE_FILES})
 

@@ -64,6 +64,16 @@ jobs:
 
     - uses: astral-sh/setup-uv@v4
 
+    - name: Install CUDA Toolkit (Windows/Linux only)
+      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+      run: |
+        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+          sudo apt-get update && sudo apt-get install -y cuda-toolkit-11-8;
+        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+          choco install cuda --version=11.8;
+        fi
+      shell: bash
+
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
       env:

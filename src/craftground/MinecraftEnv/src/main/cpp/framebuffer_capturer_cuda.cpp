@@ -1,4 +1,5 @@
 #include "framebuffer_capturer_cuda.h"
+#include "driver_types.h"
 
 void initialize_cuda_ipc(
     int width,
@@ -12,7 +13,7 @@ void initialize_cuda_ipc(
     // register the texture with CUDA
     cudaGraphicsGLRegisterImage(
         &cudaResource,
-        textureID,
+        colorAttachment,
         GL_TEXTURE_2D,
         cudaGraphicsRegisterFlagsReadOnly
     );
