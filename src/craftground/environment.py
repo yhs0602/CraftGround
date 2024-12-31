@@ -1,5 +1,6 @@
 import io
 import os
+import re
 import signal
 import socket
 import struct
@@ -448,11 +449,19 @@ class CraftGroundEnvironment(gym.Env):
                     and self.observation_tensors[1] is not None
                 ):
                     # already intialized
-                    return self.observation_tensors[0].clone()[:, :, :3], None
+                    # drop alpha, flip y axis, and clone
+                    return (
+                        self.observation_tensors[0].clone()[:, :, [2, 1, 0]].flip(0),
+                        None,
+                    )
             else:
                 if self.observation_tensors[0] is not None:
                     # already intialized
-                    return self.observation_tensors[0].clone()[:, :, :3], None
+                    # drop alpha, flip y axis, and clone
+                    return (
+                        self.observation_tensors[0].clone()[:, :, [2, 1, 0]].flip(0),
+                        None,
+                    )
 
             from .craftground_native import initialize_from_mach_port  # type: ignore
             from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
@@ -470,7 +479,10 @@ class CraftGroundEnvironment(gym.Env):
                 print(rgb_array_or_tensor.device)
                 # print(image_tensor)
                 self.observation_tensors[0] = rgb_array_or_tensor
-                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, :3]
+                # drop alpha, flip y axis, and clone
+                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(
+                    0
+                )
             else:
                 # TODO: Handle cuda case also
                 cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
@@ -512,8 +524,14 @@ class CraftGroundEnvironment(gym.Env):
         gradlew_path = os.path.join(self.env_path, "gradlew")
         if not os.access(gradlew_path, os.X_OK):
             os.chmod(gradlew_path, 0o755)
+        # update image settings of options.txt if exists
+        options_txt_path = self.get_env_option_path()
+        if options_txt_path is not None:
+            if os.path.exists(options_txt_path):
+                pass
+                # self.update_override_resolutions(options_txt_path)
 
-        cmd = "./gradlew runClient -w --no-daemon"
+        cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
         if use_vglrun:
             cmd = f"vglrun {cmd}"
         if ld_preload:
@@ -534,6 +552,37 @@ class CraftGroundEnvironment(gym.Env):
         if self.verbose_python:
             print_with_time("Sent initial environment")
         self.csv_logger.log("Sent initial environment")
+
+    def update_override_resolutions(self, options_txt_path):
+        with open(options_txt_path, "r") as file:
+            text = file.read()
+
+            # Define the patterns for overrideWidth and overrideHeight
+        width_pattern = r"overrideWidth:\d+"
+        height_pattern = r"overrideHeight:\d+"
+
+        # Update or add overrideWidth
+        if re.search(width_pattern, text):
+            text = re.sub(
+                width_pattern, f"overrideWidth:{self.initial_env.imageSizeX}", text
+            )
+        else:
+            text += f"\noverrideWidth:{self.initial_env.imageSizeX}"
+
+        # Update or add overrideHeight
+        if re.search(height_pattern, text):
+            text = re.sub(
+                height_pattern, f"overrideHeight:{self.initial_env.imageSizeY}", text
+            )
+        else:
+            text += f"\noverrideHeight:{self.initial_env.imageSizeY}"
+
+        # Write the updated text back to the file
+        with open(options_txt_path, "w") as file:
+            file.write(text)
+        print(
+            f"Updated {options_txt_path} to {self.initial_env.imageSizeX}x{self.initial_env.imageSizeY}"
+        )
 
     def read_one_observation(self) -> Tuple[int, ObsType]:
         # print("Reading observation size...")
@@ -839,3 +888,10 @@ class CraftGroundEnvironment(gym.Env):
         current_dir = os.path.dirname(current_file)
         env_dir = os.path.join(current_dir, "MinecraftEnv", "run", "saves")
         return env_dir
+
+    @staticmethod
+    def get_env_option_path() -> str:
+        current_file = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file)
+        options_txt = os.path.join(current_dir, "MinecraftEnv", "run", "options.txt")
+        return options_txt

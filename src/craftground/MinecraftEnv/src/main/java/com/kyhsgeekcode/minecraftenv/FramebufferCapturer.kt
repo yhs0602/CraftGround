@@ -23,6 +23,7 @@ object FramebufferCapturer {
         yPos: Int,
     ): ByteString {
         if (encodingMode == ZEROCOPY) {
+            assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
             captureFramebufferZerocopyImpl(
                 frameBufferId,
                 targetSizeX,
