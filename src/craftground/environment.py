@@ -517,9 +517,10 @@ class CraftGroundEnvironment(gym.Env):
         options_txt_path = self.get_env_option_path()
         if options_txt_path is not None:
             if os.path.exists(options_txt_path):
-                self.update_override_resolutions(options_txt_path)
+                pass
+                # self.update_override_resolutions(options_txt_path)
 
-        cmd = f'./gradlew runClient -w --no-daemon --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
+        cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
         if use_vglrun:
             cmd = f"vglrun {cmd}"
         if ld_preload:

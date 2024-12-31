@@ -42,6 +42,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.World
 import net.minecraft.world.biome.source.BiomeCoords
+import org.lwjgl.glfw.GLFW
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.StandardProtocolFamily
@@ -128,11 +129,16 @@ class MinecraftEnv :
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
+        val glfwScaleWidth = FloatArray(1)
+        val glfwScaleHeight = FloatArray(1)
+        GLFW.glfwGetWindowContentScale(MinecraftClient.getInstance().window.handle, glfwScaleWidth, glfwScaleHeight)
+        val desiredWindowWidth = initialEnvironment.imageSizeX / glfwScaleWidth[0]
+        val desiredWindowHeight = initialEnvironment.imageSizeY / glfwScaleHeight[0]
 
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
         resetPhase = ResetPhase.WAIT_INIT_ENDS
         csvLogger.log("Initial environment read; $ioPhase $resetPhase")
-        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger)
+        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger, desiredWindowWidth.toInt(), desiredWindowHeight.toInt())
         ClientTickEvents.START_CLIENT_TICK.register(
             ClientTickEvents.StartTick { client: MinecraftClient ->
                 printWithTime("Start Client tick")

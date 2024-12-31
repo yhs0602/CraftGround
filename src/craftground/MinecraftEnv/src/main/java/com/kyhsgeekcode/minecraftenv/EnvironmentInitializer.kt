@@ -41,6 +41,8 @@ interface CommandExecutor {
 class EnvironmentInitializer(
     private val initialEnvironment: InitialEnvironmentMessage,
     private val csvLogger: CsvLogger,
+    private val desiredWindowWidth: Int,
+    private val desiredWindowHeight: Int,
 ) {
     var hasRunInitWorld: Boolean = false
         private set
@@ -61,10 +63,10 @@ class EnvironmentInitializer(
         }
         val window = MinecraftClient.getInstance().window
         val windowSizeGetter = (window as WindowSizeAccessor)
-        if (windowSizeGetter.windowedWidth != initialEnvironment.imageSizeX ||
-            windowSizeGetter.windowedHeight != initialEnvironment.imageSizeY
+        if (windowSizeGetter.windowedWidth != desiredWindowWidth ||
+            windowSizeGetter.windowedHeight != desiredWindowHeight
         ) {
-            window.setWindowedSize(initialEnvironment.imageSizeX, initialEnvironment.imageSizeY)
+            window.setWindowedSize(desiredWindowWidth, desiredWindowHeight)
             client.onResolutionChanged()
         }
         if (!hasMinimizedWindow) {
