@@ -65,6 +65,7 @@ class EnvironmentInitializer(
             windowSizeGetter.windowedHeight != initialEnvironment.imageSizeY
         ) {
             window.setWindowedSize(initialEnvironment.imageSizeX, initialEnvironment.imageSizeY)
+            client.onResolutionChanged()
         }
         if (!hasMinimizedWindow) {
             GLFW.glfwIconifyWindow(window.handle)
