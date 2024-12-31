@@ -286,3 +286,11 @@ protoc proto/observation_space.proto --java_out=craftground/MinecraftEnv/src/mai
 ```bash
 pip install --upgrade protobuf
 ```
+
+
+# Dev setup
+```
+conda create --name craftground python=3.11
+conda activate craftground
+conda install gymnasium Pillow numpy protobuf typing_extensions psutil pytorch ninja
+```

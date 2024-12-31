@@ -37,7 +37,7 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
     tensor->dl_tensor.byte_offset = 0;
 
     cudaPointerAttributes attributes;
-    cudaError_t err = cudaPointerGetAttributes(&attributes, device_ptr);
+    err = cudaPointerGetAttributes(&attributes, device_ptr);
 
     if (err != cudaSuccess) {
         throw std::runtime_error(
