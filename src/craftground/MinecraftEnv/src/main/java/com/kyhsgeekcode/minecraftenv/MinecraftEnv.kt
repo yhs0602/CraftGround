@@ -129,16 +129,11 @@ class MinecraftEnv :
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
-        val glfwScaleWidth = FloatArray(1)
-        val glfwScaleHeight = FloatArray(1)
-        GLFW.glfwGetWindowContentScale(MinecraftClient.getInstance().window.handle, glfwScaleWidth, glfwScaleHeight)
-        val desiredWindowWidth = initialEnvironment.imageSizeX / glfwScaleWidth[0]
-        val desiredWindowHeight = initialEnvironment.imageSizeY / glfwScaleHeight[0]
 
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
         resetPhase = ResetPhase.WAIT_INIT_ENDS
         csvLogger.log("Initial environment read; $ioPhase $resetPhase")
-        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger, desiredWindowWidth.toInt(), desiredWindowHeight.toInt())
+        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger)
         ClientTickEvents.START_CLIENT_TICK.register(
             ClientTickEvents.StartTick { client: MinecraftClient ->
                 printWithTime("Start Client tick")

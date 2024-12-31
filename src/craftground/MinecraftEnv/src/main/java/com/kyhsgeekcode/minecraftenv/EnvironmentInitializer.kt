@@ -41,8 +41,6 @@ interface CommandExecutor {
 class EnvironmentInitializer(
     private val initialEnvironment: InitialEnvironmentMessage,
     private val csvLogger: CsvLogger,
-    private val desiredWindowWidth: Int,
-    private val desiredWindowHeight: Int,
 ) {
     var hasRunInitWorld: Boolean = false
         private set
@@ -53,7 +51,13 @@ class EnvironmentInitializer(
     private lateinit var player: ClientPlayerEntity
     var hasMinimizedWindow: Boolean = false
 
+    private var initializedClient = false
+    private var finishedEnteringWorld = false
+
     fun onClientTick(client: MinecraftClient) {
+        if (finishedEnteringWorld && initializedClient) {
+            return
+        }
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
         disableNarrator(client)
         if (!initialEnvironment.levelDisplayNameToPlay.isNullOrEmpty()) {
@@ -63,6 +67,11 @@ class EnvironmentInitializer(
         }
         val window = MinecraftClient.getInstance().window
         val windowSizeGetter = (window as WindowSizeAccessor)
+        val glfwScaleWidth = FloatArray(1)
+        val glfwScaleHeight = FloatArray(1)
+        GLFW.glfwGetWindowContentScale(window.handle, glfwScaleWidth, glfwScaleHeight)
+        val desiredWindowWidth = (initialEnvironment.imageSizeX / glfwScaleWidth[0]).toInt()
+        val desiredWindowHeight = (initialEnvironment.imageSizeY / glfwScaleHeight[0]).toInt()
         if (windowSizeGetter.windowedWidth != desiredWindowWidth ||
             windowSizeGetter.windowedHeight != desiredWindowHeight
         ) {
@@ -85,6 +94,7 @@ class EnvironmentInitializer(
         if (initialEnvironment.noFovEffect) {
             setFovEffectDisabled(client)
         }
+        initializedClient = true
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
     }
 
@@ -129,6 +139,7 @@ class EnvironmentInitializer(
                             }
                             if (child.levelDisplayName == levelDisplayName) {
                                 child.play()
+                                finishedEnteringWorld = true
                                 return
                             } else {
                                 println("Level display name: ${child.levelDisplayName}!= $levelDisplayName")
@@ -267,6 +278,7 @@ class EnvironmentInitializer(
                     }
                 }
                 createButton?.onPress()
+                finishedEnteringWorld = true
             }
         }
     }
