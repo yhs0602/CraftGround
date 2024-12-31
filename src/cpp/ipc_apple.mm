@@ -6,8 +6,6 @@
 namespace py = pybind11;
 #include "dlpack.h"
 #include "ipc_apple.h"
-#include <OpenCL/cl_ext.h>
-#include <OpenCL/opencl.h>
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 #include <iostream>
@@ -17,6 +15,8 @@ namespace py = pybind11;
 
 // Sad news: PyTorch does not support from_dlpack for Metal tensors.
 // Therefore, we should create a OpenCL dlpack tensor from the IOSurface.
+// However OpenCL is not supported in PyTorch!
+// Use custom dlpack tensor for now.
 
 IOSurfaceRef getIOSurfaceFromMachPort(mach_port_t machPort) {
     mach_port_type_t portType;
@@ -136,20 +136,6 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
         );
     }
 
-#if USE_OPENCL_DL_PACK_TENSOR
-    cl_context context = createOpenCLContext();
-    DLManagedTensor *tensor =
-        createDLPackTensorFromOpenCL(context, ioSurface, width, height);
-    return py::reinterpret_steal<py::object>(PyCapsule_New(
-        tensor,
-        "dltensor",
-        [](PyObject *capsule) {
-            DLManagedTensor *tensor =
-                (DLManagedTensor *)PyCapsule_GetPointer(capsule, "dltensor");
-            tensor->deleter(tensor);
-        }
-    ));
-#else
     DLManagedTensor *tensor = createDLPackTensorMetal(mtlBuffer, width, height);
 
 #if USE_CUSTOM_DL_PACK_TENSOR
@@ -164,6 +150,5 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
             tensor->deleter(tensor);
         }
     ));
-#endif
 #endif
 }

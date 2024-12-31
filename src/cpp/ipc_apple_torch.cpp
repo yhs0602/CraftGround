@@ -1,8 +1,6 @@
-#include "dlpack.h"
-#include "ipc_apple.h"
 #include <ATen/DLConvertor.h>
-#include <ATen/Tensor.h>
 #include <torch/extension.h>
+#include "ipc_apple.h"
 
 #if USE_CUSTOM_DL_PACK_TENSOR
 at::Tensor
