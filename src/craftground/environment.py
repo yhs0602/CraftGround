@@ -513,7 +513,7 @@ class CraftGroundEnvironment(gym.Env):
         if not os.access(gradlew_path, os.X_OK):
             os.chmod(gradlew_path, 0o755)
 
-        cmd = f'./gradlew runClient -w --no-daemon --args="--width={self.initial_env.imageSizeX} --height={self.initial_env.imageSizeY}"'
+        cmd = f'./gradlew runClient -w --no-daemon --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
         if use_vglrun:
             cmd = f"vglrun {cmd}"
         if ld_preload:
