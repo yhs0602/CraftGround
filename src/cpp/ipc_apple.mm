@@ -4,6 +4,7 @@
 #define GL_SILENCE_DEPRECATION
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
+#include "dlpack.h"
 #include "ipc_apple.h"
 #include <OpenCL/cl_ext.h>
 #include <OpenCL/opencl.h>
@@ -13,7 +14,6 @@ namespace py = pybind11;
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include "dlpack.h"
 
 // Sad news: PyTorch does not support from_dlpack for Metal tensors.
 // Therefore, we should create a OpenCL dlpack tensor from the IOSurface.
@@ -34,6 +34,7 @@ IOSurfaceRef getIOSurfaceFromMachPort(mach_port_t machPort) {
     }
 
     IOSurfaceRef ioSurface = IOSurfaceLookupFromMachPort(machPort);
+    CFRetain(ioSurface);
     return ioSurface;
 }
 
@@ -60,12 +61,12 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
     free(self);
 }
 
-
-static DLManagedTensor * createDLPackTensorMetal(IOSurfaceRef ioSurface, size_t width, size_t height) {
+static DLManagedTensor *
+createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
 
-    tensor->dl_tensor.data = IOSurfaceGetBaseAddress(ioSurface);
+    tensor->dl_tensor.data = mtlBuffer;
     tensor->dl_tensor.ndim = 3; // H x W x C
     tensor->dl_tensor.shape = (int64_t *)malloc(3 * sizeof(int64_t));
     tensor->dl_tensor.shape[0] = height;
@@ -80,7 +81,7 @@ static DLManagedTensor * createDLPackTensorMetal(IOSurfaceRef ioSurface, size_t 
 
     // IOSurfaceIncrementUseCount(ioSurface);
     // avoid crash
-    CFRetain(ioSurface);
+    // CFRetain(ioSurface);
     // Set memory deleter
     tensor->deleter = [](DLManagedTensor *self) {
         // IOSurfaceDecrementUseCount(ioSurface);
@@ -93,7 +94,8 @@ static DLManagedTensor * createDLPackTensorMetal(IOSurfaceRef ioSurface, size_t 
 PyObject *torchTensorFromDLPack(DLManagedTensor *dlMTensor);
 #endif
 
-py::object mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
+py::object
+mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
     IOSurfaceRef ioSurface = getIOSurfaceFromMachPort((mach_port_t)machPort);
     if (!ioSurface) {
         throw std::runtime_error("Failed to initialize IOSurface");
@@ -104,11 +106,41 @@ py::object mtl_tensor_from_mach_port(unsigned int machPort, int width, int heigh
         throw std::runtime_error("Failed to create Metal device");
     }
 
+    // Calculate the length of the buffer
+    size_t iosurface_width = IOSurfaceGetWidth(ioSurface);
+    size_t iosurface_height = IOSurfaceGetHeight(ioSurface);
+    assert(iosurface_width == width);
+    assert(iosurface_height == height);
+    size_t bytesPerRow = IOSurfaceGetBytesPerRow(ioSurface);
+    size_t length = bytesPerRow * height;
+
+    // Create a Metal buffer from the IOSurface
+    // todo: lock / unlock / copy? 
+    id<MTLBuffer> mtlBuffer = [device
+        newBufferWithBytesNoCopy:IOSurfaceGetBaseAddress(ioSurface)
+                          length:length
+                         options:
+                             MTLResourceStorageModeShared // MTLResourceStorageModePrivate
+                     deallocator:^(void *_Nonnull pointer, NSUInteger length) {
+                       // deallocator can be used to free the memory
+                       NSLog(
+                           @"Deallocator called for buffer with pointer: %p, "
+                           @"length: %lu",
+                           pointer,
+                           (unsigned long)length
+                       );
+                     }];
+
+    if (!mtlBuffer) {
+        throw std::runtime_error("Failed to create Metal buffer from IOSurface"
+        );
+    }
+
 #if USE_OPENCL_DL_PACK_TENSOR
     cl_context context = createOpenCLContext();
     DLManagedTensor *tensor =
         createDLPackTensorFromOpenCL(context, ioSurface, width, height);
-        return py::reinterpret_steal<py::object>(PyCapsule_New(
+    return py::reinterpret_steal<py::object>(PyCapsule_New(
         tensor,
         "dltensor",
         [](PyObject *capsule) {
@@ -118,7 +150,7 @@ py::object mtl_tensor_from_mach_port(unsigned int machPort, int width, int heigh
         }
     ));
 #else
-    DLManagedTensor *tensor = createDLPackTensorMetal(ioSurface, width, height);
+    DLManagedTensor *tensor = createDLPackTensorMetal(mtlBuffer, width, height);
 
 #if USE_CUSTOM_DL_PACK_TENSOR
     return py::reinterpret_steal<py::object>(torchTensorFromDLPack(tensor));
@@ -135,4 +167,3 @@ py::object mtl_tensor_from_mach_port(unsigned int machPort, int width, int heigh
 #endif
 #endif
 }
-
