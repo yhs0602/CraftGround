@@ -1,5 +1,6 @@
 # import pdb
 from enum import Enum
+import os
 from typing import List, Tuple, Optional
 
 from .proto import initial_environment_pb2
@@ -199,4 +200,6 @@ class InitialEnvironmentConfig:
         initial_env.fov = self.fov
         initial_env.requiresBiomeInfo = self.requires_biome_info
         initial_env.requiresHeightmap = self.requires_heightmap
+        # retrieve self pid
+        initial_env.python_pid = os.getpid()
         return initial_env

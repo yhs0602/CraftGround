@@ -978,6 +978,23 @@ public object InitialEnvironmentMessageKt {
     public fun clearRequiresHeightmap() {
       _builder.clearRequiresHeightmap()
     }
+
+    /**
+     * `int32 python_pid = 29;`
+     */
+    public var pythonPid: kotlin.Int
+      @JvmName("getPythonPid")
+      get() = _builder.pythonPid
+      @JvmName("setPythonPid")
+      set(value) {
+        _builder.pythonPid = value
+      }
+    /**
+     * `int32 python_pid = 29;`
+     */
+    public fun clearPythonPid() {
+      _builder.clearPythonPid()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

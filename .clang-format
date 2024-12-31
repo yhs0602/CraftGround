@@ -5,3 +5,4 @@ AlignAfterOpenBracket: BlockIndent
 BinPackArguments: false
 BinPackParameters: false
 InsertTrailingCommas: Wrapped
+SortIncludes: false

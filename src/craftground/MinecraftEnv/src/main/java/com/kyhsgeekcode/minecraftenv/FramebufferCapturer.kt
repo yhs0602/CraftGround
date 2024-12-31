@@ -104,9 +104,13 @@ object FramebufferCapturer {
         height: Int,
         colorAttachment: Int,
         depthAttachment: Int,
+        pythonPid: Int,
     ) {
-        val result = initializeZerocopyImpl(width, height, colorAttachment, depthAttachment)
-        if (result == null) {
+        if (ipcHandle != ByteString.EMPTY) {
+            return
+        }
+        val result = initializeZerocopyImpl(width, height, colorAttachment, depthAttachment, pythonPid)
+        if (result == null || result == ByteString.EMPTY) {
             println("FramebufferCapturer: ZeroCopy initialization failed")
             throw RuntimeException("ZeroCopy initialization failed")
         }
@@ -118,6 +122,7 @@ object FramebufferCapturer {
         height: Int,
         colorAttachment: Int,
         depthAttachment: Int,
+        pythonPid: Int,
     ): ByteString?
 
     external fun captureFramebufferZerocopyImpl(
@@ -136,6 +141,6 @@ object FramebufferCapturer {
     var isExtensionAvailable: Boolean = false
     private var hasCheckedExtension: Boolean = false
     private var hasInitializedGLEW: Boolean = false
-    lateinit var ipcHandle: ByteString
+    var ipcHandle: ByteString = ByteString.EMPTY
         private set
 }

@@ -11,7 +11,6 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
 
 DLManagedTensor *
 mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
-    // TODO: Implement this function
     void *device_ptr = nullptr;
     cudaError_t err = cudaIpcOpenMemHandle(
         &device_ptr,

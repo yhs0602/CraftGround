@@ -375,7 +375,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint width,
     jint height,
     jint colorAttachment,
-    jint depthAttachment
+    jint depthAttachment,
+    jint python_pid
 ) {
     jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
     if (byteStringClass == nullptr || env->ExceptionCheck()) {
@@ -387,8 +388,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     if (copyFromMethod == nullptr || env->ExceptionCheck()) {
         return nullptr;
     }
-    void *mach_port;
-    int size = initializeIoSurface(width, height, &mach_port);
+    void *mach_port = nullptr;
+    int size = initializeIoSurface(width, height, &mach_port, python_pid);
     if (size < 0 || mach_port == nullptr) {
         return nullptr;
     }
@@ -463,7 +464,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint width,
     jint height,
     jint colorAttachment,
-    jint depthAttachment
+    jint depthAttachment,
+    jint python_pid
 ) {
     cudaIpcMemHandle_t memHandle;
     return initialize_cuda_ipc(
@@ -514,7 +516,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint width,
     jint height,
     jint colorAttachment,
-    jint depthAttachment
+    jint depthAttachment,
+    jint python_pid
 ) {
     jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
     if (byteStringClass == nullptr || env->ExceptionCheck()) {

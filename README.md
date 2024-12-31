@@ -20,6 +20,10 @@ This is the latest development repository of CraftGround environment.
     ```shell
     pip install craftground
     ```
+    If you want to install latest dev version:
+    ```shell
+    pip install git+https://github.com/yhs0602/CraftGround.git@dev
+    ```
 1. Take a look at the [the demo repository](https://github.com/yhs0602/CraftGround-Baselines3)!
 1. Here is a simple example that uses this environment.
     ```python
@@ -256,6 +260,7 @@ https://dejavu-fonts.github.io/License.html
 ```zsh
 brew install ktlint clang-format google-java-format
 ```
+## Run formatters
 ```bash
 find . \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.mm' \) | xargs clang-format -i
 ktlint '!src/craftground/MinecraftEnv/src/main/java/com/kyhsgeekcode/minecraftenv/proto/**'

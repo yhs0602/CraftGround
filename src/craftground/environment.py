@@ -14,10 +14,11 @@ import psutil
 from PIL import Image, ImageDraw
 from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
+import torch
 
 from .action_space import ActionSpace
 from .buffered_socket import BufferedSocket
-from .csv_logger import CsvLogger
+from .csv_logger import CsvLogger, LogBackend
 from .font import get_font
 from .initial_environment_config import InitialEnvironmentConfig
 from .minecraft import (
@@ -275,7 +276,7 @@ class CraftGroundEnvironment(gym.Env):
                         "mined_statistics": spaces.Dict(),
                         "misc_statistics": spaces.Dict(),
                         "visible_entities": spaces.Sequence(entity_info_space),
-                        "surrounding_entities": entities_within_distance_space, # This is actually 
+                        "surrounding_entities": entities_within_distance_space,  # This is actually
                         "bobber_thrown": spaces.Discrete(2),
                         "experience": spaces.Box(
                             low=0, high=np.inf, shape=(1,), dtype=np.int32
@@ -306,8 +307,8 @@ class CraftGroundEnvironment(gym.Env):
         self.encoding_mode = initial_env.screen_encoding_mode
         self.sock = None
         self.buffered_socket = None
-        self.last_rgb_frames = [None, None]
-        self.last_images = [None, None]
+        self.last_rgb_frames: List[Union[np.ndarray, torch.Tensor, None]] = [None, None]
+        self.last_images: List[Union[np.ndarray, torch.Tensor, None]] = [None, None]
         self.last_action = None
         self.render_action = render_action
         self.verbose = verbose
@@ -329,8 +330,13 @@ class CraftGroundEnvironment(gym.Env):
         else:
             self.env_path = env_path
         self.csv_logger = CsvLogger(
-            "py_log.csv", enabled=verbose and False, profile=profile
+            "py_log.csv",
+            profile=profile,
+            backend=LogBackend.BOTH if verbose_python else LogBackend.NONE,
         )
+
+        # in case when using zerocopy
+        self.observation_tensors = [None, None]
 
     def reset(
         self,
@@ -368,43 +374,46 @@ class CraftGroundEnvironment(gym.Env):
                 self.csv_logger.log("Sent fast reset")
                 if self.verbose_python:
                     print_with_time("Sent fast reset")
-        if self.verbose_python:
-            print_with_time("Reading response...")
         self.csv_logger.log("Reading response...")
         self.csv_logger.profile_start("read_response")
         siz, res = self.read_one_observation()
         self.csv_logger.profile_end("read_response")
-        if self.verbose_python:
-            print_with_time(f"Got response with size {siz}")
+
         self.csv_logger.log(f"Got response with size {siz}")
         self.csv_logger.profile_start("convert_observation")
-        rgb_1, img_1, frame_1 = self.convert_observation(res.image)
+        rgb_1, img_1 = self.convert_observation(res.image, res)
         self.csv_logger.profile_end("convert_observation")
         rgb_2 = None
         img_2 = None
-        frame_2 = None
         if res.image_2 is not None and res.image_2 != b"":
-            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2)
+            rgb_2, img_2 = self.convert_observation(res.image_2, res)
         self.queued_commands = []
         res.yaw = ((res.yaw + 180) % 360) - 180
-        final_obs = {
+        final_obs: Dict[str, Union[np.ndarray, torch.Tensor, Any]] = {
             "obs": res,
             "rgb": rgb_1,
         }
         self.last_images = [img_1, img_2]
-        self.last_rgb_frames = [frame_1, frame_2]
+        self.last_rgb_frames = [rgb_1, rgb_2]
         if rgb_2 is not None:
             final_obs["rgb_2"] = rgb_2
         return final_obs, final_obs
 
+    """
+    returns:
+    - numpy array or torch Tensor of the image
+    - PIL image (optional)
+    - numpy array of the last_rgb_frame
+    """
+
     def convert_observation(
-        self, png_img: bytes
-    ) -> Tuple[np.ndarray, Optional[Image.Image], np.ndarray]:
+        self, image_bytes: bytes, res: ObsType
+    ) -> Tuple[Union[np.ndarray, torch.Tensor], Optional[Image.Image]]:
         if self.encoding_mode == ScreenEncodingMode.PNG:
             # decode png byte array to numpy array
             # Create a BytesIO object from the byte array
             self.csv_logger.profile_start("convert_observation/decode_png")
-            bytes_io = io.BytesIO(png_img)
+            bytes_io = io.BytesIO(image_bytes)
             # Use PIL to open the image from the BytesIO object
             img = Image.open(bytes_io).convert("RGB")
             # Flip y axis
@@ -414,51 +423,67 @@ class CraftGroundEnvironment(gym.Env):
             # Convert the PIL image to a numpy array
             last_rgb_frame = np.array(img)
             arr = np.transpose(last_rgb_frame, (2, 1, 0))
-            # Optionally, you can convert the array to a specific data type, such as uint8
-            arr = arr.astype(np.uint8)
+            rgb_array_or_tensor = arr.astype(np.uint8)
             self.csv_logger.profile_end("convert_observation/convert_to_numpy")
         elif self.encoding_mode == ScreenEncodingMode.RAW:
             # decode raw byte array to numpy array
             self.csv_logger.profile_start("convert_observation/decode_raw")
-            last_rgb_frame = np.frombuffer(png_img, dtype=np.uint8).reshape(
+            last_rgb_frame = np.frombuffer(image_bytes, dtype=np.uint8).reshape(
                 (self.initial_env.imageSizeY, self.initial_env.imageSizeX, 3)
             )
             # Flip y axis using np
             # last_rgb_frame = np.transpose(last_rgb_frame, (1, 0, 2))
             last_rgb_frame = np.flip(last_rgb_frame, axis=0)
-            arr = last_rgb_frame
+            rgb_array_or_tensor = last_rgb_frame
             # arr = np.transpose(last_rgb_frame, (2, 1, 0))  # channels, width, height
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
         elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
-            from craftground import initialize_from_mach_port
-            from craftground import mtl_tensor_from_cuda_mem_handle
-            apple_dl_tensor = initialize_from_mach_port()
-            cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle()
-            import torch.utils.dlpack
-            # TODO: Handle cuda case also
-            dl_tensor_to_use = apple_dl_tensor if apple_dl_tensor is not None else cuda_dl_tensor
-            if dl_tensor_to_use is not None:
-                image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
-                print(image_tensor.shape)
-                print(image_tensor.dtype)
-                print(image_tensor.device)
-                print(image_tensor)
+            import torch
+            if self.initial_env.eye_distance > 0:  # binocular vision
+                # TODO: Handle binocular vision
+                if (
+                    self.observation_tensors[0] is not None
+                    and self.observation_tensors[1] is not None
+                ):
+                    # already intialized
+                    return self.observation_tensors[0].clone()[:, :, :3], None
             else:
+                if self.observation_tensors[0] is not None:
+                    # already intialized
+                    return self.observation_tensors[0].clone()[:, :, :3], None
+
+            from .craftground_native import initialize_from_mach_port  # type: ignore
+            from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
+
+            mach_port = int.from_bytes(res.ipc_handle, byteorder="little", signed=False)
+            print(f"{mach_port=}")
+            apple_dl_tensor = initialize_from_mach_port(
+                mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
+            )
+            if apple_dl_tensor is not None:
+                # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
+                rgb_array_or_tensor = apple_dl_tensor
+                print(rgb_array_or_tensor.shape)
+                print(rgb_array_or_tensor.dtype)
+                print(rgb_array_or_tensor.device)
+                # print(image_tensor)
+                self.observation_tensors[0] = rgb_array_or_tensor
+            else:
+                # TODO: Handle cuda case also
+                cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
+                    res.ipc_handle,
+                    self.initial_env.imageSizeX,
+                    self.initial_env.imageSizeY,
+                )
+                import torch.utils.dlpack
+
                 raise ValueError("No dl tensor found.")
+            img = None
+
         else:
             raise ValueError(f"Unknown encoding mode: {self.encoding_mode}")
-
-        # health = res["health"]
-        # foodLevel = res["foodLevel"]
-        # saturationLevel = res["saturationLevel"]
-        # isDead = res["isDead"]
-        # inventory = res["inventory"]
-        # soundSubtitles = res["soundSubtitles"]
-        # for subtitle in soundSubtitles:
-        #     print(f"{subtitle['translateKey']=} {subtitle['x']=} {subtitle['y']=} {subtitle['z']=}")
-
-        return arr, img, last_rgb_frame
+        return rgb_array_or_tensor, img
 
     def start_server(
         self,
@@ -580,20 +605,20 @@ class CraftGroundEnvironment(gym.Env):
             print_with_time("Read observation...")
         self.csv_logger.log("Read observation...")
         self.csv_logger.profile_start("convert_observation")
-        rgb_1, img_1, frame_1 = self.convert_observation(res.image)
+        rgb_1, img_1 = self.convert_observation(res.image, res)
         self.csv_logger.profile_end("convert_observation")
         rgb_2 = None
         img_2 = None
         frame_2 = None
         if res.image_2 is not None and res.image_2 != b"":
-            rgb_2, img_2, frame_2 = self.convert_observation(res.image_2)
+            rgb_2, img_2 = self.convert_observation(res.image_2, res)
         final_obs = {
             "obs": res,
             "rgb": rgb_1,
         }
         res.yaw = ((res.yaw + 180) % 360) - 180
         self.last_images = [img_1, img_2]
-        self.last_rgb_frames = [frame_1, frame_2]
+        self.last_rgb_frames = [rgb_1, rgb_2]
         if rgb_2 is not None:
             final_obs["rgb_2"] = rgb_2
 
@@ -608,9 +633,24 @@ class CraftGroundEnvironment(gym.Env):
             final_obs,
         )
 
+    # when self.render_mode is None: no render is computed
+    # when self.render_mode is "human": render returns None, envrionment is already being rendered on the screen
+    # when self.render_mode is "rgb_array": render returns the image to be rendered
+    # when self.render_mode is "ansi": render returns the text to be rendered
+    # when self.render_mode is "rgb_array_list": render returns a list of images to be rendered
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
         # print("Rendering...")
         # select last_image and last_frame
+        if self.render_mode is None:
+            return None
+        if self.render_mode == "human":
+            # do not render anything
+            return None
+        if self.render_mode == "ansi":
+            raise ValueError("Rendering mode ansi not supported")
+        if self.render_mode == "rgb_array_list":
+            raise ValueError("Rendering mode rgb_array_list not supported")
+
         if self.render_alternating_eyes:
             last_image = self.last_images[self.render_alternating_eyes_counter]
             last_rgb_frame = self.last_rgb_frames[self.render_alternating_eyes_counter]
@@ -622,8 +662,15 @@ class CraftGroundEnvironment(gym.Env):
             last_rgb_frame = self.last_rgb_frames[0]
         if last_image is None and last_rgb_frame is None:
             return None
+
+        if isinstance(last_rgb_frame, torch.Tensor):
+            # drop the alpha channel and convert to numpy array
+            last_rgb_frame = last_rgb_frame.cpu().numpy()
+        # last_rgb_frame: np.ndarray or torch.Tensor
+        # last_image: PIL.Image.Image or None
         if self.render_action and self.last_action:
             if last_image is None:
+                # it is inevitable to convert the tensor to numpy array
                 last_image = Image.fromarray(last_rgb_frame)
             self.csv_logger.profile_start("render_action")
             draw = ImageDraw.Draw(last_image)

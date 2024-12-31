@@ -1,0 +1,16 @@
+venv/*
+.venv/*
+.idea/*
+.github/*
+.cache/*
+.pytest_cache/*
+.vscode/*
+build/*
+craftground.egg-info/*
+docs/*
+figures/*
+paper/*
+poster/*
+pybind11/*
+src/craftground.egg-info/*
+src/proto/*
