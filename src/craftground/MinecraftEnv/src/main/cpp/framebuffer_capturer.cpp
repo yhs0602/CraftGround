@@ -467,10 +467,46 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint depthAttachment,
     jint python_pid
 ) {
+    jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
+    if (byteStringClass == nullptr || env->ExceptionCheck()) {
+        return nullptr;
+    }
+    jmethodID copyFromMethod = env->GetStaticMethodID(
+        byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
+    );
+    if (copyFromMethod == nullptr || env->ExceptionCheck()) {
+        return nullptr;
+    }
+
     cudaIpcMemHandle_t memHandle;
-    return initialize_cuda_ipc(
+    int size = initialize_cuda_ipc(
         width, height, colorAttachment, depthAttachment, &memHandle
     );
+
+    if (size < 0) {
+        return nullptr;
+    }
+
+    jbyteArray byteArray = env->NewByteArray(size);
+    if (byteArray == nullptr || env->ExceptionCheck()) {
+        // Handle error
+        return nullptr;
+    }
+
+    env->SetByteArrayRegion(
+        byteArray, 0, size, reinterpret_cast<jbyte *>(&memHandle)
+    );
+    jobject byteStringObject =
+        env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
+    if (byteStringObject == nullptr || env->ExceptionCheck()) {
+        // Handle error
+        if (byteArray != nullptr) {
+            env->DeleteLocalRef(byteArray);
+        }
+        return nullptr;
+    }
+    env->DeleteLocalRef(byteArray);
+    return byteStringObject;
 }
 
 extern "C" JNIEXPORT void JNICALL

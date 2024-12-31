@@ -1,7 +1,7 @@
 #include "framebuffer_capturer_cuda.h"
 #include "driver_types.h"
 
-void initialize_cuda_ipc(
+int initialize_cuda_ipc(
     int width,
     int height,
     int colorAttachment,
@@ -32,4 +32,5 @@ void initialize_cuda_ipc(
     cudaIpcGetMemHandle(memHandlePtr, devicePtr);
 
     // cudaGraphicsUnmapResources(1, &cudaResource, 0);
+    return sizeof(cudaIpcMemHandle_t);
 }

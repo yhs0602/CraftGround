@@ -292,6 +292,14 @@ pip install --upgrade protobuf
 ```
 conda create --name craftground python=3.11
 conda activate craftground
-conda install gymnasium Pillow numpy protobuf typing_extensions psutil pytorch ninja build
+conda install gymnasium Pillow numpy protobuf typing_extensions psutil pytorch ninja build cmake
+conda install -c conda-forge openjdk=21 libgl-devel
+conda install glew
 python -m build
+```
+
+## Build jvm c++ part
+```bash
+ cmake src/main/cpp -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
+ cmake --build .
 ```

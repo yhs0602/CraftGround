@@ -5,9 +5,8 @@
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 #include <driver_types.h>
-#include <GL/glew.h>
 
-void initialize_cuda_ipc(
+int initialize_cuda_ipc(
     int width,
     int height,
     int colorAttachment,
