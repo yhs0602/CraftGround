@@ -66,7 +66,7 @@ createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
 
-    tensor->dl_tensor.data = mtlBuffer;
+    tensor->dl_tensor.data = (void *) mtlBuffer;
     tensor->dl_tensor.ndim = 3; // H x W x C
     tensor->dl_tensor.shape = (int64_t *)malloc(3 * sizeof(int64_t));
     tensor->dl_tensor.shape[0] = height;
