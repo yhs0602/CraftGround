@@ -6,7 +6,6 @@
 #include <OpenGL/gl.h>
 #include <servers/bootstrap.h>
 
-
 #include "framebuffer_capturer_apple.h"
 
 IOSurfaceRef createSharedIOSurface(int width, int height) {
@@ -20,7 +19,8 @@ IOSurfaceRef createSharedIOSurface(int width, int height) {
     return IOSurfaceCreate((CFDictionaryRef)surfaceAttributes);
 }
 
-static mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface, int python_pid) {
+static mach_port_t
+createMachPortForIOSurface(IOSurfaceRef ioSurface, int python_pid) {
     kern_return_t result;
     mach_port_t machPort = MACH_PORT_NULL;
     machPort = IOSurfaceCreateMachPort(ioSurface);
@@ -34,7 +34,11 @@ static mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface, int python
     if (result == KERN_SUCCESS) {
         printf("Mach Port type: 0x%x\n", portType);
     } else {
-        fprintf(stderr, "Failed to get Mach Port type: %s\n", mach_error_string(result));
+        fprintf(
+            stderr,
+            "Failed to get Mach Port type: %s\n",
+            mach_error_string(result)
+        );
         return -1;
     }
 
@@ -42,21 +46,33 @@ static mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface, int python
     task_t python_task;
     result = task_for_pid(mach_task_self(), python_pid, &python_task);
     if (result != KERN_SUCCESS) {
-        fprintf(stderr, "Failed to get task port for Python process: %s\n", mach_error_string(result));
+        fprintf(
+            stderr,
+            "Failed to get task port for Python process: %s\n",
+            mach_error_string(result)
+        );
         return -1;
     }
 
-    result = mach_port_insert_right(python_task, machPort, machPort, MACH_MSG_TYPE_COPY_SEND);
+    result = mach_port_insert_right(
+        python_task, machPort, machPort, MACH_MSG_TYPE_COPY_SEND
+    );
     if (result != KERN_SUCCESS) {
-        fprintf(stderr, "Failed to insert Mach Port right: %s\n", mach_error_string(result));
+        fprintf(
+            stderr,
+            "Failed to insert Mach Port right: %s\n",
+            mach_error_string(result)
+        );
     } else {
         printf("Successfully shared Mach Port with Python process\n");
     }
 
-    // If we want it need not send mach port to another process. However this requires launchd
-    // result = bootstrap_check_in(machPort, "com.yhs0602.craftground.machport", &machPort);
-    // if (result != KERN_SUCCESS) {
-    //     fprintf(stderr, "Failed to register Mach Port: %s\n", mach_error_string(result));
+    // If we want it need not send mach port to another process. However this
+    // requires launchd result = bootstrap_check_in(machPort,
+    // "com.yhs0602.craftground.machport", &machPort); if (result !=
+    // KERN_SUCCESS) {
+    //     fprintf(stderr, "Failed to register Mach Port: %s\n",
+    //     mach_error_string(result));
     // }
     return machPort;
 }
@@ -66,7 +82,9 @@ static bool initialized = false;
 static GLuint textureID;
 
 // TODO: Depth buffer
-int initializeIoSurface(int width, int height, void **return_value, int python_pid) {
+int initializeIoSurface(
+    int width, int height, void **return_value, int python_pid
+) {
     if (initialized) {
         return 0;
     }

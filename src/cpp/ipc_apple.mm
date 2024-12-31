@@ -115,7 +115,7 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
     size_t length = bytesPerRow * height;
 
     // Create a Metal buffer from the IOSurface
-    // todo: lock / unlock / copy? 
+    // todo: lock / unlock / copy?
     id<MTLBuffer> mtlBuffer = [device
         newBufferWithBytesNoCopy:IOSurfaceGetBaseAddress(ioSurface)
                           length:length

@@ -1,15 +1,17 @@
-#include <pybind11/pybind11.h>
 #include "ipc.h"
+#include <pybind11/pybind11.h>
 #define MACRO_STRINGIFY(x) #x
 
 #ifdef __APPLE__
 
 #include "ipc_apple.h"
-py::object initialize_from_mach_port(unsigned int machPort, int width, int height) {
+py::object
+initialize_from_mach_port(unsigned int machPort, int width, int height) {
     return mtl_tensor_from_mach_port(machPort, width, height);
 }
-py::object
-mtl_tensor_from_cuda_mem_handle(const char* cuda_ipc_handle, int width, int height) {
+py::object mtl_tensor_from_cuda_mem_handle(
+    const char *cuda_ipc_handle, int width, int height
+) {
     return py::none();
 }
 
@@ -19,10 +21,12 @@ py::object initialize_from_mach_port(int machPort, int width, int height) {
     return py::none();
 }
 
-py::object
-mtl_tensor_from_cuda_mem_handle(const char* cuda_ipc_handle, int width, int height) {
-    DLManagedTensor *tensor =
-        mtl_tensor_from_cuda_ipc_handle(const_cast<void *>(cuda_ipc_handle), width, height);
+py::object mtl_tensor_from_cuda_mem_handle(
+    const char *cuda_ipc_handle, int width, int height
+) {
+    DLManagedTensor *tensor = mtl_tensor_from_cuda_ipc_handle(
+        const_cast<void *>(cuda_ipc_handle), width, height
+    );
     return py::reinterpret_steal<py::object>(PyCapsule_New(
         tensor,
         "dltensor",
@@ -35,12 +39,14 @@ mtl_tensor_from_cuda_mem_handle(const char* cuda_ipc_handle, int width, int heig
 }
 
 #else
-py::object initialize_from_mach_port(unsigned int machPort, int width, int height) {
+py::object
+initialize_from_mach_port(unsigned int machPort, int width, int height) {
     return py::none();
 }
 
-py::object
-mtl_tensor_from_cuda_mem_handle(const char* cuda_ipc_handle, int width, int height) {
+py::object mtl_tensor_from_cuda_mem_handle(
+    const char *cuda_ipc_handle, int width, int height
+) {
     return py::none();
 }
 #endif

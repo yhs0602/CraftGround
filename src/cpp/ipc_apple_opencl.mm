@@ -1,7 +1,7 @@
 // Sad news: PyTorch does not support from_dlpack for Metal tensors.
 // Therefore, we should create a OpenCL dlpack tensor from the IOSurface.
 #include "ipc_apple.h"
-#if USE_OPENCL_DL_PACK_TENSOR 
+#if USE_OPENCL_DL_PACK_TENSOR
 #include <CoreGraphics/CoreGraphics.h>
 #include <IOSurface/IOSurface.h>
 #import <Metal/Metal.h>
