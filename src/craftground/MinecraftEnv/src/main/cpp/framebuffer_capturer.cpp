@@ -510,7 +510,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopy(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
@@ -573,7 +573,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
 // TODO: Implement this function for normal mmap IPC based one copy. (GPU ->
 // CPU)
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopy(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
