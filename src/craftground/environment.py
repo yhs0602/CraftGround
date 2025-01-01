@@ -493,13 +493,18 @@ class CraftGroundEnvironment(gym.Env):
                         f"Failed to initialize from mach port {res.ipc_handle}."
                     )
             else:
+                import torch.utils.dlpack
+
                 cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
                     res.ipc_handle,
                     self.initial_env.imageSizeX,
                     self.initial_env.imageSizeY,
                 )
-                import torch.utils.dlpack
-
+                if (
+                    not torch.utils.dlpack.is_dlpack_capsule(cuda_dl_tensor)
+                    or not cuda_dl_tensor
+                ):
+                    raise ValueError("Invalid DLPack capsule")
                 rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(cuda_dl_tensor)
                 print(rgb_array_or_tensor.shape)
                 print(rgb_array_or_tensor.dtype)

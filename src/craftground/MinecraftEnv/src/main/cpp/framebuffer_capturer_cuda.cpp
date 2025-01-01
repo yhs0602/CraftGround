@@ -8,28 +8,57 @@ int initialize_cuda_ipc(
     int depthAttachment,
     cudaIpcMemHandle_t *memHandlePtr
 ) {
+    cudaError_t err;
     cudaGraphicsResource *cudaResource;
 
     // register the texture with CUDA
-    cudaGraphicsGLRegisterImage(
+    err = cudaGraphicsGLRegisterImage(
         &cudaResource,
         colorAttachment,
         GL_TEXTURE_2D,
         cudaGraphicsRegisterFlagsReadOnly
     );
 
+    if (err != cudaSuccess) {
+       fprintf(stderr, "Failed to register GL image: %s\n", cudaGetErrorString(err));
+        return -1;
+    }
+
     // This function provides the synchronization guarantee that any graphics
     // calls issued before cudaGraphicsMapResources() will complete before any
     // subsequent CUDA work issued in stream begins. Map the resource for access
     // by CUDA
-    cudaGraphicsMapResources(1, &cudaResource);
+    // glFinish();
+    err = cudaGraphicsMapResources(1, &cudaResource);
+
+    if (err != cudaSuccess) {
+       fprintf(stderr, "Failed to map resources: %s\n", cudaGetErrorString(err));
+        cudaGraphicsUnregisterResource(cudaResource);
+
+        return -1;
+    }
 
     void *devicePtr;
     size_t size;
-    cudaGraphicsResourceGetMappedPointer(&devicePtr, &size, cudaResource);
+    err = cudaGraphicsResourceGetMappedPointer(&devicePtr, &size, cudaResource);
+
+    if (err != cudaSuccess) {
+        fprintf(stderr, "Failed to get mapped pointer: %s\n", cudaGetErrorString(err));
+        cudaGraphicsUnmapResources(1, &cudaResource);
+        cudaGraphicsUnregisterResource(cudaResource);
+        return -1;
+    }
+
 
     // Get the ipc handle
-    cudaIpcGetMemHandle(memHandlePtr, devicePtr);
+    err = cudaIpcGetMemHandle(memHandlePtr, devicePtr);
+
+    if (err != cudaSuccess) {
+        fprintf(stderr, "Failed to get IPC handle: %s\n", cudaGetErrorString(err));
+        cudaGraphicsUnmapResources(1, &cudaResource);
+        cudaGraphicsUnregisterResource(cudaResource);
+        return -1;
+    }
 
     // cudaGraphicsUnmapResources(1, &cudaResource, 0);
     return sizeof(cudaIpcMemHandle_t);

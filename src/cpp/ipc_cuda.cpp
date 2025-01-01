@@ -5,6 +5,10 @@
 #include <string>
 
 static void deleteDLManagedTensor(DLManagedTensor *self) {
+    cudaError_t err = cudaIpcCloseMemHandle(self->dl_tensor.data);
+    if (err != cudaSuccess) {
+        fprintf(stderr, "Failed to close CUDA IPC handle: %s\n", cudaGetErrorString(err));
+    }
     free(self->dl_tensor.shape);
     free(self);
 }
@@ -27,9 +31,17 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
 
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
+    
+    if (!tensor) {
+       throw std::runtime_error("Failed to allocate memory for DLManagedTensor");
+    }
     tensor->dl_tensor.data = device_ptr;
     tensor->dl_tensor.ndim = 3; // H x W x C
     tensor->dl_tensor.shape = (int64_t *)malloc(3 * sizeof(int64_t));
+    if (!tensor->dl_tensor.shape) {
+        free(tensor);
+        throw std::runtime_error("Failed to allocate memory for tensor shape");
+    }
     tensor->dl_tensor.shape[0] = height;
     tensor->dl_tensor.shape[1] = width;
     tensor->dl_tensor.shape[2] = 4; // RGBA
@@ -40,6 +52,8 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
     err = cudaPointerGetAttributes(&attributes, device_ptr);
 
     if (err != cudaSuccess) {
+        free(tensor->dl_tensor.shape);
+        free(tensor);
         throw std::runtime_error(
             "Failed to get CUDA pointer attributes: " +
             std::string(cudaGetErrorString(err))
@@ -50,6 +64,9 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
     if (attributes.devicePointer != nullptr) {
         device_id = attributes.device;
     } else {
+        free(tensor->dl_tensor.shape);
+        free(tensor);
+        cudaIpcCloseMemHandle(device_ptr);
         throw std::runtime_error("Failed to get CUDA device ID");
     }
 

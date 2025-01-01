@@ -27,15 +27,26 @@ py::object mtl_tensor_from_cuda_mem_handle(
     DLManagedTensor *tensor = mtl_tensor_from_cuda_ipc_handle(
         const_cast<void *>(cuda_ipc_handle), width, height
     );
-    return py::reinterpret_steal<py::object>(PyCapsule_New(
+
+    if(!tensor) {
+        throw std::runtime_error("Failed to create DLManagedTensor from CUDA IPC handle");
+    }
+    
+    PyObject *capsule = PyCapsule_New(
         tensor,
         "dltensor",
         [](PyObject *capsule) {
             DLManagedTensor *tensor =
                 (DLManagedTensor *)PyCapsule_GetPointer(capsule, "dltensor");
-            tensor->deleter(tensor);
+            if (tensor) {
+                tensor->deleter(tensor);
+            }
         }
-    ));
+    );
+    if (!capsule) {
+        throw std::runtime_error("Failed to create PyCapsule for DLManagedTensor");
+    }
+    return py::reinterpret_steal<py::object>(capsule);
 }
 
 #else
