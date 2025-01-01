@@ -23,14 +23,30 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
 
 DLManagedTensor *
 mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
-    void *device_ptr = nullptr;
-    cudaError_t err = cudaIpcOpenMemHandle(
-        &device_ptr,
-        *reinterpret_cast<cudaIpcMemHandle_t *>(cuda_ipc_handle),
-        cudaIpcMemLazyEnablePeerAccess
-    );
-
+    cudaError_t err;
+    int deviceCount;
+    err = cudaGetDeviceCount(&deviceCount);
     if (err != cudaSuccess) {
+        throw std::runtime_error(
+            "Failed to get CUDA device count: " +
+            std::string(cudaGetErrorString(err))
+        );
+    }
+
+    void *device_ptr = nullptr;
+    int success_device_id = 0;
+    for (; success_device_id < deviceCount; ++success_device_id) {
+        cudaSetDevice(success_device_id);
+        err= cudaIpcOpenMemHandle(
+            &device_ptr,
+            *reinterpret_cast<cudaIpcMemHandle_t *>(cuda_ipc_handle),
+            cudaIpcMemLazyEnablePeerAccess
+        );
+        if (err == cudaSuccess) {
+            break;
+        }
+    }
+    if (err != cudaSuccess || device_ptr == nullptr) {
         throw std::runtime_error(
             "Failed to open CUDA IPC handle: " +
             std::string(cudaGetErrorString(err))
