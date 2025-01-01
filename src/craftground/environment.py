@@ -541,6 +541,7 @@ class CraftGroundEnvironment(gym.Env):
                 print(rgb_array_or_tensor.shape)
                 print(rgb_array_or_tensor.dtype)
                 print(rgb_array_or_tensor.device)
+                print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
                 self.observation_tensors[0] = rgb_array_or_tensor
                 # drop alpha, flip y axis, and clone
                 rgb_array_or_tensor = self.observation_tensors[0].clone()[:, :, :3].flip(0)
