@@ -14,7 +14,8 @@ int initialize_cuda_ipc(
     int height,
     int colorAttachment,
     int depthAttachment,
-    cudaIpcMemHandle_t *memHandlePtr
+    cudaIpcMemHandle_t *memHandlePtr,
+    int *deviceId
 ) {
     if (initialized) {
         fprintf(stderr, "CUDA IPC already initialized\n");
@@ -74,6 +75,7 @@ int initialize_cuda_ipc(
         return -1;
     }
     initialized = true;
+    *deviceId = rendering_gpu;
     fprintf(stdout, "\n\nInitialized CUDA IPC: %p\n\n", sharedCudaColorMem);
     fflush(stdout);
     return sizeof(cudaIpcMemHandle_t);

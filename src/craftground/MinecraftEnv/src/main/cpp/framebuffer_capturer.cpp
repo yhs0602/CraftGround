@@ -484,8 +484,9 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     }
 
     cudaIpcMemHandle_t memHandle;
+    int deviceId = -1;
     int size = initialize_cuda_ipc(
-        width, height, colorAttachment, depthAttachment, &memHandle
+        width, height, colorAttachment, depthAttachment, &memHandle, &deviceId
     );
 
     if (size < 0) {
@@ -496,7 +497,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
         return nullptr;
     }
 
-    jbyteArray byteArray = env->NewByteArray(size);
+    jbyteArray byteArray = env->NewByteArray(size + sizeof(int));
     if (byteArray == nullptr || env->ExceptionCheck()) {
         // Handle error
         return nullptr;
@@ -504,6 +505,9 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
 
     env->SetByteArrayRegion(
         byteArray, 0, size, reinterpret_cast<jbyte *>(&memHandle)
+    );
+    env->SetByteArrayRegion(
+        byteArray, size, sizeof(int), reinterpret_cast<jbyte *>(&deviceId)
     );
     jobject byteStringObject =
         env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
