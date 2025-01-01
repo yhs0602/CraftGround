@@ -16,6 +16,7 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
     }
     fflush(stderr);
     free(self->dl_tensor.shape);
+    free(self->dl_tensor.strides);
     free(self);
     */
 }
@@ -35,6 +36,7 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
             std::string(cudaGetErrorString(err))
         );
     }
+    printf("Opened CUDA IPC handle: %p\n", device_ptr);
 
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
