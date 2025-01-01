@@ -1,5 +1,6 @@
 #include "framebuffer_capturer_cuda.h"
 #include "driver_types.h"
+#include <stdio.h>
 
 int initialize_cuda_ipc(
     int width,
