@@ -15,4 +15,6 @@ int initialize_cuda_ipc(
     cudaIpcMemHandle_t *memHandlePtr
 );
 
+void copyFramebufferToCudaSharedMemory(int width, int height);
+
 #endif

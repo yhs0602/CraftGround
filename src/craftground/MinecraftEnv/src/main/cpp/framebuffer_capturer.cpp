@@ -548,6 +548,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     }
 
     // CUDA IPC handles are used to share the framebuffer with the Python side
+    // However copy is required anyway
+    copyFramebufferToCudaSharedMemory(targetSizeX, targetSizeY);
 }
 
 #else
