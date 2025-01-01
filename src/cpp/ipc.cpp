@@ -15,13 +15,13 @@ py::object mtl_tensor_from_cuda_mem_handle(
     return py::none();
 }
 
-#elif __CUDA__
+#elif HAS_CUDA
 #include "ipc_cuda.h"
 py::object initialize_from_mach_port(int machPort, int width, int height) {
     return py::none();
 }
 
-py::object mtl_tensor_from_cuda_mem_handle(
+py::capsule mtl_tensor_from_cuda_mem_handle(
     const char *cuda_ipc_handle, int width, int height
 ) {
     DLManagedTensor *tensor = mtl_tensor_from_cuda_ipc_handle(
@@ -32,21 +32,16 @@ py::object mtl_tensor_from_cuda_mem_handle(
         throw std::runtime_error("Failed to create DLManagedTensor from CUDA IPC handle");
     }
     
-    PyObject *capsule = PyCapsule_New(
+    return py::capsule(
         tensor,
         "dltensor",
-        [](PyObject *capsule) {
-            DLManagedTensor *tensor =
-                (DLManagedTensor *)PyCapsule_GetPointer(capsule, "dltensor");
-            if (tensor) {
-                tensor->deleter(tensor);
+        [](void *ptr) {
+            DLManagedTensor* managed_tensor = static_cast<DLManagedTensor*>(ptr);
+            if (managed_tensor && managed_tensor->deleter) {
+                managed_tensor->deleter(managed_tensor);
             }
         }
     );
-    if (!capsule) {
-        throw std::runtime_error("Failed to create PyCapsule for DLManagedTensor");
-    }
-    return py::reinterpret_steal<py::object>(capsule);
 }
 
 #else

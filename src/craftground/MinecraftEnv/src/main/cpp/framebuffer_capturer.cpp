@@ -467,15 +467,20 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint depthAttachment,
     jint python_pid
 ) {
+    jclass runtimeExceptionClass = env->FindClass("java/lang/RuntimeException");
+    if (runtimeExceptionClass == nullptr) {
+        return nullptr; // JVM automatically throws NoClassDefFoundError
+    }
+
     jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
     if (byteStringClass == nullptr || env->ExceptionCheck()) {
-        return nullptr;
+        return nullptr; // JVM automatically throws NoClassDefFoundError
     }
     jmethodID copyFromMethod = env->GetStaticMethodID(
         byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
     );
     if (copyFromMethod == nullptr || env->ExceptionCheck()) {
-        return nullptr;
+        return nullptr; // JVM automatically throws NoSuchMethodError
     }
 
     cudaIpcMemHandle_t memHandle;
@@ -484,6 +489,10 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     );
 
     if (size < 0) {
+        env->ThrowNew(
+            runtimeExceptionClass,
+            "Failed to initialize CUDA IPC for framebuffer capture"
+        );
         return nullptr;
     }
 
