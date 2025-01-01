@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
+#include <stdio.h>
 
 static void deleteDLManagedTensor(DLManagedTensor *self) {
     return;
@@ -96,6 +97,8 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
     int device_id;
     if (attributes.devicePointer != nullptr) {
         device_id = attributes.device;
+        printf("\nOpen tensor from ipc handle: Device ID: %d\n", device_id);
+        fflush(stdout);
     } else {
         free(tensor->dl_tensor.shape);
         free(tensor);
@@ -105,7 +108,7 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
 
     tensor->dl_tensor.dtype =
         (DLDataType){kDLUInt, 8, 1}; // Unsigned 8-bit integer
-    tensor->dl_tensor.device = (DLDevice){kDLCUDA, device_id}; // cuda gpu
+    tensor->dl_tensor.device = (DLDevice){kDLCUDA, device_id}; // cuda gpu  + 1
 
     tensor->deleter = deleteDLManagedTensor;
     return tensor;

@@ -47,7 +47,7 @@ int initialize_cuda_ipc(
         rendering_gpu
     );
 
-    err = cudaSetDevice(devices[0]);
+    err = cudaSetDevice(rendering_gpu);
 
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to set device: %s\n", cudaGetErrorString(err));
