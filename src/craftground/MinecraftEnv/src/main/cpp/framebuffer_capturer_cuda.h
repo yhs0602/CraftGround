@@ -2,6 +2,7 @@
 
 #define __FRAMEBUFFER_CAPTURER_CUDA_H__
 
+#include <GL/glew.h>
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
 #include <driver_types.h>
