@@ -510,7 +510,9 @@ class CraftGroundEnvironment(gym.Env):
                 # print(image_tensor)
                 self.observation_tensors[0] = rgb_array_or_tensor
                 # drop alpha, flip y axis, and clone
-                rgb_array_or_tensor = rgb_array_or_tensor[:, :, [2, 1, 0]].flip(0)
+                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(
+                    0
+                )
             img = None
 
         else:

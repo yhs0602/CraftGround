@@ -8,7 +8,10 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
     cudaError_t err = cudaIpcCloseMemHandle(self->dl_tensor.data);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to close CUDA IPC handle: %s\n", cudaGetErrorString(err));
+    } else {
+        fprintf(stderr, "Closed CUDA IPC handle\n");
     }
+    fflush(stderr);
     free(self->dl_tensor.shape);
     free(self);
 }
