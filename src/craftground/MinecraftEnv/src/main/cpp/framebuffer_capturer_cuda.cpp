@@ -38,6 +38,8 @@ int initialize_cuda_ipc(
         return -1;
     }
 
+    fprintf(stdout, "Device count: %d, current Device: %d\n", deviceCount, devices[0]);
+
     err = cudaSetDevice(devices[0]);
 
     if (err != cudaSuccess) {
@@ -182,6 +184,12 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
     sharedMemoryDevice = attr.device;
     err = cudaPointerGetAttributes(&attr, reinterpret_cast<void*>(cudaArray));
     cudaArrayDevice = attr.device;
+    fprintf(
+        stdout,
+        "Current device: %d, Shared memory device: %d, Array device: %d\n",
+        currentDevice, sharedMemoryDevice, cudaArrayDevice
+    );
+    fflush(stdout);
     assert(sharedMemoryDevice == cudaArrayDevice);
     assert(sharedMemoryDevice == currentDevice);
 
