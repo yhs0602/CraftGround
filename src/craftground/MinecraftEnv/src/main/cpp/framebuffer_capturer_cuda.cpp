@@ -44,6 +44,7 @@ int initialize_cuda_ipc(
     }
     initialized = true;
     fprintf(stdout, "\n\nInitialized CUDA IPC: %p\n\n", sharedCudaColorMem);
+    fflush(stdout);
     return sizeof(cudaIpcMemHandle_t);
 }
 
