@@ -5,6 +5,9 @@
 #include <string>
 
 static void deleteDLManagedTensor(DLManagedTensor *self) {
+    return;
+    /*
+    Allocate once, deallocate once. (On exit)
     cudaError_t err = cudaIpcCloseMemHandle(self->dl_tensor.data);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to close CUDA IPC handle: %s\n", cudaGetErrorString(err));
@@ -14,6 +17,7 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
     fflush(stderr);
     free(self->dl_tensor.shape);
     free(self);
+    */
 }
 
 DLManagedTensor *
