@@ -61,9 +61,11 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
     glGetTexLevelParameteriv(
         GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight
     );
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &format);
-    // printf("width: %d, height: %d, format: %d\n", textureWidth, textureHeight, format);
-    // fflush(stdout);
+    glGetTexLevelParameteriv(
+        GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &format
+    );
+    // printf("width: %d, height: %d, format: %d\n", textureWidth,
+    // textureHeight, format); fflush(stdout);
     assert(format == GL_RGBA8);
     // printf("width: %d, height: %d\n", textureWidth, textureHeight);
     glViewport(0, 0, width, height);
@@ -83,7 +85,7 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
 
     cudaError_t err;
 
-    if (oldColorAttachment != renderedTextureId && cudaResource != nullptr) {
+    if (oldColorAttachment != renderedTextureId) {
         if (cudaResource != nullptr) {
             err = cudaGraphicsUnmapResources(1, &cudaResource);
             if (err != cudaSuccess) {
@@ -96,7 +98,10 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
                 assert(false);
             }
             cudaGraphicsUnregisterResource(cudaResource);
+            cudaResource = nullptr;
         }
+    }
+    if (cudaResource == nullptr) {
         // register the texture with CUDA
         err = cudaGraphicsGLRegisterImage(
             &cudaResource,
