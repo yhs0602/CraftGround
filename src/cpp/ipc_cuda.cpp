@@ -52,7 +52,15 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
     tensor->dl_tensor.shape[0] = height;
     tensor->dl_tensor.shape[1] = width;
     tensor->dl_tensor.shape[2] = 4; // RGBA
-    tensor->dl_tensor.strides = nullptr;
+    tensor->dl_tensor.strides = (int64_t *)malloc(3 * sizeof(int64_t));
+    if (!tensor->dl_tensor.strides) {
+        free(tensor->dl_tensor.shape);
+        free(tensor);
+        throw std::runtime_error("Failed to allocate memory for tensor strides");
+    }
+    tensor->dl_tensor.strides[0] = width * 4;
+    tensor->dl_tensor.strides[1] = 4;
+    tensor->dl_tensor.strides[2] = 1;
     tensor->dl_tensor.byte_offset = 0;
 
     cudaPointerAttributes attributes;
