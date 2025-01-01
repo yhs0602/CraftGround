@@ -529,10 +529,10 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     jint mouseX,
     jint mouseY
 ) {
-    if (drawCursor) {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
-        glBindTexture(GL_TEXTURE_2D, cursorTexID);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
 
+    if (drawCursor) {
+        glBindTexture(GL_TEXTURE_2D, cursorTexID);
         glEnable(GL_TEXTURE_2D);
         glBegin(GL_QUADS);
         glTexCoord2f(0.0f, 0.0f);
