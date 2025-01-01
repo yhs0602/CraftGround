@@ -506,6 +506,7 @@ class CraftGroundEnvironment(gym.Env):
                 print(rgb_array_or_tensor.shape)
                 print(rgb_array_or_tensor.dtype)
                 print(rgb_array_or_tensor.device)
+                torch.cuda.synchronize()
                 # print(image_tensor)
                 self.observation_tensors[0] = rgb_array_or_tensor
                 # drop alpha, flip y axis, and clone
