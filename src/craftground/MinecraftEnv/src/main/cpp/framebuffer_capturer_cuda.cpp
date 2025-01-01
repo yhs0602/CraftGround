@@ -23,6 +23,28 @@ int initialize_cuda_ipc(
     sharedCudaColorMem = nullptr;
     cudaError_t err;
 
+    // Get the device of the current context
+    unsigned int deviceCount = 0;
+    int devices[1];
+
+    // We should select the device that is currently rendering, to avoid gpu-gpu copy
+    // TODO: Support SLI?
+    err = cudaGLGetDevices(
+        &deviceCount, devices, 1, cudaGLDeviceListCurrentFrame
+    );
+
+    if (err != cudaSuccess) {
+        fprintf(stderr, "Failed to get devices: %s\n", cudaGetErrorString(err));
+        return -1;
+    }
+
+    err = cudaSetDevice(devices[0]);
+
+    if (err != cudaSuccess) {
+        fprintf(stderr, "Failed to set device: %s\n", cudaGetErrorString(err));
+        return -1;
+    }
+
     err = cudaMalloc(&sharedCudaColorMem, width * height * 4);
     if (err != cudaSuccess) {
         fprintf(
@@ -152,6 +174,17 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
     }
 
     // Copy the texture to the shared memory
+    int currentDevice, sharedMemoryDevice, cudaArrayDevice;
+    cudaGetDevice(&currentDevice);
+
+    cudaPointerAttributes attr;
+    err = cudaPointerGetAttributes(&attr, sharedCudaColorMem);
+    sharedMemoryDevice = attr.device;
+    err = cudaPointerGetAttributes(&attr, reinterpret_cast<void*>(cudaArray));
+    cudaArrayDevice = attr.device;
+    assert(sharedMemoryDevice == cudaArrayDevice);
+    assert(sharedMemoryDevice == currentDevice);
+
     err = cudaMemcpy2DFromArray(
         sharedCudaColorMem,
         width * 4,
@@ -167,6 +200,13 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
         fprintf(
             stderr, "Failed to copy from array: %s\n", cudaGetErrorString(err)
         );
+        cudaGraphicsUnmapResources(1, &cudaResource);
+        cudaGraphicsUnregisterResource(cudaResource);
+        assert(false);
+    }
+    err = cudaDeviceSynchronize();
+    if (err != cudaSuccess) {
+        fprintf(stderr, "Failed to synchronize: %s\n", cudaGetErrorString(err));
         cudaGraphicsUnmapResources(1, &cudaResource);
         cudaGraphicsUnregisterResource(cudaResource);
         assert(false);
