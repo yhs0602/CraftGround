@@ -1,12 +1,12 @@
 #include "framebuffer_capturer_cuda.h"
 #include "driver_types.h"
 #include <cassert>
+#include <cuda_runtime_api.h>
 #include <stdio.h>
 
 static void *sharedCudaColorMem = nullptr;
-static cudaGraphicsResource *cudaResource = nullptr;
 static bool initialized = false;
-static int oldColorAttachment = -1;
+static int rendering_gpu = -1;
 
 // TODO: depth attachment
 int initialize_cuda_ipc(
@@ -27,7 +27,8 @@ int initialize_cuda_ipc(
     unsigned int deviceCount = 0;
     int devices[1];
 
-    // We should select the device that is currently rendering, to avoid gpu-gpu copy
+    // We should select the device that is currently rendering, to avoid gpu-gpu
+    // copy
     // TODO: Support SLI?
     err = cudaGLGetDevices(
         &deviceCount, devices, 1, cudaGLDeviceListCurrentFrame
@@ -38,7 +39,13 @@ int initialize_cuda_ipc(
         return -1;
     }
 
-    fprintf(stdout, "Device count: %d, current Device: %d\n", deviceCount, devices[0]);
+    rendering_gpu = devices[0];
+    fprintf(
+        stdout,
+        "Device count: %d, current Device: %d\n",
+        deviceCount,
+        rendering_gpu
+    );
 
     err = cudaSetDevice(devices[0]);
 
@@ -110,54 +117,35 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
     assert(initialized);
 
     cudaError_t err;
+    cudaGraphicsResource_t cudaResource;
 
-    if (oldColorAttachment != renderedTextureId) {
-        if (cudaResource != nullptr) {
-            err = cudaGraphicsUnmapResources(1, &cudaResource);
-            if (err != cudaSuccess) {
-                fprintf(
-                    stderr,
-                    "Failed to unmap resources: %s\n",
-                    cudaGetErrorString(err)
-                );
-                cudaGraphicsUnregisterResource(cudaResource);
-                assert(false);
-            }
-            cudaGraphicsUnregisterResource(cudaResource);
-            cudaResource = nullptr;
-        }
-    }
-    if (cudaResource == nullptr) {
-        // register the texture with CUDA
-        err = cudaGraphicsGLRegisterImage(
-            &cudaResource,
-            renderedTextureId,
-            GL_TEXTURE_2D,
-            cudaGraphicsRegisterFlagsReadOnly
+    cudaSetDevice(rendering_gpu);
+    // register the texture with CUDA
+    err = cudaGraphicsGLRegisterImage(
+        &cudaResource,
+        renderedTextureId,
+        GL_TEXTURE_2D,
+        cudaGraphicsRegisterFlagsReadOnly
+    );
+
+    if (err != cudaSuccess) {
+        fprintf(
+            stderr, "Failed to register GL image: %s\n", cudaGetErrorString(err)
         );
-
-        if (err != cudaSuccess) {
-            fprintf(
-                stderr,
-                "Failed to register GL image: %s\n",
-                cudaGetErrorString(err)
-            );
-            assert(false);
-        }
-        // This function provides the synchronization guarantee that any
-        // graphics
-        // calls issued before cudaGraphicsMapResources() will complete before
-        // any subsequent CUDA work issued in stream begins. Map the resource
-        // for access by CUDA glFinish();
-        err = cudaGraphicsMapResources(1, &cudaResource);
-        if (err != cudaSuccess) {
-            fprintf(
-                stderr, "Failed to map resources: %s\n", cudaGetErrorString(err)
-            );
-            cudaGraphicsUnregisterResource(cudaResource);
-            assert(false);
-        }
-        oldColorAttachment = renderedTextureId;
+        assert(false);
+    }
+    // This function provides the synchronization guarantee that any
+    // graphics
+    // calls issued before cudaGraphicsMapResources() will complete before
+    // any subsequent CUDA work issued in stream begins. Map the resource
+    // for access by CUDA glFinish();
+    err = cudaGraphicsMapResources(1, &cudaResource);
+    if (err != cudaSuccess) {
+        fprintf(
+            stderr, "Failed to map resources: %s\n", cudaGetErrorString(err)
+        );
+        cudaGraphicsUnregisterResource(cudaResource);
+        assert(false);
     }
 
     // Note: cudaGraphicsResourceGetMappedPointer cannot be used to map texture
@@ -176,23 +164,6 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
     }
 
     // Copy the texture to the shared memory
-    int currentDevice, sharedMemoryDevice, cudaArrayDevice;
-    cudaGetDevice(&currentDevice);
-
-    cudaPointerAttributes attr;
-    err = cudaPointerGetAttributes(&attr, sharedCudaColorMem);
-    sharedMemoryDevice = attr.device;
-    err = cudaPointerGetAttributes(&attr, reinterpret_cast<void*>(cudaArray));
-    cudaArrayDevice = attr.device;
-    fprintf(
-        stdout,
-        "Current device: %d, Shared memory device: %d, Array device: %d\n",
-        currentDevice, sharedMemoryDevice, cudaArrayDevice
-    );
-    fflush(stdout);
-    assert(sharedMemoryDevice == cudaArrayDevice);
-    assert(sharedMemoryDevice == currentDevice);
-
     err = cudaMemcpy2DFromArray(
         sharedCudaColorMem,
         width * 4,
@@ -212,11 +183,26 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
         cudaGraphicsUnregisterResource(cudaResource);
         assert(false);
     }
-    err = cudaDeviceSynchronize();
+    // err = cudaDeviceSynchronize();
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to synchronize: %s\n", cudaGetErrorString(err));
         cudaGraphicsUnmapResources(1, &cudaResource);
         cudaGraphicsUnregisterResource(cudaResource);
         assert(false);
+    }
+
+    if (cudaResource != nullptr) {
+        err = cudaGraphicsUnmapResources(1, &cudaResource);
+        if (err != cudaSuccess) {
+            fprintf(
+                stderr,
+                "Failed to unmap resources: %s\n",
+                cudaGetErrorString(err)
+            );
+            cudaGraphicsUnregisterResource(cudaResource);
+            assert(false);
+        }
+        cudaGraphicsUnregisterResource(cudaResource);
+        cudaResource = nullptr;
     }
 }
