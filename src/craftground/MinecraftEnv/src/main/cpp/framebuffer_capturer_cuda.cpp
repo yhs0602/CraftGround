@@ -62,9 +62,9 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
         GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight
     );
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &format);
-    printf("width: %d, height: %d, format: %d\n", textureWidth, textureHeight, format);
-    fflush(stdout);
-    assert(format == GL_RGBA);
+    // printf("width: %d, height: %d, format: %d\n", textureWidth, textureHeight, format);
+    // fflush(stdout);
+    assert(format == GL_RGBA8);
     // printf("width: %d, height: %d\n", textureWidth, textureHeight);
     glViewport(0, 0, width, height);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
