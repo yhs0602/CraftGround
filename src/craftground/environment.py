@@ -500,11 +500,8 @@ class CraftGroundEnvironment(gym.Env):
                     self.initial_env.imageSizeX,
                     self.initial_env.imageSizeY,
                 )
-                if (
-                    not torch.utils.dlpack.is_dlpack_capsule(cuda_dl_tensor)
-                    or not cuda_dl_tensor
-                ):
-                    raise ValueError("Invalid DLPack capsule")
+                if not cuda_dl_tensor:
+                    raise ValueError("Invalid DLPack capsule: None")
                 rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(cuda_dl_tensor)
                 print(rgb_array_or_tensor.shape)
                 print(rgb_array_or_tensor.dtype)
