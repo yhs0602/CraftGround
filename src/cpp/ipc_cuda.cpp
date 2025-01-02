@@ -12,9 +12,9 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
     Allocate once, deallocate once. (On exit)
     cudaError_t err = cudaIpcCloseMemHandle(self->dl_tensor.data);
     if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to close CUDA IPC handle: %s\n", cudaGetErrorString(err));
-    } else {
-        fprintf(stderr, "Closed CUDA IPC handle\n");
+        fprintf(stderr, "Failed to close CUDA IPC handle: %s\n",
+    cudaGetErrorString(err)); } else { fprintf(stderr, "Closed CUDA IPC
+    handle\n");
     }
     fflush(stderr);
     free(self->dl_tensor.shape);
@@ -41,7 +41,7 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
 
     void *device_ptr = nullptr;
     cudaSetDevice(device_id);
-    err= cudaIpcOpenMemHandle(
+    err = cudaIpcOpenMemHandle(
         &device_ptr,
         *reinterpret_cast<cudaIpcMemHandle_t *>(cuda_ipc_handle),
         cudaIpcMemLazyEnablePeerAccess
@@ -56,9 +56,10 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
 
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
-    
+
     if (!tensor) {
-       throw std::runtime_error("Failed to allocate memory for DLManagedTensor");
+        throw std::runtime_error("Failed to allocate memory for DLManagedTensor"
+        );
     }
     tensor->dl_tensor.data = device_ptr;
     tensor->dl_tensor.ndim = 3; // H x W x C
@@ -74,7 +75,8 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
     if (!tensor->dl_tensor.strides) {
         free(tensor->dl_tensor.shape);
         free(tensor);
-        throw std::runtime_error("Failed to allocate memory for tensor strides");
+        throw std::runtime_error("Failed to allocate memory for tensor strides"
+        );
     }
     tensor->dl_tensor.strides[0] = width * 4;
     tensor->dl_tensor.strides[1] = 4;
@@ -106,7 +108,11 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
         if (attributes.device != device_id) {
             free(tensor->dl_tensor.shape);
             free(tensor);
-            throw std::runtime_error("Device ID mismatch: Attribute=" + std::to_string(attributes.device) + "!= actual=" + std::to_string(device_id));
+            throw std::runtime_error(
+                "Device ID mismatch: Attribute=" +
+                std::to_string(attributes.device) +
+                "!= actual=" + std::to_string(device_id)
+            );
         }
         printf("\nOpen tensor from ipc handle: Device ID: %d\n", device_id);
         fflush(stdout);
