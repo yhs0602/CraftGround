@@ -32,6 +32,7 @@ target_link_libraries(
     CUDA::cudart
     CUDA::cudart_static
     craftground
+    rt
 )
 target_compile_options(test_ipc PRIVATE -D_GLIBCXX_USE_CXX11_ABI=1)
 

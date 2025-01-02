@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.15...3.29)
 project(craftground LANGUAGES CXX)
+include(GNUInstallDirs)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -64,7 +65,7 @@ if(APPLE)
     endif()
 elseif(CUDAToolkit_FOUND)
     target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-    target_link_libraries(craftground_native PRIVATE ${CUDAToolkit_LIBRARIES})
+    target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
 endif()
 
 
