@@ -82,31 +82,39 @@ install(TARGETS craftground_native LIBRARY DESTINATION craftground)
 option(BUILD_TESTS "Build tests" ON)
 if(BUILD_TESTS)
     enable_testing()
-    pybind11_add_module(craftground STATIC ${CRAFTGROUND_PY_SOURCES})
+    add_library(craftground STATIC ${CRAFTGROUND_PY_SOURCES})
+    find_package(Python3 REQUIRED COMPONENTS Development)
+    target_include_directories(
+        craftground PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include
+        ${Python3_INCLUDE_DIRS}
+    )
     if(APPLE)
         if(Torch_FOUND)
-            target_link_libraries(craftground PRIVATE "${TORCH_LIBRARIES}")
+            target_link_libraries(craftground PUBLIC "${TORCH_LIBRARIES}")
             set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
-            target_link_libraries(craftground PRIVATE
+            target_link_libraries(craftground PUBLIC
                 ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
                 ${LIBTORCH_DIR}/libc10.a
             )
-            target_include_directories(craftground PRIVATE "${TORCH_INCLUDE_DIRS}")
-            target_compile_definitions(craftground PRIVATE HAS_TORCH)
-            target_compile_options(craftground PRIVATE -ffunction-sections -fdata-sections)
-            target_link_options(craftground PRIVATE -Wl,-dead_strip)
+            target_include_directories(craftground PUBLIC "${TORCH_INCLUDE_DIRS}")
+            target_compile_definitions(craftground PUBLIC HAS_TORCH)
+            target_compile_options(craftground PUBLIC -ffunction-sections -fdata-sections)
+            # target_link_options(craftground PUBLIC -Wl,-dead_strip)
         endif()
     elseif(CUDAToolkit_FOUND)
-        target_include_directories(craftground PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-        target_link_libraries(craftground PRIVATE ${CUDAToolkit_LIBRARIES})
+        message(STATUS "CUDA is available in tests")
+        target_include_directories(craftground PUBLIC ${CUDAToolkit_INCLUDE_DIRS})
+        target_link_libraries(craftground PUBLIC CUDA::cudart CUDA::cudart_static)
     endif()
-    target_include_directories(craftground PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
+    target_link_options(craftground PRIVATE "-Wl,--whole-archive" "-Wl,--no-whole-archive")
+    target_include_directories(craftground PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
 
-    target_compile_options(craftground PRIVATE ${CRAFTGROUND_PY_COMPILE_OPTIONS})
+    target_compile_options(craftground PUBLIC ${CRAFTGROUND_PY_COMPILE_OPTIONS})
 
     target_compile_definitions(
         craftground
-        PRIVATE VERSION_INFO=${PRIVATE_VERSION_INFO}
+        PUBLIC VERSION_INFO=${PRIVATE_VERSION_INFO}
     )
     add_subdirectory(tests)
 endif()
