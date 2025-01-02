@@ -58,16 +58,15 @@ jobs:
 
     - name: Install CUDA Toolkit (Windows/Linux only)
       if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-      uses: Jimver/cuda-toolkit@v0.2.19
-      id: cuda-toolkit
-      with:
-        cuda: '12.5.0'
+      run: |
+        sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+        echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" | sudo tee /etc/apt/sources.list.d/cuda.list
+        sudo apt-get update
+        sudo apt-get -y install cuda-toolkit-11-8
 
     - name: Check CUDA installation
       if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
       run: |
-        echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
-        echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
         nvcc -V
 
     - name: Configure CMake for python part
