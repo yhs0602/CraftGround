@@ -85,13 +85,11 @@ target_compile_definitions(
     PRIVATE VERSION_INFO=${PRIVATE_VERSION_INFO}
 )
 
-if(APPLE AND Torch_FOUND)
-    # install(FILES
-    #     /usr/local/libtorch/lib/libc10.dylib
-    #     /usr/local/libtorch/lib/libtorch.dylib
-    #     /usr/local/libtorch/lib/libtorch_cpu.dylib
-    #     DESTINATION craftground
-    # )
-endif()
-
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
+
+option(BUILD_TESTS "Build tests" ON)
+if(BUILD_TESTS)
+    enable_testing()
+    add_library(craftground STATIC ${CRAFTGROUND_PY_SOURCES})
+    add_subdirectory(tests)
+endif()
