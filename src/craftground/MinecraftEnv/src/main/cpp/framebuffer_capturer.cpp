@@ -467,14 +467,63 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint depthAttachment,
     jint python_pid
 ) {
-    cudaIpcMemHandle_t memHandle;
-    return initialize_cuda_ipc(
-        width, height, colorAttachment, depthAttachment, &memHandle
+    jclass runtimeExceptionClass = env->FindClass("java/lang/RuntimeException");
+    if (runtimeExceptionClass == nullptr) {
+        return nullptr; // JVM automatically throws NoClassDefFoundError
+    }
+
+    jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
+    if (byteStringClass == nullptr || env->ExceptionCheck()) {
+        return nullptr; // JVM automatically throws NoClassDefFoundError
+    }
+    jmethodID copyFromMethod = env->GetStaticMethodID(
+        byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
     );
+    if (copyFromMethod == nullptr || env->ExceptionCheck()) {
+        return nullptr; // JVM automatically throws NoSuchMethodError
+    }
+
+    cudaIpcMemHandle_t memHandle;
+    int deviceId = -1;
+    int size = initialize_cuda_ipc(
+        width, height, colorAttachment, depthAttachment, &memHandle, &deviceId
+    );
+
+    if (size < 0) {
+        env->ThrowNew(
+            runtimeExceptionClass,
+            "Failed to initialize CUDA IPC for framebuffer capture"
+        );
+        return nullptr;
+    }
+
+    jbyteArray byteArray = env->NewByteArray(size + sizeof(int));
+    if (byteArray == nullptr || env->ExceptionCheck()) {
+        // Handle error
+        return nullptr;
+    }
+
+    env->SetByteArrayRegion(
+        byteArray, 0, size, reinterpret_cast<jbyte *>(&memHandle)
+    );
+    env->SetByteArrayRegion(
+        byteArray, size, sizeof(int), reinterpret_cast<jbyte *>(&deviceId)
+    );
+    jobject byteStringObject =
+        env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
+    if (byteStringObject == nullptr || env->ExceptionCheck()) {
+        // Handle error
+        if (byteArray != nullptr) {
+            env->DeleteLocalRef(byteArray);
+        }
+        return nullptr;
+    }
+    env->DeleteLocalRef(byteArray);
+    return byteStringObject;
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopy(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,
@@ -484,10 +533,10 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     jint mouseX,
     jint mouseY
 ) {
-    if (drawCursor) {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
-        glBindTexture(GL_TEXTURE_2D, cursorTexID);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
 
+    if (drawCursor) {
+        glBindTexture(GL_TEXTURE_2D, cursorTexID);
         glEnable(GL_TEXTURE_2D);
         glBegin(GL_QUADS);
         glTexCoord2f(0.0f, 0.0f);
@@ -503,6 +552,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     }
 
     // CUDA IPC handles are used to share the framebuffer with the Python side
+    // However copy is required anyway
+    copyFramebufferToCudaSharedMemory(targetSizeX, targetSizeY);
 }
 
 #else
@@ -537,7 +588,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
 // TODO: Implement this function for normal mmap IPC based one copy. (GPU ->
 // CPU)
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopy(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
     jint frameBufferId,

@@ -260,7 +260,15 @@ https://dejavu-fonts.github.io/License.html
 ```zsh
 brew install ktlint clang-format google-java-format
 ```
+```bash
+wget https://apt.llvm.org/llvm.sh
+sudo ./llvm.sh 19
+sudo apt install clang-format-19
+sudo ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
+```
+
 ## Run formatters
+
 ```bash
 find . \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.mm' \) | xargs clang-format -i
 ktlint '!src/craftground/MinecraftEnv/src/main/java/com/kyhsgeekcode/minecraftenv/proto/**'
@@ -285,4 +293,21 @@ protoc proto/observation_space.proto --java_out=craftground/MinecraftEnv/src/mai
 ### Solution
 ```bash
 pip install --upgrade protobuf
+```
+
+
+# Dev setup & build (conda, linux)
+```
+conda create --name craftground python=3.11
+conda activate craftground
+conda install gymnasium Pillow numpy protobuf typing_extensions psutil pytorch ninja build cmake
+conda install -c conda-forge openjdk=21 libgl-devel
+conda install glew
+python -m build
+```
+
+## Build jvm c++ part
+```bash
+ cmake src/main/cpp -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
+ cmake --build .
 ```

@@ -73,6 +73,10 @@ if(APPLE)
     list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm)
 endif()
 
+if(CUDAToolkit_FOUND)
+    list(APPEND SOURCE_FILES framebuffer_capturer_cuda.cpp)
+endif()
+
 # Add a library target for your native library
 add_library(native-lib SHARED ${SOURCE_FILES})
 
@@ -99,7 +103,7 @@ if (APPLE)
 endif()
 
 if(CUDAToolkit_FOUND)
-    target_link_libraries(native-lib PRIVATE CUDA::cudart)
+    target_link_libraries(native-lib CUDA::cudart)
 endif()
 
 # If you are using additional libraries, like GLFW for OpenGL context creation,

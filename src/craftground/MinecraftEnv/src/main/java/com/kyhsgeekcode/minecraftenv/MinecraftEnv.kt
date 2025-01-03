@@ -416,8 +416,8 @@ class MinecraftEnv :
             FramebufferCapturer.initializeZeroCopy(
                 initialEnvironment.imageSizeX,
                 initialEnvironment.imageSizeY,
-                0, //                client.framebuffer.colorAttachment,
-                0, //                client.framebuffer.depthAttachment,
+                client.framebuffer.colorAttachment,
+                client.framebuffer.depthAttachment,
                 initialEnvironment.pythonPid,
             )
             csvLogger.log("Initialized zerocopy")

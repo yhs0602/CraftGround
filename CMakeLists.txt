@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.15...3.29)
 project(craftground LANGUAGES CXX)
+include(GNUInstallDirs)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -29,7 +30,7 @@ endif()
 # Collect source files for the module
 set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp)
 
-if (APPLE)
+if(APPLE)
     # Add Apple-specific source files
     list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.mm src/cpp/ipc_apple_torch.cpp)
 
@@ -54,25 +55,17 @@ if(APPLE)
         target_link_libraries(craftground_native PRIVATE "${TORCH_LIBRARIES}")
         set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
         target_link_libraries(craftground_native PRIVATE
-           ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
+            ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
             ${LIBTORCH_DIR}/libc10.a
         )
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
         target_compile_definitions(craftground_native PRIVATE HAS_TORCH)
         target_compile_options(craftground_native PRIVATE -ffunction-sections -fdata-sections)
         target_link_options(craftground_native PRIVATE -Wl,-dead_strip)
-        # add_custom_command(
-        # TARGET craftground_native POST_BUILD
-        # COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
-        # COMMAND install_name_tool -change @rpath/libtorch.dylib @loader_path/libtorch.dylib $<TARGET_FILE:craftground_native>
-        # COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib @loader_path/libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
-        # COMMENT "Updating RPATH to use relative paths"
-        # )
-
     endif()
 elseif(CUDAToolkit_FOUND)
     target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-    target_link_libraries(craftground_native PRIVATE ${CUDAToolkit_LIBRARIES})
+    target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
 endif()
 
 
@@ -85,13 +78,44 @@ target_compile_definitions(
     PRIVATE VERSION_INFO=${PRIVATE_VERSION_INFO}
 )
 
-if(APPLE AND Torch_FOUND)
-    # install(FILES
-    #     /usr/local/libtorch/lib/libc10.dylib
-    #     /usr/local/libtorch/lib/libtorch.dylib
-    #     /usr/local/libtorch/lib/libtorch_cpu.dylib
-    #     DESTINATION craftground
-    # )
-endif()
-
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
+
+option(BUILD_TESTS "Build tests" ON)
+if(BUILD_TESTS)
+    enable_testing()
+    add_library(craftground STATIC ${CRAFTGROUND_PY_SOURCES})
+    find_package(Python3 REQUIRED COMPONENTS Development)
+    target_include_directories(
+        craftground PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include
+        ${Python3_INCLUDE_DIRS}
+    )
+    if(APPLE)
+        if(Torch_FOUND)
+            target_link_libraries(craftground PUBLIC "${TORCH_LIBRARIES}")
+            set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
+            target_link_libraries(craftground PUBLIC
+                ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
+                ${LIBTORCH_DIR}/libc10.a
+            )
+            target_include_directories(craftground PUBLIC "${TORCH_INCLUDE_DIRS}")
+            target_compile_definitions(craftground PUBLIC HAS_TORCH)
+            target_compile_options(craftground PUBLIC -ffunction-sections -fdata-sections)
+            # target_link_options(craftground PUBLIC -Wl,-dead_strip)
+        endif()
+    elseif(CUDAToolkit_FOUND)
+        message(STATUS "CUDA is available in tests")
+        target_include_directories(craftground PUBLIC ${CUDAToolkit_INCLUDE_DIRS})
+        target_link_libraries(craftground PUBLIC CUDA::cudart CUDA::cudart_static)
+    endif()
+    target_link_options(craftground PRIVATE "-Wl,--whole-archive" "-Wl,--no-whole-archive")
+    target_include_directories(craftground PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
+
+    target_compile_options(craftground PUBLIC ${CRAFTGROUND_PY_COMPILE_OPTIONS})
+
+    target_compile_definitions(
+        craftground
+        PUBLIC VERSION_INFO=${PRIVATE_VERSION_INFO}
+    )
+    add_subdirectory(tests)
+endif()
