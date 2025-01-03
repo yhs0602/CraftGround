@@ -10,7 +10,6 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 find_package(CUDAToolkit QUIET)
-
 find_package(Python3 REQUIRED COMPONENTS Development)
 
 # Build Test directory
@@ -22,32 +21,44 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../pybind11/include
     ${Python3_INCLUDE_DIRS}
 )
-if (CUDAToolkit_FOUND)
-    target_include_directories(test_ipc PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-    message(STATUS "CUDA is available in tests")
-    message(STATUS "CUDa toolkit libraries: ${CUDAToolkit_LIBRARY_DIR}")
-    target_link_libraries(
-        test_ipc PRIVATE
-        Python3::Python
-        GTest::gtest_main
-        CUDA::cudart
-        CUDA::cudart_static
-        craftground
-        rt
-    )
-    target_compile_options(test_ipc PRIVATE -D_GLIBCXX_USE_CXX11_ABI=1)
-else()
-    target_link_libraries(
-        test_ipc PRIVATE
-        Python3::Python
-        GTest::gtest_main
-        craftground
-        rt
-    )
+
+# Set up platform-specific logic
+set(
+  LINK_LIBRARIES
+  Python3::Python
+  GTest::gtest_main
+  craftground
+)
+
+if(UNIX AND NOT APPLE)
+    # Ubuntu Linux
+    message(STATUS "Detected Ubuntu Linux")
+    if(CUDAToolkit_FOUND)
+        # Ubuntu with CUDA
+        message(STATUS "CUDA is available in Ubuntu")
+        target_include_directories(test_ipc PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+        list(APPEND LINK_LIBRARIES CUDA::cudart CUDA::cudart_static rt)
+    else()
+        # Ubuntu without CUDA
+        list(APPEND LINK_LIBRARIES rt)
+    endif()
+
+elseif(WIN32)
+    # Windows
+    message(STATUS "Detected Windows")
+    if(CUDAToolkit_FOUND)
+        # Windows with CUDA
+        message(STATUS "CUDA is available in Windows")
+        list(APPEND LINK_LIBRARIES CUDA::cudart)
+    endif()
 endif()
+
+# Apply the libraries to the target
+target_link_libraries(test_ipc PRIVATE ${LINK_LIBRARIES})
+
+# Ensure proper compile options
 target_compile_options(test_ipc PRIVATE -D_GLIBCXX_USE_CXX11_ABI=1)
 
 # Integrate with CTest
 include(GoogleTest)
 gtest_discover_tests(test_ipc)
-
