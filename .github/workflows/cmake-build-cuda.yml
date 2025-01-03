@@ -15,7 +15,7 @@ jobs:
     - name: Install Git 2.18 or higher
       run: |
         apt-get update
-        apt-get install -y git cmake python3-dev ninja-build
+        apt-get install -y git cmake python3-dev ninja-build python3-pip
         git --version
         python3 --version
         ln -s /usr/bin/python3 /usr/bin/python
