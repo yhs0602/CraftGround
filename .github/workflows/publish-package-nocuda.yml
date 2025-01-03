@@ -70,7 +70,7 @@ jobs:
         curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
         unzip libtorch-macos-arm64-2.5.1.zip
         export LIBTORCH=/usr/local/libtorch
-        mv libtorch-macos-arm64-2.5.1 $LIBTORCH
+        mv libtorch $LIBTORCH
 
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
