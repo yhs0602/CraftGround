@@ -15,8 +15,14 @@ jobs:
     - name: Install Git 2.18 or higher
       run: |
         apt-get update
-        apt-get install -y git
+        apt-get install -y git cmake python3-dev ninja-build
         git --version
+        python --version
+    
+    - name: Install cmake
+      run: |
+        pip3 install cmake
+        cmake --version
 
     - uses: actions/checkout@v4
       with:
