@@ -9,7 +9,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-find_package(CUDAToolkit REQUIRED)
+find_package(CUDAToolkit QUIET)
 
 find_package(Python3 REQUIRED COMPONENTS Development)
 
@@ -22,18 +22,29 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../pybind11/include
     ${Python3_INCLUDE_DIRS}
 )
-target_include_directories(test_ipc PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-message(STATUS "CUDA is available in tests")
-message(STATUS "CUDa toolkit libraries: ${CUDAToolkit_LIBRARY_DIR}")
-target_link_libraries(
-    test_ipc PRIVATE
-    Python3::Python
-    GTest::gtest_main
-    CUDA::cudart
-    CUDA::cudart_static
-    craftground
-    rt
-)
+if (CUDAToolkit_FOUND)
+    target_include_directories(test_ipc PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+    message(STATUS "CUDA is available in tests")
+    message(STATUS "CUDa toolkit libraries: ${CUDAToolkit_LIBRARY_DIR}")
+    target_link_libraries(
+        test_ipc PRIVATE
+        Python3::Python
+        GTest::gtest_main
+        CUDA::cudart
+        CUDA::cudart_static
+        craftground
+        rt
+    )
+    target_compile_options(test_ipc PRIVATE -D_GLIBCXX_USE_CXX11_ABI=1)
+else()
+    target_link_libraries(
+        test_ipc PRIVATE
+        Python3::Python
+        GTest::gtest_main
+        craftground
+        rt
+    )
+endif()
 target_compile_options(test_ipc PRIVATE -D_GLIBCXX_USE_CXX11_ABI=1)
 
 # Integrate with CTest
