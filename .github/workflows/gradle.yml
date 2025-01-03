@@ -57,20 +57,6 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-    
-    - name: Install CUDA Toolkit (Windows/Linux only)
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-      uses: Jimver/cuda-toolkit@v0.2.19
-      id: cuda-toolkit
-      with:
-        cuda: '12.5.0'
-  
-    - name: Check CUDA installation
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-      run: |
-        echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
-        echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-        nvcc -V
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md

@@ -17,11 +17,12 @@ jobs:
         apt-get update
         apt-get install -y git cmake python3-dev ninja-build
         git --version
-        python --version
+        python3 --version
+        ln -s /usr/bin/python3 /usr/bin/python
     
     - name: Install cmake
       run: |
-        pip3 install cmake
+        python -m pip install cmake
         cmake --version
 
     - uses: actions/checkout@v4
