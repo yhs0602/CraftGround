@@ -52,7 +52,6 @@ pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
 
 if(APPLE)
     if(Torch_FOUND)
-        target_link_libraries(craftground_native PRIVATE "${TORCH_LIBRARIES}")
         set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
         target_link_libraries(craftground_native PRIVATE
             ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
