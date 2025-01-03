@@ -80,7 +80,7 @@ target_compile_definitions(
 
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
 
-option(BUILD_TESTS "Build tests" ON)
+option(BUILD_TESTS "Build tests" OFF)
 if(BUILD_TESTS)
     enable_testing()
     add_library(craftground STATIC ${CRAFTGROUND_PY_SOURCES})

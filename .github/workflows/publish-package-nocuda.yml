@@ -64,19 +64,13 @@ jobs:
 
     - uses: astral-sh/setup-uv@v4
 
-    - name: Install CUDA Toolkit (Windows/Linux only)
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-      uses: Jimver/cuda-toolkit@v0.2.19
-      id: cuda-toolkit
-      with:
-        cuda: '12.5.0'
-
-    - name: Check CUDA installation
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+    - name: install pytorch headers if macos # export CMAKE_PREFIX_PATH=$LIBTORCH
+      if: matrix.os == 'macos-latest'
       run: |
-        echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
-        echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-        nvcc -V
+        curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
+        unzip libtorch-macos-arm64-2.5.1.zip
+        export LIBTORCH=/usr/local/libtorch
+        mv libtorch-macos-arm64-2.5.1 $LIBTORCH
 
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
