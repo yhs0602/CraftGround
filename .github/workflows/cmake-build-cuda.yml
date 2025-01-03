@@ -12,6 +12,12 @@ jobs:
     container:
       image: nvidia/cuda:12.6.3-devel-ubuntu22.04
     steps:
+    - name: Install Git 2.18 or higher
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git
+        git --version
+
     - uses: actions/checkout@v4
       with:
         submodules: true

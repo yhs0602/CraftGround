@@ -56,19 +56,6 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Install CUDA Toolkit (Windows/Linux only)
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-      run: |
-        apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-        echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" | sudo tee /etc/apt/sources.list.d/cuda.list
-        sudo apt-get update
-        sudo apt-get -y install cuda-toolkit-11-8
-
-    - name: Check CUDA installation
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-      run: |
-        nvcc -V
-
     - name: Configure CMake for python part
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
