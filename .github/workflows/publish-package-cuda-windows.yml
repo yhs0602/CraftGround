@@ -17,10 +17,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-13 is an intel runner, macos-14 is apple silicon
-        os: [ubuntu-latest, macos-latest, windows-latest] # macos-13, macos-14 makes corrupt zip
+        os: [windows-latest]
 
     steps:
+    - name: Install miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: foo
+        python-version: 3.6
+        channels: conda-forge,spyder-ide
+        allow-softlinks: true
+        channel-priority: flexible
+        show-channel-urls: true
+        use-only-tar-bz2: true
+    - run: |
+        conda info
+        conda list
+        conda config --show-sources
+        conda config --show
+
+    - name: Install cuda using conda
+      run: conda install cuda -c nvidia
+    
+    - name: Check cuda version
+      run: nvcc --version
+    
     - uses: actions/checkout@v4
       with:
         submodules: true
@@ -33,22 +54,12 @@ jobs:
 
     - uses: astral-sh/setup-uv@v4
 
-    - name: install pytorch headers if macos # export CMAKE_PREFIX_PATH=$LIBTORCH
-      if: matrix.os == 'macos-latest'
-      run: |
-        curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
-        unzip libtorch-macos-arm64-2.5.1.zip
-        export LIBTORCH=/usr/local/libtorch
-        sudo mv libtorch $LIBTORCH
-
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_WINDOWS: "AMD64 x86"
-        CIBW_ARCHS_MACOS: "arm64"
-        CIBW_ARCHS_LINUX: "x86_64"
 
     - name: Verify clean directory
       run: git diff --exit-code

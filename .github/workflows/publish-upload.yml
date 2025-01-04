@@ -1,0 +1,56 @@
+# https://github.com/pybind/scikit_build_example/blob/master/.github/workflows/wheels.yml
+name: Wheels
+
+on:
+  push:
+    branches:
+     - main
+  release:
+    types:
+      - published
+
+env:
+  FORCE_COLOR: 3
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_cuda_wheels_linux:
+    uses: ./.github/workflows/publish-package-cuda-linux.yml
+  build_cuda_wheels_windows:
+    uses: ./.github/workflows/publish-package-cuda-windows.yml
+  build_nocuda_wheels:
+    uses: ./.github/workflows/publish-package-nocuda.yml
+  build_sdist:
+    uses: ./.github/workflows/publish-build-sdist.yml
+  upload_all:
+    name: Upload if release
+    needs: [build_cuda_wheels_linux, build_cuda_wheels_windows, build_nocuda_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    environment: pypi
+    permissions:
+      id-token: write
+      attestations: write
+
+    steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.9"
+
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        merge-multiple: true
+        path: dist
+
+    - name: Generate artifact attestation for sdist and wheels
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: "dist/*"
+
+    - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        attestations: true
