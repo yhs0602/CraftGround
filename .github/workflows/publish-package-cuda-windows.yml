@@ -1,0 +1,71 @@
+# https://github.com/pybind/scikit_build_example/blob/master/.github/workflows/wheels.yml
+name: Wheels
+
+on: [workflow_call]
+
+env:
+  FORCE_COLOR: 3
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+
+    steps:
+    - name: Install miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: foo
+        python-version: 3.6
+        channels: conda-forge,spyder-ide
+        allow-softlinks: true
+        channel-priority: flexible
+        show-channel-urls: true
+        use-only-tar-bz2: true
+    - run: |
+        conda info
+        conda list
+        conda config --show-sources
+        conda config --show
+
+    - name: Install cuda using conda
+      run: conda install cuda -c nvidia
+    
+    - name: Check cuda version
+      run: nvcc --version
+    
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - uses: astral-sh/setup-uv@v4
+
+    - name: Build wheels
+      uses: pypa/cibuildwheel@v2.22.0
+      env:
+        CIBW_SKIP: cp36-* cp37-* cp38-*
+        CIBW_ENABLE: cpython-prerelease
+        CIBW_ARCHS_WINDOWS: "AMD64 x86"
+
+    - name: Verify clean directory
+      run: git diff --exit-code
+      shell: bash
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: cibw-wheels-${{ matrix.os }}
+        path: wheelhouse/*.whl

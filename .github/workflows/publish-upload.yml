@@ -17,15 +17,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_cuda_wheels:
-    uses: ./.github/workflows/publish-package-cuda.yml
+  build_cuda_wheels_linux:
+    uses: ./.github/workflows/publish-package-cuda-linux.yml
+  build_cuda_wheels_windows:
+    uses: ./.github/workflows/publish-package-cuda-windows.yml
   build_nocuda_wheels:
     uses: ./.github/workflows/publish-package-nocuda.yml
   build_sdist:
     uses: ./.github/workflows/publish-build-sdist.yml
   upload_all:
     name: Upload if release
-    needs: [build_cuda_wheels, build_nocuda_wheels, build_sdist]
+    needs: [build_cuda_wheels_linux, build_cuda_wheels_windows, build_nocuda_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     environment: pypi
