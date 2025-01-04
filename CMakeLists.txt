@@ -52,7 +52,6 @@ pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
 
 if(APPLE)
     if(Torch_FOUND)
-        target_link_libraries(craftground_native PRIVATE "${TORCH_LIBRARIES}")
         set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
         target_link_libraries(craftground_native PRIVATE
             ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
@@ -80,7 +79,7 @@ target_compile_definitions(
 
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
 
-option(BUILD_TESTS "Build tests" ON)
+option(BUILD_TESTS "Build tests" OFF)
 if(BUILD_TESTS)
     enable_testing()
     add_library(craftground STATIC ${CRAFTGROUND_PY_SOURCES})
@@ -92,7 +91,6 @@ if(BUILD_TESTS)
     )
     if(APPLE)
         if(Torch_FOUND)
-            target_link_libraries(craftground PUBLIC "${TORCH_LIBRARIES}")
             set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
             target_link_libraries(craftground PUBLIC
                 ${LIBTORCH_DIR}/libtorch_cpu_minimal.a

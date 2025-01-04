@@ -1,5 +1,5 @@
 # CraftGround - Reinforcement Learning Environment for Minecraft
-[![Wheels](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package.yml)
+[![Wheels (No CUDA)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package-nocuda.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package-nocuda.yml)
 [![Python package](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml)
 [![CMake Build](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml)
 [![Gradle Build](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml)
@@ -311,6 +311,7 @@ python -m build
  cmake src/main/cpp -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
  cmake --build .
 ```
+<<<<<<< HEAD
 
 ## Python unit test with coverage
 ```bash
@@ -318,3 +319,5 @@ python -m pip install coverage pytest
 coverage run --source=src/craftground -m pytest tests/python/unit/
 coverage report
 ```
+=======
+>>>>>>> main
