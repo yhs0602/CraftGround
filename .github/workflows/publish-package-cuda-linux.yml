@@ -34,7 +34,7 @@ jobs:
         allow-prereleases: false
     - name: Install cmake
       run: |
-        python -m pip install cmake
+        python3 -m pip install cmake
         cmake --version
 
     - uses: actions/checkout@v4
