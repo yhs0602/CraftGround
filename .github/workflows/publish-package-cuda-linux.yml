@@ -29,12 +29,11 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: 3.12
-        update-environment: false
         check-latest: false
         allow-prereleases: false
     - name: Install cmake
       run: |
-        python3 -m pip install cmake
+        python -m pip install cmake
         cmake --version
 
     - uses: actions/checkout@v4

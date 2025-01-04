@@ -64,7 +64,13 @@ if(APPLE)
     endif()
 elseif(CUDAToolkit_FOUND)
     target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-    target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
+    if(WIN32)
+        # On Windows, use ${CUDA_LIBRARIES} for linking
+        target_link_libraries(craftground_native PRIVATE ${CUDA_LIBRARIES})
+    else()
+        # On Linux, use the CUDA targets provided by CMake
+        target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
+    endif()
 endif()
 
 
