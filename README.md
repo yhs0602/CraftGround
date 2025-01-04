@@ -1,5 +1,5 @@
 # CraftGround - Reinforcement Learning Environment for Minecraft
-[![Wheels (No CUDA)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package-nocuda.yml)
+[![Wheels (No CUDA)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package-nocuda.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-package-nocuda.yml)
 [![Python package](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml)
 [![CMake Build](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml)
 [![Gradle Build](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml)
