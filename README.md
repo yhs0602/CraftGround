@@ -3,6 +3,7 @@
 [![Python package](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml)
 [![CMake Build](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml)
 [![Gradle Build](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml)
+[![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/yhs0602/8497c0c395a8d6b18d1e81f05ff57dba/raw/craftground__pull__##.json)]()
 
 <img src="docs/craftground.webp" alt="CraftGround_Logo" width="50%"/>
 
@@ -310,4 +311,11 @@ python -m build
 ```bash
  cmake src/main/cpp -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
  cmake --build .
+```
+
+## Python unit test with coverage
+```bash
+python -m pip install coverage pytest
+coverage run --source=src/craftground -m pytest tests/python/unit/
+coverage report
 ```

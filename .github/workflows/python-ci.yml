@@ -28,7 +28,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest flake8-pyproject
+        python -m pip install flake8 pytest flake8-pyproject coverage
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -38,7 +38,29 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest tests/python/unit
+        coverage run --source=src/craftground -m pytest tests/python/unit/
+    
+    - name: coverage
+      run: |
+        coverage report -m
+        COV=$(coverage report | tail -1 | awk '{print $NF}')
+        echo "COVERAGE=$(echo ${COV})" >> $GITHUB_ENV
+        REF=${{ github.ref }}
+        IFS='/' read -ra PATHS <<< "$REF"
+        BRANCH_NAME="${PATHS[1]}_${PATHS[2]}"
+        echo $BRANCH_NAME
+        echo "BRANCH=$(echo ${BRANCH_NAME})" >> $GITHUB_ENV
+    
+    - name: create status badge
+      uses: schneegans/dynamic-badges-action@v1.0.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 8497c0c395a8d6b18d1e81f05ff57dba
+        filename: craftground__${{ env.BRANCH }}.json
+        label: Test Coverage
+        message: ${{ env.COVERAGE }}
+        color: green
+        namedLogo: jest
 
   build-package:
     runs-on: ubuntu-latest

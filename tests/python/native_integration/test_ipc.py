@@ -1,7 +1,9 @@
 import craftground_native
 
+
 def test_add():
     assert craftground_native.add(2, 3) == 5
+
 
 def test_safe_divide():
     try:
@@ -10,4 +12,3 @@ def test_safe_divide():
         assert True
     else:
         assert False
-
