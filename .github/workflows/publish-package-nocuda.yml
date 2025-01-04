@@ -7,7 +7,7 @@ env:
   FORCE_COLOR: 3
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-nocuda
   cancel-in-progress: true
 
 jobs:
