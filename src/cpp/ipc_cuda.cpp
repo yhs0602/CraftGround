@@ -123,9 +123,8 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
         throw std::runtime_error("Failed to get CUDA device ID");
     }
 
-    tensor->dl_tensor.dtype =
-        (DLDataType){kDLUInt, 8, 1}; // Unsigned 8-bit integer
-    tensor->dl_tensor.device = (DLDevice){kDLCUDA, device_id};
+    tensor->dl_tensor.dtype = DLDataType{kDLUInt, 8, 1};
+    tensor->dl_tensor.device = DLDevice{kDLCUDA, device_id};
 
     tensor->deleter = deleteDLManagedTensor;
     return tensor;

@@ -22,10 +22,16 @@ jobs:
     - name: Install Git 2.18 or higher
       run: |
         apt-get update
-        apt-get install -y git cmake python3-dev ninja-build python3-pip
+        apt-get install -y git cmake ninja-build
         git --version
-        python3 --version
-        ln -s /usr/bin/python3 /usr/bin/python
+
+    - name: Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.12
+        update-environment: false
+        check-latest: false
+        allow-prereleases: false
     - name: Install cmake
       run: |
         python -m pip install cmake
