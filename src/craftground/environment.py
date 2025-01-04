@@ -346,6 +346,16 @@ class CraftGroundEnvironment(gym.Env):
         self.observation_tensors = [None, None]
         self.observation_tensor_type = ObservationTensorType.NONE
 
+        if initial_env.screen_encoding_mode == ScreenEncodingMode.ZEROCOPY:
+            try:
+                from .craftground_native import initialize_from_mach_port  # type: ignore
+                from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
+            except ImportError:
+                raise ImportError(
+                    "To use zerocopy encoding mode, please install the craftground[cuda] package on linux or windows."
+                    " If this error happens in macOS, please report it to the developers."
+                )
+
     def reset(
         self,
         *,
