@@ -48,6 +48,7 @@ jobs:
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_WINDOWS: "x86"
         CIBW_ARCHS_MACOS: "arm64"
+        CIBW_ARCHS_LINUX: "i686"
 
     - name: Verify clean directory
       run: git diff --exit-code
