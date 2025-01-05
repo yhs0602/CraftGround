@@ -36,10 +36,10 @@ jobs:
       uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_BUILD_VERBOSITY: 1
-        CIBW_SKIP: cp36-* cp37-* cp38-*
+        CIBW_SKIP: cp36-* cp37-* cp38-* "*musl*"
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_LINUX: "x86_64"
-        CIBW_BEFORE_ALL: >
+        CIBW_BEFORE_ALL: > # https://stackoverflow.com/a/77212119/8614565
           yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo &&
           yum clean all &&
           yum -y install cuda-toolkit &&

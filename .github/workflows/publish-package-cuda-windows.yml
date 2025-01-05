@@ -72,6 +72,17 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_WINDOWS: "AMD64 x86"
+        CIBW_BEFORE_ALL: >
+          choco install -y cuda-toolkit --version=12.6
+          $env:CUDA_HOME = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6"
+          $env:PATH = "$env:CUDA_HOME\bin;$env:PATH"
+          nvcc --version
+          [System.Environment]::SetEnvironmentVariable('CUDA_HOME', $env:CUDA_HOME, 'User')
+          [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'User')
+          $env:LIB = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\lib\x64;$env:LIB"
+          [System.Environment]::SetEnvironmentVariable('LIB', $env:LIB, 'User')
+
+
 
     - name: Verify clean directory
       run: git diff --exit-code
