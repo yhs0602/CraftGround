@@ -42,6 +42,7 @@ jobs:
     - name: Check cuda version
       run: |
         nvcc --version
+        conda info --envs
         $env:CUDA_HOME = (conda info --envs | Select-String '\*' | ForEach-Object { ($_ -replace '\*', '').Trim() }) + "\Library"
         $env:PATH = "$env:CUDA_HOME\bin;$env:PATH"
         [System.Environment]::SetEnvironmentVariable('CUDA_HOME', $env:CUDA_HOME, 'Process')

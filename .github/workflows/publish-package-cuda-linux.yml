@@ -57,6 +57,7 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS: "x86_64"
+        CIBW_CONTAINER_ENGINE: "podman"
 
     - name: Verify clean directory
       run: git diff --exit-code
