@@ -61,8 +61,7 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_WINDOWS: "AMD64 x86"
-        CIBW_ENVIRONMENT_WINDOWS: CUDA_TOOLKIT_ROOT_DIR=${{ env.CONDA }}/Library/lib
-
+        CIBW_ENVIRONMENT_WINDOWS: CUDA_TOOLKIT_ROOT_DIR=${{ env.CONDA }}/Library/lib LIB=${{ env.CONDA }}/Library/lib
 
 
     - name: Verify clean directory
