@@ -1,5 +1,5 @@
 # https://github.com/pybind/scikit_build_example/blob/master/.github/workflows/wheels.yml
-name: Wheels
+name: Windows CUDA wheels
 
 on: [workflow_call]
 
@@ -23,8 +23,8 @@ jobs:
     - name: Install miniconda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        activate-environment: foo
-        python-version: 3.6
+        auto-activate-base: true
+        python-version: 3.9
         channels: conda-forge,spyder-ide
         allow-softlinks: true
         channel-priority: flexible
@@ -40,7 +40,8 @@ jobs:
       run: conda install cuda -c nvidia
     
     - name: Check cuda version
-      run: nvcc --version
+      run: |
+        nvcc --version
     
     - uses: actions/checkout@v4
       with:
@@ -59,7 +60,9 @@ jobs:
       env:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
-        CIBW_ARCHS_WINDOWS: "AMD64 x86"
+        CIBW_ARCHS_WINDOWS: "AMD64"
+        CIBW_ENVIRONMENT_WINDOWS: CUDA_TOOLKIT_ROOT_DIR=${{ env.CONDA }}/Library/lib LIB=${{ env.CONDA }}/Library/lib SKBUILD_CMAKE_ARGS="-DCMAKE_PREFIX_PATH=${{ env.CONDA }}/Library/lib" CMAKE_ARGS="-DCMAKE_PREFIX_PATH=${{ env.CONDA }}/Library/lib"
+
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -67,5 +70,5 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.os }}
+        name: cibw-wheels-${{ matrix.os }}-cuda
         path: wheelhouse/*.whl
