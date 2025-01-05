@@ -23,7 +23,8 @@ jobs:
     - name: Install miniconda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        activate-environment: foo
+        activate-environment: ""
+        auto-activate-base: true
         python-version: 3.9
         channels: conda-forge,spyder-ide
         allow-softlinks: true
@@ -40,21 +41,8 @@ jobs:
       run: conda install cuda -c nvidia
     
     - name: Check cuda version
-      id: installcuda
       run: |
         nvcc --version
-        conda info --envs
-        $activeEnv = (conda info --envs | Select-String '\*' | ForEach-Object { ($_ -replace '\*', '').Trim() })
-        $env:CUDA_HOME = "$activeEnv\Library"
-        $env:PATH = "$env:CUDA_HOME\bin;$env:PATH"
-        $env:CMAKE_PREFIX_PATH = "$activeEnv"
-        Write-Host "CUDA_HOME set to $env:CUDA_HOME"
-        Write-Host "PATH updated with $env:CUDA_HOME\bin"
-        Write-Host "CMAKE_PREFIX_PATH set to $env:CMAKE_PREFIX_PATH"
-        [System.Environment]::SetEnvironmentVariable('CUDA_HOME', $env:CUDA_HOME, 'User')
-        [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'User')
-        [System.Environment]::SetEnvironmentVariable('CMAKE_PREFIX_PATH', $env:CMAKE_PREFIX_PATH, 'User')
-        echo "CMAKE_PREFIX_PATH=$env:CMAKE_PREFIX_PATH" >> "$GITHUB_OUTPUT"
     
     - uses: actions/checkout@v4
       with:
@@ -74,7 +62,7 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_WINDOWS: "AMD64 x86"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_PREFIX_PATH=C:\Miniconda\envs\foo
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_PREFIX_PATH=${{ env.CONDA }}/Library/lib
 
 
 
