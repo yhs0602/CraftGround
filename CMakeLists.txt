@@ -12,7 +12,7 @@ add_subdirectory(pybind11)
 
 find_package(CUDAToolkit QUIET)
 if(CUDAToolkit_FOUND)
-    message(STATUS "CUDA is available: ${CUDAToolkit_VERSION}(${CUDAToolkit_INCLUDE_DIRS}) (${CUDAToolkit_LIBRARY_DIRS}) (${CUDAToolkit_LIBRARIES})")
+    message(STATUS "CUDA is available: ${CUDAToolkit_VERSION}(${CUDAToolkit_INCLUDE_DIRS}) (${CUDAToolkit_LIBRARY_DIR}) (${CUDAToolkit_LIBRARY_ROOT})")
     add_definitions(-DHAS_CUDA)
 else()
     message(STATUS "CUDA is not available")
@@ -66,7 +66,7 @@ elseif(CUDAToolkit_FOUND)
     target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
     if(WIN32)
         # On Windows, use ${CUDA_LIBRARIES} for linking
-        target_link_libraries(craftground_native PRIVATE cudart.lib cudart_static.lib)
+        target_link_libraries(craftground_native PRIVATE ${CUDAToolkit_LIBRARY_DIR}/cudart.lib)
     else()
         # On Linux, use the CUDA targets provided by CMake
         target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
