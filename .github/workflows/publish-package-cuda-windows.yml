@@ -54,7 +54,7 @@ jobs:
         [System.Environment]::SetEnvironmentVariable('CUDA_HOME', $env:CUDA_HOME, 'User')
         [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'User')
         [System.Environment]::SetEnvironmentVariable('CMAKE_PREFIX_PATH', $env:CMAKE_PREFIX_PATH, 'User')
-        echo "CMAKE_PREFIX_PATH=$env:CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+        echo "CMAKE_PREFIX_PATH=$env:CMAKE_PREFIX_PATH" >> "$GITHUB_OUTPUT"
     
     - uses: actions/checkout@v4
       with:
