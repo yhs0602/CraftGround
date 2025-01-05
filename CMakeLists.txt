@@ -66,7 +66,12 @@ elseif(CUDAToolkit_FOUND)
     target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
     if(WIN32)
         # On Windows, use ${CUDA_LIBRARIES} for linking
-        target_link_libraries(craftground_native PRIVATE ${CUDAToolkit_LIBRARY_DIR}/cudart_static.lib)
+        target_link_libraries(
+            craftground_native PRIVATE
+            ${CUDAToolkit_LIBRARY_DIR}/cudart.lib
+            ${CUDAToolkit_LIBRARY_DIR}/cudart_static.lib
+            ${CUDAToolkit_LIBRARY_DIR}/cuda.lib
+        )
     else()
         # On Linux, use the CUDA targets provided by CMake
         target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
