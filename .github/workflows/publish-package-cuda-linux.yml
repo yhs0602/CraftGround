@@ -22,7 +22,7 @@ jobs:
     - name: Install Git 2.18 or higher
       run: |
         apt-get update
-        apt-get install -y git cmake ninja-build
+        apt-get install -y git cmake ninja-build podman
         git --version
 
     - name: Install python
