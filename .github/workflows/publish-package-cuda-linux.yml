@@ -53,5 +53,5 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.os }}
+        name: cibw-wheels-${{ matrix.os }}-cuda
         path: wheelhouse/*.whl
