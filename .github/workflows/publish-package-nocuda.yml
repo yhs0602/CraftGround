@@ -1,5 +1,5 @@
 # https://github.com/pybind/scikit_build_example/blob/master/.github/workflows/wheels.yml
-name: Wheels
+name: Wheels without CUDA / MacOS
 
 on: [workflow_call]
 
@@ -46,9 +46,8 @@ jobs:
       env:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
-        CIBW_ARCHS_WINDOWS: "AMD64 x86"
+        CIBW_ARCHS_WINDOWS: "x86"
         CIBW_ARCHS_MACOS: "arm64"
-        CIBW_ARCHS_LINUX: "x86_64"
 
     - name: Verify clean directory
       run: git diff --exit-code

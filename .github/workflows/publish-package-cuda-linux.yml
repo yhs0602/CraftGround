@@ -1,5 +1,5 @@
 # https://github.com/pybind/scikit_build_example/blob/master/.github/workflows/wheels.yml
-name: Wheels
+name: Linux CUDA wheels
 
 on: [workflow_call]
 
