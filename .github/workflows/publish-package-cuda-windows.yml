@@ -40,6 +40,7 @@ jobs:
       run: conda install cuda -c nvidia
     
     - name: Check cuda version
+      id: installcuda
       run: |
         nvcc --version
         conda info --envs
@@ -53,6 +54,7 @@ jobs:
         [System.Environment]::SetEnvironmentVariable('CUDA_HOME', $env:CUDA_HOME, 'User')
         [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'User')
         [System.Environment]::SetEnvironmentVariable('CMAKE_PREFIX_PATH', $env:CMAKE_PREFIX_PATH, 'User')
+        echo "CMAKE_PREFIX_PATH=$env:CMAKE_PREFIX_PATH" >> $GITHUB_ENV
     
     - uses: actions/checkout@v4
       with:
@@ -72,7 +74,7 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_WINDOWS: "AMD64 x86"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_PREFIX_PATH="$(conda info --envs | Select-String '\*' | ForEach-Object { ($_ -replace '\*', '').Trim() })"
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_PREFIX_PATH=${{ steps.installcuda.outputs.CMAKE_PREFIX_PATH }}
 
 
 
