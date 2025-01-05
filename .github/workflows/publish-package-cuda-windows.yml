@@ -40,7 +40,12 @@ jobs:
       run: conda install cuda -c nvidia
     
     - name: Check cuda version
-      run: nvcc --version
+      run: |
+        nvcc --version
+        export CUDA_HOME=$(conda info --envs | grep '*' | awk '{print $NF}')/Library
+        export PATH=$CUDA_HOME/bin:$PATH
+        export LD_LIBRARY_PATH=$CUDA_HOME/lib:$LD_LIBRARY_PATH
+        echo "CUDA environment variables set for $CUDA_HOME"
     
     - uses: actions/checkout@v4
       with:
