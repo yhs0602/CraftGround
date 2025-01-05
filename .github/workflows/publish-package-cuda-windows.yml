@@ -74,7 +74,7 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
         CIBW_ARCHS_WINDOWS: "AMD64 x86"
-        CIBW_ENVIRONMENT_WINDOWS: CMAKE_PREFIX_PATH=${{ steps.installcuda.outputs.CMAKE_PREFIX_PATH }}
+        CIBW_ENVIRONMENT_WINDOWS: CMAKE_PREFIX_PATH=C:\Miniconda\envs\foo
 
 
 
