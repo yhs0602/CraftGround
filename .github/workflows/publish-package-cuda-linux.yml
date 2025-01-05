@@ -28,7 +28,7 @@ jobs:
     - name: Install python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.12
         check-latest: false
         allow-prereleases: false
     - name: Install cmake
