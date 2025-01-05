@@ -18,11 +18,16 @@ else()
     message(STATUS "CUDA is not available")
 endif()
 
-set(CMAKE_PREFIX_PATH "/usr/local/libtorch")
-find_package(Torch QUIET)
-if(APPLE AND Torch_FOUND)
-    message(STATUS "Torch is available")
-    add_definitions(-DHAS_TORCH)
+
+if(APPLE)
+    set(CMAKE_PREFIX_PATH "/usr/local/libtorch")
+    find_package(Torch QUIET)
+    if(Torch_FOUND)
+        message(STATUS "Torch is available")
+        add_definitions(-DHAS_TORCH)
+    else()
+        message(STATUS "Torch is not available in APPLE")
+    endif()
 else()
     message(STATUS "Torch is not available")
 endif()
@@ -65,10 +70,11 @@ if(APPLE)
 elseif(CUDAToolkit_FOUND)
     target_include_directories(craftground_native PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
     if(WIN32)
+        message(STATUS "CUDA is available on windows: ${CUDAToolkit_LIBRARY_DIR}")
         target_link_libraries(
             craftground_native PRIVATE
             ${CUDAToolkit_LIBRARY_DIR}/cudart.lib
-            # ${CUDAToolkit_LIBRARY_DIR}/cudart_static.lib
+            ${CUDAToolkit_LIBRARY_DIR}/cudart_static.lib
             ${CUDAToolkit_LIBRARY_DIR}/cuda.lib
         )
     else()
