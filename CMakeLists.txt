@@ -74,6 +74,7 @@ elseif(CUDAToolkit_FOUND)
         target_link_libraries(
             craftground_native PRIVATE
             ${CUDAToolkit_LIBRARY_DIR}/cudart.lib
+            ${CUDAToolkit_LIBRARY_DIR}/cudadevrt.lib
             ${CUDAToolkit_LIBRARY_DIR}/cudart_static.lib
             ${CUDAToolkit_LIBRARY_DIR}/cuda.lib
         )
