@@ -12,7 +12,7 @@ add_subdirectory(pybind11)
 
 find_package(CUDAToolkit QUIET)
 if(CUDAToolkit_FOUND)
-    message(STATUS "CUDA is available: ${CUDAToolkit_VERSION} (${CUDAToolkit_INCLUDE_DIRS}) (${CUDAToolkit_LIBRARY_DIRS})")
+    message(STATUS "CUDA is available: ${CUDAToolkit_VERSION}(${CUDAToolkit_INCLUDE_DIRS}) (${CUDAToolkit_LIBRARY_DIRS}) (${CUDAToolkit_LIBRARIES})")
     add_definitions(-DHAS_CUDA)
 else()
     message(STATUS "CUDA is not available")

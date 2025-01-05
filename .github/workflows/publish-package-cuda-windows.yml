@@ -43,11 +43,16 @@ jobs:
       run: |
         nvcc --version
         conda info --envs
-        $env:CUDA_HOME = (conda info --envs | Select-String '\*' | ForEach-Object { ($_ -replace '\*', '').Trim() }) + "\Library"
+        $activeEnv = (conda info --envs | Select-String '\*' | ForEach-Object { ($_ -replace '\*', '').Trim() })
+        $env:CUDA_HOME = "$activeEnv\Library"
         $env:PATH = "$env:CUDA_HOME\bin;$env:PATH"
-        [System.Environment]::SetEnvironmentVariable('CUDA_HOME', $env:CUDA_HOME, 'Process')
-        [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'Process')
+        $env:CMAKE_PREFIX_PATH = "$activeEnv"
         Write-Host "CUDA_HOME set to $env:CUDA_HOME"
+        Write-Host "PATH updated with $env:CUDA_HOME\bin"
+        Write-Host "CMAKE_PREFIX_PATH set to $env:CMAKE_PREFIX_PATH"
+        [System.Environment]::SetEnvironmentVariable('CUDA_HOME', $env:CUDA_HOME, 'User')
+        [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'User')
+        [System.Environment]::SetEnvironmentVariable('CMAKE_PREFIX_PATH', $env:CMAKE_PREFIX_PATH, 'User')
     
     - uses: actions/checkout@v4
       with:

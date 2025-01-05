@@ -1,5 +1,5 @@
 # https://github.com/pybind/scikit_build_example/blob/master/.github/workflows/wheels.yml
-name: Wheels-cuda
+name: Wheels
 
 on: [workflow_call]
 
@@ -12,30 +12,14 @@ concurrency:
 
 jobs:
   build_wheels:
-    name: Wheels on nvidia/cuda:12.6.3-devel-ubuntu22.04
-    runs-on: ubuntu-latest
-    container:
-        image: nvidia/cuda:12.6.3-devel-ubuntu22.04
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
     steps:
-    - name: Install Git 2.18 or higher
-      run: |
-        apt-get update
-        apt-get install -y git cmake ninja-build podman
-        git --version
-
-    - name: Install python
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.12
-        check-latest: false
-        allow-prereleases: false
-    - name: Install cmake
-      run: |
-        python -m pip install cmake
-        cmake --version
-
     - uses: actions/checkout@v4
       with:
         submodules: true
@@ -49,15 +33,19 @@ jobs:
     - uses: astral-sh/setup-uv@v4
 
     - name: Build wheels
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install cibuildwheel==2.22.0
-        python -m cibuildwheel --output-dir wheelhouse
+      uses: pypa/cibuildwheel@v2.22.0
       env:
+        CIBW_BUILD_VERBOSITY: 1
         CIBW_SKIP: cp36-* cp37-* cp38-*
         CIBW_ENABLE: cpython-prerelease
-        CIBW_ARCHS: "x86_64"
-        CIBW_CONTAINER_ENGINE: "podman"
+        CIBW_ARCHS_LINUX: "x86_64"
+        CIBW_BEFORE_ALL: >
+          yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo &&
+          yum clean all &&
+          yum -y install cuda-toolkit &&
+          ls -al /usr/local &&
+          export PATH=$PATH:/usr/local/cuda/bin &&
+          nvcc --version
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -65,5 +53,5 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.image }}
+        name: cibw-wheels-${{ matrix.os }}
         path: wheelhouse/*.whl
