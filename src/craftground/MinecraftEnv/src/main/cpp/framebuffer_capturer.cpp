@@ -470,17 +470,23 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
 ) {
     jclass runtimeExceptionClass = env->FindClass("java/lang/RuntimeException");
     if (runtimeExceptionClass == nullptr) {
+        fprintf(stderr, "Failed to find RuntimeException class\n");
+        fflush(stderr);
         return nullptr; // JVM automatically throws NoClassDefFoundError
     }
 
     jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
     if (byteStringClass == nullptr || env->ExceptionCheck()) {
+        fprintf(stderr, "Failed to find ByteString class\n");
+        fflush(stderr);
         return nullptr; // JVM automatically throws NoClassDefFoundError
     }
     jmethodID copyFromMethod = env->GetStaticMethodID(
         byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
     );
     if (copyFromMethod == nullptr || env->ExceptionCheck()) {
+        fprintf(stderr, "Failed to get copyFrom method\n");
+        fflush(stderr);
         return nullptr; // JVM automatically throws NoSuchMethodError
     }
 
@@ -491,6 +497,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     );
 
     if (size < 0) {
+        fflush(stderr);
         env->ThrowNew(
             runtimeExceptionClass,
             "Failed to initialize CUDA IPC for framebuffer capture"
@@ -501,6 +508,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jbyteArray byteArray = env->NewByteArray(size + sizeof(int));
     if (byteArray == nullptr || env->ExceptionCheck()) {
         // Handle error
+        fprintf(stderr, "Failed to create byte array\n");
+        fflush(stderr);
         return nullptr;
     }
 
@@ -514,6 +523,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
         env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
     if (byteStringObject == nullptr || env->ExceptionCheck()) {
         // Handle error
+        fprintf(stderr, "Failed to create ByteString object\n");
+        fflush(stderr);
         if (byteArray != nullptr) {
             env->DeleteLocalRef(byteArray);
         }
