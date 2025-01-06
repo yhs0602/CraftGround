@@ -419,7 +419,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     return byteStringObject;
 }
 
-extern "C" JNIEXPORT void JNICALL
+extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
@@ -452,6 +452,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     // but the original texture is TEXTURE_2D, so we need to convert to
     // TEXTURE_2D_RECTANGLE_ARB
     copyFramebufferToIOSurface(targetSizeX, targetSizeY);
+    return nullptr;
 }
 
 #elif defined(HAS_CUDA)
@@ -522,7 +523,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     return byteStringObject;
 }
 
-extern "C" JNIEXPORT void JNICALL
+extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
@@ -554,6 +555,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     // CUDA IPC handles are used to share the framebuffer with the Python side
     // However copy is required anyway
     copyFramebufferToCudaSharedMemory(targetSizeX, targetSizeY);
+    return nullptr;
 }
 
 #else
@@ -587,7 +589,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
 
 // TODO: Implement this function for normal mmap IPC based one copy. (GPU ->
 // CPU)
-extern "C" JNIEXPORT void JNICALL
+extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
@@ -598,7 +600,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     jint mouseX,
     jint mouseY
 ) {
-    Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebuffer(
+    return Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
         env,
         clazz,
         0,
