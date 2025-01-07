@@ -17,8 +17,8 @@ add_executable(test_ipc test_ipc.cpp)
 
 target_include_directories(
     test_ipc PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../pybind11/include
     ${Python3_INCLUDE_DIRS}
 )
 
@@ -55,7 +55,7 @@ if(UNIX)
             "-framework Foundation"
         )
         if(Torch_FOUND)
-            set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/../../src/cpp/libtorch)
+            set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
             target_link_libraries(test_ipc PRIVATE
                 ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
                 ${LIBTORCH_DIR}/libc10.a
