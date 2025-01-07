@@ -56,3 +56,13 @@ mkdir build
 cd build
 cmake ../src/main/cpp
 ```
+
+# Docs on MinecraftEnv.kt
+## ResetPhase
+1. Initial: END_RESET
+2. After reading initial environment: WAIT_INIT_ENDS
+
+## IOPhase
+1. Initial: BEGINNING
+2. After reading initial environment: GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
+3. 
