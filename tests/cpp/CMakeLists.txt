@@ -30,19 +30,24 @@ set(
   craftground
 )
 
-if(UNIX AND NOT APPLE)
-    # Ubuntu Linux
-    message(STATUS "Detected Ubuntu Linux")
-    if(CUDAToolkit_FOUND)
-        # Ubuntu with CUDA
-        message(STATUS "CUDA is available in Ubuntu")
-        target_include_directories(test_ipc PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-        list(APPEND LINK_LIBRARIES CUDA::cudart CUDA::cudart_static rt)
+if(UNIX)
+    if(APPLE)
+        # macOS
+        message(STATUS "Detected macOS")
+        list(APPEND LINK_LIBRARIES "-lobjc")
     else()
-        # Ubuntu without CUDA
-        list(APPEND LINK_LIBRARIES rt)
+        # Ubuntu Linux
+        message(STATUS "Detected Ubuntu Linux")
+        if(CUDAToolkit_FOUND)
+            # Ubuntu with CUDA
+            message(STATUS "CUDA is available in Ubuntu")
+            target_include_directories(test_ipc PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+            list(APPEND LINK_LIBRARIES CUDA::cudart CUDA::cudart_static rt)
+        else()
+            # Ubuntu without CUDA
+            list(APPEND LINK_LIBRARIES rt)
+        endif()
     endif()
-
 elseif(WIN32)
     # Windows
     message(STATUS "Detected Windows")
