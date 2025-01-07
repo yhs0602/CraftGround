@@ -81,6 +81,15 @@ int initialize_cuda_ipc(
     return sizeof(cudaIpcMemHandle_t);
 }
 
+void checkAndPrintGLError() {
+    GLenum error = glGetError();
+    while (error != GL_NO_ERROR) {
+        printf("OpenGL Error: 0x%x\n", error);
+        error = glGetError();
+    }
+    fflush(stdout);
+}
+
 void copyFramebufferToCudaSharedMemory(int width, int height) {
     GLuint renderedTextureId;
     glGetFramebufferAttachmentParameteriv(
@@ -89,29 +98,37 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
         GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
         (GLint *)&renderedTextureId
     );
+    checkAndPrintGLError();
     glBindTexture(GL_TEXTURE_2D, renderedTextureId);
+    checkAndPrintGLError();
     int textureWidth, textureHeight;
     int format;
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
+    checkAndPrintGLError();
     glGetTexLevelParameteriv(
         GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight
     );
+    checkAndPrintGLError();
     glGetTexLevelParameteriv(
         GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &format
     );
+    checkAndPrintGLError();
     // printf("width: %d, height: %d, format: %d\n", textureWidth,
     // textureHeight, format); fflush(stdout);
     assert(format == GL_RGBA8);
     // printf("width: %d, height: %d\n", textureWidth, textureHeight);
     glViewport(0, 0, width, height);
+    checkAndPrintGLError();
     glReadBuffer(GL_COLOR_ATTACHMENT0);
+    checkAndPrintGLError();
     GLenum status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
+    checkAndPrintGLError();
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         printf("Framebuffer is not complete! Status: 0x%x\n", status);
         fflush(stdout);
         assert(status == GL_FRAMEBUFFER_COMPLETE);
     }
-    assert(glGetError() == GL_NO_ERROR);
+    fflush(stdout);
     assert(width == textureWidth);
     assert(height == textureHeight);
 
