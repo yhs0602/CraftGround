@@ -31,7 +31,7 @@ object FramebufferCapturer {
                 drawCursor,
                 xPos,
                 yPos,
-            )
+            ) ?: ByteString.EMPTY
         } else {
             return captureFramebufferImpl(
                 textureId,

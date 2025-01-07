@@ -175,17 +175,26 @@ GLuint cursorVAO, cursorVBO, cursorEBO;
 
 float cursorVertices[] = {
     // Positions      // Texture Coords
-    0.0f,  0.0f,      0.0f, 0.0f, // Bottom-left
-    1.0f,  0.0f,      1.0f, 0.0f, // Bottom-right
-    1.0f, -1.0f,      1.0f, 1.0f, // Top-right
-    0.0f, -1.0f,      0.0f, 1.0f  // Top-left
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f, // Bottom-left
+    1.0f,
+    0.0f,
+    1.0f,
+    0.0f, // Bottom-right
+    1.0f,
+    -1.0f,
+    1.0f,
+    1.0f, // Top-right
+    0.0f,
+    -1.0f,
+    0.0f,
+    1.0f // Top-left
 };
 
 // index data
-unsigned int cursorIndices[] = {
-    0, 1, 2,
-    2, 3, 0
-};
+unsigned int cursorIndices[] = {0, 1, 2, 2, 3, 0};
 
 bool initCursorTexture() {
     glGenTextures(1, &cursorTexID);
@@ -239,7 +248,7 @@ bool initCursorTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    const char* vertexShaderSource = R"(
+    const char *vertexShaderSource = R"(
         #version 330 core
         layout(location = 0) in vec2 aPos;       // Vertex position
         layout(location = 1) in vec2 aTexCoord;  // Texture coordinates
@@ -255,7 +264,7 @@ bool initCursorTexture() {
         }
     )";
 
-    const char* fragmentShaderSource = R"(
+    const char *fragmentShaderSource = R"(
         #version 330 core
         out vec4 FragColor;
 
@@ -316,17 +325,28 @@ bool initCursorTexture() {
     glBindVertexArray(cursorVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, cursorVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cursorVertices), cursorVertices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ARRAY_BUFFER, sizeof(cursorVertices), cursorVertices, GL_STATIC_DRAW
+    );
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cursorEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cursorIndices), cursorIndices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(cursorIndices),
+        cursorIndices,
+        GL_STATIC_DRAW
+    );
 
     // Position attribute (aPos)
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(
+        0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0
+    );
     glEnableVertexAttribArray(0);
 
     // Texture attribute (aTexCoord)
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(
+        1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float))
+    );
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0); // Unbind VAO
@@ -361,7 +381,12 @@ void renderCursor(jint mouseX, jint mouseY) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(mouseX, mouseY, 0.0f));
     model = glm::scale(model, glm::vec3(16.0f, 16.0f, 1.0f));
-    glUniformMatrix4fv(glGetUniformLocation(cursorShaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(
+        glGetUniformLocation(cursorShaderProgram, "model"),
+        1,
+        GL_FALSE,
+        glm::value_ptr(model)
+    );
     glBindVertexArray(cursorVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
@@ -676,8 +701,6 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     env->DeleteLocalRef(byteArray);
     return byteStringObject;
 }
-
-
 
 JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
