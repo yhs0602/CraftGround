@@ -17,8 +17,8 @@ add_executable(test_ipc test_ipc.cpp)
 
 target_include_directories(
     test_ipc PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../pybind11/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include
     ${Python3_INCLUDE_DIRS}
 )
 
