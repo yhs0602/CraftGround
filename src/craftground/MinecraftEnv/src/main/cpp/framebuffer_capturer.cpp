@@ -7,6 +7,9 @@
 #else
 //    #include <GL/gl.h>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #endif
 
 #include <cstring> // For strcmp
@@ -167,8 +170,33 @@ const GLubyte cursor[16][16] = {
 };
 
 GLuint cursorTexID;
+GLuint cursorShaderProgram;
+GLuint cursorVAO, cursorVBO, cursorEBO;
 
-void initCursorTexture() {
+float cursorVertices[] = {
+    // Positions      // Texture Coords
+    0.0f,
+    0.0f,
+    0.0f,
+    0.0f, // Bottom-left
+    1.0f,
+    0.0f,
+    1.0f,
+    0.0f, // Bottom-right
+    1.0f,
+    -1.0f,
+    1.0f,
+    1.0f, // Top-right
+    0.0f,
+    -1.0f,
+    0.0f,
+    1.0f // Top-left
+};
+
+// index data
+unsigned int cursorIndices[] = {0, 1, 2, 2, 3, 0};
+
+bool initCursorTexture() {
     glGenTextures(1, &cursorTexID);
     glBindTexture(GL_TEXTURE_2D, cursorTexID);
 
@@ -219,6 +247,149 @@ void initCursorTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    const char *vertexShaderSource = R"(
+        #version 330 core
+        layout(location = 0) in vec2 aPos;       // Vertex position
+        layout(location = 1) in vec2 aTexCoord;  // Texture coordinates
+
+        out vec2 TexCoord;  // Texture coordinates to fragment shader
+
+        uniform mat4 projection;
+        uniform mat4 model;
+
+        void main() {
+            gl_Position = projection * model * vec4(aPos, 0.0, 1.0); // Vertex position
+            TexCoord = aTexCoord; // Pass the texture
+        }
+    )";
+
+    const char *fragmentShaderSource = R"(
+        #version 330 core
+        out vec4 FragColor;
+
+        in vec2 TexCoord;         // Texture coordinates from vertex shader
+        uniform sampler2D uTexture; // Texture sampler
+
+        void main() {
+            FragColor = texture(uTexture, TexCoord); // Output the texture
+        }
+    )";
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+    glCompileShader(vertexShader);
+
+    GLint success;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s\n", infoLog);
+        return false;
+    }
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+    glCompileShader(fragmentShader);
+
+    // Check for shader compile errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+        printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s\n", infoLog);
+        return false;
+    }
+
+    cursorShaderProgram = glCreateProgram();
+    glAttachShader(cursorShaderProgram, vertexShader);
+    glAttachShader(cursorShaderProgram, fragmentShader);
+    glLinkProgram(cursorShaderProgram);
+
+    glGetProgramiv(cursorShaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(cursorShaderProgram, 512, nullptr, infoLog);
+        printf("ERROR::SHADER::PROGRAM::LINKING_FAILED\n%s\n", infoLog);
+        return false;
+    }
+
+    // remove shaders (no longer needed after linking)
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    glGenVertexArrays(1, &cursorVAO);
+    glGenBuffers(1, &cursorVBO);
+    glGenBuffers(1, &cursorEBO);
+
+    glBindVertexArray(cursorVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cursorVBO);
+    glBufferData(
+        GL_ARRAY_BUFFER, sizeof(cursorVertices), cursorVertices, GL_STATIC_DRAW
+    );
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cursorEBO);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(cursorIndices),
+        cursorIndices,
+        GL_STATIC_DRAW
+    );
+
+    // Position attribute (aPos)
+    glVertexAttribPointer(
+        0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0
+    );
+    glEnableVertexAttribArray(0);
+
+    // Texture attribute (aTexCoord)
+    glVertexAttribPointer(
+        1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float))
+    );
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0); // Unbind VAO
+
+    return true;
+}
+
+// TODO: USE shader
+/*
+void renderCursor(jint mouseX, jint mouseY) {
+    glBindTexture(GL_TEXTURE_2D, cursorTexID);
+    glEnable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(mouseX, mouseY);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(mouseX + 16, mouseY);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(mouseX + 16, mouseY - 16);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(mouseX, mouseY - 16);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+}
+*/
+
+void renderCursor(jint mouseX, jint mouseY) {
+    glUseProgram(cursorShaderProgram);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, cursorTexID);
+    glUniform1i(glGetUniformLocation(cursorShaderProgram, "uTexture"), 0);
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(mouseX, mouseY, 0.0f));
+    model = glm::scale(model, glm::vec3(16.0f, 16.0f, 1.0f));
+    glUniformMatrix4fv(
+        glGetUniformLocation(cursorShaderProgram, "model"),
+        1,
+        GL_FALSE,
+        glm::value_ptr(model)
+    );
+    glBindVertexArray(cursorVAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
 extern "C" JNIEXPORT jobject JNICALL
@@ -378,6 +549,11 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint depthAttachment,
     jint python_pid
 ) {
+    if (!initCursorTexture()) {
+        fflush(stderr);
+        fflush(stdout);
+        return nullptr;
+    }
     jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
     if (byteStringClass == nullptr || env->ExceptionCheck()) {
         return nullptr;
@@ -432,20 +608,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
 ) {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
     if (drawCursor) {
-        glBindTexture(GL_TEXTURE_2D, cursorTexID);
-
-        glEnable(GL_TEXTURE_2D);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(mouseX, mouseY);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2f(mouseX + 16, mouseY);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f(mouseX + 16, mouseY - 16);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2f(mouseX, mouseY - 16);
-        glEnd();
-        glDisable(GL_TEXTURE_2D);
+        renderCursor(mouseX, mouseY);
     }
 
     // It could have been that the rendered image is already being shared,
@@ -468,6 +631,11 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint depthAttachment,
     jint python_pid
 ) {
+    if (!initCursorTexture()) {
+        fflush(stderr);
+        fflush(stdout);
+        return nullptr;
+    }
     jclass runtimeExceptionClass = env->FindClass("java/lang/RuntimeException");
     if (runtimeExceptionClass == nullptr) {
         fprintf(stderr, "Failed to find RuntimeException class\n");
@@ -548,19 +716,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
 
     if (drawCursor) {
-        glBindTexture(GL_TEXTURE_2D, cursorTexID);
-        glEnable(GL_TEXTURE_2D);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(mouseX, mouseY);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2f(mouseX + 16, mouseY);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f(mouseX + 16, mouseY - 16);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2f(mouseX, mouseY - 16);
-        glEnd();
-        glDisable(GL_TEXTURE_2D);
+        renderCursor(mouseX, mouseY);
     }
 
     // CUDA IPC handles are used to share the framebuffer with the Python side

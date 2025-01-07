@@ -4,9 +4,19 @@ project(framebuffer_capturer)
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-SET(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)
-SET(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
+set(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)
+set(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include(FetchContent)
+
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY	https://github.com/g-truc/glm.git
+	GIT_TAG 	bf71a834948186f4097caa076cd2663c69a10e1e #refs/tags/1.0.1
+)
+
+FetchContent_MakeAvailable(glm)
 
 set(CRAFGROUND_NATIVE_DEBUG $ENV{CRAFGROUND_NATIVE_DEBUG})
 if (CRAFGROUND_NATIVE_DEBUG)
@@ -86,7 +96,7 @@ if (CRAFGROUND_NATIVE_DEBUG)
 endif()
 
 # Link with JNI and OpenGL libraries
-target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} ${PNG_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} glm::glm)
 if (NOT APPLE)
     target_link_libraries(native-lib ${GLEW_LIBRARIES})
 endif()

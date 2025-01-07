@@ -24,15 +24,14 @@ object FramebufferCapturer {
     ): ByteString {
         if (encodingMode == ZEROCOPY) {
             assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
-            captureFramebufferZerocopyImpl(
+            return captureFramebufferZerocopyImpl(
                 frameBufferId,
                 targetSizeX,
                 targetSizeY,
                 drawCursor,
                 xPos,
                 yPos,
-            )
-            return ByteString.EMPTY
+            ) ?: ByteString.EMPTY
         } else {
             return captureFramebufferImpl(
                 textureId,
@@ -133,7 +132,7 @@ object FramebufferCapturer {
         drawCursor: Boolean,
         mouseX: Int,
         mouseY: Int,
-    )
+    ): ByteString?
 
     const val RAW = 0
     const val PNG = 1
