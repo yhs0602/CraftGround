@@ -60,6 +60,7 @@ if(UNIX)
             #     ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
             #     ${LIBTORCH_DIR}/libc10.a
             # )
+            list(APPEND LINK_LIBRARIES "${TORCH_LIBRARIES}")
         endif()
     else()
         # Ubuntu Linux
