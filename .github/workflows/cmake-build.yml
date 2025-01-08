@@ -64,6 +64,12 @@ jobs:
         unzip libtorch-macos-arm64-2.5.1.zip
         export LIBTORCH=/usr/local/libtorch
         sudo mv libtorch $LIBTORCH
+    
+    - name: Install python < 3.13 if macos # https://groups.google.com/g/vim_dev/c/1I20UCzmtF4
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install python@3.12
+        brew link --force --overwrite python@3.12
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
