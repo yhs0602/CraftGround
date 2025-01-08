@@ -33,6 +33,12 @@ jobs:
 
     - uses: astral-sh/setup-uv@v4
 
+    - name: Install python < 3.13 if macos # https://groups.google.com/g/vim_dev/c/1I20UCzmtF4
+      if: matrix.os == 'macos-latest'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12' 
+
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
       env:
