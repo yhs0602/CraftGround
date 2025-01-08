@@ -56,10 +56,10 @@ if(UNIX)
         )
         if(Torch_FOUND)
             set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
-            target_link_libraries(test_ipc PRIVATE
-                ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
-                ${LIBTORCH_DIR}/libc10.a
-            )
+            # target_link_libraries(test_ipc PRIVATE
+            #     ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
+            #     ${LIBTORCH_DIR}/libc10.a
+            # )
         endif()
     else()
         # Ubuntu Linux
