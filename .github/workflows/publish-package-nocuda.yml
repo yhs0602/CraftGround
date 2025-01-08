@@ -41,10 +41,10 @@ jobs:
         CIBW_ARCHS_WINDOWS: "x86"
         CIBW_ARCHS_MACOS: "arm64"
         CIBW_ARCHS_LINUX: "i686"
-        CIBW_BEFORE_MACOS: >
-          curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
-          unzip libtorch-macos-arm64-2.5.1.zip
-          export LIBTORCH=/usr/local/libtorch
+        CIBW_BEFORE_ALL_MACOS: >
+          curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip &&
+          unzip libtorch-macos-arm64-2.5.1.zip &&
+          export LIBTORCH=/usr/local/libtorch &&
           sudo mv libtorch $LIBTORCH
 
     - name: Verify clean directory
