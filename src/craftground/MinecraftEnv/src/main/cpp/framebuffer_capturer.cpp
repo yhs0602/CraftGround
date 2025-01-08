@@ -3,7 +3,11 @@
 #define GL_SILENCE_DEPRECATION
 #include "framebuffer_capturer_apple.h"
 #include <OpenGL/OpenGL.h>
-#include <OpenGL/gl.h>
+// #include <OpenGL/gl.h>
+#include <OpenGL/gl3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #else
 //    #include <GL/gl.h>
 #include <GL/glew.h>
