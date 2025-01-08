@@ -89,23 +89,23 @@ pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
 
 if(APPLE)
     if(Torch_FOUND)
-        add_custom_command(
-            TARGET craftground_native POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${LIBTORCH_CPU_PATH} ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
-            COMMAND ${CMAKE_COMMAND} -E copy ${LIBC10_PATH} ${CMAKE_BINARY_DIR}/libc10.dylib
-            COMMAND ${CMAKE_COMMAND} -E copy ${LIBOMP_PATH} ${CMAKE_BINARY_DIR}/libomp.dylib
+        # add_custom_command(
+        #     TARGET craftground_native POST_BUILD
+        #     COMMAND ${CMAKE_COMMAND} -E copy ${LIBTORCH_CPU_PATH} ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+        #     COMMAND ${CMAKE_COMMAND} -E copy ${LIBC10_PATH} ${CMAKE_BINARY_DIR}/libc10.dylib
+        #     COMMAND ${CMAKE_COMMAND} -E copy ${LIBOMP_PATH} ${CMAKE_BINARY_DIR}/libomp.dylib
 
-            COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
-            COMMAND install_name_tool -change @rpath/libomp.dylib @loader_path/libomp.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
-            COMMAND install_name_tool -id @loader_path/libtorch_cpu.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
-            COMMAND install_name_tool -id @loader_path/libc10.dylib ${CMAKE_BINARY_DIR}/libc10.dylib
-            COMMAND install_name_tool -id @loader_path/libomp.dylib ${CMAKE_BINARY_DIR}/libomp.dylib
-            COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
-            COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib @loader_path/libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
-            COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
-            COMMAND install_name_tool -change @rpath/libomp.dylib @loader_path/libomp.dylib $<TARGET_FILE:craftground_native>
-            COMMENT "Updating RPATH to use relative paths with copied libraries"
-        )
+        #     COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+        #     COMMAND install_name_tool -change @rpath/libomp.dylib @loader_path/libomp.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+        #     COMMAND install_name_tool -id @loader_path/libtorch_cpu.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+        #     COMMAND install_name_tool -id @loader_path/libc10.dylib ${CMAKE_BINARY_DIR}/libc10.dylib
+        #     COMMAND install_name_tool -id @loader_path/libomp.dylib ${CMAKE_BINARY_DIR}/libomp.dylib
+        #     COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
+        #     COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib @loader_path/libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
+        #     COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
+        #     COMMAND install_name_tool -change @rpath/libomp.dylib @loader_path/libomp.dylib $<TARGET_FILE:craftground_native>
+        #     COMMENT "Updating RPATH to use relative paths with copied libraries"
+        # )
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
         target_compile_definitions(craftground_native PRIVATE HAS_TORCH)
         target_compile_options(craftground_native PRIVATE -ffunction-sections -fdata-sections)
@@ -142,12 +142,12 @@ target_compile_definitions(
 
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
 if(APPLE)
-    install(FILES
-        ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
-        ${CMAKE_BINARY_DIR}/libc10.dylib
-        ${CMAKE_BINARY_DIR}/libomp.dylib
-        DESTINATION craftground
-    )
+    # install(FILES
+    #     ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+    #     ${CMAKE_BINARY_DIR}/libc10.dylib
+    #     ${CMAKE_BINARY_DIR}/libomp.dylib
+    #     DESTINATION craftground
+    # )
 endif()
 
 option(BUILD_TESTS "Build tests" OFF)
