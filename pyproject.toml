@@ -39,6 +39,9 @@ dependencies = [
 Source = "https://github.com/yhs0602/CraftGround"
 Tracker = "https://github.com/yhs0602/CraftGround/issues"
 
+[tool.cibuildwheel.macos]
+repair-wheel-command = "" # Disable repair wheel command on macOS
+
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
