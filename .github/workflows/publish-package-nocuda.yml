@@ -46,6 +46,7 @@ jobs:
           unzip -q libtorch-macos-arm64-2.5.1.zip &&
           export LIBTORCH=/usr/local/libtorch &&
           sudo mv libtorch $LIBTORCH &&
+          python3 --version &&
           pip3 install --break-system-packages torch
 
     - name: Verify clean directory
