@@ -7,7 +7,7 @@
 TEST(IPCModuleTest, AddFunction) {
     EXPECT_THROW(initialize_from_mach_port(2, 3, 4), std::runtime_error);
 }
-#else 
+#else
 
 TEST(IPCModuleTest, AddFunction) {
     EXPECT_EQ(initialize_from_mach_port(2, 3, 4), py::none());
