@@ -23,8 +23,40 @@ if(APPLE)
     set(CMAKE_PREFIX_PATH "/usr/local/libtorch")
     find_package(Torch QUIET)
     if(Torch_FOUND)
-        message(STATUS "Torch is available")
+        message(STATUS "Torch is available: libraries: ${TORCH_LIBRARIES}")
         add_definitions(-DHAS_TORCH)
+        list(APPEND TORCH_LIBRARIES_LIST ${TORCH_LIBRARIES})
+
+        message(STATUS "TORCH_LIBRARIES_LIST: ${TORCH_LIBRARIES_LIST}")
+        set(LIBTORCH_PATHS "")
+        foreach(LIB ${TORCH_LIBRARIES_LIST})
+            if(LIB MATCHES "/[^/]+\\.(dylib|a)$") # .dylib 또는 .a로 끝나는 항목만 처리
+                string(REGEX REPLACE "(.*)/[^/]+\\.(dylib|a)$" "\\1" DIR_PATH "${LIB}")
+                list(APPEND LIBTORCH_DIRS ${DIR_PATH})
+            endif()
+        endforeach()
+        message(STATUS "Extracted LIBTORCH_DIRS: ${LIBTORCH_DIRS}")
+        list(REMOVE_DUPLICATES LIBTORCH_DIRS)
+
+        message(STATUS "LIBTORCH_DIRS: ${LIBTORCH_DIRS}")
+
+        set(LIBOMP_PATH "${LIBTORCH_DIRS}/libomp.dylib")
+        set(LIBC10_PATH "${LIBTORCH_DIRS}/libc10.dylib")
+        set(LIBTORCH_CPU_PATH "${LIBTORCH_DIRS}/libtorch_cpu.dylib")
+        message(STATUS "LIBOMP_PATH: ${LIBOMP_PATH}")
+        message(STATUS "LIBC10_PATH: ${LIBC10_PATH}")
+        message(STATUS "LIBTORCH_CPU_PATH: ${LIBTORCH_CPU_PATH}")
+        if(NOT EXISTS "${LIBOMP_PATH}")
+            message(FATAL_ERROR "LIBOMP_PATH does not exist: ${LIBOMP_PATH}")
+        endif()
+
+        if(NOT EXISTS "${LIBC10_PATH}")
+            message(FATAL_ERROR "LIBC10_PATH does not exist: ${LIBC10_PATH}")
+        endif()
+
+        if(NOT EXISTS "${LIBTORCH_CPU_PATH}")
+            message(FATAL_ERROR "LIBTORCH_CPU_PATH does not exist: ${LIBTORCH_CPU_PATH}")
+        endif()
     else()
         message(STATUS "Torch is not available in APPLE")
     endif()
@@ -57,14 +89,27 @@ pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
 
 if(APPLE)
     if(Torch_FOUND)
-        set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
-        target_link_libraries(craftground_native PRIVATE
-            ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
-            ${LIBTORCH_DIR}/libc10.a
+        add_custom_command(
+            TARGET craftground_native POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${LIBTORCH_CPU_PATH} ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+            COMMAND ${CMAKE_COMMAND} -E copy ${LIBC10_PATH} ${CMAKE_BINARY_DIR}/libc10.dylib
+            COMMAND ${CMAKE_COMMAND} -E copy ${LIBOMP_PATH} ${CMAKE_BINARY_DIR}/libomp.dylib
+
+            COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+            COMMAND install_name_tool -change @rpath/libomp.dylib @loader_path/libomp.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+            COMMAND install_name_tool -id @loader_path/libtorch_cpu.dylib ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+            COMMAND install_name_tool -id @loader_path/libc10.dylib ${CMAKE_BINARY_DIR}/libc10.dylib
+            COMMAND install_name_tool -id @loader_path/libomp.dylib ${CMAKE_BINARY_DIR}/libomp.dylib
+            COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
+            COMMAND install_name_tool -change @rpath/libtorch_cpu.dylib @loader_path/libtorch_cpu.dylib $<TARGET_FILE:craftground_native>
+            COMMAND install_name_tool -change @rpath/libc10.dylib @loader_path/libc10.dylib $<TARGET_FILE:craftground_native>
+            COMMAND install_name_tool -change @rpath/libomp.dylib @loader_path/libomp.dylib $<TARGET_FILE:craftground_native>
+            COMMENT "Updating RPATH to use relative paths with copied libraries"
         )
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
         target_compile_definitions(craftground_native PRIVATE HAS_TORCH)
         target_compile_options(craftground_native PRIVATE -ffunction-sections -fdata-sections)
+        target_link_libraries(craftground_native PRIVATE ${LIBTORCH_CPU_PATH} ${LIBC10_PATH} ${LIBOMP_PATH})
         target_link_options(craftground_native PRIVATE -Wl,-dead_strip)
     endif()
     target_link_libraries(craftground_native PRIVATE "-lobjc")
@@ -96,6 +141,14 @@ target_compile_definitions(
 )
 
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
+if(APPLE)
+    install(FILES
+        ${CMAKE_BINARY_DIR}/libtorch_cpu.dylib
+        ${CMAKE_BINARY_DIR}/libc10.dylib
+        ${CMAKE_BINARY_DIR}/libomp.dylib
+        DESTINATION craftground
+    )
+endif()
 
 option(BUILD_TESTS "Build tests" OFF)
 if(BUILD_TESTS)
