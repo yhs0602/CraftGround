@@ -163,14 +163,15 @@ if(BUILD_TESTS)
     if(APPLE)
         if(Torch_FOUND)
             set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
-            target_link_libraries(craftground PUBLIC
-                ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
-                ${LIBTORCH_DIR}/libc10.a
-            )
+            # target_link_libraries(craftground PUBLIC
+            #     ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
+            #     ${LIBTORCH_DIR}/libc10.a
+            # )
             target_include_directories(craftground PUBLIC "${TORCH_INCLUDE_DIRS}")
             target_compile_definitions(craftground PUBLIC HAS_TORCH)
             target_compile_options(craftground PUBLIC -ffunction-sections -fdata-sections -fobjc-arc)
             target_link_options(craftground PUBLIC -Wl,-dead_strip)
+            target_link_libraries(craftground PUBLIC ${LIBTORCH_CPU_PATH} ${LIBC10_PATH} ${LIBOMP_PATH})
         endif()
         target_link_libraries(craftground PRIVATE "-lobjc")
     elseif(CUDAToolkit_FOUND)
