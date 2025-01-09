@@ -40,6 +40,10 @@ tasks.named('runClient').configure {
     dependsOn compileCpp
 }
 
+tasks.named('build').configure {
+    dependsOn compileCpp
+}
+
 tasks.named('runClient') {
     doFirst {
         def maxMemory = System.getenv("CRAFTGROUND_JVM_MAX_MEMORY") ?: "3G"
