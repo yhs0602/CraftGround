@@ -1,10 +1,13 @@
 # Select ubuntu base image
 FROM ubuntu:22.04
 
-# Install Java, Python, Git
+# Install Java, Python, Git, OpenGL
 RUN apt-get update && \
     apt-get install -y openjdk-21-jdk python3-pip git libgl1-mesa-dev libegl1-mesa-dev libglew-dev&& \
     apt-get clean
+
+# If you want to use PNG mode, you need to install libpng and zlib also
+# RUN apt-get install -y libpng-dev zlib1g-dev
 
 RUN python3 --version
 RUN pip3 install --upgrade pip
