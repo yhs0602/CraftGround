@@ -52,6 +52,7 @@ class CraftGroundEnvironment(gym.Env):
         verbose=False,
         env_path=None,
         port=8000,
+        find_free_port: bool = True,
         render_action: bool = False,
         render_alternating_eyes: bool = False,
         use_terminate: bool = False,
@@ -327,6 +328,7 @@ class CraftGroundEnvironment(gym.Env):
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
         self.port = port
+        self.find_free_port = find_free_port
         self.queued_commands = []
         self.process = None
         if env_path is None:
@@ -575,9 +577,18 @@ class CraftGroundEnvironment(gym.Env):
         # Check if a file exists
         socket_path = f"/tmp/minecraftrl_{port}.sock"
         if os.path.exists(socket_path):
-            raise FileExistsError(
-                f"Socket file {socket_path} already exists. Please choose another port."
-            )
+            if self.find_free_port:
+                print(
+                    f"[Warning]: Socket file {socket_path} already exists. Trying another port."
+                )
+                while os.path.exists(socket_path):
+                    port += 1
+                    socket_path = f"/tmp/minecraftrl_{port}.sock"
+                print(f"Using port {socket_path}")
+            else:
+                raise FileExistsError(
+                    f"Socket file {socket_path} already exists. Please choose another port."
+                )
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
@@ -754,6 +765,7 @@ class CraftGroundEnvironment(gym.Env):
     # when self.render_mode is "rgb_array": render returns the image to be rendered
     # when self.render_mode is "ansi": render returns the text to be rendered
     # when self.render_mode is "rgb_array_list": render returns a list of images to be rendered
+    # when self.render_mode is "rgb_tensor": render returns a torch tensor to be rendered
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
         # print("Rendering...")
         # select last_image and last_frame
@@ -779,7 +791,9 @@ class CraftGroundEnvironment(gym.Env):
         if last_image is None and last_rgb_frame is None:
             return None
 
-        if isinstance(last_rgb_frame, torch.Tensor):
+        if isinstance(last_rgb_frame, torch.Tensor) and (
+            self.render_mode != "rgb_array_tensor" or self.render_action
+        ):
             # drop the alpha channel and convert to numpy array
             last_rgb_frame = last_rgb_frame.cpu().numpy()
         # last_rgb_frame: np.ndarray or torch.Tensor

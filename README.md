@@ -245,9 +245,26 @@ self.get_wrapper_attr("add_commands")(
 ```
 
 
-# Devaju font license
+# License and Acknowledgements
+This project is licensed under the LGPL v3.0 license. The project includes code from the following sources:
+
+## Devaju font license
 
 https://dejavu-fonts.github.io/License.html
+
+## Gamma Utils
+
+This project includes code licensed under the GNU Lesser General Public License v3.0. Specifically:
+- `com.kyhsgeekcode.minecraftenv.mixin.GammaMixin` originates from the [Gamma Utils project](https://github.com/Sjouwer/gamma-utils).
+
+You can find a copy of the GNU Lesser General Public License v3.0 at https://www.gnu.org/licenses/lgpl-3.0.html.
+
+## Fabric-Carpet
+This project includes code from the Fabric Carpet project, which is licensed under the MIT License:
+- Source: https://github.com/gnembon/fabric-carpet
+- Copyright (c) 2020 gnembon
+
+The MIT License applies to the modified code as well. For full license text, see https://opensource.org/licenses/MIT.
 
 
 # Adding a new paramerter
@@ -319,3 +336,4 @@ python -m pip install coverage pytest
 coverage run --source=src/craftground -m pytest tests/python/unit/
 coverage report
 ```
+
