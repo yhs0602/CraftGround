@@ -11,15 +11,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(FetchContent)
 
 FetchContent_Declare(
-	glm
-	GIT_REPOSITORY	https://github.com/g-truc/glm.git
-	GIT_TAG 	bf71a834948186f4097caa076cd2663c69a10e1e #refs/tags/1.0.1
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG bf71a834948186f4097caa076cd2663c69a10e1e #refs/tags/1.0.1
 )
 
 FetchContent_MakeAvailable(glm)
 
 set(CRAFGROUND_NATIVE_DEBUG $ENV{CRAFGROUND_NATIVE_DEBUG})
-if (CRAFGROUND_NATIVE_DEBUG)
+if(CRAFGROUND_NATIVE_DEBUG)
     message("CRAFGROUND_NATIVE_DEBUG=${CRAFGROUND_NATIVE_DEBUG}")
     set(CMAKE_BUILD_TYPE Debug) # Set default build type to Debug
 else()
@@ -35,7 +35,7 @@ include_directories(${JNI_INCLUDE_DIRS})
 # Find OpenGL
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
-if (NOT APPLE)
+if(NOT APPLE)
     find_package(GLEW REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
     message(GLEW_INCLUDE_DIRS="${GLEW_INCLUDE_DIRS}")
@@ -43,27 +43,22 @@ if (NOT APPLE)
 endif()
 
 # Find png
-if (APPLE)
-  set(CMAKE_FIND_FRAMEWORK NEVER)
-  message("CMAKE_FIND_FRAMEWORK=${CMAKE_FIND_FRAMEWORK}")
+if(APPLE)
+    set(CMAKE_FIND_FRAMEWORK NEVER)
+    message("CMAKE_FIND_FRAMEWORK=${CMAKE_FIND_FRAMEWORK}")
 endif()
 # Hacky: Set the CMAKE_FIND_FRAMEWORK to LAST to avoid finding mismatching libs/headers
 set(CMAKE_FIND_FRAMEWORK LAST)
 # set(PNG_STATIC ON)
-find_package(PNG 1.6 REQUIRED)
-include_directories(${PNG_INCLUDE_DIRS})
-message(PNG_INCLUDE_DIRS="${PNG_INCLUDE_DIRS}")
-message(PNG_LIBRARIES="${PNG_LIBRARIES}")
-# find_library(LIBPNG_STATIC libpng16.a)
-#if(NOT LIBPNG_STATIC)
-#  message(FATAL_ERROR "libpng static library not found")
-#else()
-#  message(LIBPNG_STATIC="${LIBPNG_STATIC}")
-#endif()
-# Find zlib
-# find_package(ZLIB REQUIRED)
-# include_directories(${ZLIB_INCLUDE_DIRS})
-# find CUDA
+find_package(PNG 1.6 QUIET)
+if(PNG_FOUND)
+    include_directories(${PNG_INCLUDE_DIRS})
+    message(PNG_INCLUDE_DIRS="${PNG_INCLUDE_DIRS}")
+    message(PNG_LIBRARIES="${PNG_LIBRARIES}")
+    add_compile_definitions(HAS_PNG)
+else()
+    message(FATAL_ERROR "libpng not found. ")
+endif()
 
 find_package(CUDAToolkit QUIET)
 if(CUDAToolkit_FOUND)
@@ -90,18 +85,23 @@ endif()
 # Add a library target for your native library
 add_library(native-lib SHARED ${SOURCE_FILES})
 
-if (CRAFGROUND_NATIVE_DEBUG)
+if(CRAFGROUND_NATIVE_DEBUG)
     message("CRAFGROUND_NATIVE_DEBUG=${CRAFGROUND_NATIVE_DEBUG}")
     target_compile_options(native-lib PRIVATE -g) # Add debug symbols
 endif()
 
 # Link with JNI and OpenGL libraries
-target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} glm::glm)
-if (NOT APPLE)
+target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} glm::glm)
+
+if(PNG_FOUND)
+    target_link_libraries(native-lib ${PNG_LIBRARIES} ${ZLIB_LIBRARIES})
+endif()
+
+if(NOT APPLE)
     target_link_libraries(native-lib ${GLEW_LIBRARIES})
 endif()
 
-if (APPLE)
+if(APPLE)
     target_link_libraries(
         native-lib
         "-framework Metal"
