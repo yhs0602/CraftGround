@@ -10,10 +10,30 @@ shadowJar {
     archiveClassifier.set('')
 }
 
+def findVcpkgRoot() {
+    try {
+        def vcpkgRoot = System.getenv('VCPKG_ROOT')
+        if (vcpkgRoot) {
+            return vcpkgRoot
+        }
+
+        def vcpkgExecutable = "vcpkg"
+        def process = new ProcessBuilder(vcpkgExecutable, "help").start()
+        process.waitFor()
+
+        def executablePath = process.command().get(0)
+        def vcpkgDir = Paths.get(executablePath).toAbsolutePath().getParent().getParent()
+        return vcpkgDir.toString()
+    } catch (Exception e) {
+        println "Cannot find vcpkg root: " + e
+        return null
+    }
+}
+
 tasks.register('configureCppProject', Exec) {
     def useConda = System.getenv('CRAFTGROUND_USE_CONDA')?.toBoolean() ?: false
     def os = org.gradle.internal.os.OperatingSystem.current()
-    def vcpkgRoot = System.getenv('VCPKG_ROOT') // vcpkg root
+    def vcpkgRoot = findVcpkgRoot()
     def vcpkgToolchainFile = vcpkgRoot ? "${vcpkgRoot}/scripts/buildsystems/vcpkg.cmake" : null
     project.logger.lifecycle('Use conda: ' + useConda + ', vcpkg root: ' + vcpkgRoot)
     if (os.isWindows() && vcpkgToolchainFile && file(vcpkgToolchainFile).exists()) {
