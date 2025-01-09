@@ -259,6 +259,13 @@ This project includes code licensed under the GNU Lesser General Public License 
 
 You can find a copy of the GNU Lesser General Public License v3.0 at https://www.gnu.org/licenses/lgpl-3.0.html.
 
+## Fabric-Carpet
+This project includes code from the Fabric Carpet project, which is licensed under the MIT License:
+- Source: https://github.com/gnembon/fabric-carpet
+- Copyright (c) 2020 gnembon
+
+The MIT License applies to the modified code as well. For full license text, see https://opensource.org/licenses/MIT.
+
 
 # Adding a new paramerter
 1. Edit .proto

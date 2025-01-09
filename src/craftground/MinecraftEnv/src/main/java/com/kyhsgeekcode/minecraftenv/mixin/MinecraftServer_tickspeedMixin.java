@@ -1,6 +1,14 @@
 package com.kyhsgeekcode.minecraftenv.mixin;
 
 import java.util.function.BooleanSupplier;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerTask;
 import net.minecraft.server.ServerTickManager;
@@ -9,14 +17,15 @@ import net.minecraft.util.TimeHelper;
 import net.minecraft.util.Util;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
-// https://github.com/gnembon/fabric-carpet/blob/master/src/main/java/carpet/mixins/MinecraftServer_tickspeedMixin.java
+/*
+ * This file is based on code from the Fabric Carpet project.
+ * Source: https://github.com/gnembon/fabric-carpet/blob/master/src/main/java/carpet/mixins/MinecraftServer_tickspeedMixin.java
+ * Licensed under the MIT License (https://github.com/gnembon/fabric-carpet/blob/master/LICENSE).
+ *
+ * Modifications made by Hyeonseo Yang.
+ */
+
 @Mixin(value = MinecraftServer.class, priority = Integer.MAX_VALUE - 10)
 public abstract class MinecraftServer_tickspeedMixin extends ReentrantThreadExecutor<ServerTask> {
   @Shadow @Final private static Logger LOGGER;
