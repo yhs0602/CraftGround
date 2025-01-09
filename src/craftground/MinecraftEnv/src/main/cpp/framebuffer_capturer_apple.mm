@@ -134,8 +134,8 @@ void copyFramebufferToIOSurface(int width, int height) {
     // );
     // glBindTexture(GL_TEXTURE_2D, renderedTextureId);
     // int textureWidth, textureHeight;
-    // glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
-    // glGetTexLevelParameteriv(
+    // glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,
+    // &textureWidth); glGetTexLevelParameteriv(
     //     GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight
     // );
     // printf("width: %d, height: %d\n", textureWidth, textureHeight);
