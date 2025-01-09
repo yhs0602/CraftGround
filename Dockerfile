@@ -13,11 +13,11 @@ RUN python3 --version
 RUN pip3 install --upgrade pip
 RUN pip3 install cmake
 
+RUN echo "Installing CraftGround"
 RUN pip3 install git+https://github.com/yhs0602/CraftGround.git@dev  
 
 # Clone test repository
 WORKDIR /workspace
-RUN echo "Cloning repository"
 RUN git clone https://github.com/yhs0602/minecraft-simulator-benchmark.git
 
 # Set work directory and default execution
