@@ -52,6 +52,7 @@ class CraftGroundEnvironment(gym.Env):
         verbose=False,
         env_path=None,
         port=8000,
+        find_free_port: bool = True,
         render_action: bool = False,
         render_alternating_eyes: bool = False,
         use_terminate: bool = False,
@@ -327,6 +328,7 @@ class CraftGroundEnvironment(gym.Env):
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
         self.port = port
+        self.find_free_port = find_free_port
         self.queued_commands = []
         self.process = None
         if env_path is None:
@@ -575,9 +577,18 @@ class CraftGroundEnvironment(gym.Env):
         # Check if a file exists
         socket_path = f"/tmp/minecraftrl_{port}.sock"
         if os.path.exists(socket_path):
-            raise FileExistsError(
-                f"Socket file {socket_path} already exists. Please choose another port."
-            )
+            if self.find_free_port:
+                print(
+                    f"[Warning]: Socket file {socket_path} already exists. Trying another port."
+                )
+                while os.path.exists(socket_path):
+                    port += 1
+                    socket_path = f"/tmp/minecraftrl_{port}.sock"
+                print(f"Using port {socket_path}")
+            else:
+                raise FileExistsError(
+                    f"Socket file {socket_path} already exists. Please choose another port."
+                )
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
