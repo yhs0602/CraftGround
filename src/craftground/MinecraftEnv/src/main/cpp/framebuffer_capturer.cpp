@@ -18,7 +18,10 @@
 
 #include <cstring> // For strcmp
 #include <iostream>
+
+#ifdef HAS_PNG
 #include <png.h>
+#endif
 #include <stdlib.h>
 #include <vector>
 
@@ -34,6 +37,7 @@ typedef unsigned char ui8;
         }                                                                      \
     } while (0)
 
+#ifdef HAS_PNG
 static void
 PngWriteCallback(png_structp png_ptr, png_bytep data, png_size_t length) {
     std::vector<ui8> *p = (std::vector<ui8> *)png_get_io_ptr(png_ptr);
@@ -80,6 +84,7 @@ void WritePngToMemory(
     png_set_write_fn(p, &out, PngWriteCallback, NULL);
     png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 }
+#endif
 
 // FIXME: Use glGetIntegerv(GL_NUM_EXTENSIONS) then use glGetStringi for
 // OpenGL 3.0+
@@ -145,7 +150,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeGLEW(
 #endif
 }
 
-enum EncodingMode { RAW = 0, PNG = 1 };
+enum EncodingMode { RAW = 0, PNG = 1, ZEROCOPY = 2 };
 
 // 16 x 16 bitmap cursor
 // 0: transparent, 1: white, 2: black
@@ -504,6 +509,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
 
     // make png bytes from the pixels
     if (encodingMode == PNG) {
+#ifdef HAS_PNG
         std::vector<ui8> imageBytes;
         WritePngToMemory(
             (size_t)targetSizeX, (size_t)targetSizeY, pixels, imageBytes
@@ -515,6 +521,15 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
             imageBytes.size(),
             reinterpret_cast<jbyte *>(imageBytes.data())
         );
+#else
+        // Handle error
+        env->ThrowNew(
+            env->FindClass("java/lang/RuntimeException"),
+            "PNG encoding is not supported on this platform: Could not find "
+            "libpng"
+        );
+        return nullptr;
+#endif
     } else if (encodingMode == RAW) {
         env->SetByteArrayRegion(
             byteArray,
