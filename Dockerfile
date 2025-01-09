@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 
 # Install Java, Python, Git, OpenGL
 RUN apt-get update && \
-    apt-get install -y openjdk-21-jdk python3-pip git libgl1-mesa-dev libegl1-mesa-dev libglew-dev xvfb&& \
+    apt-get install -y openjdk-21-jdk python3-pip git libgl1-mesa-dev libegl1-mesa-dev libglew-dev xorg-dev libglu1-mesa-dev xvfb&& \
     apt-get clean
 
 # If you want to use PNG mode, you need to install libpng and zlib also

@@ -86,6 +86,7 @@ jobs:
         vcpkg update
         vcpkg install glew
         where vcpkg
+        vcpkg integrate install
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
