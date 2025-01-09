@@ -75,6 +75,7 @@ jobs:
         sudo mv libtorch $LIBTORCH
 
     - name: Install build dependencies (OpenGL, GLEW)
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y libgl1-mesa-dev libegl1-mesa-dev libglew-dev
