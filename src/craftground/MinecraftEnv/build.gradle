@@ -16,14 +16,29 @@ def findVcpkgRoot() {
         if (vcpkgRoot) {
             return vcpkgRoot
         }
+        def os = org.gradle.internal.os.OperatingSystem.current()
 
-        def vcpkgExecutable = "vcpkg"
-        def process = new ProcessBuilder(vcpkgExecutable, "help").start()
-        process.waitFor()
-
-        def executablePath = process.command().get(0)
-        def vcpkgDir = Paths.get(executablePath).toAbsolutePath().getParent().getParent()
-        return vcpkgDir.toString()
+        if (os.isWindows()) {
+            def process = new ProcessBuilder("cmd", "/c", "where vcpkg").start()
+            process.waitFor()
+            def output = process.inputStream.text.trim()
+            if (output) {
+                def vcpkgDir = new File(output).getParentFile().getParentFile()
+                return vcpkgDir.absolutePath
+            } else {
+                throw new RuntimeException("Cannot find vcpkg root")
+            }
+        } else {
+            def process = new ProcessBuilder("bash", "-c", "which vcpkg").start()
+            process.waitFor()
+            def output = process.inputStream.text.trim()
+            if (output) {
+                def vcpkgDir = new File(output).getParentFile().getParentFile()
+                return vcpkgDir.absolutePath
+            } else {
+                throw new RuntimeException("Cannot find vcpkg root")
+            }
+        }
     } catch (Exception e) {
         println "Cannot find vcpkg root: " + e
         return null
