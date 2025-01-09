@@ -12,11 +12,26 @@ shadowJar {
 
 tasks.register('configureCppProject', Exec) {
     def useConda = System.getenv('CRAFTGROUND_USE_CONDA')?.toBoolean() ?: false
-    if (useConda) {
-        commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+    def os = org.gradle.internal.os.OperatingSystem.current()
+    def vcpkgRoot = System.getenv('VCPKG_ROOT') // vcpkg root
+    def vcpkgToolchainFile = vcpkgRoot ? "${vcpkgRoot}/scripts/buildsystems/vcpkg.cmake" : null
+    project.logger.lifecycle('Use conda: ' + useConda + ', vcpkg root: ' + vcpkgRoot)
+    if (os.isWindows() && vcpkgToolchainFile && file(vcpkgToolchainFile).exists()) {
+        project.logger.lifecycle('Using vcpkg toolchain file: ' + vcpkgToolchainFile)
+        if (useConda) {
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+        } else {
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, 'src/main/cpp'
+        } 
     } else {
-        commandLine 'cmake', 'src/main/cpp'
+        project.logger.lifecycle('Using default cmake, not using vcpkg')
+        if (useConda) {
+            commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+        } else {
+            commandLine 'cmake', 'src/main/cpp'
+        }
     }
+    
     inputs.dir("src/main/cpp")
     outputs.files("MakeFile", "CMakeCache.txt", "cmake_install.cmake")
     outputs.dir("CMakeFiles")

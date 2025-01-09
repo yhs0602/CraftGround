@@ -123,3 +123,4 @@ CMakeFiles/
 .cache
 compile_commands.json
 _deps/
+bin/
