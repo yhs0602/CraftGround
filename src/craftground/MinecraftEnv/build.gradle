@@ -33,7 +33,7 @@ def findVcpkgRoot() {
             process.waitFor()
             def output = process.inputStream.text.trim()
             if (output) {
-                def vcpkgDir = new File(output).getParentFile().getParentFile()
+                def vcpkgDir = new File(output).getParentFile()
                 return vcpkgDir.absolutePath
             } else {
                 throw new RuntimeException("Cannot find vcpkg root")

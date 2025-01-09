@@ -23,5 +23,6 @@ RUN git clone https://github.com/yhs0602/minecraft-simulator-benchmark.git
 # Set work directory and default execution
 WORKDIR /workspace/minecraft-simulator-benchmark
 RUN pip3 install wandb tensorboard moviepy git+https://github.com/DLR-RM/stable-baselines3.git
-RUN WANDB_MODE=offline PYTHONPATH=. python3 experiments/craftground_exp.py --mode raw --image_width 64x64 --load simulation --max-steps 100
+ENV DISPLAY :99
+RUN sh -c Xvfb :99 -screen 0 640x480x24 -nolisten tcp & WANDB_MODE=offline PYTHONPATH=. python3 experiments/craftground_exp.py --mode raw --image_width 64x64 --load simulation --max-steps 100
 ENTRYPOINT ["bash"]
