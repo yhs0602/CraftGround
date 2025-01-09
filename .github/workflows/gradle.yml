@@ -73,6 +73,21 @@ jobs:
         unzip libtorch-macos-arm64-2.5.1.zip
         export LIBTORCH=/usr/local/libtorch
         sudo mv libtorch $LIBTORCH
+
+    - name: Install build dependencies (OpenGL, GLEW)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libegl1-mesa-dev libglew-dev
+
+    - name: Install glew with vcpkg
+      if: matrix.os == 'windows-latest'
+      run: |
+        vcpkg update
+        vcpkg install glew
+        where vcpkg
+        vcpkg integrate install
+
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle 8.8

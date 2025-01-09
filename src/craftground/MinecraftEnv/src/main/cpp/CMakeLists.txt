@@ -57,7 +57,7 @@ if(PNG_FOUND)
     message(PNG_LIBRARIES="${PNG_LIBRARIES}")
     add_compile_definitions(HAS_PNG)
 else()
-    message(FATAL_ERROR "libpng not found. ")
+    message(WARNING "libpng not found. You won't be able to use PNG mode. To enable PNG mode, install libpng and zlib and re-run cmake.")
 endif()
 
 find_package(CUDAToolkit QUIET)
