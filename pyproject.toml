@@ -36,11 +36,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-jax = [
-    "jax>=0.4.10",
-    "jaxlib>=0.4.10; platform_system != 'Darwin'",  # CUDA/CPU backend (Not Apple GPU)
-    "jax-metal>=0.1.1; platform_system == 'Darwin'",  # Metal backend (Apple GPU)
-]
+jax_cuda11 = ["jax[cuda11]"]
+jax_cuda12 = ["jax[cuda12]"]
+jax_cpu = ["jax[cpu]"]
+jax_metal = ["jax-metal"]
 
 [project.urls]
 Source = "https://github.com/yhs0602/CraftGround"
