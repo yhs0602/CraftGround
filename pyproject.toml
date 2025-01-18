@@ -35,6 +35,13 @@ dependencies = [
     "torch",
 ]
 
+[project.optional-dependencies]
+jax = [
+    "jax>=0.4.10",
+    "jaxlib>=0.4.10; platform_system != 'Darwin'",  # CUDA/CPU backend (Not Apple GPU)
+    "jax-metal>=0.1.1; platform_system == 'Darwin'",  # Metal backend (Apple GPU)
+]
+
 [project.urls]
 Source = "https://github.com/yhs0602/CraftGround"
 Tracker = "https://github.com/yhs0602/CraftGround/issues"
