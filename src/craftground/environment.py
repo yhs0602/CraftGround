@@ -42,6 +42,7 @@ class ObservationTensorType(Enum):
     NONE = 0
     CUDA_DLPACK = 1
     APPLE_TENSOR = 2
+    JAX_NP = 3
 
 
 class CraftGroundEnvironment(gym.Env):
@@ -419,6 +420,83 @@ class CraftGroundEnvironment(gym.Env):
             final_obs["rgb_2"] = rgb_2
         return final_obs, final_obs
 
+    def zerocopy_after_init(self) -> Optional[torch.Tensor]:
+        if self.initial_env.eye_distance > 0:  # binocular vision
+            # TODO: Handle binocular vision
+            if (
+                self.observation_tensors[0] is not None
+                and self.observation_tensors[1] is not None
+            ):
+                # already intialized
+                # drop alpha, flip y axis, and clone
+                if self.observation_tensor_type == ObservationTensorType.APPLE_TENSOR:
+                    return (
+                        self.observation_tensors[0].clone()[:, :, [2, 1, 0]].flip(0),
+                        None,
+                    )
+                elif self.observation_tensor_type == ObservationTensorType.CUDA_DLPACK:
+                    return self.observation_tensors[0].clone()[:, :, :3].flip(0)
+        else:
+            if self.observation_tensors[0] is not None:
+                # already intialized
+                # drop alpha, flip y axis, and clone
+                if self.observation_tensor_type == ObservationTensorType.APPLE_TENSOR:
+                    return self.observation_tensors[0].clone()[:, :, [2, 1, 0]].flip(0)
+                elif self.observation_tensor_type == ObservationTensorType.CUDA_DLPACK:
+                    return self.observation_tensors[0].clone()[:, :, :3].flip(0)
+        return None
+
+    def init_zerocopy_tensor(self, res) -> torch.Tensor:
+        import torch
+        from .craftground_native import initialize_from_mach_port  # type: ignore
+        from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
+
+        if len(res.ipc_handle) == 0:
+            raise ValueError("No ipc handle found.")
+        if len(res.ipc_handle) == 4:
+            mach_port = int.from_bytes(res.ipc_handle, byteorder="little", signed=False)
+            print(f"{mach_port=}")
+            apple_dl_tensor = initialize_from_mach_port(
+                mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
+            )
+            if apple_dl_tensor is not None:
+                # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
+                rgb_array_or_tensor = apple_dl_tensor
+                print(rgb_array_or_tensor.shape)
+                print(rgb_array_or_tensor.dtype)
+                print(rgb_array_or_tensor.device)
+                self.observation_tensors[0] = rgb_array_or_tensor
+                # drop alpha, flip y axis, and clone
+                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(
+                    0
+                )
+                self.observation_tensor_type = ObservationTensorType.APPLE_TENSOR
+                return rgb_array_or_tensor
+            else:
+                raise ValueError(
+                    f"Failed to initialize from mach port {res.ipc_handle}."
+                )
+        else:
+            import torch.utils.dlpack
+
+            cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
+                res.ipc_handle,
+                self.initial_env.imageSizeX,
+                self.initial_env.imageSizeY,
+            )
+            if not cuda_dl_tensor:
+                raise ValueError("Invalid DLPack capsule: None")
+            rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(cuda_dl_tensor)
+            print(rgb_array_or_tensor.shape)
+            print(rgb_array_or_tensor.dtype)
+            print(rgb_array_or_tensor.device)
+            print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
+            self.observation_tensors[0] = rgb_array_or_tensor
+            # drop alpha, flip y axis, and clone
+            rgb_array_or_tensor = self.observation_tensors[0].clone()[:, :, :3].flip(0)
+            self.observation_tensor_type = ObservationTensorType.CUDA_DLPACK
+            return rgb_array_or_tensor
+
     """
     returns:
     - numpy array or torch Tensor of the image
@@ -428,7 +506,7 @@ class CraftGroundEnvironment(gym.Env):
 
     def convert_observation(
         self, image_bytes: bytes, res: ObsType
-    ) -> Tuple[Union[np.ndarray, torch.Tensor], Optional[Image.Image]]:
+    ) -> Tuple[Union[np.ndarray, torch.Tensor, "jax.numpy.np"], Optional[Image.Image]]:
         if self.encoding_mode == ScreenEncodingMode.PNG:
             # decode png byte array to numpy array
             # Create a BytesIO object from the byte array
@@ -459,58 +537,24 @@ class CraftGroundEnvironment(gym.Env):
             img = None
             self.csv_logger.profile_end("convert_observation/decode_raw")
         elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
-            import torch
+            zerocopied_tensor = self.zerocopy_after_init()
+            if zerocopied_tensor is not None:
+                return zerocopied_tensor, None
 
-            if self.initial_env.eye_distance > 0:  # binocular vision
-                # TODO: Handle binocular vision
-                if (
-                    self.observation_tensors[0] is not None
-                    and self.observation_tensors[1] is not None
-                ):
-                    # already intialized
-                    # drop alpha, flip y axis, and clone
-                    if (
-                        self.observation_tensor_type
-                        == ObservationTensorType.APPLE_TENSOR
-                    ):
-                        return (
-                            self.observation_tensors[0]
-                            .clone()[:, :, [2, 1, 0]]
-                            .flip(0),
-                            None,
-                        )
-                    elif (
-                        self.observation_tensor_type
-                        == ObservationTensorType.CUDA_DLPACK
-                    ):
-                        return (
-                            self.observation_tensors[0].clone()[:, :, :3].flip(0),
-                            None,
-                        )
-            else:
-                if self.observation_tensors[0] is not None:
-                    # already intialized
-                    # drop alpha, flip y axis, and clone
-                    if (
-                        self.observation_tensor_type
-                        == ObservationTensorType.APPLE_TENSOR
-                    ):
-                        return (
-                            self.observation_tensors[0]
-                            .clone()[:, :, [2, 1, 0]]
-                            .flip(0),
-                            None,
-                        )
-                    elif (
-                        self.observation_tensor_type
-                        == ObservationTensorType.CUDA_DLPACK
-                    ):
-                        return (
-                            self.observation_tensors[0].clone()[:, :, :3].flip(0),
-                            None,
-                        )
+            zerocopied_tensor = self.init_zerocopy_tensor(res)
+            return zerocopied_tensor, None
+        elif self.encoding_mode == ScreenEncodingMode.JAX:
+            if self.observation_tensor_type == ObservationTensorType.JAX_NP:
+                if self.initial_env.eye_distance > 0:  # binocular vision
+                    raise NotImplementedError(
+                        "Binocular vision not implemented yet in JAX"
+                    )
+                else:
+                    if self.observation_tensors[0] is not None:
+                        return self.observation_tensors[0], None
 
-            from .craftground_native import initialize_from_mach_port  # type: ignore
+            import jax.numpy as jnp
+            from .craftground_native import mtl_dlpack_from_mach_port  # type: ignore
             from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
             if len(res.ipc_handle) == 0:
@@ -519,49 +563,42 @@ class CraftGroundEnvironment(gym.Env):
                 mach_port = int.from_bytes(
                     res.ipc_handle, byteorder="little", signed=False
                 )
-                print(f"{mach_port=}")
-                apple_dl_tensor = initialize_from_mach_port(
+                print_with_time(f"{mach_port=}")
+                dlpack_capsule = mtl_dlpack_from_mach_port(
                     mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
                 )
-                if apple_dl_tensor is not None:
-                    # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
-                    rgb_array_or_tensor = apple_dl_tensor
-                    print(rgb_array_or_tensor.shape)
-                    print(rgb_array_or_tensor.dtype)
-                    print(rgb_array_or_tensor.device)
-                    self.observation_tensors[0] = rgb_array_or_tensor
-                    # drop alpha, flip y axis, and clone
-                    rgb_array_or_tensor = rgb_array_or_tensor.clone()[
-                        :, :, [2, 1, 0]
-                    ].flip(0)
-                    self.observation_tensor_type = ObservationTensorType.APPLE_TENSOR
-                else:
+                if not dlpack_capsule:
                     raise ValueError(
                         f"Failed to initialize from mach port {res.ipc_handle}."
                     )
+                jax_image = jnp.from_dlpack(cuda_dlpack)
+                # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
+                rgb_array_or_tensor = jax_image
+                print(rgb_array_or_tensor.shape)
+                print(rgb_array_or_tensor.dtype)
+                print(rgb_array_or_tensor.device())
+                self.observation_tensors[0] = rgb_array_or_tensor
+                # drop alpha, flip y axis, and clone
+                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(
+                    0
+                )
+                self.observation_tensor_type = ObservationTensorType.JAX_NP
+                return rgb_array_or_tensor
             else:
-                import torch.utils.dlpack
-
-                cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
+                cuda_dlpack = mtl_tensor_from_cuda_mem_handle(
                     res.ipc_handle,
                     self.initial_env.imageSizeX,
                     self.initial_env.imageSizeY,
                 )
-                if not cuda_dl_tensor:
+                if not cuda_dlpack:
                     raise ValueError("Invalid DLPack capsule: None")
-                rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(cuda_dl_tensor)
-                print(rgb_array_or_tensor.shape)
-                print(rgb_array_or_tensor.dtype)
-                print(rgb_array_or_tensor.device)
-                print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
-                self.observation_tensors[0] = rgb_array_or_tensor
-                # drop alpha, flip y axis, and clone
-                rgb_array_or_tensor = (
-                    self.observation_tensors[0].clone()[:, :, :3].flip(0)
+                jax_image = jnp.from_dlpack(cuda_dlpack)
+                rgb_array_or_tensor = jax_image
+                rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(
+                    0
                 )
-                self.observation_tensor_type = ObservationTensorType.CUDA_DLPACK
-            img = None
-
+                self.observation_tensor_type = ObservationTensorType.JAX_NP
+                return jax_image, None
         else:
             raise ValueError(f"Unknown encoding mode: {self.encoding_mode}")
         return rgb_array_or_tensor, img
