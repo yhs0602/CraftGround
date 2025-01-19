@@ -32,7 +32,7 @@ dependencies = [
     "protobuf>=5.29.1",
     "typing_extensions",
     "psutil",
-    "torch",
+    "torch; platform_system == 'Darwin'"
 ]
 
 [project.optional-dependencies]

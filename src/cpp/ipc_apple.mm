@@ -93,8 +93,8 @@ createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
 
 PyObject *torchTensorFromDLPack(DLManagedTensor *dlMTensor);
 
-
-DLManagedTensor* mtl_dlpack_from_mach_port(unsigned int machPort, int width, int height) {
+DLManagedTensor *
+mtl_dlpack_from_mach_port(unsigned int machPort, int width, int height) {
     IOSurfaceRef ioSurface = getIOSurfaceFromMachPort((mach_port_t)machPort);
     if (!ioSurface) {
         throw std::runtime_error("Failed to initialize IOSurface");
