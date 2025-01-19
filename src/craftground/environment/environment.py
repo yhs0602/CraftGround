@@ -17,32 +17,23 @@ from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
 import torch
 
-from .action_space import ActionSpace
-from .buffered_socket import BufferedSocket
-from .csv_logger import CsvLogger, LogBackend
-from .font import get_font
-from .initial_environment_config import InitialEnvironmentConfig
-from .minecraft import (
+from environment.action_space_version import ActionSpaceVersion
+from environment.observation_converters import ObservationTensorType
+
+from ..action_space import ActionSpace
+from ..buffered_socket import BufferedSocket
+from ..csv_logger import CsvLogger, LogBackend
+from ..font import get_font
+from ..initial_environment_config import InitialEnvironmentConfig
+from ..minecraft import (
     wait_for_server,
     send_fastreset2,
     send_action_and_commands,
     send_exit,
 )
-from .print_with_time import print_with_time
-from .proto import observation_space_pb2
-from .screen_encoding_modes import ScreenEncodingMode
-
-
-class ActionSpaceVersion(Enum):
-    V1_MINEDOJO = 1
-    V2_MINERL_HUMAN = 2
-
-
-class ObservationTensorType(Enum):
-    NONE = 0
-    CUDA_DLPACK = 1
-    APPLE_TENSOR = 2
-    JAX_NP = 3
+from ..print_with_time import print_with_time
+from ..proto import observation_space_pb2
+from ..screen_encoding_modes import ScreenEncodingMode
 
 
 class CraftGroundEnvironment(gym.Env):
@@ -68,244 +59,9 @@ class CraftGroundEnvironment(gym.Env):
         profile: bool = False,
     ):
         self.action_space_version = action_space_version
-        if action_space_version == ActionSpaceVersion.V1_MINEDOJO:
-            self.action_space = ActionSpace(6)
-        elif action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
-            self.action_space = gym.spaces.Dict(
-                {
-                    "attack": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "back": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "forward": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "jump": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "left": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "right": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "sneak": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "sprint": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "use": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "drop": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "inventory": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.1": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.2": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.3": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.4": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.5": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.6": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.7": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.8": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.9": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "camera": gym.spaces.Box(
-                        low=np.array([-180, -180]),
-                        high=np.array([180, 180]),
-                        dtype=np.float32,
-                    ),
-                    # Camera pitch/yaw between -180 and 180 degrees
-                }
-            )
-        else:
-            raise ValueError(f"Unknown action space version: {action_space_version}")
-        entity_info_space = gym.spaces.Dict(
-            {
-                "unique_name": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.int32,
-                ),
-                "translation_key": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.int32,
-                ),
-                "x": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "y": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "z": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "yaw": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "pitch": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "health": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-            }
-        )
-        sound_entry_space = gym.spaces.Dict(
-            {
-                "translate_key": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-                "x": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-                "y": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-                "z": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-                "age": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32),
-            }
-        )
-        entities_within_distance_space = gym.spaces.Sequence(entity_info_space)
-        status_effect_space = gym.spaces.Dict(
-            {
-                "translation_key": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-                "amplifier": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-                "duration": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-            }
-        )
-        self.observation_space = gym.spaces.Dict(
-            {
-                "obs": spaces.Dict(
-                    {
-                        "image": spaces.Box(
-                            low=0,
-                            high=255,
-                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
-                            dtype=np.uint8,
-                        ),
-                        "position": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(3,), dtype=np.float64
-                        ),
-                        "yaw": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "pitch": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "health": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "food_level": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "saturation_level": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "is_dead": spaces.Discrete(2),
-                        "inventory": spaces.Sequence(
-                            spaces.Dict(
-                                {
-                                    "raw_id": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "translation_key": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "count": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "durability": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "max_durability": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                }
-                            ),
-                        ),
-                        "raycast_result": spaces.Dict(
-                            {
-                                "type": spaces.Discrete(3),
-                                "target_block": spaces.Dict(
-                                    {
-                                        "x": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                        "y": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                        "z": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                        "translation_key": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                    }
-                                ),
-                                "target_entity": entity_info_space,
-                            }
-                        ),
-                        "sound_subtitles": spaces.Sequence(sound_entry_space),
-                        "status_effects": spaces.Sequence(status_effect_space),
-                        "killed_statistics": spaces.Dict(),
-                        "mined_statistics": spaces.Dict(),
-                        "misc_statistics": spaces.Dict(),
-                        "visible_entities": spaces.Sequence(entity_info_space),
-                        "surrounding_entities": entities_within_distance_space,  # This is actually
-                        "bobber_thrown": spaces.Discrete(2),
-                        "experience": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.int32
-                        ),
-                        "world_time": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.int64
-                        ),
-                        "last_death_message": spaces.Text(
-                            min_length=0, max_length=1000
-                        ),
-                        "image_2": spaces.Box(
-                            low=0,
-                            high=255,
-                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
-                            dtype=np.uint8,
-                        ),
-                    }
-                ),
-            }
-        )
+        self.declare_action_space(action_space_version)
+        self.declare_observation_space(initial_env)
+
         self.initial_env = initial_env
         self.use_terminate = use_terminate
         self.cleanup_world = cleanup_world
@@ -1011,3 +767,245 @@ class CraftGroundEnvironment(gym.Env):
         current_dir = os.path.dirname(current_file)
         options_txt = os.path.join(current_dir, "MinecraftEnv", "run", "options.txt")
         return options_txt
+
+    def declare_observation_space(self, initial_env):
+        entity_info_space = gym.spaces.Dict(
+            {
+                "unique_name": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.int32,
+                ),
+                "translation_key": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.int32,
+                ),
+                "x": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.float64,
+                ),
+                "y": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.float64,
+                ),
+                "z": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.float64,
+                ),
+                "yaw": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.float64,
+                ),
+                "pitch": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.float64,
+                ),
+                "health": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(1,),
+                    dtype=np.float64,
+                ),
+            }
+        )
+        sound_entry_space = gym.spaces.Dict(
+            {
+                "translate_key": spaces.Box(
+                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
+                ),
+                "x": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
+                "y": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
+                "z": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
+                "age": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32),
+            }
+        )
+        entities_within_distance_space = gym.spaces.Sequence(entity_info_space)
+        status_effect_space = gym.spaces.Dict(
+            {
+                "translation_key": spaces.Box(
+                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
+                ),
+                "amplifier": spaces.Box(
+                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
+                ),
+                "duration": spaces.Box(
+                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
+                ),
+            }
+        )
+        self.observation_space = gym.spaces.Dict(
+            {
+                "obs": spaces.Dict(
+                    {
+                        "image": spaces.Box(
+                            low=0,
+                            high=255,
+                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
+                            dtype=np.uint8,
+                        ),
+                        "position": spaces.Box(
+                            low=-np.inf, high=np.inf, shape=(3,), dtype=np.float64
+                        ),
+                        "yaw": spaces.Box(
+                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
+                        ),
+                        "pitch": spaces.Box(
+                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
+                        ),
+                        "health": spaces.Box(
+                            low=0, high=np.inf, shape=(1,), dtype=np.float64
+                        ),
+                        "food_level": spaces.Box(
+                            low=0, high=np.inf, shape=(1,), dtype=np.float64
+                        ),
+                        "saturation_level": spaces.Box(
+                            low=0, high=np.inf, shape=(1,), dtype=np.float64
+                        ),
+                        "is_dead": spaces.Discrete(2),
+                        "inventory": spaces.Sequence(
+                            spaces.Dict(
+                                {
+                                    "raw_id": spaces.Box(
+                                        low=-np.inf,
+                                        high=np.inf,
+                                        shape=(1,),
+                                        dtype=np.int32,
+                                    ),
+                                    "translation_key": spaces.Box(
+                                        low=-np.inf,
+                                        high=np.inf,
+                                        shape=(1,),
+                                        dtype=np.int32,
+                                    ),
+                                    "count": spaces.Box(
+                                        low=-np.inf,
+                                        high=np.inf,
+                                        shape=(1,),
+                                        dtype=np.int32,
+                                    ),
+                                    "durability": spaces.Box(
+                                        low=-np.inf,
+                                        high=np.inf,
+                                        shape=(1,),
+                                        dtype=np.int32,
+                                    ),
+                                    "max_durability": spaces.Box(
+                                        low=-np.inf,
+                                        high=np.inf,
+                                        shape=(1,),
+                                        dtype=np.int32,
+                                    ),
+                                }
+                            ),
+                        ),
+                        "raycast_result": spaces.Dict(
+                            {
+                                "type": spaces.Discrete(3),
+                                "target_block": spaces.Dict(
+                                    {
+                                        "x": spaces.Box(
+                                            low=-np.inf,
+                                            high=np.inf,
+                                            shape=(1,),
+                                            dtype=np.int32,
+                                        ),
+                                        "y": spaces.Box(
+                                            low=-np.inf,
+                                            high=np.inf,
+                                            shape=(1,),
+                                            dtype=np.int32,
+                                        ),
+                                        "z": spaces.Box(
+                                            low=-np.inf,
+                                            high=np.inf,
+                                            shape=(1,),
+                                            dtype=np.int32,
+                                        ),
+                                        "translation_key": spaces.Box(
+                                            low=-np.inf,
+                                            high=np.inf,
+                                            shape=(1,),
+                                            dtype=np.int32,
+                                        ),
+                                    }
+                                ),
+                                "target_entity": entity_info_space,
+                            }
+                        ),
+                        "sound_subtitles": spaces.Sequence(sound_entry_space),
+                        "status_effects": spaces.Sequence(status_effect_space),
+                        "killed_statistics": spaces.Dict(),
+                        "mined_statistics": spaces.Dict(),
+                        "misc_statistics": spaces.Dict(),
+                        "visible_entities": spaces.Sequence(entity_info_space),
+                        "surrounding_entities": entities_within_distance_space,  # This is actually
+                        "bobber_thrown": spaces.Discrete(2),
+                        "experience": spaces.Box(
+                            low=0, high=np.inf, shape=(1,), dtype=np.int32
+                        ),
+                        "world_time": spaces.Box(
+                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.int64
+                        ),
+                        "last_death_message": spaces.Text(
+                            min_length=0, max_length=1000
+                        ),
+                        "image_2": spaces.Box(
+                            low=0,
+                            high=255,
+                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
+                            dtype=np.uint8,
+                        ),
+                    }
+                ),
+            }
+        )
+
+    def declare_action_space(self, action_space_version):
+        if action_space_version == ActionSpaceVersion.V1_MINEDOJO:
+            self.action_space = ActionSpace(6)
+        elif action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
+            self.action_space = gym.spaces.Dict(
+                {
+                    "attack": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "back": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "forward": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "jump": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "left": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "right": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "sneak": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "sprint": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "use": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "drop": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "inventory": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.1": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.2": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.3": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.4": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.5": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.6": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.7": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.8": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "hotbar.9": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
+                    "camera": gym.spaces.Box(
+                        low=np.array([-180, -180]),
+                        high=np.array([180, 180]),
+                        dtype=np.float32,
+                    ),
+                    # Camera pitch/yaw between -180 and 180 degrees
+                }
+            )
+        else:
+            raise ValueError(f"Unknown action space version: {action_space_version}")
