@@ -21,7 +21,7 @@ struct SharedDataHeader {
 jobject read_initial_environment(
     JNIEnv *env,
     jclass clazz,
-    const std::string &initial_environment_memory_name,
+    const std::string &initial_environment_memory_name
 ) {
     managed_shared_memory sharedMemoryInitialEnvironment(
         open_only, initial_environment_memory_name.c_str()
