@@ -27,20 +27,18 @@ void create_shared_memory_impl(
     header->ready = true;
     // Java will remove the initial environment shared memory
 
-    // Create management shared memory (fixed size, the size field )
+    // Create synchronization shared memory (fixed size, the size field )
     shared_memory_object::remove(synchronization_memory_name.c_str());
-    managed_shared_memory sharedMemoryManagement(
+    managed_shared_memory sharedMemorySynchronization(
         create_only,
         synchronization_memory_name.c_str(),
         sizeof(SharedDataHeader)
     );
-    void *addrManagement =
-        sharedMemoryManagement.allocate(sizeof(SharedDataHeader));
-    auto *headerManagement = new (addrManagement) SharedDataHeader();
-    std::unique_lock<interprocess_mutex> lockManagement(headerManagement->mutex);
-    headerManagement->ready = false;
-    headerManagement->size = 0;
-    headerManagement->ready = true;
+    void *addrSyncrhonization =
+        sharedMemorySynchronization.allocate(sizeof(SharedDataHeader));
+    auto *headerSynchronization = new (addrSyncrhonization) SharedDataHeader();
+    headerSynchronization->size = 0;
+    headerSynchronization->ready = true;
 
     // Allocate shared memory for action
     shared_memory_object::remove(action_memory_name.c_str());
@@ -49,8 +47,6 @@ void create_shared_memory_impl(
     );
     void *addrAction = sharedMemoryAction.allocate(sizeof(SharedDataHeader) + action_size);
     auto *headerAction = new (addrAction) SharedDataHeader();
-    std::unique_lock<interprocess_mutex> lockAction(headerAction->mutex);
-    headerAction->ready = false;
     headerAction->size = action_size;
     headerAction->ready = true;
 }
@@ -61,18 +57,17 @@ void write_to_shared_memory_impl(
     const char *data,
     const size_t action_size
 ) {
-    managed_shared_memory sharedMemory(open_only, action_memory_name.c_str());
-    void *addr = sharedMemory.get_address();
-    auto *header = reinterpret_cast<SharedDataHeader *>(addr);
+    managed_shared_memory actionMemory(open_only, action_memory_name.c_str());
+    void *addr = actionMemory.get_address();
+    auto *actionHeader = reinterpret_cast<SharedDataHeader *>(addr);
 
-    std::unique_lock<interprocess_mutex> lock(header->mutex);
-
+    std::unique_lock<interprocess_mutex> actionLock(actionHeader->mutex);
     char *data_start =
-        reinterpret_cast<char *>(header) + sizeof(SharedDataHeader);
+        reinterpret_cast<char *>(actionHeader) + sizeof(SharedDataHeader);
     std::memcpy(data_start, data, action_size);
-
-    header->ready = true;
-    header->condition.notify_one();
+    actionHeader->ready = true;
+    actionHeader->condition.notify_one();
+    actionLock.unlock();
 }
 
 // Read observation from shared memory
@@ -85,13 +80,13 @@ const char* read_from_shared_memory_impl(
     managed_shared_memory synchronizationSharedMemory(
         open_only, synchronization_memory_name.c_str()
     );
-    void *addrManagement = synchronizationSharedMemory.get_address();
+    void *addrSynchronization = synchronizationSharedMemory.get_address();
     auto *headerSynchronization =
-        reinterpret_cast<SharedDataHeader *>(addrManagement);
-    std::unique_lock<interprocess_mutex> lockManagement(
+        reinterpret_cast<SharedDataHeader *>(addrSynchronization);
+    std::unique_lock<interprocess_mutex> lockSynchronization(
         headerSynchronization->mutex
     );
-    headerSynchronization->condition.wait(lockManagement, [&] {
+    headerSynchronization->condition.wait(lockSynchronization, [&] {
         return headerSynchronization->ready;
     });
     
@@ -103,6 +98,7 @@ const char* read_from_shared_memory_impl(
     char *data_start =
         reinterpret_cast<char *>(header) + sizeof(SharedDataHeader);
     header->ready = false;
+    lockSynchronization.unlock();
 
     data_size = header->size;
     return data_start;
