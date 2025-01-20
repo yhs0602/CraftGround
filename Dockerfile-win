@@ -1,0 +1,34 @@
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+SHELL ["powershell", "-Command"]
+
+RUN Invoke-WebRequest -Uri https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe -OutFile jdk-21.exe; \
+    Start-Process -FilePath .\jdk-21.exe -ArgumentList '/s' -NoNewWindow -Wait; \
+    Remove-Item -Force .\jdk-21.exe
+
+RUN Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.10.9/python-3.10.9-amd64.exe -OutFile python-installer.exe; \
+    Start-Process -FilePath .\python-installer.exe -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -NoNewWindow -Wait; \
+    Remove-Item -Force .\python-installer.exe
+
+RUN Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v2.40.0.windows.1/Git-2.40.0-64-bit.exe -OutFile git-installer.exe; \
+    Start-Process -FilePath .\git-installer.exe -ArgumentList '/SILENT' -NoNewWindow -Wait; \
+    Remove-Item -Force .\git-installer.exe
+
+# Install pip and other Python dependencies
+RUN python -m pip install --upgrade pip; \
+    pip install cmake wandb tensorboard moviepy git+https://github.com/DLR-RM/stable-baselines3.git
+
+# Clone repositories
+RUN git clone https://github.com/yhs0602/CraftGround.git; \
+    cd CraftGround; \
+    pip install -e .
+
+RUN git clone https://github.com/yhs0602/minecraft-simulator-benchmark.git; \
+    cd minecraft-simulator-benchmark; \
+    pip install -r requirements.txt
+
+# Set working directory
+WORKDIR C:/workspace/minecraft-simulator-benchmark
+
+# Default entry point
+ENTRYPOINT ["cmd"]
