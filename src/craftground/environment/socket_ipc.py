@@ -72,11 +72,13 @@ class SocketIPC(IPCInterface):
         self.logger.log("Sent action and commands")
 
     def read_observation(self) -> ObservationSpaceMessage:
+        self.logger.log("Reading response...")
         data_len_bytes = self.buffered_socket.read(4, True)
         data_len = struct.unpack("<I", data_len_bytes)[0]
         data_bytes = self.buffered_socket.read(data_len, True)
         observation_space = ObservationSpaceMessage()
         observation_space.ParseFromString(data_bytes)
+        self.logger.log(f"Got response with size {data_len}")
         return observation_space
 
     def destroy(self):

@@ -39,7 +39,7 @@ class BoostIPC(IPCInterface):
             self.action_shared_memory_name, action_bytes, len(action_bytes)
         )
 
-    def read(self) -> bytes:
+    def read_observation(self) -> bytes:
         return read_from_shared_memory(
             self.observation_shared_memory_name, self.synchronization_shared_memory_name
         )

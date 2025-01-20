@@ -24,9 +24,10 @@ from environment.action_space import (
     declare_action_space,
     translate_action_to_v2,
 )
+from environment.observation_converter import ObservationConverter
 from environment.observation_space import declare_observation_space
+from environment.socket_ipc import SocketIPC
 
-from ..action_space import ActionSpace
 from ..buffered_socket import BufferedSocket
 from ..csv_logger import CsvLogger, LogBackend
 from ..font import get_font
@@ -121,7 +122,7 @@ class CraftGroundEnvironment(gym.Env):
 
             self.ipc = BoostIPC(str(port), initial_env)
         else:
-            self.ipc = None
+            self.ipc = SocketIPC(self.csv_logger, port, find_free_port)
 
         # in case when using zerocopy
         self.observation_tensors = [None, None]
@@ -136,6 +137,12 @@ class CraftGroundEnvironment(gym.Env):
                     "To use zerocopy encoding mode, please install the craftground[cuda] package on linux or windows."
                     " If this error happens in macOS, please report it to the developers."
                 )
+
+        self.observation_converter = ObservationConverter(
+            self.initial_env.screen_encoding_mode,
+            self.initial_env.eye_distance > 0,
+            self.render_action,
+        )
 
     def reset(
         self,
@@ -167,182 +174,29 @@ class CraftGroundEnvironment(gym.Env):
                     ld_preload=self.ld_preload,
                 )
             else:
-                self.csv_logger.profile_start("fast_reset")
-                send_fastreset2(self.sock, extra_commands)
-                self.csv_logger.profile_end("fast_reset")
+                with self.csv_logger.profile("fast_reset"):
+                    send_fastreset2(self.sock, extra_commands)
                 self.csv_logger.log("Sent fast reset")
-                if self.verbose_python:
-                    print_with_time("Sent fast reset")
-        self.csv_logger.log("Reading response...")
-        self.csv_logger.profile_start("read_response")
-        siz, res = self.read_one_observation()
-        self.csv_logger.profile_end("read_response")
 
-        self.csv_logger.log(f"Got response with size {siz}")
+        with self.csv_logger.profile("read_response"):
+            res = self.ipc.read_observation()
+
+        final_obs = self.convert_observation_v2(res)
+        return final_obs, final_obs
+
+    def convert_observation_v2(self, res):
         with self.csv_logger.profile("convert_observation"):
-            rgb_1, img_1 = self.convert_observation(res.image, res)
-        rgb_2 = None
-        img_2 = None
-        if res.image_2 is not None and res.image_2 != b"":
-            rgb_2, img_2 = self.convert_observation(res.image_2, res)
+            rgb_1, rgb_2 = self.observation_converter.convert(res)
+
         self.queued_commands = []
         res.yaw = ((res.yaw + 180) % 360) - 180
         final_obs: Dict[str, Union[np.ndarray, torch.Tensor, Any]] = {
-            "obs": res,
-            "rgb": rgb_1,
+            "full": res,
+            "pov": rgb_1,
         }
-        self.last_images = [img_1, img_2]
-        self.last_rgb_frames = [rgb_1, rgb_2]
         if rgb_2 is not None:
-            final_obs["rgb_2"] = rgb_2
-        return final_obs, final_obs
-
-    """
-    returns:
-    - numpy array or torch Tensor of the image
-    - PIL image (optional)
-    - numpy array of the last_rgb_frame
-    """
-
-    def convert_observation(
-        self, image_bytes: bytes, res: ObsType
-    ) -> Tuple[Union[np.ndarray, torch.Tensor], Optional[Image.Image]]:
-        if self.encoding_mode == ScreenEncodingMode.PNG:
-            # decode png byte array to numpy array
-            # Create a BytesIO object from the byte array
-            self.csv_logger.profile_start("convert_observation/decode_png")
-            bytes_io = io.BytesIO(image_bytes)
-            # Use PIL to open the image from the BytesIO object
-            img = Image.open(bytes_io).convert("RGB")
-            # Flip y axis
-            img = img.transpose(Image.FLIP_TOP_BOTTOM)
-            self.csv_logger.profile_end("convert_observation/decode_png")
-            self.csv_logger.profile_start("convert_observation/convert_to_numpy")
-            # Convert the PIL image to a numpy array
-            last_rgb_frame = np.array(img)
-            arr = np.transpose(last_rgb_frame, (2, 1, 0))
-            rgb_array_or_tensor = arr.astype(np.uint8)
-            self.csv_logger.profile_end("convert_observation/convert_to_numpy")
-        elif self.encoding_mode == ScreenEncodingMode.RAW:
-            # decode raw byte array to numpy array
-            self.csv_logger.profile_start("convert_observation/decode_raw")
-            last_rgb_frame = np.frombuffer(image_bytes, dtype=np.uint8).reshape(
-                (self.initial_env.imageSizeY, self.initial_env.imageSizeX, 3)
-            )
-            # Flip y axis using np
-            # last_rgb_frame = np.transpose(last_rgb_frame, (1, 0, 2))
-            last_rgb_frame = np.flip(last_rgb_frame, axis=0)
-            rgb_array_or_tensor = last_rgb_frame
-            # arr = np.transpose(last_rgb_frame, (2, 1, 0))  # channels, width, height
-            img = None
-            self.csv_logger.profile_end("convert_observation/decode_raw")
-        elif self.encoding_mode == ScreenEncodingMode.ZEROCOPY:
-            import torch
-
-            if self.initial_env.eye_distance > 0:  # binocular vision
-                # TODO: Handle binocular vision
-                if (
-                    self.observation_tensors[0] is not None
-                    and self.observation_tensors[1] is not None
-                ):
-                    # already intialized
-                    # drop alpha, flip y axis, and clone
-                    if (
-                        self.observation_tensor_type
-                        == ObservationTensorType.APPLE_TENSOR
-                    ):
-                        return (
-                            self.observation_tensors[0]
-                            .clone()[:, :, [2, 1, 0]]
-                            .flip(0),
-                            None,
-                        )
-                    elif (
-                        self.observation_tensor_type
-                        == ObservationTensorType.CUDA_DLPACK
-                    ):
-                        return (
-                            self.observation_tensors[0].clone()[:, :, :3].flip(0),
-                            None,
-                        )
-            else:
-                if self.observation_tensors[0] is not None:
-                    # already intialized
-                    # drop alpha, flip y axis, and clone
-                    if (
-                        self.observation_tensor_type
-                        == ObservationTensorType.APPLE_TENSOR
-                    ):
-                        return (
-                            self.observation_tensors[0]
-                            .clone()[:, :, [2, 1, 0]]
-                            .flip(0),
-                            None,
-                        )
-                    elif (
-                        self.observation_tensor_type
-                        == ObservationTensorType.CUDA_DLPACK
-                    ):
-                        return (
-                            self.observation_tensors[0].clone()[:, :, :3].flip(0),
-                            None,
-                        )
-
-            from .craftground_native import initialize_from_mach_port  # type: ignore
-            from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
-
-            if len(res.ipc_handle) == 0:
-                raise ValueError("No ipc handle found.")
-            if len(res.ipc_handle) == 4:
-                mach_port = int.from_bytes(
-                    res.ipc_handle, byteorder="little", signed=False
-                )
-                print(f"{mach_port=}")
-                apple_dl_tensor = initialize_from_mach_port(
-                    mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
-                )
-                if apple_dl_tensor is not None:
-                    # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
-                    rgb_array_or_tensor = apple_dl_tensor
-                    print(rgb_array_or_tensor.shape)
-                    print(rgb_array_or_tensor.dtype)
-                    print(rgb_array_or_tensor.device)
-                    self.observation_tensors[0] = rgb_array_or_tensor
-                    # drop alpha, flip y axis, and clone
-                    rgb_array_or_tensor = rgb_array_or_tensor.clone()[
-                        :, :, [2, 1, 0]
-                    ].flip(0)
-                    self.observation_tensor_type = ObservationTensorType.APPLE_TENSOR
-                else:
-                    raise ValueError(
-                        f"Failed to initialize from mach port {res.ipc_handle}."
-                    )
-            else:
-                import torch.utils.dlpack
-
-                cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
-                    res.ipc_handle,
-                    self.initial_env.imageSizeX,
-                    self.initial_env.imageSizeY,
-                )
-                if not cuda_dl_tensor:
-                    raise ValueError("Invalid DLPack capsule: None")
-                rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(cuda_dl_tensor)
-                print(rgb_array_or_tensor.shape)
-                print(rgb_array_or_tensor.dtype)
-                print(rgb_array_or_tensor.device)
-                print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
-                self.observation_tensors[0] = rgb_array_or_tensor
-                # drop alpha, flip y axis, and clone
-                rgb_array_or_tensor = (
-                    self.observation_tensors[0].clone()[:, :, :3].flip(0)
-                )
-                self.observation_tensor_type = ObservationTensorType.CUDA_DLPACK
-            img = None
-
-        else:
-            raise ValueError(f"Unknown encoding mode: {self.encoding_mode}")
-        return rgb_array_or_tensor, img
+            final_obs["pov_2"] = rgb_2
+        return final_obs
 
     def start_server(
         self,
@@ -351,36 +205,10 @@ class CraftGroundEnvironment(gym.Env):
         track_native_memory: bool,
         ld_preload: Optional[str],
     ):
-        self.remove_orphan_java_processes()
+        self.remove_orphan_java_processes()  # TODO
         # Check if a file exists
-        if os.name == "nt":
-            while True:
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    if s.connect_ex(("127.0.0.1", port)) == 0:  # The port is in use
-                        if self.find_free_port:
-                            print(
-                                f"[Warning]: Port {port} is already in use. Trying another port."
-                            )
-                            port += 1
-                        else:
-                            raise ConnectionError(
-                                f"Port {port} is already in use. Please choose another port."
-                            )
-        else:
-            socket_path = f"/tmp/minecraftrl_{port}.sock"
-            if os.path.exists(socket_path):
-                if self.find_free_port:
-                    print(
-                        f"[Warning]: Socket file {socket_path} already exists. Trying another port."
-                    )
-                    while os.path.exists(socket_path):
-                        port += 1
-                        socket_path = f"/tmp/minecraftrl_{port}.sock"
-                    print(f"Using port {socket_path}")
-                else:
-                    raise FileExistsError(
-                        f"Socket file {socket_path} already exists. Please choose another port."
-                    )
+
+        # Prepare command TODO
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
@@ -404,7 +232,9 @@ class CraftGroundEnvironment(gym.Env):
             cmd = f"vglrun {cmd}"
         if ld_preload:
             my_env["LD_PRELOAD"] = ld_preload
-        print(f"{cmd=}")
+        self.csv_logger.log(f"Starting server with command: {cmd}")
+
+        # Launch the server
         self.process = subprocess.Popen(
             cmd,
             cwd=self.env_path,
@@ -412,13 +242,17 @@ class CraftGroundEnvironment(gym.Env):
             stdout=subprocess.DEVNULL if not self.verbose_gradle else None,
             env=my_env,
         )
+
+        # TODO: socket specific
         sock: socket.socket = wait_for_server(port)
         self.sock = sock
-        self.send_initial_env()
+
+        self.ipc.send_initial_environment(
+            self.initial_env.to_initial_environment_message()
+        )
+
+        # TODO: socket specific
         self.buffered_socket = BufferedSocket(self.sock)
-        # self.json_socket.send_json_as_base64(self.initial_env.to_dict())
-        if self.verbose_python:
-            print_with_time("Sent initial environment")
         self.csv_logger.log("Sent initial environment")
 
     def update_override_resolutions(self, options_txt_path):
@@ -477,47 +311,27 @@ class CraftGroundEnvironment(gym.Env):
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
         self.last_action = action
-        self.csv_logger.profile_start("send_action_and_commands")
-        # Translate the action v1 to v2
-        if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
-            translated_action = translate_action_to_v2(action)
-        else:
-            translated_action = action
-        send_action_and_commands(
-            self.sock,
-            translated_action,
-            commands=self.queued_commands,
-            verbose=self.verbose_python,
-        )
-        self.csv_logger.profile_end("send_action_and_commands")
+        with self.csv_logger.profile("send_action_and_commands"):
+            # Translate the action v1 to v2
+            if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
+                translated_action = translate_action_to_v2(action)
+            else:
+                translated_action = action
+
+            self.ipc.send_action(translated_action, self.queued_commands)
+            send_action_and_commands(
+                self.sock,
+                translated_action,
+                commands=self.queued_commands,
+                verbose=self.verbose_python,
+            )
         self.queued_commands.clear()
         # read the response
-        if self.verbose_python:
-            print_with_time("Sent action and reading response...")
         self.csv_logger.log("Sent action and reading response...")
-        self.csv_logger.profile_start("read_response")
-        siz, res = self.read_one_observation()
-        self.csv_logger.profile_end("read_response")
-        if self.verbose_python:
-            print_with_time("Read observation...")
+        with self.csv_logger.profile("read_response"):
+            siz, res = self.read_one_observation()
         self.csv_logger.log("Read observation...")
-        self.csv_logger.profile_start("convert_observation")
-        rgb_1, img_1 = self.convert_observation(res.image, res)
-        self.csv_logger.profile_end("convert_observation")
-        rgb_2 = None
-        img_2 = None
-        frame_2 = None
-        if res.image_2 is not None and res.image_2 != b"":
-            rgb_2, img_2 = self.convert_observation(res.image_2, res)
-        final_obs = {
-            "obs": res,
-            "rgb": rgb_1,
-        }
-        res.yaw = ((res.yaw + 180) % 360) - 180
-        self.last_images = [img_1, img_2]
-        self.last_rgb_frames = [rgb_1, rgb_2]
-        if rgb_2 is not None:
-            final_obs["rgb_2"] = rgb_2
+        final_obs = self.convert_observation_v2(res)
 
         reward = 0  # Initialize reward to zero
         done = False  # Initialize done flag to False
@@ -537,60 +351,7 @@ class CraftGroundEnvironment(gym.Env):
     # when self.render_mode is "rgb_array_list": render returns a list of images to be rendered
     # when self.render_mode is "rgb_tensor": render returns a torch tensor to be rendered
     def render(self) -> Union[RenderFrame, List[RenderFrame], None]:
-        # print("Rendering...")
-        # select last_image and last_frame
-        if self.render_mode is None:
-            return None
-        if self.render_mode == "human":
-            # do not render anything
-            return None
-        if self.render_mode == "ansi":
-            raise ValueError("Rendering mode ansi not supported")
-        if self.render_mode == "rgb_array_list":
-            raise ValueError("Rendering mode rgb_array_list not supported")
-
-        if self.render_alternating_eyes:
-            last_image = self.last_images[self.render_alternating_eyes_counter]
-            last_rgb_frame = self.last_rgb_frames[self.render_alternating_eyes_counter]
-            self.render_alternating_eyes_counter = (
-                1 - self.render_alternating_eyes_counter
-            )
-        else:
-            last_image = self.last_images[0]
-            last_rgb_frame = self.last_rgb_frames[0]
-        if last_image is None and last_rgb_frame is None:
-            return None
-
-        if isinstance(last_rgb_frame, torch.Tensor) and (
-            self.render_mode != "rgb_array_tensor" or self.render_action
-        ):
-            # drop the alpha channel and convert to numpy array
-            last_rgb_frame = last_rgb_frame.cpu().numpy()
-        # last_rgb_frame: np.ndarray or torch.Tensor
-        # last_image: PIL.Image.Image or None
-        if self.render_action and self.last_action:
-            if last_image is None:
-                # it is inevitable to convert the tensor to numpy array
-                last_image = Image.fromarray(last_rgb_frame)
-            self.csv_logger.profile_start("render_action")
-            draw = ImageDraw.Draw(last_image)
-            if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
-                text = action_to_symbol(self.last_action)
-            elif self.action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
-                text = action_v2_to_symbol(self.last_action)
-            else:
-                raise ValueError(
-                    f"Unknown action space version {self.action_space_version}"
-                )
-            position = (0, 0)
-            font = get_font()
-            font_size = 8
-            color = (255, 0, 0)
-            draw.text(position, text, font=font, font_size=font_size, fill=color)
-            self.csv_logger.profile_end("render_action")
-            return np.array(last_image)
-        else:
-            return last_rgb_frame
+        return self.observation_converter.render()
 
     @property
     def render_mode(self) -> Optional[str]:
