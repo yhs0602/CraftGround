@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstring>
 #include <jni.h>
+#include <mutex>
 
 using namespace boost::interprocess;
 
