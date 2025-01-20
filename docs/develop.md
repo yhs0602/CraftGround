@@ -19,9 +19,9 @@ sudo ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
 ## Run formatters
 
 ```bash
-find . \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.mm' \) | xargs clang-format -i
+git ls-files -- '*.h' '*.cpp' '*.mm' | xargs clang-format -i
+git ls-files -- '*.java' -z | xargs -0 -P 4 google-java-format -i
 ktlint '!**/com/kyhsgeekcode/minecraftenv/proto/**' --format
-find . -name '*.java' -print0 | xargs -0 -P 4 google-java-format -i
 ```
 
 # Managing proto files
