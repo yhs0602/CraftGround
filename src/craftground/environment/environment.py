@@ -17,20 +17,20 @@ from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
 import torch
 
-from .action_space import ActionSpace
-from .buffered_socket import BufferedSocket
-from .csv_logger import CsvLogger, LogBackend
-from .font import get_font
-from .initial_environment_config import InitialEnvironmentConfig
-from .minecraft import (
+from ..action_space import ActionSpace
+from ..buffered_socket import BufferedSocket
+from ..csv_logger import CsvLogger, LogBackend
+from ..font import get_font
+from ..initial_environment_config import InitialEnvironmentConfig
+from ..minecraft import (
     wait_for_server,
     send_fastreset2,
     send_action_and_commands,
     send_exit,
 )
-from .print_with_time import print_with_time
-from .proto import observation_space_pb2
-from .screen_encoding_modes import ScreenEncodingMode
+from ..print_with_time import print_with_time
+from ..proto import observation_space_pb2
+from ..screen_encoding_modes import ScreenEncodingMode
 
 
 class ActionSpaceVersion(Enum):

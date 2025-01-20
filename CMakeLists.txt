@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15...3.29)
 project(craftground LANGUAGES CXX)
 include(GNUInstallDirs)
+include(FetchContent)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -67,7 +68,7 @@ else()
 endif()
 
 # Collect source files for the module
-set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp)
+set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp src/cpp/ipc_boost.cpp)
 
 if(APPLE)
     # Add Apple-specific source files
@@ -86,9 +87,25 @@ elseif(CUDAToolkit_FOUND)
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_CUDA)
 endif()
 
+# Find Boost
+message(STATUS "Installing Boost")
+set(BOOST_INCLUDE_LIBRARIES interprocess thread system)
+set(BOOST_ENABLE_CMAKE ON)
+
+set(FETCHCONTENT_QUIET FALSE)
+FetchContent_Declare(
+  Boost
+  GIT_REPOSITORY https://github.com/boostorg/boost.git
+  GIT_TAG boost-1.87.0
+  GIT_SHALLOW TRUE
+  GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(Boost)
+
+message(STATUS "Boost is now available")
 # Add the module
 pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
-
+target_link_libraries(craftground_native PRIVATE Boost::system Boost::thread Boost::interprocess)
 if(APPLE)
     if(Torch_FOUND)
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
