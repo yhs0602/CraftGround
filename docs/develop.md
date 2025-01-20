@@ -20,7 +20,7 @@ sudo ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
 
 ```bash
 find . \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.mm' \) | xargs clang-format -i
-ktlint '!src/craftground/MinecraftEnv/src/main/java/com/kyhsgeekcode/minecraftenv/proto/**'
+ktlint '!**/com/kyhsgeekcode/minecraftenv/proto/**' --format
 find . -name '*.java' -print0 | xargs -0 -P 4 google-java-format -i
 ```
 
@@ -55,7 +55,13 @@ conda install glew
 python -m build
 ```
 
-## Build jvm c++ part
+## Build Gradle with c++ altogether
+```bash
+cd src/craftground/MinecraftEnv
+./gradlew build
+```
+
+## Build only jvm's c++ part
 ```bash
  cmake src/main/cpp -DCMAKE_PREFIX_PATH=$CONDA_PREFIX
  cmake --build .

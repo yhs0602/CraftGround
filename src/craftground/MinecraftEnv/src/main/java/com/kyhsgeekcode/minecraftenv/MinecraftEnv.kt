@@ -119,7 +119,7 @@ class MinecraftEnv :
                 csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
                 socket = serverSocket.accept()
                 csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
-                messageIO = new DomainSocketMessageIO (socket)
+                messageIO = DomainSocketMessageIO(socket)
             } else {
                 val socketFilePath = Path.of("/tmp/minecraftrl_$port.sock")
                 socketFilePath.toFile().deleteOnExit()
