@@ -134,7 +134,7 @@ elseif(CUDAToolkit_FOUND)
 endif()
 
 
-target_include_directories(craftground_native PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp ${Boost_INCLUDE_DIRS})
+target_include_directories(craftground_native PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
 
 target_compile_options(craftground_native PRIVATE ${CRAFTGROUND_PY_COMPILE_OPTIONS})
 

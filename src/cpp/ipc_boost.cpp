@@ -1,5 +1,5 @@
 #include "ipc_boost.hpp"
-#include "boost/interprocess/shared_memory_object.hpp"
+#include <mutex>
 
 // Create shared memory and write initial environment data
 void create_shared_memory_impl(
