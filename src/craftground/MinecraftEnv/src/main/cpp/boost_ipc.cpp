@@ -133,9 +133,7 @@ void write_observation(
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImpl(
-    JNIEnv *env,
-    jclass clazz,
-    jstring initial_environment_memory_name
+    JNIEnv *env, jclass clazz, jstring initial_environment_memory_name
 ) {
     const char *initial_environment_memory_name_cstr =
         env->GetStringUTFChars(initial_environment_memory_name, nullptr);
@@ -148,7 +146,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImp
     return result;
 }
 
-// fun readAction(action_memory_name: String, action_data: ByteArray?): ByteArray
+// fun readAction(action_memory_name: String, action_data: ByteArray?):
+// ByteArray
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readActionImpl(
     JNIEnv *env,
@@ -183,7 +182,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
         env->GetStringUTFChars(observation_memory_name, nullptr);
     const char *synchronization_memory_name_cstr =
         env->GetStringUTFChars(synchronization_memory_name, nullptr);
-    jbyte *observation_data_ptr = env->GetByteArrayElements(observation_data, nullptr);
+    jbyte *observation_data_ptr =
+        env->GetByteArrayElements(observation_data, nullptr);
     jsize observation_data_size = env->GetArrayLength(observation_data);
 
     write_observation(
@@ -193,7 +193,13 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
         static_cast<size_t>(observation_data_size)
     );
 
-    env->ReleaseStringUTFChars(observation_memory_name, observation_memory_name_cstr);
-    env->ReleaseStringUTFChars(synchronization_memory_name, synchronization_memory_name_cstr);
-    env->ReleaseByteArrayElements(observation_data, observation_data_ptr, JNI_ABORT);
+    env->ReleaseStringUTFChars(
+        observation_memory_name, observation_memory_name_cstr
+    );
+    env->ReleaseStringUTFChars(
+        synchronization_memory_name, synchronization_memory_name_cstr
+    );
+    env->ReleaseByteArrayElements(
+        observation_data, observation_data_ptr, JNI_ABORT
+    );
 }

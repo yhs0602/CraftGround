@@ -68,23 +68,22 @@ void initialize_shared_memory(
     size_t action_size
 ) {
     create_shared_memory_impl(
-        memory_name, management_memory_name, initial_data, data_size, action_size
+        memory_name,
+        management_memory_name,
+        initial_data,
+        data_size,
+        action_size
     );
 }
 
 void write_to_shared_memory(
-    const char *memory_name,
-    const char *data,
-    const size_t data_size
+    const char *memory_name, const char *data, const size_t data_size
 ) {
-    write_to_shared_memory_impl(
-        memory_name, data, data_size
-    );
+    write_to_shared_memory_impl(memory_name, data, data_size);
 }
 
 py::bytes read_from_shared_memory(
-    const char *memory_name,
-    const char *management_memory_name
+    const char *memory_name, const char *management_memory_name
 ) {
     size_t data_size = 0;
     const char *data = read_from_shared_memory_impl(
@@ -96,8 +95,6 @@ py::bytes read_from_shared_memory(
 void destroy_shared_memory(const char *memory_name) {
     destroy_shared_memory_impl(memory_name);
 }
-
-
 
 PYBIND11_MODULE(craftground_native, m) {
     m.doc() = "Craftground Native Module";

@@ -7,12 +7,14 @@ void create_shared_memory_impl(
     const std::string &synchronization_memory_name,
     const std::string &action_memory_name,
     const char *initial_data,
-    size_t data_size, 
+    size_t data_size,
     size_t action_size
 ) {
     shared_memory_object::remove(initial_memory_name.c_str());
     managed_shared_memory sharedMemory(
-        create_only, initial_memory_name.c_str(), sizeof(SharedDataHeader) + data_size
+        create_only,
+        initial_memory_name.c_str(),
+        sizeof(SharedDataHeader) + data_size
     );
     void *addr = sharedMemory.allocate(sizeof(SharedDataHeader) + data_size);
 
@@ -43,9 +45,12 @@ void create_shared_memory_impl(
     // Allocate shared memory for action
     shared_memory_object::remove(action_memory_name.c_str());
     managed_shared_memory sharedMemoryAction(
-        create_only, action_memory_name.c_str(), sizeof(SharedDataHeader) + action_size
+        create_only,
+        action_memory_name.c_str(),
+        sizeof(SharedDataHeader) + action_size
     );
-    void *addrAction = sharedMemoryAction.allocate(sizeof(SharedDataHeader) + action_size);
+    void *addrAction =
+        sharedMemoryAction.allocate(sizeof(SharedDataHeader) + action_size);
     auto *headerAction = new (addrAction) SharedDataHeader();
     headerAction->size = action_size;
     headerAction->ready = true;
@@ -71,7 +76,7 @@ void write_to_shared_memory_impl(
 }
 
 // Read observation from shared memory
-const char* read_from_shared_memory_impl(
+const char *read_from_shared_memory_impl(
     const std::string &memory_name,
     const std::string &synchronization_memory_name,
     size_t &data_size
@@ -89,7 +94,7 @@ const char* read_from_shared_memory_impl(
     headerSynchronization->condition.wait(lockSynchronization, [&] {
         return headerSynchronization->ready;
     });
-    
+
     // Read the observation from shared memory
     managed_shared_memory sharedMemory(open_only, memory_name.c_str());
     void *addr = sharedMemory.get_address();
