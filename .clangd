@@ -7,7 +7,7 @@ CompileFlags:
 ---
 
 If:
-  PathMatch: /src/MinecraftEnv/src/main/cpp/.*
+  PathMatch: /src/craftground/MinecraftEnv/src/main/cpp/.*
 
 CompileFlags:
-  CompilationDatabase: /src/MinecraftEnv/build
+  CompilationDatabase: /src/craftground/MinecraftEnv

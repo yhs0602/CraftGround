@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 project(framebuffer_capturer)
 
 # Set the C++ standard
@@ -68,11 +68,30 @@ else()
     message(STATUS "CUDA is not available")
 endif()
 
+# Find Boost
+set(BOOST_INCLUDE_LIBRARIES interprocess thread system)
+set(BOOST_ENABLE_CMAKE ON)
+
+set(FETCHCONTENT_QUIET FALSE)
+FetchContent_Declare(
+  Boost
+  GIT_REPOSITORY https://github.com/boostorg/boost.git
+  GIT_TAG boost-1.87.0
+  GIT_SHALLOW TRUE
+  GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(Boost)
+
+message(STATUS "Boost is now available")
 
 # Add your source files here
-set(SOURCE_FILES
+set(
+    SOURCE_FILES
     framebuffer_capturer.cpp
+    boost_ipc.cpp
 )
+
+message(STATUS "SOURCE_FILES=${SOURCE_FILES}")
 
 if(APPLE)
     list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm)
@@ -91,7 +110,7 @@ if(CRAFGROUND_NATIVE_DEBUG)
 endif()
 
 # Link with JNI and OpenGL libraries
-target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} glm::glm)
+target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} glm::glm Boost::system Boost::thread Boost::interprocess)
 
 if(PNG_FOUND)
     target_link_libraries(native-lib ${PNG_LIBRARIES} ${ZLIB_LIBRARIES})
