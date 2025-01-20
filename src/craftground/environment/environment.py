@@ -17,6 +17,15 @@ from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
 import torch
 
+from environment.action_space import (
+    ActionSpaceVersion,
+    action_to_symbol,
+    action_v2_to_symbol,
+    declare_action_space,
+    translate_action_to_v2,
+)
+from environment.observation_space import declare_observation_space
+
 from ..action_space import ActionSpace
 from ..buffered_socket import BufferedSocket
 from ..csv_logger import CsvLogger, LogBackend
@@ -31,11 +40,6 @@ from ..minecraft import (
 from ..print_with_time import print_with_time
 from ..proto import observation_space_pb2
 from ..screen_encoding_modes import ScreenEncodingMode
-
-
-class ActionSpaceVersion(Enum):
-    V1_MINEDOJO = 1
-    V2_MINERL_HUMAN = 2
 
 
 class ObservationTensorType(Enum):
@@ -67,243 +71,9 @@ class CraftGroundEnvironment(gym.Env):
         profile: bool = False,
     ):
         self.action_space_version = action_space_version
-        if action_space_version == ActionSpaceVersion.V1_MINEDOJO:
-            self.action_space = ActionSpace(6)
-        elif action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
-            self.action_space = gym.spaces.Dict(
-                {
-                    "attack": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "back": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "forward": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "jump": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "left": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "right": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "sneak": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "sprint": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "use": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "drop": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "inventory": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.1": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.2": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.3": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.4": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.5": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.6": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.7": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.8": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "hotbar.9": gym.spaces.Discrete(2),  # 0 or 1 (boolean)
-                    "camera": gym.spaces.Box(
-                        low=np.array([-180, -180]),
-                        high=np.array([180, 180]),
-                        dtype=np.float32,
-                    ),
-                    # Camera pitch/yaw between -180 and 180 degrees
-                }
-            )
-        else:
-            raise ValueError(f"Unknown action space version: {action_space_version}")
-        entity_info_space = gym.spaces.Dict(
-            {
-                "unique_name": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.int32,
-                ),
-                "translation_key": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.int32,
-                ),
-                "x": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "y": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "z": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "yaw": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "pitch": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-                "health": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(1,),
-                    dtype=np.float64,
-                ),
-            }
-        )
-        sound_entry_space = gym.spaces.Dict(
-            {
-                "translate_key": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-                "x": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-                "y": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-                "z": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-                "age": spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32),
-            }
-        )
-        entities_within_distance_space = gym.spaces.Sequence(entity_info_space)
-        status_effect_space = gym.spaces.Dict(
-            {
-                "translation_key": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-                "amplifier": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-                "duration": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(1,), dtype=np.int32
-                ),
-            }
-        )
-        self.observation_space = gym.spaces.Dict(
-            {
-                "obs": spaces.Dict(
-                    {
-                        "image": spaces.Box(
-                            low=0,
-                            high=255,
-                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
-                            dtype=np.uint8,
-                        ),
-                        "position": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(3,), dtype=np.float64
-                        ),
-                        "yaw": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "pitch": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "health": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "food_level": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "saturation_level": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.float64
-                        ),
-                        "is_dead": spaces.Discrete(2),
-                        "inventory": spaces.Sequence(
-                            spaces.Dict(
-                                {
-                                    "raw_id": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "translation_key": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "count": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "durability": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                    "max_durability": spaces.Box(
-                                        low=-np.inf,
-                                        high=np.inf,
-                                        shape=(1,),
-                                        dtype=np.int32,
-                                    ),
-                                }
-                            ),
-                        ),
-                        "raycast_result": spaces.Dict(
-                            {
-                                "type": spaces.Discrete(3),
-                                "target_block": spaces.Dict(
-                                    {
-                                        "x": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                        "y": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                        "z": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                        "translation_key": spaces.Box(
-                                            low=-np.inf,
-                                            high=np.inf,
-                                            shape=(1,),
-                                            dtype=np.int32,
-                                        ),
-                                    }
-                                ),
-                                "target_entity": entity_info_space,
-                            }
-                        ),
-                        "sound_subtitles": spaces.Sequence(sound_entry_space),
-                        "status_effects": spaces.Sequence(status_effect_space),
-                        "killed_statistics": spaces.Dict(),
-                        "mined_statistics": spaces.Dict(),
-                        "misc_statistics": spaces.Dict(),
-                        "visible_entities": spaces.Sequence(entity_info_space),
-                        "surrounding_entities": entities_within_distance_space,  # This is actually
-                        "bobber_thrown": spaces.Discrete(2),
-                        "experience": spaces.Box(
-                            low=0, high=np.inf, shape=(1,), dtype=np.int32
-                        ),
-                        "world_time": spaces.Box(
-                            low=-np.inf, high=np.inf, shape=(1,), dtype=np.int64
-                        ),
-                        "last_death_message": spaces.Text(
-                            min_length=0, max_length=1000
-                        ),
-                        "image_2": spaces.Box(
-                            low=0,
-                            high=255,
-                            shape=(initial_env.imageSizeY, initial_env.imageSizeX, 3),
-                            dtype=np.uint8,
-                        ),
-                    }
-                ),
-            }
+        self.action_space = declare_action_space(action_space_version)
+        self.observation_space = declare_observation_space(
+            initial_env.imageSizeX, initial_env.imageSizeY
         )
         self.initial_env = initial_env
         self.use_terminate = use_terminate
@@ -400,9 +170,8 @@ class CraftGroundEnvironment(gym.Env):
         self.csv_logger.profile_end("read_response")
 
         self.csv_logger.log(f"Got response with size {siz}")
-        self.csv_logger.profile_start("convert_observation")
-        rgb_1, img_1 = self.convert_observation(res.image, res)
-        self.csv_logger.profile_end("convert_observation")
+        with self.csv_logger.profile("convert_observation"):
+            rgb_1, img_1 = self.convert_observation(res.image, res)
         rgb_2 = None
         img_2 = None
         if res.image_2 is not None and res.image_2 != b"":
@@ -696,35 +465,13 @@ class CraftGroundEnvironment(gym.Env):
         self.sock.send(struct.pack("<I", len(v)))
         self.sock.sendall(v)
 
-    def translate_action_to_v2(self, action: ActType) -> Dict[str, Union[bool, float]]:
-        translated_action = {
-            "attack": action[5] == 3,
-            "back": action[0] == 2,
-            "forward": action[0] == 1,
-            "jump": action[2] == 1,
-            "left": action[1] == 1,
-            "right": action[1] == 2,
-            "sneak": action[2] == 2,
-            "sprint": action[2] == 3,
-            "use": action[5] == 1,
-            "drop": action[5] == 2,
-            "inventory": False,
-        }
-        for i in range(1, 10):
-            translated_action[f"hotbar.{i}"] = False
-
-        translated_action["camera_pitch"] = action[3] * 15 - 180.0
-        translated_action["camera_yaw"] = action[4] * 15 - 180.0
-
-        return translated_action
-
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
         self.last_action = action
         self.csv_logger.profile_start("send_action_and_commands")
         # Translate the action v1 to v2
         if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
-            translated_action = self.translate_action_to_v2(action)
+            translated_action = translate_action_to_v2(action)
         else:
             translated_action = action
         send_action_and_commands(
@@ -819,9 +566,9 @@ class CraftGroundEnvironment(gym.Env):
             self.csv_logger.profile_start("render_action")
             draw = ImageDraw.Draw(last_image)
             if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
-                text = self.action_to_symbol(self.last_action)
+                text = action_to_symbol(self.last_action)
             elif self.action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
-                text = self.action_v2_to_symbol(self.last_action)
+                text = action_v2_to_symbol(self.last_action)
             else:
                 raise ValueError(
                     f"Unknown action space version {self.action_space_version}"
@@ -835,72 +582,6 @@ class CraftGroundEnvironment(gym.Env):
             return np.array(last_image)
         else:
             return last_rgb_frame
-
-    def action_to_symbol(self, action) -> str:  # noqa: C901
-        res = ""
-        if action[0] == 1:
-            res += "↑"
-        elif action[0] == 2:
-            res += "↓"
-        if action[1] == 1:
-            res += "←"
-        elif action[1] == 2:
-            res += "→"
-        if action[2] == 1:
-            res += "jump"  # "⤴"
-        elif action[2] == 2:
-            res += "sneak"  # "⤵"
-        elif action[2] == 3:
-            res += "sprint"  # "⚡"
-        if action[3] > 12:  # pitch up
-            res += "⤒"
-        elif action[3] < 12:  # pitch down
-            res += "⤓"
-        if action[4] > 12:  # yaw right
-            res += "⏭"
-        elif action[4] < 12:  # yaw left
-            res += "⏮"
-        if action[5] == 1:  # use
-            res += "use"  # "⚒"
-        elif action[5] == 2:  # drop
-            res += "drop"  # "🤮"
-        elif action[5] == 3:  # attack
-            res += "attack"  # "⚔"
-        return res
-
-    def action_v2_to_symbol(  # noqa: C901
-        self, action_v2: Dict[str, Union[int, float]]
-    ) -> str:
-        res = ""
-
-        if action_v2.get("forward") == 1:
-            res += "↑"
-        if action_v2.get("backward") == 1:
-            res += "↓"
-        if action_v2.get("left") == 1:
-            res += "←"
-        if action_v2.get("right") == 1:
-            res += "→"
-        if action_v2.get("jump") == 1:
-            res += "JMP"
-        if action_v2.get("sneak") == 1:
-            res += "SNK"
-        if action_v2.get("sprint") == 1:
-            res += "SPRT"
-        if action_v2.get("attack") == 1:
-            res += "ATK"
-        if action_v2.get("use") == 1:
-            res += "USE"
-        if action_v2.get("drop") == 1:
-            res += "Q"
-        if action_v2.get("inventory") == 1:
-            res += "I"
-
-        for i in range(1, 10):
-            if action_v2.get(f"hotbar.{i}") == 1:
-                res += f"hotbar.{i}"
-
-        return res
 
     @property
     def render_mode(self) -> Optional[str]:
