@@ -1,6 +1,9 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
+import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment
+import com.kyhsgeekcode.minecraftenv.proto.ActionSpace
+import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 
@@ -143,4 +146,23 @@ object FramebufferCapturer {
     private var hasInitializedGLEW: Boolean = false
     var ipcHandle: ByteString = ByteString.EMPTY
         private set
+
+    private var actionBuffer: ByteArray? = null
+
+    external fun readInitialEnvironmentImpl(initialEnvironmentMemoryName: String): ByteArray
+    external fun readActionImpl(actionMemoryName: String, actionData: ByteArray?): ByteArray
+    external fun writeObservationImpl(observationMemoryName: String, synchronizationMemoryName: String, observationData: ByteArray)
+
+    fun readInitialEnvironment(initialEnvironmentMemoryName: String): InitialEnvironment.InitialEnvironmentMessage {
+        return InitialEnvironment.InitialEnvironmentMessage.parseFrom(readInitialEnvironmentImpl(initialEnvironmentMemoryName))
+    }
+    
+    fun readAction(actionMemoryName: String): ActionSpace.ActionSpaceMessageV2 {
+        actionBuffer = readActionImpl(actionMemoryName, actionBuffer)
+        return ActionSpace.ActionSpaceMessageV2.parseFrom(actionBuffer)
+    }
+
+    fun writeObservation(observationMemoryName: String, synchronizationMemoryName: String, observationData: ObservationSpace.ObservationSpaceMessage) {        
+        writeObservationImpl(observationMemoryName, synchronizationMemoryName, observationData.toByteArray())
+    }
 }

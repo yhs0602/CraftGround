@@ -118,13 +118,13 @@ class DomainSocketMessageIO(
         }
     }
 
-    override fun writeObservation(observationSpace: ObservationSpace.ObservationSpaceMessage) {
-        printWithTime("Writing observation with size ${observationSpace.serializedSize}")
-        val bufferSize = 4 + observationSpace.serializedSize
+    override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) {
+        printWithTime("Writing observation with size ${observation.serializedSize}")
+        val bufferSize = 4 + observation.serializedSize
         val buffer = ByteBuffer.allocate(bufferSize).order(ByteOrder.LITTLE_ENDIAN)
-        buffer.putInt(observationSpace.serializedSize)
+        buffer.putInt(observation.serializedSize)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        observationSpace.writeTo(byteArrayOutputStream)
+        observation.writeTo(byteArrayOutputStream)
         buffer.put(byteArrayOutputStream.toByteArray())
         // to read mode
         buffer.flip()

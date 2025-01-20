@@ -2,6 +2,7 @@
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
+#include <cstddef>
 #include <cstring>
 #include <jni.h>
 
@@ -21,7 +22,6 @@ jobject read_initial_environment(
     JNIEnv *env,
     jclass clazz,
     const std::string &initial_environment_memory_name,
-    size_t &data_size
 ) {
     managed_shared_memory sharedMemoryInitialEnvironment(
         open_only, initial_environment_memory_name.c_str()
@@ -33,7 +33,7 @@ jobject read_initial_environment(
     char *data_startInitialEnvironment =
         reinterpret_cast<char *>(headerInitialEnvironment) +
         sizeof(SharedDataHeader);
-    data_size = headerInitialEnvironment->size;
+    size_t data_size = headerInitialEnvironment->size;
 
     jbyteArray byteArray = env->NewByteArray(data_size);
     if (byteArray == nullptr || env->ExceptionCheck()) {
@@ -132,17 +132,15 @@ void write_observation(
 }
 
 extern "C" JNIEXPORT jobject JNICALL
-Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironment(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImpl(
     JNIEnv *env,
     jclass clazz,
-    jstring initial_environment_memory_name,
-    jlong data_size // size_t
+    jstring initial_environment_memory_name
 ) {
     const char *initial_environment_memory_name_cstr =
         env->GetStringUTFChars(initial_environment_memory_name, nullptr);
-    size_t data_size_ = static_cast<size_t>(data_size);
     jobject result = read_initial_environment(
-        env, clazz, initial_environment_memory_name_cstr, data_size_
+        env, clazz, initial_environment_memory_name_cstr
     );
     env->ReleaseStringUTFChars(
         initial_environment_memory_name, initial_environment_memory_name_cstr
@@ -152,7 +150,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironment(
 
 // fun readAction(action_memory_name: String, action_data: ByteArray?): ByteArray
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readAction(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readActionImpl(
     JNIEnv *env,
     jclass clazz,
     jstring action_memory_name,
@@ -174,7 +172,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readAction(
 //     observation_data: ByteArray
 // )
 extern "C" JNIEXPORT void JNICALL
-Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservation(
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
     JNIEnv *env,
     jclass clazz,
     jstring observation_memory_name,
