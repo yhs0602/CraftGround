@@ -57,6 +57,7 @@ class CraftGroundEnvironment(gym.Env):
         env_path=None,
         port=8000,
         find_free_port: bool = True,
+        use_shared_memory: bool = False,
         render_action: bool = False,
         render_alternating_eyes: bool = False,
         use_terminate: bool = False,
@@ -101,6 +102,7 @@ class CraftGroundEnvironment(gym.Env):
         self.find_free_port = find_free_port
         self.queued_commands = []
         self.process = None
+        self.use_shared_memory = use_shared_memory
         if env_path is None:
             self.env_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
@@ -113,6 +115,13 @@ class CraftGroundEnvironment(gym.Env):
             profile=profile,
             backend=LogBackend.BOTH if verbose_python else LogBackend.NONE,
         )
+
+        if self.use_shared_memory:
+            from .boost_ipc import BoostIPC  # type: ignore
+
+            self.ipc = BoostIPC(str(port), initial_env)
+        else:
+            self.ipc = None
 
         # in case when using zerocopy
         self.observation_tensors = [None, None]

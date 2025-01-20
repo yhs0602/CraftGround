@@ -1,6 +1,6 @@
 from enum import Enum
 from gymnasium.core import ActType
-from typing import Dict, Union
+from typing import Dict, List, Union
 import gymnasium as gym
 import numpy as np
 
@@ -10,6 +10,36 @@ from action_space import ActionSpace
 class ActionSpaceVersion(Enum):
     V1_MINEDOJO = 1
     V2_MINERL_HUMAN = 2
+
+
+def no_op() -> List[int]:
+    r = [0] * 8
+    r[3] = 12
+    r[4] = 12
+    return r
+
+
+def no_op_v2() -> Dict[str, Union[bool, float]]:
+    noop_dict = {}
+    for bool_key in [
+        "attack",
+        "back",
+        "forward",
+        "jump",
+        "left",
+        "right",
+        "sneak",
+        "sprint",
+        "use",
+        "drop",
+        "inventory",
+    ]:
+        noop_dict[bool_key] = False
+    for i in range(1, 10):
+        noop_dict[f"hotbar.{i}"] = False
+    noop_dict["camera_pitch"] = 0.0
+    noop_dict["camera_yaw"] = 0.0
+    return noop_dict
 
 
 def translate_action_to_v2(action: ActType) -> Dict[str, Union[bool, float]]:

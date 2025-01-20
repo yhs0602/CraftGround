@@ -4,11 +4,12 @@ from craftground_native import (  # noqa
     read_from_shared_memory,  # noqa
     destroy_shared_memory,  # noqa
 )
+from environment.ipc_interface import IPCInterface
 from proto.action_space_pb2 import ActionSpaceMessageV2
 from proto.initial_environment_pb2 import InitialEnvironmentMessage
 
 
-class IPCBoost:
+class BoostIPC(IPCInterface):
     def __init__(self, port: str, initial_environment: InitialEnvironmentMessage):
         self.port = port
         self.initial_environment_shared_memory_name = (
