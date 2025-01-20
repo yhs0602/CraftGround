@@ -20,8 +20,9 @@ struct SharedDataHeader {
 // Message follows the header
 
 void create_shared_memory_impl(
-    const std::string &memory_name,
-    const std::string &management_memory_name,
+    const std::string &initial_memory_name,
+    const std::string &synchronization_memory_name,
+    const std::string &action_memory_name,
     const char *initial_data,
     size_t data_size,
     size_t action_size

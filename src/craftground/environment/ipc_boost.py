@@ -26,6 +26,7 @@ class IPCBoost:
         initialize_shared_memory(
             self.initial_environment_shared_memory_name,
             self.synchronization_shared_memory_name,
+            self.action_shared_memory_name,
             initial_environment_bytes,
             len(initial_environment_bytes),
             len(dummy_action_bytes),
