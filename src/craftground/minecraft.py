@@ -1,3 +1,4 @@
+import os
 import socket
 import struct
 
@@ -15,12 +16,18 @@ def wait_for_server(port: int) -> socket.socket:
 
     while True:
         try:
-            socket_path = f"/tmp/minecraftrl_{port}.sock"
-            s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            s.connect(socket_path)
-            # s.connect(("127.0.0.1", port))
-            s.settimeout(30)
-            return s
+            if os.name == "nt":
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect(("127.0.0.1", port))
+                s.settimeout(30)
+                return s
+            else:
+                socket_path = f"/tmp/minecraftrl_{port}.sock"
+                s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                s.connect(socket_path)
+                # s.connect(("127.0.0.1", port))
+                s.settimeout(30)
+                return s
         except (ConnectionRefusedError, FileNotFoundError):
             if wait_time == next_output:
                 print(

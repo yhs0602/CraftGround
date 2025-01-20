@@ -575,20 +575,34 @@ class CraftGroundEnvironment(gym.Env):
     ):
         self.remove_orphan_java_processes()
         # Check if a file exists
-        socket_path = f"/tmp/minecraftrl_{port}.sock"
-        if os.path.exists(socket_path):
-            if self.find_free_port:
-                print(
-                    f"[Warning]: Socket file {socket_path} already exists. Trying another port."
-                )
-                while os.path.exists(socket_path):
-                    port += 1
-                    socket_path = f"/tmp/minecraftrl_{port}.sock"
-                print(f"Using port {socket_path}")
-            else:
-                raise FileExistsError(
-                    f"Socket file {socket_path} already exists. Please choose another port."
-                )
+        if os.name == "nt":
+            while True:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    if s.connect_ex(("127.0.0.1", port)) == 0:  # The port is in use
+                        if self.find_free_port:
+                            print(
+                                f"[Warning]: Port {port} is already in use. Trying another port."
+                            )
+                            port += 1
+                        else:
+                            raise ConnectionError(
+                                f"Port {port} is already in use. Please choose another port."
+                            )
+        else:
+            socket_path = f"/tmp/minecraftrl_{port}.sock"
+            if os.path.exists(socket_path):
+                if self.find_free_port:
+                    print(
+                        f"[Warning]: Socket file {socket_path} already exists. Trying another port."
+                    )
+                    while os.path.exists(socket_path):
+                        port += 1
+                        socket_path = f"/tmp/minecraftrl_{port}.sock"
+                    print(f"Using port {socket_path}")
+                else:
+                    raise FileExistsError(
+                        f"Socket file {socket_path} already exists. Please choose another port."
+                    )
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
         my_env["VERBOSE"] = str(int(self.verbose_jvm))

@@ -43,6 +43,7 @@ import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.World
 import net.minecraft.world.biome.source.BiomeCoords
 import java.io.IOException
+import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import java.net.StandardProtocolFamily
 import java.net.UnixDomainSocketAddress
@@ -78,13 +79,14 @@ class MinecraftEnv :
     CommandExecutor {
     private lateinit var initialEnvironment: InitialEnvironment.InitialEnvironmentMessage
     private var soundListener: MinecraftSoundListener? = null
-    private var entityListener: EntityRenderListenerImpl? = null // tracks the entities rendered in the last tick
+    private var entityListener: EntityRenderListenerImpl? =
+        null // tracks the entities rendered in the last tick
     private var resetPhase: ResetPhase = ResetPhase.END_RESET
     private var deathMessageCollector: GetMessagesInterface? = null
 
     private val tickSynchronizer = TickSynchronizer()
     private val csvLogger = CsvLogger("java_log.csv", enabled = false, profile = false)
-//    private var serverPlayerEntity: ServerPlayerEntity? = null
+    //    private var serverPlayerEntity: ServerPlayerEntity? = null
 
     private val variableCommandsAfterReset = mutableListOf<String>()
     private var skipSync = false
@@ -109,17 +111,30 @@ class MinecraftEnv :
                     else -> verboseStr?.toBoolean() ?: false
                 }
             doPrintWithTime = verbose
-            val socketFilePath = Path.of("/tmp/minecraftrl_$port.sock")
-            socketFilePath.toFile().deleteOnExit()
-            csvLogger.log("Connecting to $port")
-            printWithTime("Connecting to $port")
-            Files.deleteIfExists(socketFilePath)
-            val serverSocket =
-                ServerSocketChannel.open(StandardProtocolFamily.UNIX).bind(UnixDomainSocketAddress.of(socketFilePath))
-            csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
-            socket = serverSocket.accept()
-            csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
-            messageIO = DomainSocketMessageIO(socket)
+
+            val isWindows = System.getProperty("os.name").lowercase().contains("win")
+            if (isWindows) {
+                val serverSocket = ServerSocketChannel.open()
+                serverSocket.bind(InetSocketAddress("127.0.0.1", port))
+                csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
+                socket = serverSocket.accept()
+                csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
+                messageIO = DomainSocketMessageIO(socket)
+            } else {
+                val socketFilePath = Path.of("/tmp/minecraftrl_$port.sock")
+                socketFilePath.toFile().deleteOnExit()
+                csvLogger.log("Connecting to $port")
+                printWithTime("Connecting to $port")
+                Files.deleteIfExists(socketFilePath)
+                val serverSocket =
+                    ServerSocketChannel
+                        .open(StandardProtocolFamily.UNIX)
+                        .bind(UnixDomainSocketAddress.of(socketFilePath))
+                csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
+                socket = serverSocket.accept()
+                csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
+                messageIO = DomainSocketMessageIO(socket)
+            }
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
@@ -138,14 +153,17 @@ class MinecraftEnv :
                 printWithTime("Start Client tick")
                 csvLogger.profileStartPrint("Minecraft_env/onInitialize/ClientTick")
                 initializer.onClientTick(client)
-                if (soundListener == null) soundListener = MinecraftSoundListener(client.soundManager)
+                if (soundListener == null) {
+                    soundListener = MinecraftSoundListener(client.soundManager)
+                }
                 if (entityListener == null) {
                     entityListener =
-                        EntityRenderListenerImpl(client.worldRenderer as AddListenerInterface)
+                        EntityRenderListenerImpl(
+                            client.worldRenderer as AddListenerInterface,
+                        )
                 }
                 if (deathMessageCollector == null) {
-                    deathMessageCollector =
-                        client.networkHandler as GetMessagesInterface?
+                    deathMessageCollector = client.networkHandler as GetMessagesInterface?
                 }
                 csvLogger.profileEndPrint("Minecraft_env/onInitialize/ClientTick")
             },
@@ -166,18 +184,24 @@ class MinecraftEnv :
                 // allow server to start tick
                 tickSynchronizer.notifyServerTickStart()
                 // wait until server tick ends
-//            printWithTime("Wait server world tick ends")
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndWorldTick/WaitServerTickEnds")
+                //            printWithTime("Wait server world tick ends")
+                csvLogger.profileStartPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/WaitServerTickEnds",
+                )
                 if (skipSync) {
                     csvLogger.log("Skip waiting server world tick ends")
                 } else {
                     csvLogger.log("Wait server world tick ends")
                     tickSynchronizer.waitForServerTickCompletion()
                 }
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/EndWorldTick/WaitServerTickEnds")
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation")
-                if (
-                    ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SENT_OBSERVATION_SKIP_SEND_OBSERVATION ||
+                csvLogger.profileEndPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/WaitServerTickEnds",
+                )
+                csvLogger.profileStartPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation",
+                )
+                if (ioPhase ==
+                    IOPhase.GOT_INITIAL_ENVIRONMENT_SENT_OBSERVATION_SKIP_SEND_OBSERVATION ||
                     ioPhase == IOPhase.SENT_OBSERVATION_SHOULD_READ_ACTION
                 ) {
                     // pass
@@ -186,14 +210,18 @@ class MinecraftEnv :
                     csvLogger.log("Real send observation; $ioPhase")
                     sendObservation(messageIO, world)
                 }
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation")
+                csvLogger.profileEndPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation",
+                )
             },
         )
         ServerTickEvents.START_SERVER_TICK.register(
             ServerTickEvents.StartTick { server: MinecraftServer ->
                 // wait until client tick ends
                 printWithTime("Wait client world tick ends")
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/StartServerTick/WaitClientAction")
+                csvLogger.profileStartPrint(
+                    "Minecraft_env/onInitialize/StartServerTick/WaitClientAction",
+                )
                 if (skipSync) {
                     csvLogger.log("Server tick start; skip waiting client world tick ends")
                     printWithTime("Server tick start; skip waiting client world tick ends")
@@ -202,7 +230,9 @@ class MinecraftEnv :
                     printWithTime("Real Wait client world tick ends")
                     tickSynchronizer.waitForClientAction()
                 }
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/StartServerTick/WaitClientAction")
+                csvLogger.profileEndPrint(
+                    "Minecraft_env/onInitialize/StartServerTick/WaitClientAction",
+                )
             },
         )
         ServerTickEvents.END_SERVER_TICK.register(
@@ -210,9 +240,13 @@ class MinecraftEnv :
                 // allow client to end tick
                 printWithTime("Notify server tick completion")
                 csvLogger.log("Notify server tick completion")
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndServerTick/NotifyClientSendObservation")
+                csvLogger.profileStartPrint(
+                    "Minecraft_env/onInitialize/EndServerTick/NotifyClientSendObservation",
+                )
                 tickSynchronizer.notifyClientSendObservation()
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/EndServerTick/NotifyClientSendObservation")
+                csvLogger.profileEndPrint(
+                    "Minecraft_env/onInitialize/EndServerTick/NotifyClientSendObservation",
+                )
             },
         )
     }
@@ -241,7 +275,6 @@ class MinecraftEnv :
                 }
                 return
             }
-
             ResetPhase.WAIT_PLAYER_RESPAWN -> {
                 printWithTime("Waiting for player respawn")
                 csvLogger.log("Waiting for player respawn")
@@ -252,7 +285,6 @@ class MinecraftEnv :
                 }
                 return
             }
-
             ResetPhase.WAIT_INIT_ENDS -> {
                 printWithTime("Waiting for the initialization ends")
                 csvLogger.log("Waiting for the initialization ends")
@@ -262,7 +294,6 @@ class MinecraftEnv :
                 }
                 return
             }
-
             ResetPhase.END_RESET -> {
                 printWithTime("Reset end")
                 csvLogger.log("Reset end")
@@ -332,7 +363,7 @@ class MinecraftEnv :
                 variableCommandsAfterReset.addAll(commands)
             }
             resetPhase = ResetPhase.WAIT_PLAYER_DEATH
-//            player.kill() //kill player
+            //            player.kill() //kill player
             runCommand(player, "/kill @p") // kill player
             runCommand(player, "/tp @e[type=!player] ~ -500 ~") // send to void
             return true
@@ -374,7 +405,9 @@ class MinecraftEnv :
         player: ClientPlayerEntity,
         client: MinecraftClient,
     ): Boolean {
-        csvLogger.profileStartPrint("Minecraft_env/onInitialize/ClientWorldTick/ReadAction/ApplyAction")
+        csvLogger.profileStartPrint(
+            "Minecraft_env/onInitialize/ClientWorldTick/ReadAction/ApplyAction",
+        )
         if (actionDict.cameraYaw != 0.0f || actionDict.cameraPitch != 0.0f) {
             val dy = actionDict.cameraPitch * 20.0 / 3
             val dx = actionDict.cameraYaw * 20.0 / 3
@@ -389,7 +422,9 @@ class MinecraftEnv :
             return false
         }
         MouseInfo.onAction(actionDict)
-        csvLogger.profileEndPrint("Minecraft_env/onInitialize/ClientWorldTick/ReadAction/ApplyAction")
+        csvLogger.profileEndPrint(
+            "Minecraft_env/onInitialize/ClientWorldTick/ReadAction/ApplyAction",
+        )
         return false
     }
 
@@ -423,11 +458,15 @@ class MinecraftEnv :
             csvLogger.log("Initialized zerocopy")
         }
 
-//        FramebufferCapturer.checkExtensionJVM()
+        //        FramebufferCapturer.checkExtensionJVM()
         // request stats from server
         // TODO: Use server player stats directly instead of client player stats
-        csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare")
-        client.networkHandler?.sendPacket(ClientStatusC2SPacket(ClientStatusC2SPacket.Mode.REQUEST_STATS))
+        csvLogger.profileStartPrint(
+            "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare",
+        )
+        client.networkHandler?.sendPacket(
+            ClientStatusC2SPacket(ClientStatusC2SPacket.Mode.REQUEST_STATS),
+        )
         val buffer = client.framebuffer
         try {
             val imageByteString1: ByteString
@@ -463,8 +502,10 @@ class MinecraftEnv :
                 player.prevX = left.x
                 player.prevY = left.y
                 player.prevZ = left.z
-//                player.setPos(left.x, left.y, left.z)
-                printWithTime("New left position: ${left.x}, ${left.y}, ${left.z} ${player.prevX}, ${player.prevY}, ${player.prevZ}")
+                //                player.setPos(left.x, left.y, left.z)
+                printWithTime(
+                    "New left position: ${left.x}, ${left.y}, ${left.z} ${player.prevX}, ${player.prevY}, ${player.prevZ}",
+                )
                 // (client as ClientRenderInvoker).invokeRender(true)
                 render(client)
                 imageByteString1 =
@@ -484,9 +525,11 @@ class MinecraftEnv :
                 player.prevX = right.x
                 player.prevY = right.y
                 player.prevZ = right.z
-//                player.setPos(right.x, right.y, right.z)
-                printWithTime("New right position: ${right.x}, ${right.y}, ${right.z} ${player.prevX}, ${player.prevY}, ${player.prevZ}")
-//                (client as ClientRenderInvoker).invokeRender(true)
+                //                player.setPos(right.x, right.y, right.z)
+                printWithTime(
+                    "New right position: ${right.x}, ${right.y}, ${right.z} ${player.prevX}, ${player.prevY}, ${player.prevZ}",
+                )
+                //                (client as ClientRenderInvoker).invokeRender(true)
                 render(client)
                 imageByteString2 =
                     FramebufferCapturer.captureFramebuffer(
@@ -506,15 +549,27 @@ class MinecraftEnv :
                 player.prevX = oldPrevX
                 player.prevY = oldPrevY
                 player.prevZ = oldPrevZ
-//                player.setPos(oldX, oldY, oldZ)
+                //                player.setPos(oldX, oldY, oldZ)
             } else {
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/Screenshot")
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/Screenshot")
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString")
+                csvLogger.profileStartPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/Screenshot",
+                )
+                csvLogger.profileEndPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/Screenshot",
+                )
+                csvLogger.profileStartPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString",
+                )
                 val i: Int =
-                    (MouseInfo.mouseX * client.window.scaledWidth.toDouble() / client.window.width.toDouble()).toInt()
+                    (
+                        MouseInfo.mouseX * client.window.scaledWidth.toDouble() /
+                            client.window.width.toDouble()
+                    ).toInt()
                 val j: Int =
-                    (MouseInfo.mouseY * client.window.scaledHeight.toDouble() / client.window.height.toDouble()).toInt()
+                    (
+                        MouseInfo.mouseY * client.window.scaledHeight.toDouble() /
+                            client.window.height.toDouble()
+                    ).toInt()
                 imageByteString1 =
                     FramebufferCapturer.captureFramebuffer(
                         buffer.colorAttachment,
@@ -531,10 +586,14 @@ class MinecraftEnv :
                     )
                 // ByteString.copyFrom(image1ByteArray)
                 imageByteString2 = ByteString.EMPTY // ByteString.copyFrom(image1ByteArray)
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString")
+                csvLogger.profileEndPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString",
+                )
             }
 
-            csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/Message")
+            csvLogger.profileStartPrint(
+                "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/Message",
+            )
             val observationSpaceMessage =
                 observationSpaceMessage {
                     image = imageByteString1
@@ -554,30 +613,20 @@ class MinecraftEnv :
                             player.inventory.offHand,
                         ).flatten()
                     inventory.addAll(
-                        allItems
-                            .map {
-                                it.toMessage()
-                            }.asIterable(),
+                        allItems.map { it.toMessage() }.asIterable(),
                     )
 
                     if (initialEnvironment.requestRaycast) {
                         raycastResult = player.raycast(100.0, 1.0f, false).toMessage(world)
                     } else {
                         // Optimized: dummy hit result
-                        raycastResult =
-                            hitResult {
-                                type = ObservationSpace.HitResult.Type.MISS
-                            }
+                        raycastResult = hitResult { type = ObservationSpace.HitResult.Type.MISS }
                     }
                     soundSubtitles.addAll(
-                        soundListener!!.entries.map {
-                            it.toMessage()
-                        },
+                        soundListener!!.entries.map { it.toMessage() },
                     )
                     statusEffects.addAll(
-                        player.statusEffects.map {
-                            it.toMessage()
-                        },
+                        player.statusEffects.map { it.toMessage() },
                     )
                     for (killStatKey in initialEnvironment.killedStatKeysList) {
                         val key = EntityType.get(killStatKey).get()
@@ -591,7 +640,8 @@ class MinecraftEnv :
                     }
                     for (miscStatKey in initialEnvironment.miscStatKeysList) {
                         val key = Registries.CUSTOM_STAT.get(Identifier.of("minecraft", miscStatKey))
-                        miscStatistics[miscStatKey] = player.statHandler.getStat(Stats.CUSTOM.getOrCreateStat(key))
+                        miscStatistics[miscStatKey] =
+                            player.statHandler.getStat(Stats.CUSTOM.getOrCreateStat(key))
                     }
                     entityListener?.run {
                         for (entity in entities) {
@@ -606,14 +656,16 @@ class MinecraftEnv :
                                 world
                                     .getOtherEntities(
                                         player,
-                                        player.boundingBox.expand(distanceDouble, distanceDouble, distanceDouble),
-                                    ).forEach {
-                                        entities.add(it.toMessage())
-                                    }
+                                        player.boundingBox.expand(
+                                            distanceDouble,
+                                            distanceDouble,
+                                            distanceDouble,
+                                        ),
+                                    ).forEach { entities.add(it.toMessage()) }
                             }
                         surroundingEntities[distance] = entitiesWithinDistanceMessage
                     }
-//                    bobberThrown = serverPlayerEntity?.fishHook != null
+                    //                    bobberThrown = serverPlayerEntity?.fishHook != null
                     bobberThrown = player.fishHook != null
                     experience = player.totalExperience
                     worldTime = world.time // world tick, monotonic increasing
@@ -720,20 +772,26 @@ class MinecraftEnv :
                     }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
-//                csvLogger.log("Sent observation; $ioPhase")
+                //                csvLogger.log("Sent observation; $ioPhase")
                 ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SENT_OBSERVATION_SKIP_SEND_OBSERVATION
-//                csvLogger.log("Sent observation; now $ioPhase")
+                //                csvLogger.log("Sent observation; now $ioPhase")
             } else if (ioPhase == IOPhase.READ_ACTION_SHOULD_SEND_OBSERVATION) {
-//                csvLogger.log("Sent observation; $ioPhase")
+                //                csvLogger.log("Sent observation; $ioPhase")
                 ioPhase = IOPhase.SENT_OBSERVATION_SHOULD_READ_ACTION
-//                csvLogger.log("Sent observation; now $ioPhase")
+                //                csvLogger.log("Sent observation; now $ioPhase")
             } else {
-//                csvLogger.log("Sent observation; $ioPhase good.")
+                //                csvLogger.log("Sent observation; $ioPhase good.")
             }
-            csvLogger.profileEndPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/Message")
-            csvLogger.profileStartPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Write")
+            csvLogger.profileEndPrint(
+                "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/Message",
+            )
+            csvLogger.profileStartPrint(
+                "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Write",
+            )
             messageIO.writeObservation(observationSpaceMessage)
-            csvLogger.profileEndPrint("Minecraft_env/onInitialize/EndWorldTick/SendObservation/Write")
+            csvLogger.profileEndPrint(
+                "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Write",
+            )
         } catch (e: IOException) {
             e.printStackTrace()
             tickSynchronizer.terminate()
