@@ -1,6 +1,7 @@
 #ifndef SHARED_MEMORY_UTILS_HPP
 #define SHARED_MEMORY_UTILS_HPP
 
+#include <mutex>
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
