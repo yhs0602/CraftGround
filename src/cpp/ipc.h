@@ -10,7 +10,8 @@ py::capsule mtl_tensor_from_cuda_mem_handle(
 );
 void initialize_shared_memory(
     const char *memory_name,
-    const char *management_memory_name,
+    const char *synchronization_memory_name,
+    const char *action_memory_name,
     const char *initial_data,
     size_t data_size,
     size_t action_size
