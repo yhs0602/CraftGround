@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import os
 import subprocess
+from time import sleep
 
 from proto.action_space_pb2 import ActionSpaceMessageV2
 from proto.initial_environment_pb2 import InitialEnvironmentMessage
@@ -21,6 +22,36 @@ class IPCInterface(ABC):
     @abstractmethod
     def send_initial_environment(self, message: InitialEnvironmentMessage):
         pass
+
+    @abstractmethod
+    def is_alive(self) -> bool:
+        pass
+
+    @abstractmethod
+    def destroy(self):
+        pass
+
+    def ensure_alive(self, fast_reset, extra_commands, seed):
+        if not self.is_alive():  # first time
+            self.start_server(
+                port=self.port,
+                use_vglrun=self.use_vglrun,
+                track_native_memory=self.track_native_memory,
+                ld_preload=self.ld_preload,
+                seed=seed,
+            )
+        elif not fast_reset:
+            self.destroy()
+            self.start_server(
+                port=self.port,
+                use_vglrun=self.use_vglrun,
+                track_native_memory=self.track_native_memory,
+                ld_preload=self.ld_preload,
+            )
+        else:
+            with self.csv_logger.profile("fast_reset"):
+                self.send_fastreset2(self.sock, extra_commands)
+            self.csv_logger.log("Sent fast reset")
 
     def start_server(
         self,

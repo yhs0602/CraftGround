@@ -10,29 +10,31 @@ from proto.initial_environment_pb2 import InitialEnvironmentMessage
 
 
 class BoostIPC(IPCInterface):
-    def __init__(self, port: str, find_free_port: bool, initial_environment: InitialEnvironmentMessage):
+    def __init__(
+        self,
+        port: str,
+        find_free_port: bool,
+        initial_environment: InitialEnvironmentMessage,
+    ):
         self.port = port
-        self.initial_environment_shared_memory_name = (
-            f"craftground_{port}_initial_environment"
-        )
-        self.action_shared_memory_name = f"craftground_{port}_action"
-        self.observation_shared_memory_name = f"craftground_{port}_observation"
-        self.synchronization_shared_memory_name = f"craftground_{port}_synchronization"
-
         initial_environment_bytes: bytes = initial_environment.SerializeToString()
 
         # Get the length of the action space message
         dummy_action: ActionSpaceMessageV2 = ActionSpaceMessageV2()
         dummy_action_bytes: bytes = dummy_action.SerializeToString()
         self.port = initialize_shared_memory(
-            self.initial_environment_shared_memory_name,
-            self.synchronization_shared_memory_name,
-            self.action_shared_memory_name,
+            self.port,
             initial_environment_bytes,
             len(initial_environment_bytes),
             len(dummy_action_bytes),
             find_free_port,
         )
+        self.initial_environment_shared_memory_name = (
+            f"craftground_{port}_initial_environment"
+        )
+        self.action_shared_memory_name = f"craftground_{port}_action"
+        self.observation_shared_memory_name = f"craftground_{port}_observation"
+        self.synchronization_shared_memory_name = f"craftground_{port}_synchronization"
 
     def write_action(self, action: ActionSpaceMessageV2):
         action_bytes: bytes = action.SerializeToString()
@@ -51,3 +53,9 @@ class BoostIPC(IPCInterface):
         destroy_shared_memory(self.synchronization_shared_memory_name)
         # Java destroys the initial environment shared memory
         # destroy_shared_memory(self.initial_environment_shared_memory_name)
+
+    def is_alive(self) -> bool:
+        return True
+
+    def __del__(self):
+        self.destroy()

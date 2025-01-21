@@ -1,13 +1,12 @@
 import os
 import signal
 import struct
-from typing import List, Optional, Tuple
+from time import sleep
+from typing import List, Optional
 
 import psutil
 from csv_logger import CsvLogger
 from environment.ipc_interface import IPCInterface
-from minecraft import action_v2_dict_to_message
-from print_with_time import print_with_time
 from proto.action_space_pb2 import ActionSpaceMessageV2
 from proto.initial_environment_pb2 import InitialEnvironmentMessage
 from proto.observation_space_pb2 import ObservationSpaceMessage
@@ -81,8 +80,14 @@ class SocketIPC(IPCInterface):
         self.logger.log(f"Got response with size {data_len}")
         return observation_space
 
+    def is_alive(self) -> bool:
+        return self.sock is not None
+
     def destroy(self):
-        pass
+        self.sock.close()
+        self.terminate()
+        # wait for server death and restart server
+        sleep(5)
 
     def remove_orphan_java_processes(self):  # noqa: C901
         self.logger.log("Removing orphan Java processes...")

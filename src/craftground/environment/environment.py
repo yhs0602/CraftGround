@@ -1,4 +1,3 @@
-import io
 import os
 import re
 import signal
@@ -6,21 +5,15 @@ import socket
 import struct
 import subprocess
 from enum import Enum
-from time import sleep
 from typing import Tuple, Optional, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
-import psutil
-from PIL import Image, ImageDraw
-from gymnasium import spaces
 from gymnasium.core import ActType, ObsType, RenderFrame
 import torch
 
 from environment.action_space import (
     ActionSpaceVersion,
-    action_to_symbol,
-    action_v2_to_symbol,
     declare_action_space,
     translate_action_to_v2,
 )
@@ -30,17 +23,12 @@ from environment.socket_ipc import SocketIPC
 
 from ..buffered_socket import BufferedSocket
 from ..csv_logger import CsvLogger, LogBackend
-from ..font import get_font
 from ..initial_environment_config import InitialEnvironmentConfig
 from ..minecraft import (
     wait_for_server,
-    send_fastreset2,
-    send_action_and_commands,
     send_exit,
 )
-from ..print_with_time import print_with_time
 from ..proto import observation_space_pb2
-from ..screen_encoding_modes import ScreenEncodingMode
 
 
 class ObservationTensorType(Enum):
@@ -99,7 +87,6 @@ class CraftGroundEnvironment(gym.Env):
 
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
-        self.port = port
         self.find_free_port = find_free_port
         self.queued_commands = []
         self.process = None
@@ -128,16 +115,6 @@ class CraftGroundEnvironment(gym.Env):
         self.observation_tensors = [None, None]
         self.observation_tensor_type = ObservationTensorType.NONE
 
-        if initial_env.screen_encoding_mode == ScreenEncodingMode.ZEROCOPY:
-            try:
-                from .craftground_native import initialize_from_mach_port  # type: ignore
-                from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
-            except ImportError:
-                raise ImportError(
-                    "To use zerocopy encoding mode, please install the craftground[cuda] package on linux or windows."
-                    " If this error happens in macOS, please report it to the developers."
-                )
-
         self.observation_converter = ObservationConverter(
             self.initial_env.screen_encoding_mode,
             self.initial_env.eye_distance > 0,
@@ -154,33 +131,11 @@ class CraftGroundEnvironment(gym.Env):
             options = {}
         fast_reset = options.get("fast_reset", True)
         extra_commands = options.get("extra_commands", [])
-        if not self.sock:  # first time
-            self.start_server(
-                port=self.port,
-                use_vglrun=self.use_vglrun,
-                track_native_memory=self.track_native_memory,
-                ld_preload=self.ld_preload,
-            )
-        else:
-            if not fast_reset:
-                self.sock.close()
-                self.terminate()
-                # wait for server death and restart server
-                sleep(5)
-                self.start_server(
-                    port=self.port,
-                    use_vglrun=self.use_vglrun,
-                    track_native_memory=self.track_native_memory,
-                    ld_preload=self.ld_preload,
-                )
-            else:
-                with self.csv_logger.profile("fast_reset"):
-                    send_fastreset2(self.sock, extra_commands)
-                self.csv_logger.log("Sent fast reset")
+
+        self.ipc.ensure_alive(fast_reset, extra_commands, seed=seed)
 
         with self.csv_logger.profile("read_response"):
             res = self.ipc.read_observation()
-
         final_obs = self.convert_observation_v2(res)
         return final_obs, final_obs
 
@@ -319,12 +274,6 @@ class CraftGroundEnvironment(gym.Env):
                 translated_action = action
 
             self.ipc.send_action(translated_action, self.queued_commands)
-            send_action_and_commands(
-                self.sock,
-                translated_action,
-                commands=self.queued_commands,
-                verbose=self.verbose_python,
-            )
         self.queued_commands.clear()
         # read the response
         self.csv_logger.log("Sent action and reading response...")
@@ -370,6 +319,7 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.extend(commands)
 
     def terminate(self):
+        self.ipc.close()
         if self.sock is not None:
             send_exit(self.sock)
             self.sock.close()
@@ -387,55 +337,17 @@ class CraftGroundEnvironment(gym.Env):
             print("Child process already terminated")
         print("Terminated the java process")
 
-    def remove_orphan_java_processes(self):  # noqa: C901
-        print("Removing orphan Java processes...")
-        target_directory = "/tmp"
-        file_pattern = "minecraftrl_"
-        file_usage = {}
-        no_such_processes = 0
-        access_denied_processes = 0
-        for proc in psutil.process_iter(["pid", "name"]):
-            try:
-                for file in proc.open_files():
-                    if (
-                        file.path.startswith(target_directory)
-                        and file_pattern in file.path
-                    ):
-                        if file.path not in file_usage:
-                            file_usage[file.path] = []
-                        file_usage[file.path].append(proc.info)
-            except psutil.NoSuchProcess:
-                no_such_processes += 1
-                continue
-            except psutil.AccessDenied:
-                access_denied_processes += 1
-                continue
-            except Exception as e:
-                print(f"Error: {e}")
-                continue
-
-        for file_path, processes in file_usage.items():
-            if all(proc["name"].lower() == "java" for proc in processes):
-                for proc in processes:
-                    os.kill(proc["pid"], signal.SIGTERM)
-                    print(f"Killed Java process {proc['pid']} using file {file_path}")
-                os.remove(file_path)
-                print(f"Removed {file_path}")
-        print(
-            f"Removed orphan Java processes: {access_denied_processes} access denied, {no_such_processes} no such process"
-        )
-
-    # Copy or symlink the save file to the returned folder
     @staticmethod
-    def get_env_save_path() -> str:
+    def get_env_base_path() -> str:
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
-        env_dir = os.path.join(current_dir, "MinecraftEnv", "run", "saves")
+        env_dir = os.path.join(current_dir, "MinecraftEnv", "run")
         return env_dir
 
     @staticmethod
+    def get_env_save_path() -> str:
+        return os.path.join(CraftGroundEnvironment.get_env_base_path(), "saves")
+
+    @staticmethod
     def get_env_option_path() -> str:
-        current_file = os.path.abspath(__file__)
-        current_dir = os.path.dirname(current_file)
-        options_txt = os.path.join(current_dir, "MinecraftEnv", "run", "options.txt")
-        return options_txt
+        return os.path.join(CraftGroundEnvironment.get_env_base_path(), "options.txt")

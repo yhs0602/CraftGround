@@ -56,6 +56,23 @@ class ObservationConverter:
         self.render_alternating_eyes_counter = 0
         self.render_action = render_action
 
+        if output_type == ScreenEncodingMode.ZEROCOPY:
+            try:
+                from .craftground_native import initialize_from_mach_port  # type: ignore
+                from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
+            except ImportError:
+                raise ImportError(
+                    "To use zerocopy encoding mode, please install the craftground[cuda] package on linux or windows."
+                    " If this error happens in macOS, please report it to the developers."
+                )
+        if output_type == ScreenEncodingMode.JAX:
+            try:
+                import jax  # type: ignore
+            except ImportError:
+                raise ImportError(
+                    "To use JAX encoding mode, please install the craftground[jax] package."
+                )
+
     def convert(
         self, observation: ObservationSpaceMessage
     ) -> Tuple[Optional[ImageOutputType]]:
