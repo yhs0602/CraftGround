@@ -1,12 +1,19 @@
+from environment.ipc_interface import IPCInterface
+from proto.action_space_pb2 import ActionSpaceMessageV2
+from proto.initial_environment_pb2 import InitialEnvironmentMessage
+
+# Torch should be imported first before craftground_native to avoid segfaults
+try:
+    import torch  # noqa
+except ImportError:
+    pass
+
 from craftground_native import (  # noqa
     initialize_shared_memory,  # noqa
     write_to_shared_memory,  # noqa
     read_from_shared_memory,  # noqa
     destroy_shared_memory,  # noqa
 )
-from environment.ipc_interface import IPCInterface
-from proto.action_space_pb2 import ActionSpaceMessageV2
-from proto.initial_environment_pb2 import InitialEnvironmentMessage
 
 
 class BoostIPC(IPCInterface):

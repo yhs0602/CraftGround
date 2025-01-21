@@ -2,7 +2,6 @@ import os
 import re
 import shutil
 import signal
-import struct
 import subprocess
 from enum import Enum
 from typing import Tuple, Optional, Union, List, Any, Dict
@@ -23,7 +22,6 @@ from environment.socket_ipc import SocketIPC
 
 from csv_logger import CsvLogger, LogBackend
 from initial_environment_config import InitialEnvironmentConfig
-from proto import observation_space_pb2
 
 
 class ObservationTensorType(Enum):
@@ -68,8 +66,6 @@ class CraftGroundEnvironment(gym.Env):
         self.track_native_memory = track_native_memory
         self.ld_preload = ld_preload
         self.encoding_mode = initial_env.screen_encoding_mode
-        self.sock = None
-        self.buffered_socket = None
         self.last_rgb_frames: List[Union[np.ndarray, torch.Tensor, None]] = [None, None]
         self.last_images: List[Union[np.ndarray, torch.Tensor, None]] = [None, None]
         self.last_action = None
@@ -85,6 +81,7 @@ class CraftGroundEnvironment(gym.Env):
         self.render_alternating_eyes_counter = 0
         self.find_free_port = find_free_port
         self.queued_commands = []
+
         self.process = None
         self.use_shared_memory = use_shared_memory
         if env_path is None:
@@ -171,7 +168,7 @@ class CraftGroundEnvironment(gym.Env):
     def ensure_alive(self, fast_reset, extra_commands, seed):
         if self.is_alive:
             if fast_reset:
-                self.ipc.send_fastreset2(self.sock, extra_commands)
+                self.ipc.send_fastreset2(extra_commands)
                 return
             else:
                 self.terminate()
@@ -316,11 +313,6 @@ class CraftGroundEnvironment(gym.Env):
 
     def terminate(self):
         self.ipc.destroy()
-        if self.sock is not None:
-            self.ipc.send_exit(self.sock)
-            self.sock.close()
-            self.sock = None
-        print("Terminated the java process")
         pid = self.process.pid if self.process else None
         # wait for the pid to exit
         try:

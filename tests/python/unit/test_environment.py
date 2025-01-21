@@ -1,13 +1,14 @@
 import signal
-import struct
 import pytest
 from unittest.mock import MagicMock, patch
+
 
 from environment.environment import CraftGroundEnvironment
 from environment.observation_converter import ObservationConverter
 from environment.socket_ipc import SocketIPC
 from initial_environment_config import InitialEnvironmentConfig
 from screen_encoding_modes import ScreenEncodingMode
+from environment.boost_ipc import BoostIPC
 
 
 @pytest.fixture
@@ -32,14 +33,29 @@ def test_initialize_environment(mock_ipc_class, mock_initial_env):
 
     assert mock_ipc_instance is not None
     print(mock_initial_env)
-    env = CraftGroundEnvironment(initial_env=mock_initial_env)
+    env = CraftGroundEnvironment(initial_env=mock_initial_env, use_shared_memory=False)
 
     assert env.initial_env == mock_initial_env
     assert env.action_space is not None
     assert env.observation_space is not None
     assert isinstance(env.observation_converter, ObservationConverter)
     assert isinstance(env.ipc, SocketIPC)
-    assert env.sock is None
+
+
+@patch("environment.boost_ipc.BoostIPC")
+def test_initialize_environment(mock_ipc_class, mock_initial_env):
+    mock_ipc_instance = MagicMock(spec=BoostIPC)
+    mock_ipc_class.return_value = mock_ipc_instance
+
+    assert mock_ipc_instance is not None
+    print(mock_initial_env)
+    env = CraftGroundEnvironment(initial_env=mock_initial_env, use_shared_memory=True)
+
+    assert env.initial_env == mock_initial_env
+    assert env.action_space is not None
+    assert env.observation_space is not None
+    assert isinstance(env.observation_converter, ObservationConverter)
+    assert isinstance(env.ipc, BoostIPC)
 
 
 @patch("socket.socket")

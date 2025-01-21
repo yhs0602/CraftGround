@@ -1,7 +1,7 @@
 import os
 import signal
 import struct
-from time import sleep, time
+from time import time
 from typing import Dict, List, Optional, Union
 
 import psutil
@@ -96,6 +96,7 @@ class SocketIPC(IPCInterface):
 
     def destroy(self):
         if self.sock:
+            self.send_exit(self.sock)
             self.sock.close()
             self.sock = None
 

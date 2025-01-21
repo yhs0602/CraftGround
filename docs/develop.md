@@ -74,3 +74,10 @@ coverage run --source=src/craftground -m pytest tests/python/unit/
 coverage report
 ```
 
+## python test
+```bash
+cd build
+cmake ..
+cmake --build .
+PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest tests/python/unit/
+```
