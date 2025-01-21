@@ -47,12 +47,17 @@ class ObservationConverter:
     def __init__(
         self,
         output_type: ScreenEncodingMode,
-        logger: CsvLogger = None,
+        image_width: int,
+        image_height: int,
+        logger: CsvLogger,
         is_binocular: bool = False,
         render_action: bool = False,
     ) -> None:
         self.output_type = output_type
         self.internal_type = ObservationTensorType.NONE
+        self.image_width = image_width
+        self.image_height = image_height
+
         self.logger = logger
         self.last_observations = [None, None]
         self.last_images = [None, None]
@@ -213,7 +218,7 @@ class ObservationConverter:
         # decode raw byte array to numpy array
         with self.logger.profile("convert_observation/decode_raw"):
             last_rgb_frame = np.frombuffer(image_bytes, dtype=np.uint8).reshape(
-                (self.initial_env.imageSizeY, self.initial_env.imageSizeX, 3)
+                (self.image_height, self.image_width, 3)
             )
             # Flip y axis using np
             last_rgb_frame = np.flip(last_rgb_frame, axis=0)
@@ -232,7 +237,7 @@ class ObservationConverter:
             mach_port = int.from_bytes(ipc_handle, byteorder="little", signed=False)
             print_with_time(f"{mach_port=}")
             apple_dl_tensor = initialize_from_mach_port(
-                mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
+                mach_port, self.image_width, self.image_height
             )
             if apple_dl_tensor is None:
                 raise ValueError(f"Failed to initialize from mach port {mach_port}.")
@@ -249,8 +254,8 @@ class ObservationConverter:
 
             cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
                 ipc_handle,
-                self.initial_env.imageSizeX,
-                self.initial_env.imageSizeY,
+                self.image_width,
+                self.image_height,
             )
             if not cuda_dl_tensor:
                 raise ValueError("Invalid DLPack capsule: None")
@@ -274,7 +279,7 @@ class ObservationConverter:
             mach_port = int.from_bytes(ipc_handle, byteorder="little", signed=False)
             print_with_time(f"{mach_port=}")
             dlpack_capsule = mtl_dlpack_from_mach_port(
-                mach_port, self.initial_env.imageSizeX, self.initial_env.imageSizeY
+                mach_port, self.image_width, self.image_height
             )
             if not dlpack_capsule:
                 raise ValueError(f"Failed to initialize from mach port {ipc_handle}.")
@@ -292,8 +297,8 @@ class ObservationConverter:
         else:
             cuda_dlpack = mtl_tensor_from_cuda_mem_handle(
                 ipc_handle,
-                self.initial_env.imageSizeX,
-                self.initial_env.imageSizeY,
+                self.image_width,
+                self.image_height,
             )
             if not cuda_dlpack:
                 raise ValueError("Invalid DLPack capsule: None")

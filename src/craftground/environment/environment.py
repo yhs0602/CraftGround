@@ -122,6 +122,8 @@ class CraftGroundEnvironment(gym.Env):
 
         self.observation_converter = ObservationConverter(
             self.initial_env.screen_encoding_mode,
+            self.initial_env.imageSizeX,
+            self.initial_env.imageSizeY,
             self.logger,
             self.initial_env.eye_distance > 0,
             self.render_action,
@@ -333,6 +335,7 @@ class CraftGroundEnvironment(gym.Env):
             if pid:
                 pgrp = os.getpgid(pid)
                 os.killpg(pgrp, signal.SIGKILL)
+                self.logger.log(f"Sent SIGKILL to process group {pgrp}(pid {pid})")
                 _, exit_status = os.waitpid(pid, 0)
                 self.logger.log(
                     f"Terminated the java process with exit status {exit_status}"
