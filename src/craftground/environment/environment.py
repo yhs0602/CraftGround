@@ -59,6 +59,8 @@ class CraftGroundEnvironment(gym.Env):
             initial_env.imageSizeX, initial_env.imageSizeY
         )
         self.initial_env = initial_env
+        self.initial_env_message = initial_env.to_initial_environment_message()
+
         self.use_terminate = use_terminate
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
@@ -108,12 +110,12 @@ class CraftGroundEnvironment(gym.Env):
             self.ipc = BoostIPC(
                 str(port),
                 find_free_port,
-                self.initial_env.to_initial_environment_message(),
+                self.initial_env_message,
             )
         else:
             self.ipc = SocketIPC(
                 self.logger,
-                self.initial_env.to_initial_environment_message(),
+                self.initial_env_message,
                 port,
                 find_free_port,
             )
@@ -175,43 +177,33 @@ class CraftGroundEnvironment(gym.Env):
                 return
             else:
                 self.terminate()
+
         if self.use_shared_memory:
             from .boost_ipc import BoostIPC  # type: ignore
 
             self.ipc = BoostIPC(
-                str(port),
-                find_free_port,
-                self.initial_env.to_initial_environment_message(),
+                str(self.ipc.port),
+                self.ipc.find_free_port,
+                self.initial_env_message,
             )
         else:
             self.ipc = SocketIPC(
                 self.logger,
-                self.initial_env.to_initial_environment_message(),
-                port,
-                find_free_port,
+                self.initial_env_message,
+                self.ipc.port,
+                self.ipc.find_free_port,
             )
-        self.start_server(
-            port=self.ipc.port,
-            use_vglrun=self.use_vglrun,
-            track_native_memory=self.track_native_memory,
-            ld_preload=self.ld_preload,
-            seed=seed,
-        )
 
-    def start_server(
-        self,
-        port: int,
-        use_vglrun: bool,
-        track_native_memory: bool,
-        ld_preload: Optional[str],
-    ):
+        self.start_server(seed=seed)
+
+    def start_server(self, seed: int):
         # Remove orphan java processes
         self.ipc.remove_orphan_java_processes()
         # Prepare command TODO
         my_env = os.environ.copy()
-        my_env["PORT"] = str(port)
+        my_env["PORT"] = str(self.ipc.port)
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
-        if track_native_memory:
+        if self.track_native_memory:
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"
         if self.native_debug:
             my_env["CRAFGROUND_NATIVE_DEBUG"] = "True"
@@ -227,10 +219,10 @@ class CraftGroundEnvironment(gym.Env):
                 # self.update_override_resolutions(options_txt_path)
 
         cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
-        if use_vglrun:
+        if self.use_vglrun:
             cmd = f"vglrun {cmd}"
-        if ld_preload:
-            my_env["LD_PRELOAD"] = ld_preload
+        if self.ld_preload:
+            my_env["LD_PRELOAD"] = self.ld_preload
         self.logger.log(f"Starting server with command: {cmd}")
 
         # Launch the server

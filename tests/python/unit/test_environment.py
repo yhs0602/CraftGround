@@ -66,9 +66,7 @@ def test_start_server(mock_popen, mock_socket, environment):
     mock_sock_instance = MagicMock()
     mock_socket.return_value = mock_sock_instance
 
-    environment.start_server(
-        port=8000, use_vglrun=False, track_native_memory=False, ld_preload=None
-    )
+    environment.start_server(seed=1234)
 
     assert mock_popen.called
     assert environment.process is not None
