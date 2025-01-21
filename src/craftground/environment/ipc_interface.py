@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 import os
 import subprocess
-from time import sleep
 
 from proto.action_space_pb2 import ActionSpaceMessageV2
-from proto.initial_environment_pb2 import InitialEnvironmentMessage
 from proto.observation_space_pb2 import ObservationSpaceMessage
 
 

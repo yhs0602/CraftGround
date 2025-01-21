@@ -27,7 +27,7 @@ def environment(mock_initial_env):
 
 
 @patch("environment.environment.SocketIPC")
-def test_initialize_environment(mock_ipc_class, mock_initial_env):
+def test_initialize_socket_environment(mock_ipc_class, mock_initial_env):
     mock_ipc_instance = MagicMock(spec=SocketIPC)
     mock_ipc_class.return_value = mock_ipc_instance
 
@@ -43,7 +43,7 @@ def test_initialize_environment(mock_ipc_class, mock_initial_env):
 
 
 @patch("environment.boost_ipc.BoostIPC")
-def test_initialize_environment(mock_ipc_class, mock_initial_env):
+def test_initialize_boost_environment(mock_ipc_class, mock_initial_env):
     mock_ipc_instance = MagicMock(spec=BoostIPC)
     mock_ipc_class.return_value = mock_ipc_instance
 
