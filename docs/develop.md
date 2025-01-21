@@ -70,14 +70,9 @@ cd src/craftground/MinecraftEnv
 ## Python unit test with coverage
 ```bash
 python -m pip install coverage pytest
-coverage run --source=src/craftground -m pytest tests/python/unit/
-coverage report
-```
-
-## python test
-```bash
 cd build
 cmake ..
 cmake --build .
 PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest tests/python/unit/
+coverage report
 ```

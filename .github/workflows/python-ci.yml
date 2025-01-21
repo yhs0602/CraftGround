@@ -38,7 +38,9 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        coverage run --source=src/craftground -m pytest tests/python/unit/
+        # build cpp extension first
+        mkdir build && cd build && cmake .. && cmake --build . && cd ..
+        PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest tests/python/unit/
     
     - name: coverage
       run: |
