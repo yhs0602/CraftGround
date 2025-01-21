@@ -1,7 +1,7 @@
 import os
 import signal
 import struct
-from time import time
+import time
 from typing import Dict, List, Optional, Union
 
 import psutil
@@ -62,6 +62,8 @@ class SocketIPC(IPCInterface):
                     raise FileExistsError(
                         f"Socket file {socket_path} already exists. Please choose another port."
                     )
+            else:
+                return port
 
     def _send_initial_environment(self, initial_env: InitialEnvironmentMessage):
         v = initial_env.SerializeToString()
