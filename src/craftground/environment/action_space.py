@@ -4,7 +4,6 @@ from typing import Dict, List, Union
 import gymnasium as gym
 import numpy as np
 
-from action_space import ActionSpace
 from proto.action_space_pb2 import ActionSpaceMessageV2
 
 
@@ -163,7 +162,8 @@ def action_v2_to_symbol(action_v2: Dict[str, Union[int, float]]) -> str:  # noqa
 
 def declare_action_space(action_space_version: ActionSpaceVersion) -> gym.spaces.Space:
     if action_space_version == ActionSpaceVersion.V1_MINEDOJO:
-        return ActionSpace(6)
+        # Same as the action space used in MineDojo
+        return gym.spaces.MultiDiscrete([3, 3, 4, 25, 25, 8, 244, 36])
     elif action_space_version == ActionSpaceVersion.V2_MINERL_HUMAN:
         return gym.spaces.Dict(
             {

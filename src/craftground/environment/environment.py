@@ -21,10 +21,10 @@ from environment.observation_converter import ObservationConverter
 from environment.observation_space import declare_observation_space
 from environment.socket_ipc import SocketIPC
 
-from ..buffered_socket import BufferedSocket
-from ..csv_logger import CsvLogger, LogBackend
-from ..initial_environment_config import InitialEnvironmentConfig
-from ..proto import observation_space_pb2
+from buffered_socket import BufferedSocket
+from csv_logger import CsvLogger, LogBackend
+from initial_environment_config import InitialEnvironmentConfig
+from proto import observation_space_pb2
 
 
 class ObservationTensorType(Enum):

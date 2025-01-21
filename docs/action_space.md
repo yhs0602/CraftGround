@@ -8,7 +8,7 @@ The action space is a list of integers, and each indices represent the following
 
 - `0`: 0: no-op, 1: Move forward, 2: Move backward
 - `1`: 0: no-op, 1: Strafe right, 2: Strafe left
-- `2`: 0: no-op, 1: Jump
+- `2`: 0: no-op, 1: Jump, 2: Sneak, 3: Sprint
 - `3`: Camera delta pitch (0: -180, 24:180)
 - `4`: Camera delta yaw (-180: 180)
 - `5`: 0: no-op, 1: Use 2: Drop 3: Attack 4: Craft 5: Equip 6: Place 7: Destroy
