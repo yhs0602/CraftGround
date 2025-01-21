@@ -9,7 +9,6 @@ from typing import Tuple, Optional, Union, List, Any, Dict
 import gymnasium as gym
 import numpy as np
 from gymnasium.core import ActType, ObsType, RenderFrame
-import torch
 
 from environment.action_space import (
     ActionSpaceVersion,
@@ -66,8 +65,11 @@ class CraftGroundEnvironment(gym.Env):
         self.track_native_memory = track_native_memory
         self.ld_preload = ld_preload
         self.encoding_mode = initial_env.screen_encoding_mode
-        self.last_rgb_frames: List[Union[np.ndarray, torch.Tensor, None]] = [None, None]
-        self.last_images: List[Union[np.ndarray, torch.Tensor, None]] = [None, None]
+        self.last_rgb_frames: List[Union[np.ndarray, "torch.Tensor", None]] = [
+            None,
+            None,
+        ]
+        self.last_images: List[Union[np.ndarray, "torch.Tensor", None]] = [None, None]
         self.last_action = None
         self.render_action = render_action
 
@@ -145,7 +147,7 @@ class CraftGroundEnvironment(gym.Env):
 
         self.queued_commands = []
         res.yaw = ((res.yaw + 180) % 360) - 180
-        final_obs: Dict[str, Union[np.ndarray, torch.Tensor, Any]] = {
+        final_obs: Dict[str, Union[np.ndarray, "torch.Tensor"]] = {
             "full": res,
             "pov": rgb_1,
         }
