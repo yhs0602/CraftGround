@@ -2,14 +2,16 @@ import os
 import signal
 import struct
 from time import sleep
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 
 import psutil
 from csv_logger import CsvLogger
+from environment.action_space import action_v2_dict_to_message, no_op_v2
 from environment.ipc_interface import IPCInterface
 from proto.action_space_pb2 import ActionSpaceMessageV2
 from proto.initial_environment_pb2 import InitialEnvironmentMessage
 from proto.observation_space_pb2 import ObservationSpaceMessage
+import socket
 
 
 class SocketIPC(IPCInterface):
@@ -126,3 +128,67 @@ class SocketIPC(IPCInterface):
         print(
             f"Removed orphan Java processes: {access_denied_processes} access denied, {no_such_processes} no such process"
         )
+
+    def send_commands(self, commands: List[str]):
+        # print("Sending command")
+        action_space = action_v2_dict_to_message(no_op_v2())
+        action_space.commands.extend(commands)
+        v = action_space.SerializeToString()
+        self.sock.send(struct.pack("<I", len(v)))
+        self.sock.sendall(v)
+        # print("Sent command")
+
+    def send_action_and_commands(
+        self,
+        action_v2: Dict[str, Union[bool, float]],
+        commands: List[str],
+    ):
+        self.logger.log("Sending action and commands")
+        action_space = self.action_v2_dict_to_message(action_v2)
+
+        action_space.commands.extend(commands)
+        v = action_space.SerializeToString()
+        self.sock.send(struct.pack("<I", len(v)))
+        self.sock.sendall(v)
+        self.logger.log("Sent action and commands")
+
+    def send_fastreset2(self, extra_commands: List[str] = None):
+        extra_cmd_str = ""
+        if extra_commands is not None:
+            extra_cmd_str = ";".join(extra_commands)
+        self.send_commands([f"fastreset {extra_cmd_str}"])
+
+    def send_respawn2(self):
+        self.send_commands(["respawn"])
+
+    def send_exit(self):
+        self.send_commands(["exit"])
+
+    def wait_for_server(port: int) -> socket.socket:
+        wait_time = 1
+        next_output = 1  # 3 7 15 31 63 127 255  seconds passed
+
+        while True:
+            try:
+                if os.name == "nt":
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.connect(("127.0.0.1", port))
+                    s.settimeout(30)
+                    return s
+                else:
+                    socket_path = f"/tmp/minecraftrl_{port}.sock"
+                    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                    s.connect(socket_path)
+                    # s.connect(("127.0.0.1", port))
+                    s.settimeout(30)
+                    return s
+            except (ConnectionRefusedError, FileNotFoundError):
+                if wait_time == next_output:
+                    print(
+                        f"Waiting for server on port {port}...",
+                    )
+                    next_output *= 2
+                    if next_output > 1024:
+                        raise Exception("Server not started within 1024 seconds")
+                wait_time += 1
+                time.sleep(1)

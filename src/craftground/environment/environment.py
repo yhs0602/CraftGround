@@ -24,10 +24,6 @@ from environment.socket_ipc import SocketIPC
 from ..buffered_socket import BufferedSocket
 from ..csv_logger import CsvLogger, LogBackend
 from ..initial_environment_config import InitialEnvironmentConfig
-from ..minecraft import (
-    wait_for_server,
-    send_exit,
-)
 from ..proto import observation_space_pb2
 
 
@@ -199,7 +195,7 @@ class CraftGroundEnvironment(gym.Env):
         )
 
         # TODO: socket specific
-        sock: socket.socket = wait_for_server(port)
+        sock: socket.socket = self.ipc.wait_for_server(port)
         self.sock = sock
 
         self.ipc.send_initial_environment(
