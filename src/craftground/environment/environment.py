@@ -1,7 +1,7 @@
 import os
 import re
+import shutil
 import signal
-import socket
 import struct
 import subprocess
 from enum import Enum
@@ -21,7 +21,6 @@ from environment.observation_converter import ObservationConverter
 from environment.observation_space import declare_observation_space
 from environment.socket_ipc import SocketIPC
 
-from buffered_socket import BufferedSocket
 from csv_logger import CsvLogger, LogBackend
 from initial_environment_config import InitialEnvironmentConfig
 from proto import observation_space_pb2
@@ -75,6 +74,7 @@ class CraftGroundEnvironment(gym.Env):
         self.last_images: List[Union[np.ndarray, torch.Tensor, None]] = [None, None]
         self.last_action = None
         self.render_action = render_action
+
         self.verbose = verbose
         self.verbose_python = verbose_python
         self.verbose_gradle = verbose_gradle
@@ -89,12 +89,18 @@ class CraftGroundEnvironment(gym.Env):
         self.use_shared_memory = use_shared_memory
         if env_path is None:
             self.env_path = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 "MinecraftEnv",
             )
         else:
             self.env_path = env_path
-        self.csv_logger = CsvLogger(
+            gradle_path = shutil.which("gradlew", path=self.env_path)
+            if gradle_path is None:
+                raise FileNotFoundError(
+                    f"eXecutable gradlew not found in {self.env_path}. Please provide the correct path to the environment."
+                )
+
+        self.logger = CsvLogger(
             "py_log.csv",
             profile=profile,
             backend=LogBackend.BOTH if verbose_python else LogBackend.NONE,
@@ -105,11 +111,12 @@ class CraftGroundEnvironment(gym.Env):
 
             self.ipc = BoostIPC(str(port), initial_env)
         else:
-            self.ipc = SocketIPC(self.csv_logger, port, find_free_port)
-
-        # in case when using zerocopy
-        self.observation_tensors = [None, None]
-        self.observation_tensor_type = ObservationTensorType.NONE
+            self.ipc = SocketIPC(
+                self.logger,
+                self.initial_env.to_initial_environment_message(),
+                port,
+                find_free_port,
+            )
 
         self.observation_converter = ObservationConverter(
             self.initial_env.screen_encoding_mode,
@@ -128,15 +135,15 @@ class CraftGroundEnvironment(gym.Env):
         fast_reset = options.get("fast_reset", True)
         extra_commands = options.get("extra_commands", [])
 
-        self.ipc.ensure_alive(fast_reset, extra_commands, seed=seed)
+        self.ensure_alive(fast_reset, extra_commands, seed)
 
-        with self.csv_logger.profile("read_response"):
+        with self.logger.profile("read_response"):
             res = self.ipc.read_observation()
         final_obs = self.convert_observation_v2(res)
         return final_obs, final_obs
 
     def convert_observation_v2(self, res):
-        with self.csv_logger.profile("convert_observation"):
+        with self.logger.profile("convert_observation"):
             rgb_1, rgb_2 = self.observation_converter.convert(res)
 
         self.queued_commands = []
@@ -149,6 +156,32 @@ class CraftGroundEnvironment(gym.Env):
             final_obs["pov_2"] = rgb_2
         return final_obs
 
+    @property
+    def is_alive(self) -> bool:
+        if self.process is None:
+            return False
+        exit_code = self.process.poll()
+        if exit_code is not None:
+            self.logger.log(f"Java process exited with code {exit_code}")
+            return False
+
+    # (alive and fast_reset) -> send fast reset
+    # (alive and not fast_reset) -> destroy and start server
+    # (not alive) -> start server
+    def ensure_alive(self, fast_reset, extra_commands, seed):
+        if self.is_alive:
+            if fast_reset:
+                self.ipc.send_fastreset2(self.sock, extra_commands)
+                return
+            else:
+                self.terminate()
+        self.start_server(
+            port=self.ipc.port,
+            use_vglrun=self.use_vglrun,
+            track_native_memory=self.track_native_memory,
+            ld_preload=self.ld_preload,
+        )
+
     def start_server(
         self,
         port: int,
@@ -156,9 +189,8 @@ class CraftGroundEnvironment(gym.Env):
         track_native_memory: bool,
         ld_preload: Optional[str],
     ):
-        self.remove_orphan_java_processes()  # TODO
-        # Check if a file exists
-
+        # Remove orphan java processes
+        self.ipc.remove_orphan_java_processes()
         # Prepare command TODO
         my_env = os.environ.copy()
         my_env["PORT"] = str(port)
@@ -183,7 +215,7 @@ class CraftGroundEnvironment(gym.Env):
             cmd = f"vglrun {cmd}"
         if ld_preload:
             my_env["LD_PRELOAD"] = ld_preload
-        self.csv_logger.log(f"Starting server with command: {cmd}")
+        self.logger.log(f"Starting server with command: {cmd}")
 
         # Launch the server
         self.process = subprocess.Popen(
@@ -194,17 +226,7 @@ class CraftGroundEnvironment(gym.Env):
             env=my_env,
         )
 
-        # TODO: socket specific
-        sock: socket.socket = self.ipc.wait_for_server(port)
-        self.sock = sock
-
-        self.ipc.send_initial_environment(
-            self.initial_env.to_initial_environment_message()
-        )
-
-        # TODO: socket specific
-        self.buffered_socket = BufferedSocket(self.sock)
-        self.csv_logger.log("Sent initial environment")
+        self.ipc.start_communication()
 
     def update_override_resolutions(self, options_txt_path):
         with open(options_txt_path, "r") as file:
@@ -237,32 +259,10 @@ class CraftGroundEnvironment(gym.Env):
             f"Updated {options_txt_path} to {self.initial_env.imageSizeX}x{self.initial_env.imageSizeY}"
         )
 
-    def read_one_observation(self) -> Tuple[int, ObsType]:
-        # print("Reading observation size...")
-        data_len_bytes = self.buffered_socket.read(4, True)
-        # print("Reading observation...")
-        data_len = struct.unpack("<I", data_len_bytes)[0]
-        data_bytes = self.buffered_socket.read(data_len, True)
-        observation_space = observation_space_pb2.ObservationSpaceMessage()
-        # print("Parsing observation...")
-        observation_space.ParseFromString(data_bytes)
-        # print("Parsed observation...")
-        return data_len, observation_space
-
-    def send_initial_env(self):
-        initial_env = self.initial_env.to_initial_environment_message()
-        # print(
-        #     "Sending initial environment... ",
-        # )
-        v = initial_env.SerializeToString()
-        # print(base64.b64encode(v).decode())
-        self.sock.send(struct.pack("<I", len(v)))
-        self.sock.sendall(v)
-
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         # send the action
         self.last_action = action
-        with self.csv_logger.profile("send_action_and_commands"):
+        with self.logger.profile("send_action_and_commands"):
             # Translate the action v1 to v2
             if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
                 translated_action = translate_action_to_v2(action)
@@ -272,10 +272,10 @@ class CraftGroundEnvironment(gym.Env):
             self.ipc.send_action(translated_action, self.queued_commands)
         self.queued_commands.clear()
         # read the response
-        self.csv_logger.log("Sent action and reading response...")
-        with self.csv_logger.profile("read_response"):
-            siz, res = self.read_one_observation()
-        self.csv_logger.log("Read observation...")
+        self.logger.log("Sent action and reading response...")
+        with self.logger.profile("read_response"):
+            res = self.ipc.read_observation()
+        self.logger.log("Read observation...")
         final_obs = self.convert_observation_v2(res)
 
         reward = 0  # Initialize reward to zero
@@ -315,9 +315,9 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.extend(commands)
 
     def terminate(self):
-        self.ipc.close()
+        self.ipc.destroy()
         if self.sock is not None:
-            send_exit(self.sock)
+            self.ipc.send_exit(self.sock)
             self.sock.close()
             self.sock = None
         print("Terminated the java process")

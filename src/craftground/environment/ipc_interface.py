@@ -20,10 +20,6 @@ class IPCInterface(ABC):
         pass
 
     @abstractmethod
-    def send_initial_environment(self, message: InitialEnvironmentMessage):
-        pass
-
-    @abstractmethod
     def is_alive(self) -> bool:
         pass
 

@@ -1,10 +1,11 @@
 import os
 import signal
 import struct
-from time import sleep
+from time import sleep, time
 from typing import Dict, List, Optional, Union
 
 import psutil
+from buffered_socket import BufferedSocket
 from csv_logger import CsvLogger
 from environment.action_space import action_v2_dict_to_message, no_op_v2
 from environment.ipc_interface import IPCInterface
@@ -15,11 +16,19 @@ import socket
 
 
 class SocketIPC(IPCInterface):
-    def __init__(self, logger: CsvLogger, port: int, find_free_port: bool = False):
+    def __init__(
+        self,
+        logger: CsvLogger,
+        initial_environment: InitialEnvironmentMessage,
+        port: int,
+        find_free_port: bool = False,
+    ):
         self.logger = logger
         self.find_free_port = find_free_port
         self.remove_orphan_java_processes()
         self.port = self.check_port(port)
+        self.sock = None
+        self.initial_environment = initial_environment
 
     def check_port(self, port: int) -> int:
         if os.name == "nt":
@@ -54,7 +63,7 @@ class SocketIPC(IPCInterface):
                         f"Socket file {socket_path} already exists. Please choose another port."
                     )
 
-    def send_initial_environment(self, initial_env: InitialEnvironmentMessage):
+    def _send_initial_environment(self, initial_env: InitialEnvironmentMessage):
         v = initial_env.SerializeToString()
         self.sock.send(struct.pack("<I", len(v)))
         self.sock.sendall(v)
@@ -86,10 +95,9 @@ class SocketIPC(IPCInterface):
         return self.sock is not None
 
     def destroy(self):
-        self.sock.close()
-        self.terminate()
-        # wait for server death and restart server
-        sleep(5)
+        if self.sock:
+            self.sock.close()
+            self.sock = None
 
     def remove_orphan_java_processes(self):  # noqa: C901
         self.logger.log("Removing orphan Java processes...")
@@ -164,28 +172,35 @@ class SocketIPC(IPCInterface):
     def send_exit(self):
         self.send_commands(["exit"])
 
-    def wait_for_server(port: int) -> socket.socket:
+    def start_communication(self):
+        self._connect_server()
+        self.buffered_socket = BufferedSocket(self.sock)
+        self._send_initial_environment(self.initial_environment)
+        self.logger.log("Sent initial environment")
+
+    def _connect_server(self):
         wait_time = 1
         next_output = 1  # 3 7 15 31 63 127 255  seconds passed
-
         while True:
             try:
                 if os.name == "nt":
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    s.connect(("127.0.0.1", port))
+                    s.connect(("127.0.0.1", self.port))
                     s.settimeout(30)
-                    return s
+                    self.sock = s
+                    return
                 else:
-                    socket_path = f"/tmp/minecraftrl_{port}.sock"
+                    socket_path = f"/tmp/minecraftrl_{self.port}.sock"
                     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
                     s.connect(socket_path)
                     # s.connect(("127.0.0.1", port))
                     s.settimeout(30)
-                    return s
+                    self.sock = s
+                    return
             except (ConnectionRefusedError, FileNotFoundError):
                 if wait_time == next_output:
                     print(
-                        f"Waiting for server on port {port}...",
+                        f"Waiting for server on port {self.port}...",
                     )
                     next_output *= 2
                     if next_output > 1024:

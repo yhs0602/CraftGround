@@ -1,4 +1,5 @@
 import signal
+import struct
 import pytest
 from unittest.mock import MagicMock, patch
 
@@ -6,14 +7,15 @@ from environment.environment import CraftGroundEnvironment
 from environment.observation_converter import ObservationConverter
 from environment.socket_ipc import SocketIPC
 from initial_environment_config import InitialEnvironmentConfig
+from screen_encoding_modes import ScreenEncodingMode
 
 
 @pytest.fixture
 def mock_initial_env():
     return InitialEnvironmentConfig(
-        imageSizeX=1280,
-        imageSizeY=720,
-        screen_encoding_mode="rgb",
+        image_width=640,
+        image_height=360,
+        screen_encoding_mode=ScreenEncodingMode.RAW,
         eye_distance=0,
     )
 
@@ -23,11 +25,13 @@ def environment(mock_initial_env):
     return CraftGroundEnvironment(initial_env=mock_initial_env)
 
 
-@patch("environment.craftground_environment.SocketIPC")
+@patch("environment.environment.SocketIPC")
 def test_initialize_environment(mock_ipc_class, mock_initial_env):
-    mock_ipc_instance = MagicMock()
+    mock_ipc_instance = MagicMock(spec=SocketIPC)
     mock_ipc_class.return_value = mock_ipc_instance
 
+    assert mock_ipc_instance is not None
+    print(mock_initial_env)
     env = CraftGroundEnvironment(initial_env=mock_initial_env)
 
     assert env.initial_env == mock_initial_env
@@ -38,10 +42,13 @@ def test_initialize_environment(mock_ipc_class, mock_initial_env):
     assert env.sock is None
 
 
+@patch("socket.socket")
 @patch("subprocess.Popen")
-def test_start_server(mock_popen, environment):
+def test_start_server(mock_popen, mock_socket, environment):
     mock_process = MagicMock()
     mock_popen.return_value = mock_process
+    mock_sock_instance = MagicMock()
+    mock_socket.return_value = mock_sock_instance
 
     environment.start_server(
         port=8000, use_vglrun=False, track_native_memory=False, ld_preload=None
@@ -49,23 +56,6 @@ def test_start_server(mock_popen, environment):
 
     assert mock_popen.called
     assert environment.process is not None
-
-
-@patch("socket.socket")
-def test_socket_connection(mock_socket, environment):
-    mock_sock_instance = MagicMock()
-    mock_socket.return_value = mock_sock_instance
-
-    mock_sock_instance.connect.return_value = True
-
-    environment.ipc.wait_for_server = MagicMock(return_value=mock_sock_instance)
-
-    environment.start_server(
-        port=8000, use_vglrun=False, track_native_memory=False, ld_preload=None
-    )
-
-    assert environment.sock is not None
-    assert environment.sock == mock_sock_instance
 
 
 @patch("builtins.open", new_callable=MagicMock)
@@ -82,25 +72,7 @@ def test_update_override_resolutions(mock_open, environment):
     mock_file.write.assert_called()
 
 
-@patch("environment.craftground_environment.BufferedSocket")
-def test_read_one_observation(mock_buffered_socket, environment):
-    mock_buffered_socket_instance = MagicMock()
-    mock_buffered_socket.return_value = mock_buffered_socket_instance
-
-    mock_buffered_socket_instance.read.side_effect = [
-        struct.pack("<I", 1024),
-        b"fake_observation_data",
-    ]
-
-    environment.buffered_socket = mock_buffered_socket_instance
-
-    length, obs = environment.read_one_observation()
-
-    assert length == 1024
-    assert obs is not None
-
-
-@patch("environment.craftground_environment.CraftGroundEnvironment.reset")
+@patch("environment.environment.CraftGroundEnvironment.reset")
 def test_reset_environment(mock_reset, environment):
     mock_reset.return_value = ({"observation": "data"}, {})
 
@@ -110,7 +82,7 @@ def test_reset_environment(mock_reset, environment):
     assert isinstance(info, dict)
 
 
-@patch("environment.craftground_environment.CraftGroundEnvironment.step")
+@patch("environment.environment.CraftGroundEnvironment.step")
 def test_step_action(mock_step, environment):
     mock_step.return_value = ("observation", 1.0, False, False, {})
 
@@ -123,7 +95,7 @@ def test_step_action(mock_step, environment):
     assert isinstance(info, dict)
 
 
-@patch("environment.craftground_environment.CraftGroundEnvironment.close")
+@patch("environment.environment.CraftGroundEnvironment.close")
 def test_close_environment(mock_close, environment):
     environment.close()
     mock_close.assert_called()

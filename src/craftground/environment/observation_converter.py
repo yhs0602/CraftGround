@@ -102,7 +102,7 @@ class ObservationConverter:
                 obs_1 = self.last_observations[0].clone()[:, :, [2, 1, 0]].flip(0)
                 return (obs_1, None)
             elif self.internal_type == ObservationTensorType.CUDA_DLPACK:
-                obs_1 = self.observation_tensors[0].clone()[:, :, :3].flip(0)
+                obs_1 = self.last_observations[0].clone()[:, :, :3].flip(0)
                 return (obs_1, None)
             else:
                 raise ValueError(
@@ -280,7 +280,7 @@ class ObservationConverter:
             print(rgb_array_or_tensor.shape)
             print(rgb_array_or_tensor.dtype)
             print(rgb_array_or_tensor.device())
-            self.observation_tensors[0] = rgb_array_or_tensor
+            self.last_observations[0] = rgb_array_or_tensor
             # drop alpha, flip y axis, and clone
             rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(0)
             self.observation_tensor_type = ObservationTensorType.JAX_NP
