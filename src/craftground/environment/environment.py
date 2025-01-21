@@ -166,6 +166,7 @@ class CraftGroundEnvironment(gym.Env):
         if exit_code is not None:
             self.logger.log(f"Java process exited with code {exit_code}")
             return False
+        return True
 
     # (alive and fast_reset) -> send fast reset
     # (alive and not fast_reset) -> destroy and start server

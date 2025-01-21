@@ -166,7 +166,7 @@ class ObservationConverter:
             if last_image is None:
                 # it is inevitable to convert the tensor to numpy array
                 last_image = Image.fromarray(last_rgb_frame)
-            with self.csv_logger.profile("render_action"):
+            with self.logger.profile("render_action"):
                 draw = ImageDraw.Draw(last_image)
                 if self.action_space_version == ActionSpaceVersion.V1_MINEDOJO:
                     text = self.action_to_symbol(self.last_action)
@@ -190,14 +190,14 @@ class ObservationConverter:
     ) -> Tuple[np.ndarray, Image.Image]:
         # decode png byte array to numpy array
         # Create a BytesIO object from the byte array
-        with self.csv_logger.profile("convert_observation/decode_png"):
+        with self.logger.profile("convert_observation/decode_png"):
             bytes_io = io.BytesIO(image_bytes)
             # Use PIL to open the image from the BytesIO object
             img = Image.open(bytes_io).convert("RGB")
             # Flip y axis
             img = img.transpose(Image.FLIP_TOP_BOTTOM)
 
-        with self.csv_logger.profile("convert_observation/convert_to_numpy"):
+        with self.logger.profile("convert_observation/convert_to_numpy"):
             # Convert the PIL image to a numpy array
             last_rgb_frame = np.array(img)
             arr = np.transpose(last_rgb_frame, (2, 1, 0))
@@ -207,7 +207,7 @@ class ObservationConverter:
 
     def convert_raw_observation(self, image_bytes: bytes) -> np.ndarray:
         # decode raw byte array to numpy array
-        with self.csv_logger.profile("convert_observation/decode_raw"):
+        with self.logger.profile("convert_observation/decode_raw"):
             last_rgb_frame = np.frombuffer(image_bytes, dtype=np.uint8).reshape(
                 (self.initial_env.imageSizeY, self.initial_env.imageSizeX, 3)
             )
