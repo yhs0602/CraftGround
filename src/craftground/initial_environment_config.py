@@ -3,8 +3,8 @@ from enum import Enum
 import os
 from typing import List, Tuple, Optional
 
-from proto import initial_environment_pb2
-from screen_encoding_modes import ScreenEncodingMode
+from .proto import initial_environment_pb2
+from .screen_encoding_modes import ScreenEncodingMode
 
 
 class GameMode(Enum):

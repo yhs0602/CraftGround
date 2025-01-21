@@ -5,13 +5,13 @@ from time import time
 from typing import Dict, List, Optional, Union
 
 import psutil
-from buffered_socket import BufferedSocket
-from csv_logger import CsvLogger
-from environment.action_space import action_v2_dict_to_message, no_op_v2
-from environment.ipc_interface import IPCInterface
-from proto.action_space_pb2 import ActionSpaceMessageV2
-from proto.initial_environment_pb2 import InitialEnvironmentMessage
-from proto.observation_space_pb2 import ObservationSpaceMessage
+from ..buffered_socket import BufferedSocket
+from ..csv_logger import CsvLogger
+from ..environment.action_space import action_v2_dict_to_message, no_op_v2
+from ..environment.ipc_interface import IPCInterface
+from ..proto.action_space_pb2 import ActionSpaceMessageV2
+from ..proto.initial_environment_pb2 import InitialEnvironmentMessage
+from ..proto.observation_space_pb2 import ObservationSpaceMessage
 import socket
 
 

@@ -2,11 +2,11 @@ from enum import Enum
 import io
 from typing import TYPE_CHECKING, Optional, Tuple, Union
 
-from environment.action_space import ActionSpaceVersion
-from font import get_font
-from print_with_time import print_with_time
-from proto.observation_space_pb2 import ObservationSpaceMessage
-from screen_encoding_modes import ScreenEncodingMode
+from ..environment.action_space import ActionSpaceVersion
+from ..font import get_font
+from ..print_with_time import print_with_time
+from ..proto.observation_space_pb2 import ObservationSpaceMessage
+from ..screen_encoding_modes import ScreenEncodingMode
 import numpy as np
 from PIL import Image, ImageDraw
 

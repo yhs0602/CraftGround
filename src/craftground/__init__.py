@@ -1,5 +1,7 @@
 from typing import Optional
-from .environment import ActionSpaceVersion, CraftGroundEnvironment
+
+from .environment.action_space import ActionSpaceVersion
+from .environment.environment import CraftGroundEnvironment
 from .initial_environment_config import InitialEnvironmentConfig
 
 

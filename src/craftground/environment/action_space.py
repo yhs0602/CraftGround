@@ -4,7 +4,7 @@ from typing import Dict, List, Union
 import gymnasium as gym
 import numpy as np
 
-from proto.action_space_pb2 import ActionSpaceMessageV2
+from ..proto.action_space_pb2 import ActionSpaceMessageV2
 
 
 class ActionSpaceVersion(Enum):

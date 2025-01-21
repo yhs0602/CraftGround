@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 import os
 import subprocess
 
-from proto.action_space_pb2 import ActionSpaceMessageV2
-from proto.observation_space_pb2 import ObservationSpaceMessage
+from ..proto.action_space_pb2 import ActionSpaceMessageV2
+from ..proto.observation_space_pb2 import ObservationSpaceMessage
 
 
 class IPCInterface(ABC):
