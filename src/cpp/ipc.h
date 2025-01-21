@@ -8,13 +8,13 @@ initialize_from_mach_port(unsigned int machPort, int width, int height);
 py::capsule mtl_tensor_from_cuda_mem_handle(
     const char *cuda_ipc_handle, int width, int height
 );
-void initialize_shared_memory(
-    const char *memory_name,
-    const char *synchronization_memory_name,
-    const char *action_memory_name,
+
+int initialize_shared_memory(
+    int port,
     const char *initial_data,
     size_t data_size,
-    size_t action_size
+    size_t action_size,
+    bool find_free_port
 );
 
 void write_to_shared_memory(

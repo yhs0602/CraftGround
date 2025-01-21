@@ -60,21 +60,15 @@ py::capsule mtl_tensor_from_cuda_mem_handle(
 
 #include "ipc_boost.hpp"
 
-void initialize_shared_memory(
-    const char *memory_name,
-    const char *synchronization_memory_name,
-    const char *action_memory_name,
+int initialize_shared_memory(
+    int port,
     const char *initial_data,
     size_t data_size,
-    size_t action_size
+    size_t action_size,
+    bool find_free_port
 ) {
-    create_shared_memory_impl(
-        memory_name,
-        synchronization_memory_name,
-        action_memory_name,
-        initial_data,
-        data_size,
-        action_size
+    return create_shared_memory_impl(
+        port, initial_data, data_size, action_size, find_free_port
     );
 }
 

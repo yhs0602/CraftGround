@@ -19,13 +19,12 @@ struct SharedDataHeader {
 };
 // Message follows the header
 
-void create_shared_memory_impl(
-    const std::string &initial_memory_name,
-    const std::string &synchronization_memory_name,
-    const std::string &action_memory_name,
+int create_shared_memory_impl(
+    int port,
     const char *initial_data,
     size_t data_size,
-    size_t action_size
+    size_t action_size,
+    bool find_free_port
 );
 
 void write_to_shared_memory_impl(

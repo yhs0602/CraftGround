@@ -1,15 +1,48 @@
 #include "ipc_boost.hpp"
 #include <mutex>
+#include <format>
+#include <string>
+
+bool shared_memory_exists(const std::string &name) {
+    try {
+        // Try to open the shared memory object
+        shared_memory_object shm(open_only, name.c_str(), read_only);
+        return true; // The shared memory exists
+    } catch (const interprocess_exception &e) {
+        // The shared memory does not exist
+        return false;
+    }
+}
 
 // Create shared memory and write initial environment data
-void create_shared_memory_impl(
-    const std::string &initial_memory_name,
-    const std::string &synchronization_memory_name,
-    const std::string &action_memory_name,
+int create_shared_memory_impl(
+    int port,
     const char *initial_data,
     size_t data_size,
-    size_t action_size
+    size_t action_size,
+    bool find_free_port
 ) {
+    std::string initial_memory_name;
+    std::string synchronization_memory_name;
+    std::string action_memory_name;
+    bool found_free_port = false;
+    do {
+        initial_memory_name = "craftground_" + std::to_string(port) + "_action";
+        synchronization_memory_name = "craftground_" + std::to_string(port) + "_synchronization";
+        action_memory_name = "craftground_" + std::to_string(port) + "_action";
+        if (shared_memory_exists(initial_memory_name)) {
+            if (find_free_port) {
+                port++;
+                continue;
+            } else {
+                throw std::runtime_error(
+                    "Shared memory " + initial_memory_name + " already exists"
+                );
+            }
+        }
+        found_free_port = true;
+    } while (!found_free_port);
+    
     shared_memory_object::remove(initial_memory_name.c_str());
     managed_shared_memory sharedMemory(
         create_only,
@@ -54,6 +87,8 @@ void create_shared_memory_impl(
     auto *headerAction = new (addrAction) SharedDataHeader();
     headerAction->size = action_size;
     headerAction->ready = true;
+    
+    return port;
 }
 
 // Write action to shared memory
