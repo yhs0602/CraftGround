@@ -122,6 +122,7 @@ class CraftGroundEnvironment(gym.Env):
 
         self.observation_converter = ObservationConverter(
             self.initial_env.screen_encoding_mode,
+            self.logger,
             self.initial_env.eye_distance > 0,
             self.render_action,
         )

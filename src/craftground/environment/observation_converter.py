@@ -2,6 +2,8 @@ from enum import Enum
 import io
 from typing import TYPE_CHECKING, Optional, Tuple, Union
 
+from ..csv_logger import CsvLogger
+
 from ..environment.action_space import ActionSpaceVersion
 from ..font import get_font
 from ..print_with_time import print_with_time
@@ -45,11 +47,13 @@ class ObservationConverter:
     def __init__(
         self,
         output_type: ScreenEncodingMode,
+        logger: CsvLogger = None,
         is_binocular: bool = False,
         render_action: bool = False,
     ) -> None:
         self.output_type = output_type
         self.internal_type = ObservationTensorType.NONE
+        self.logger = logger
         self.last_observations = [None, None]
         self.last_images = [None, None]
         self.is_binocular = is_binocular

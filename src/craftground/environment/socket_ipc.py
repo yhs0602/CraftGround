@@ -98,7 +98,7 @@ class SocketIPC(IPCInterface):
 
     def destroy(self):
         if self.sock:
-            self.send_exit(self.sock)
+            self.send_exit()
             self.sock.close()
             self.sock = None
 
