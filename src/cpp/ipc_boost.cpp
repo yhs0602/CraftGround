@@ -1,6 +1,5 @@
 #include "ipc_boost.hpp"
 #include <mutex>
-#include <format>
 #include <string>
 
 bool shared_memory_exists(const std::string &name) {
@@ -28,7 +27,8 @@ int create_shared_memory_impl(
     bool found_free_port = false;
     do {
         initial_memory_name = "craftground_" + std::to_string(port) + "_action";
-        synchronization_memory_name = "craftground_" + std::to_string(port) + "_synchronization";
+        synchronization_memory_name =
+            "craftground_" + std::to_string(port) + "_synchronization";
         action_memory_name = "craftground_" + std::to_string(port) + "_action";
         if (shared_memory_exists(initial_memory_name)) {
             if (find_free_port) {
@@ -42,7 +42,7 @@ int create_shared_memory_impl(
         }
         found_free_port = true;
     } while (!found_free_port);
-    
+
     shared_memory_object::remove(initial_memory_name.c_str());
     managed_shared_memory sharedMemory(
         create_only,
@@ -87,7 +87,7 @@ int create_shared_memory_impl(
     auto *headerAction = new (addrAction) SharedDataHeader();
     headerAction->size = action_size;
     headerAction->ready = true;
-    
+
     return port;
 }
 
