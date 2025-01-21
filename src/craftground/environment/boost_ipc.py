@@ -1,6 +1,6 @@
-from environment.ipc_interface import IPCInterface
-from proto.action_space_pb2 import ActionSpaceMessageV2
-from proto.initial_environment_pb2 import InitialEnvironmentMessage
+from ..environment.ipc_interface import IPCInterface
+from ..proto.action_space_pb2 import ActionSpaceMessageV2
+from ..proto.initial_environment_pb2 import InitialEnvironmentMessage
 
 # Torch should be imported first before craftground_native to avoid segfaults
 try:
@@ -8,7 +8,7 @@ try:
 except ImportError:
     pass
 
-from craftground_native import (  # noqa
+from ..craftground_native import (  # noqa
     initialize_shared_memory,  # noqa
     write_to_shared_memory,  # noqa
     read_from_shared_memory,  # noqa
@@ -43,7 +43,7 @@ class BoostIPC(IPCInterface):
         self.observation_shared_memory_name = f"craftground_{port}_observation"
         self.synchronization_shared_memory_name = f"craftground_{port}_synchronization"
 
-    def write_action(self, action: ActionSpaceMessageV2):
+    def send_action(self, action: ActionSpaceMessageV2):
         action_bytes: bytes = action.SerializeToString()
         write_to_shared_memory(
             self.action_shared_memory_name, action_bytes, len(action_bytes)

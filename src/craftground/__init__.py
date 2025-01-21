@@ -10,6 +10,7 @@ def make(
     verbose=False,
     env_path=None,
     port=8000,
+    use_shared_memory=False,
     action_space_version=ActionSpaceVersion.V1_MINEDOJO,
     render_action=False,
     render_alternating_eyes=False,
@@ -42,4 +43,5 @@ def make(
         verbose_python=verbose_python,
         verbose_jvm=verbose_jvm,
         verbose_gradle=verbose_gradle,
+        use_shared_memory=use_shared_memory,
     )
