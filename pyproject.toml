@@ -29,7 +29,7 @@ dependencies = [
   "gymnasium",
   "Pillow",
   "numpy",
-  "protobuf>=5.29.3",
+  "protobuf==5.29.2",
   "typing_extensions",
   "psutil",
   "torch",
