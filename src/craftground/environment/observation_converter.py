@@ -274,7 +274,7 @@ class ObservationConverter:
             )
             if not dlpack_capsule:
                 raise ValueError(f"Failed to initialize from mach port {ipc_handle}.")
-            jax_image = jnp.from_dlpack(cuda_dlpack)
+            jax_image = jnp.from_dlpack(dlpack_capsule)
             # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
             rgb_array_or_tensor = jax_image
             print(rgb_array_or_tensor.shape)
