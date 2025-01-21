@@ -21,7 +21,7 @@ class VisionWrapper(gym.Wrapper):
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         obs, reward, terminated, truncated, info = self.env.step(action)
-        rgb = info["rgb"]
+        rgb = info["pov"]
         return (
             rgb,
             reward,
@@ -37,5 +37,5 @@ class VisionWrapper(gym.Wrapper):
         options: Optional[dict[str, Any]] = None,
     ):
         obs, info = self.env.reset(seed=seed, options=options)
-        rgb = info["rgb"]
+        rgb = info["pov"]
         return rgb, info

@@ -12,6 +12,7 @@ from gymnasium.core import ActType, ObsType, RenderFrame
 
 from ..environment.action_space import (
     ActionSpaceVersion,
+    action_v2_dict_to_message,
     declare_action_space,
     translate_action_to_v2,
 )
@@ -282,7 +283,9 @@ class CraftGroundEnvironment(gym.Env):
             else:
                 translated_action = action
 
-            self.ipc.send_action(translated_action, self.queued_commands)
+            self.ipc.send_action(
+                action_v2_dict_to_message(translated_action), self.queued_commands
+            )
         self.queued_commands.clear()
         # read the response
         self.logger.log("Sent action and reading response...")
