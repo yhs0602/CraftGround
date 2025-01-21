@@ -109,7 +109,7 @@ class CraftGroundEnvironment(gym.Env):
             from .boost_ipc import BoostIPC  # type: ignore
 
             self.ipc = BoostIPC(
-                str(port),
+                port,
                 find_free_port,
                 self.initial_env_message,
             )
@@ -187,7 +187,7 @@ class CraftGroundEnvironment(gym.Env):
             from .boost_ipc import BoostIPC  # type: ignore
 
             self.ipc = BoostIPC(
-                str(self.ipc.port),
+                self.ipc.port,
                 self.ipc.find_free_port,
                 self.initial_env_message,
             )

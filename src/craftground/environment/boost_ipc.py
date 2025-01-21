@@ -19,7 +19,7 @@ from ..craftground_native import (  # noqa
 class BoostIPC(IPCInterface):
     def __init__(
         self,
-        port: str,
+        port: int,
         find_free_port: bool,
         initial_environment: InitialEnvironmentMessage,
     ):
@@ -30,7 +30,7 @@ class BoostIPC(IPCInterface):
         dummy_action: ActionSpaceMessageV2 = ActionSpaceMessageV2()
         dummy_action_bytes: bytes = dummy_action.SerializeToString()
         self.port = initialize_shared_memory(
-            self.port,
+            int(self.port),
             initial_environment_bytes,
             len(initial_environment_bytes),
             len(dummy_action_bytes),
