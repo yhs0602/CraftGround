@@ -4,7 +4,7 @@ import shutil
 import signal
 import subprocess
 from enum import Enum
-from typing import Tuple, Optional, Union, List, Any, Dict
+from typing import TYPE_CHECKING, Tuple, Optional, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
@@ -21,6 +21,7 @@ from environment.socket_ipc import SocketIPC
 
 from csv_logger import CsvLogger, LogBackend
 from initial_environment_config import InitialEnvironmentConfig
+import torch
 
 
 class ObservationTensorType(Enum):
