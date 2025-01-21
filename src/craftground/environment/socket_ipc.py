@@ -21,7 +21,7 @@ class SocketIPC(IPCInterface):
         logger: CsvLogger,
         initial_environment: InitialEnvironmentMessage,
         port: int,
-        find_free_port: bool = False,
+        find_free_port: bool = True,
     ):
         self.logger = logger
         self.find_free_port = find_free_port

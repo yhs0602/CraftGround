@@ -4,7 +4,7 @@ import shutil
 import signal
 import subprocess
 from enum import Enum
-from typing import TYPE_CHECKING, Tuple, Optional, Union, List, Any, Dict
+from typing import Tuple, Optional, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
@@ -66,11 +66,7 @@ class CraftGroundEnvironment(gym.Env):
         self.track_native_memory = track_native_memory
         self.ld_preload = ld_preload
         self.encoding_mode = initial_env.screen_encoding_mode
-        self.last_rgb_frames: List[Union[np.ndarray, "torch.Tensor", None]] = [
-            None,
-            None,
-        ]
-        self.last_images: List[Union[np.ndarray, "torch.Tensor", None]] = [None, None]
+
         self.last_action = None
         self.render_action = render_action
 
@@ -109,7 +105,11 @@ class CraftGroundEnvironment(gym.Env):
         if self.use_shared_memory:
             from .boost_ipc import BoostIPC  # type: ignore
 
-            self.ipc = BoostIPC(str(port), initial_env)
+            self.ipc = BoostIPC(
+                str(port),
+                find_free_port,
+                self.initial_env.to_initial_environment_message(),
+            )
         else:
             self.ipc = SocketIPC(
                 self.logger,
@@ -168,18 +168,34 @@ class CraftGroundEnvironment(gym.Env):
     # (alive and fast_reset) -> send fast reset
     # (alive and not fast_reset) -> destroy and start server
     # (not alive) -> start server
-    def ensure_alive(self, fast_reset, extra_commands, seed):
+    def ensure_alive(self, fast_reset, extra_commands, seed: int):
         if self.is_alive:
             if fast_reset:
                 self.ipc.send_fastreset2(extra_commands)
                 return
             else:
                 self.terminate()
+        if self.use_shared_memory:
+            from .boost_ipc import BoostIPC  # type: ignore
+
+            self.ipc = BoostIPC(
+                str(port),
+                find_free_port,
+                self.initial_env.to_initial_environment_message(),
+            )
+        else:
+            self.ipc = SocketIPC(
+                self.logger,
+                self.initial_env.to_initial_environment_message(),
+                port,
+                find_free_port,
+            )
         self.start_server(
             port=self.ipc.port,
             use_vglrun=self.use_vglrun,
             track_native_memory=self.track_native_memory,
             ld_preload=self.ld_preload,
+            seed=seed,
         )
 
     def start_server(
@@ -224,6 +240,7 @@ class CraftGroundEnvironment(gym.Env):
             shell=True,
             stdout=subprocess.DEVNULL if not self.verbose_gradle else None,
             env=my_env,
+            preexec_fn=os.setsid,  # To kill the process and its children properly
         )
 
         self.ipc.start_communication()
@@ -320,13 +337,18 @@ class CraftGroundEnvironment(gym.Env):
         # wait for the pid to exit
         try:
             if pid:
-                os.kill(pid, signal.SIGKILL)
+                pgrp = os.getpgid(pid)
+                os.killpg(pgrp, signal.SIGKILL)
                 _, exit_status = os.waitpid(pid, 0)
+                self.logger.log(
+                    f"Terminated the java process with exit status {exit_status}"
+                )
             else:
-                print("No pid to wait for")
+                self.logger.log("No process to terminate")
         except ChildProcessError:
-            print("Child process already terminated")
-        print("Terminated the java process")
+            self.logger.log("Child process already terminated")
+        self.process = None
+        self.logger.log("Terminated the java process")
 
     @staticmethod
     def get_env_base_path() -> str:
