@@ -73,6 +73,10 @@ python -m pip install coverage pytest
 cd build
 cmake ..
 cmake --build .
-PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest tests/python/unit/
+cd ..
+ln -s build/*.dylib craftground/src/
+ln -s build/*.so craftground/src/
+ln -s build/*.pyd craftground/src/
+PYTHONPATH=./build:src coverage run --source=src/craftground -m pytest tests/python/unit/
 coverage report
 ```

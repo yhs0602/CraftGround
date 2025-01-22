@@ -25,19 +25,22 @@ int create_shared_memory_impl(
     size_t action_size,
     bool find_free_port
 ) {
-    std::string p2j_memory_name;
+    std::string p2j_memory_name, j2p_memory_name;
     bool found_free_port = false;
 
     try {
         do {
             p2j_memory_name = "craftground_" + std::to_string(port) + "_p2j";
-            if (shared_memory_exists(p2j_memory_name)) {
+            j2p_memory_name = "craftground_" + std::to_string(port) + "_j2p";
+            if (shared_memory_exists(p2j_memory_name) ||
+                shared_memory_exists(j2p_memory_name)) {
                 if (find_free_port) {
                     port++;
                     continue;
                 } else {
                     throw std::runtime_error(
-                        "Shared memory " + p2j_memory_name + " already exists"
+                        "Shared memory " + p2j_memory_name + " or " +
+                        j2p_memory_name + " already exists"
                     );
                 }
             }
@@ -57,12 +60,12 @@ int create_shared_memory_impl(
                   << std::endl;
     }
 
-    managed_shared_memory sharedMemory;
+    managed_shared_memory p2jSharedMemory, j2pSharedMemory;
     try {
-        sharedMemory = managed_shared_memory(
+        p2jSharedMemory = managed_shared_memory(
             create_only,
             p2j_memory_name.c_str(),
-            1024 // Too small size failes to allocate
+            1024 // Too small size fails to allocate
         );
     } catch (const interprocess_exception &e) {
         std::cerr << e.what() << std::endl;
@@ -71,8 +74,27 @@ int create_shared_memory_impl(
         throw std::runtime_error(e.what());
     }
 
+    try {
+        j2pSharedMemory = managed_shared_memory(
+            create_only,
+            j2p_memory_name.c_str(),
+            1024 // Too small size fails to allocate
+        );
+    } catch (const interprocess_exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << "Failed to initialize shared memory creating"
+                  << j2p_memory_name << " : errno=" << errno << std::endl;
+        throw std::runtime_error(e.what());
+    }
+    J2PSharedMemoryLayout *j2pLayout = static_cast<J2PSharedMemoryLayout *>(
+        j2pSharedMemory.allocate(sizeof(J2PSharedMemoryLayout))
+    );
+    j2pLayout->layout_size = sizeof(J2PSharedMemoryLayout);
+    j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
+    j2pLayout->data_size = 0;
+
     SharedMemoryLayout *layout =
-        static_cast<SharedMemoryLayout *>(sharedMemory.allocate(
+        static_cast<SharedMemoryLayout *>(p2jSharedMemory.allocate(
             sizeof(SharedMemoryLayout) + action_size + data_size
         ));
     layout->layout_size = sizeof(SharedMemoryLayout);
@@ -119,7 +141,15 @@ void write_to_shared_memory_impl(
 py::bytes read_from_shared_memory_impl(
     const std::string &p2j_memory_name, const std::string &j2p_memory_name
 ) {
-    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    managed_shared_memory p2jMemory;
+    try {
+        p2jMemory = managed_shared_memory(open_only, p2j_memory_name.c_str());
+    } catch (const interprocess_exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << "Failed to open shared memory to read observation: " << p2j_memory_name << " errno=" << errno
+                  << std::endl;
+        throw std::runtime_error(e.what());
+    }
     SharedMemoryLayout *p2jLayout =
         static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
 

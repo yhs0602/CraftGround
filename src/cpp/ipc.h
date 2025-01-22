@@ -2,6 +2,8 @@
 #define __IPC_H__
 
 #include <stdlib.h>
+#include <string>
+
 namespace py = pybind11;
 py::object
 initialize_from_mach_port(unsigned int machPort, int width, int height);
@@ -17,12 +19,14 @@ int initialize_shared_memory(
     bool find_free_port
 );
 
-void write_to_shared_memory(const char *memory_name, const char *data);
+void write_to_shared_memory(const char *p2j_memory_name, const char *data);
 
 py::bytes read_from_shared_memory(
     const char *p2j_memory_name, const char *j2p_memory_name
 );
 
 void destroy_shared_memory(const char *memory_name);
+
+bool shared_memory_exists(const std::string &name);
 
 #endif

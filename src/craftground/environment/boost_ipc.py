@@ -29,6 +29,7 @@ class BoostIPC(IPCInterface):
         # Get the length of the action space message
         dummy_action: ActionSpaceMessageV2 = ActionSpaceMessageV2()
         dummy_action_bytes: bytes = dummy_action.SerializeToString()
+        self.find_free_port = find_free_port
         self.port = initialize_shared_memory(
             int(self.port),
             initial_environment_bytes,
@@ -41,24 +42,30 @@ class BoostIPC(IPCInterface):
 
     def send_action(self, action: ActionSpaceMessageV2):
         action_bytes: bytes = action.SerializeToString()
-        write_to_shared_memory(
-            self.action_shared_memory_name, action_bytes, len(action_bytes)
-        )
+        write_to_shared_memory(self.p2j_shared_memory_name, action_bytes)
 
     def read_observation(self) -> bytes:
         return read_from_shared_memory(
-            self.observation_shared_memory_name, self.synchronization_shared_memory_name
+            self.p2j_shared_memory_name, self.j2p_shared_memory_name
         )
 
     def destroy(self):
-        destroy_shared_memory(self.action_shared_memory_name)
-        destroy_shared_memory(self.observation_shared_memory_name)
-        destroy_shared_memory(self.synchronization_shared_memory_name)
+        destroy_shared_memory(self.p2j_shared_memory_name)
+        destroy_shared_memory(self.j2p_shared_memory_name)
         # Java destroys the initial environment shared memory
         # destroy_shared_memory(self.initial_environment_shared_memory_name)
 
     def is_alive(self) -> bool:
         return True
+
+    def remove_orphan_java_processes(self):
+        pass
+
+    def start_communication(self):
+        # wait until the j2p shared memory is created
+        while True:
+            if self.is_alive():
+                break
 
     def __del__(self):
         self.destroy()

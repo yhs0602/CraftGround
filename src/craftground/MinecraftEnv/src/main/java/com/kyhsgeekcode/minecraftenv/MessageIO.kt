@@ -179,12 +179,27 @@ class NamedPipeMessageIO(
         }
     }
 
-    override fun writeObservation(observationSpace: ObservationSpace.ObservationSpaceMessage) {
+    override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) {
         FileOutputStream(writePipePath).use { fos ->
             LittleEndianDataOutputStream(fos).use { dos ->
-                dos.writeInt(observationSpace.serializedSize)
-                observationSpace.writeTo(dos)
+                dos.writeInt(observation.serializedSize)
+                observation.writeTo(dos)
             }
         }
     }
+}
+
+class SharedMemoryMessageIO(
+    val port: Int,
+) : MessageIO {
+    private val p2jMemoryName = "craftground_${port}_p2j"
+    private val j2pMemoryName = "craftground_${port}_j2p"
+
+    override fun readAction(): ActionSpace.ActionSpaceMessageV2 = FramebufferCapturer.readAction(p2jMemoryName)
+
+    override fun readInitialEnvironment(): InitialEnvironment.InitialEnvironmentMessage =
+        FramebufferCapturer.readInitialEnvironment(p2jMemoryName)
+
+    override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) =
+        FramebufferCapturer.writeObservation(j2pMemoryName, p2jMemoryName, observation)
 }

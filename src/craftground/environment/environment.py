@@ -204,9 +204,10 @@ class CraftGroundEnvironment(gym.Env):
     def start_server(self, seed: int):
         # Remove orphan java processes
         self.ipc.remove_orphan_java_processes()
-        # Prepare command TODO
+        # Prepare command
         my_env = os.environ.copy()
         my_env["PORT"] = str(self.ipc.port)
+        my_env["USE_SHARED_MEMORY"] = str(int(self.use_shared_memory))
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
         if self.track_native_memory:
             my_env["CRAFTGROUND_JVM_NATIVE_TRACKING"] = "detail"

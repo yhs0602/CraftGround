@@ -149,32 +149,32 @@ object FramebufferCapturer {
 
     private var actionBuffer: ByteArray? = null
 
-    external fun readInitialEnvironmentImpl(initialEnvironmentMemoryName: String): ByteArray
+    external fun readInitialEnvironmentImpl(p2jMemoryName: String): ByteArray
 
     external fun readActionImpl(
-        actionMemoryName: String,
+        p2jMemoryName: String,
         actionData: ByteArray?,
     ): ByteArray
 
     external fun writeObservationImpl(
-        observationMemoryName: String,
-        synchronizationMemoryName: String,
+        p2jMemoryName: String,
+        j2pMemoryName: String,
         observationData: ByteArray,
     )
 
-    fun readInitialEnvironment(initialEnvironmentMemoryName: String): InitialEnvironment.InitialEnvironmentMessage =
-        InitialEnvironment.InitialEnvironmentMessage.parseFrom(readInitialEnvironmentImpl(initialEnvironmentMemoryName))
+    fun readInitialEnvironment(p2jMemoryName: String): InitialEnvironment.InitialEnvironmentMessage =
+        InitialEnvironment.InitialEnvironmentMessage.parseFrom(readInitialEnvironmentImpl(p2jMemoryName))
 
-    fun readAction(actionMemoryName: String): ActionSpace.ActionSpaceMessageV2 {
-        actionBuffer = readActionImpl(actionMemoryName, actionBuffer)
+    fun readAction(p2jMemoryName: String): ActionSpace.ActionSpaceMessageV2 {
+        actionBuffer = readActionImpl(p2jMemoryName, actionBuffer)
         return ActionSpace.ActionSpaceMessageV2.parseFrom(actionBuffer)
     }
 
     fun writeObservation(
-        observationMemoryName: String,
-        synchronizationMemoryName: String,
+        p2jMemoryName: String,
+        j2pMemoryName: String,
         observationData: ObservationSpace.ObservationSpaceMessage,
     ) {
-        writeObservationImpl(observationMemoryName, synchronizationMemoryName, observationData.toByteArray())
+        writeObservationImpl(p2jMemoryName, j2pMemoryName, observationData.toByteArray())
     }
 }

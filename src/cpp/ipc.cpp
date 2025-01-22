@@ -80,8 +80,8 @@ int initialize_shared_memory(
     }
 }
 
-void write_to_shared_memory(const char *memory_name, const char *data) {
-    write_to_shared_memory_impl(memory_name, data);
+void write_to_shared_memory(const char *p2j_memory_name, const char *data) {
+    write_to_shared_memory_impl(p2j_memory_name, data);
 }
 
 py::bytes read_from_shared_memory(
@@ -102,6 +102,7 @@ PYBIND11_MODULE(craftground_native, m) {
     m.def("write_to_shared_memory", &write_to_shared_memory);
     m.def("read_from_shared_memory", &read_from_shared_memory);
     m.def("destroy_shared_memory", &destroy_shared_memory);
+    m.def("shared_memory_exists", &shared_memory_exists);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
