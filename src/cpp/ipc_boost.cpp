@@ -26,7 +26,8 @@ int create_shared_memory_impl(
     std::string action_memory_name;
     bool found_free_port = false;
     do {
-        initial_memory_name = "craftground_" + std::to_string(port) + "_initial";
+        initial_memory_name =
+            "craftground_" + std::to_string(port) + "_initial";
         synchronization_memory_name =
             "craftground_" + std::to_string(port) + "_synchronization";
         action_memory_name = "craftground_" + std::to_string(port) + "_action";

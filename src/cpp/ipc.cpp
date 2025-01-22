@@ -1,3 +1,4 @@
+#include <iostream>
 #include <pybind11/pybind11.h>
 #include "ipc.h"
 #define MACRO_STRINGIFY(x) #x
@@ -67,9 +68,16 @@ int initialize_shared_memory(
     size_t action_size,
     bool find_free_port
 ) {
-    return create_shared_memory_impl(
-        port, initial_data, data_size, action_size, find_free_port
-    );
+    try {
+        return create_shared_memory_impl(
+            port, initial_data, data_size, action_size, find_free_port
+        );
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << "Failed to initialize shared memory: errno=" << errno
+                  << std::endl;
+        throw std::runtime_error(e.what());
+    }
 }
 
 void write_to_shared_memory(
