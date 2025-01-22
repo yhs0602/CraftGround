@@ -36,12 +36,8 @@ class BoostIPC(IPCInterface):
             len(dummy_action_bytes),
             find_free_port,
         )
-        self.initial_environment_shared_memory_name = (
-            f"craftground_{port}_initial_environment"
-        )
-        self.action_shared_memory_name = f"craftground_{port}_action"
-        self.observation_shared_memory_name = f"craftground_{port}_observation"
-        self.synchronization_shared_memory_name = f"craftground_{port}_synchronization"
+        self.p2j_shared_memory_name = f"craftground_{port}_p2j"
+        self.j2p_shared_memory_name = f"craftground_{port}_j2p"
 
     def send_action(self, action: ActionSpaceMessageV2):
         action_bytes: bytes = action.SerializeToString()

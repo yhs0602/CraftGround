@@ -30,7 +30,7 @@ int create_shared_memory_impl(
 
     try {
         do {
-            p2j_memory_name = "/craftground_" + std::to_string(port) + "_p2j";
+            p2j_memory_name = "craftground_" + std::to_string(port) + "_p2j";
             if (shared_memory_exists(p2j_memory_name)) {
                 if (find_free_port) {
                     port++;
