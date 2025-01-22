@@ -89,11 +89,7 @@ void write_to_shared_memory(
 py::bytes read_from_shared_memory(
     const char *memory_name, const char *management_memory_name
 ) {
-    size_t data_size = 0;
-    const char *data = read_from_shared_memory_impl(
-        memory_name, management_memory_name, data_size
-    );
-    return py::bytes(data, data_size);
+    return read_from_shared_memory_impl(memory_name, management_memory_name);
 }
 
 void destroy_shared_memory(const char *memory_name) {

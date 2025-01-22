@@ -1,3 +1,4 @@
+#include <pybind11/pybind11.h>
 #include "ipc_boost.hpp"
 #include "boost/interprocess/interprocess_fwd.hpp"
 #include <cstddef>
@@ -24,27 +25,19 @@ int create_shared_memory_impl(
     size_t action_size,
     bool find_free_port
 ) {
-    std::string initial_memory_name;
-    std::string synchronization_memory_name;
-    std::string action_memory_name;
+    std::string p2j_memory_name;
     bool found_free_port = false;
 
     try {
         do {
-            initial_memory_name =
-                "/craftground_" + std::to_string(port) + "_initial";
-            synchronization_memory_name =
-                "/craftground_" + std::to_string(port) + "_synchronization";
-            action_memory_name =
-                "/craftground_" + std::to_string(port) + "_action";
-            if (shared_memory_exists(initial_memory_name)) {
+            p2j_memory_name = "/craftground_" + std::to_string(port) + "_p2j";
+            if (shared_memory_exists(p2j_memory_name)) {
                 if (find_free_port) {
                     port++;
                     continue;
                 } else {
                     throw std::runtime_error(
-                        "Shared memory " + initial_memory_name +
-                        " already exists"
+                        "Shared memory " + p2j_memory_name + " already exists"
                     );
                 }
             }
@@ -59,7 +52,7 @@ int create_shared_memory_impl(
     }
     errno = 0;
 
-    if (!shared_memory_object::remove(initial_memory_name.c_str())) {
+    if (!shared_memory_object::remove(p2j_memory_name.c_str())) {
         std::cerr << "Failed to remove shared memory: errno=" << errno
                   << std::endl;
     }
@@ -68,123 +61,88 @@ int create_shared_memory_impl(
     try {
         sharedMemory = managed_shared_memory(
             create_only,
-            initial_memory_name.c_str(),
-            sizeof(SharedDataHeader) + data_size
+            p2j_memory_name.c_str(),
+            1024 // Too small size failes to allocate
         );
     } catch (const interprocess_exception &e) {
         std::cerr << e.what() << std::endl;
         std::cerr << "Failed to initialize shared memory creating"
-                  << initial_memory_name << " : errno=" << errno << std::endl;
+                  << p2j_memory_name << " : errno=" << errno << std::endl;
         throw std::runtime_error(e.what());
     }
 
-    void *addr = nullptr;
-    try {
-        addr = sharedMemory.allocate(sizeof(SharedDataHeader) + data_size);
-    } catch (const interprocess_exception &e) {
-        std::cerr << e.what() << std::endl;
-        std::cerr << "Failed to initialize shared memory allocating"
-                  << initial_memory_name << " : errno=" << errno << std::endl;
-        throw std::runtime_error(e.what());
+    SharedMemoryLayout *layout =
+        static_cast<SharedMemoryLayout *>(sharedMemory.allocate(
+            sizeof(SharedMemoryLayout) + action_size + data_size
+        ));
+    layout->layout_size = sizeof(SharedMemoryLayout);
+    layout->action_offset = sizeof(SharedMemoryLayout);
+    layout->action_size = action_size;
+    layout->initial_environment_offset =
+        sizeof(SharedMemoryLayout) + action_size;
+    layout->initial_environment_size = data_size;
+    void *action_start =
+        reinterpret_cast<char *>(layout) + layout->action_offset;
+    void *data_start =
+        reinterpret_cast<char *>(layout) + layout->initial_environment_offset;
+
+    if (data_size > layout->initial_environment_size) {
+        throw std::runtime_error(
+            "Data size exceeds allocated shared memory size"
+        );
     }
-
-    auto *header = new (addr) SharedDataHeader();
-    header->ready = false;
-
-    char *data_start =
-        reinterpret_cast<char *>(header) + sizeof(SharedDataHeader);
     std::memcpy(data_start, initial_data, data_size);
-    header->size = data_size;
-
-    header->ready = true;
-    // Java will remove the initial environment shared memory
-
-    // Create synchronization shared memory (fixed size, the size field )
-    if (!shared_memory_object::remove(synchronization_memory_name.c_str())) {
-        std::cerr << "Failed to remove shared memory: errno=" << errno
-                  << std::endl;
-    }
-    managed_shared_memory sharedMemorySynchronization(
-        create_only,
-        synchronization_memory_name.c_str(),
-        sizeof(SharedDataHeader)
-    );
-    void *addrSyncrhonization =
-        sharedMemorySynchronization.allocate(sizeof(SharedDataHeader));
-    auto *headerSynchronization = new (addrSyncrhonization) SharedDataHeader();
-    headerSynchronization->size = 0;
-    headerSynchronization->ready = true;
-
-    // Allocate shared memory for action
-    if (!shared_memory_object::remove(action_memory_name.c_str())) {
-        std::cerr << "Failed to remove shared memory: errno=" << errno
-                  << std::endl;
-    }
-    managed_shared_memory sharedMemoryAction(
-        create_only,
-        action_memory_name.c_str(),
-        sizeof(SharedDataHeader) + action_size
-    );
-    void *addrAction =
-        sharedMemoryAction.allocate(sizeof(SharedDataHeader) + action_size);
-    auto *headerAction = new (addrAction) SharedDataHeader();
-    headerAction->size = action_size;
-    headerAction->ready = true;
-
+    layout->p2j_ready = true;
+    layout->j2p_ready = false;
     return port;
 }
 
 // Write action to shared memory
 void write_to_shared_memory_impl(
-    const std::string &action_memory_name,
-    const char *data,
-    const size_t action_size
+    const std::string &p2j_memory_name, const char *data
 ) {
-    managed_shared_memory actionMemory(open_only, action_memory_name.c_str());
-    void *addr = actionMemory.get_address();
-    auto *actionHeader = reinterpret_cast<SharedDataHeader *>(addr);
+    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    SharedMemoryLayout *layout =
+        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+    char *action_addr =
+        static_cast<char *>(p2jMemory.get_address()) + layout->action_offset;
 
-    std::unique_lock<interprocess_mutex> actionLock(actionHeader->mutex);
-    char *data_start =
-        reinterpret_cast<char *>(actionHeader) + sizeof(SharedDataHeader);
-    std::memcpy(data_start, data, action_size);
-    actionHeader->ready = true;
-    actionHeader->condition.notify_one();
+    std::unique_lock<interprocess_mutex> actionLock(layout->mutex);
+    std::memcpy(action_addr, data, layout->action_size);
+    layout->p2j_ready = true;
+    layout->j2p_ready = false;
+    layout->condition.notify_one();
     actionLock.unlock();
 }
 
 // Read observation from shared memory
-const char *read_from_shared_memory_impl(
-    const std::string &memory_name,
-    const std::string &synchronization_memory_name,
-    size_t &data_size
+py::bytes read_from_shared_memory_impl(
+    const std::string &p2j_memory_name, const std::string &j2p_memory_name
 ) {
-    // Synchronize with Java using synchronization shared memory
-    managed_shared_memory synchronizationSharedMemory(
-        open_only, synchronization_memory_name.c_str()
-    );
-    void *addrSynchronization = synchronizationSharedMemory.get_address();
-    auto *headerSynchronization =
-        reinterpret_cast<SharedDataHeader *>(addrSynchronization);
-    std::unique_lock<interprocess_mutex> lockSynchronization(
-        headerSynchronization->mutex
-    );
-    headerSynchronization->condition.wait(lockSynchronization, [&] {
-        return headerSynchronization->ready;
+    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    SharedMemoryLayout *p2jLayout =
+        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+
+    std::unique_lock<interprocess_mutex> lockSynchronization(p2jLayout->mutex);
+    // wait for java to write the observation
+    p2jLayout->condition.wait(lockSynchronization, [&] {
+        return p2jLayout->j2p_ready;
     });
 
     // Read the observation from shared memory
-    managed_shared_memory sharedMemory(open_only, memory_name.c_str());
-    void *addr = sharedMemory.get_address();
-    auto *header = reinterpret_cast<SharedDataHeader *>(addr);
-    // Read the message from Java
-    char *data_start =
-        reinterpret_cast<char *>(header) + sizeof(SharedDataHeader);
-    header->ready = false;
+    managed_shared_memory j2pMemory(open_only, j2p_memory_name.c_str());
+    J2PSharedMemoryLayout *j2pLayout =
+        static_cast<J2PSharedMemoryLayout *>(j2pMemory.get_address());
+
+    const char *data_start =
+        reinterpret_cast<char *>(j2pLayout) + j2pLayout->data_offset;
+    py::bytes data(data_start, j2pLayout->data_size);
+
+    p2jLayout->j2p_ready = false;
+    p2jLayout->p2j_ready = false;
     lockSynchronization.unlock();
 
-    data_size = header->size;
-    return data_start;
+    return data;
 }
 
 // Destroy shared memory

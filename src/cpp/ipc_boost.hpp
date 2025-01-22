@@ -8,27 +8,29 @@
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <pybind11/pybind11.h>
 
 using namespace boost::interprocess;
+namespace py = pybind11;
 
 struct SharedMemoryLayout {
-    size_t action_offset; // Always 0
-    size_t action_size; // to be set on initialization
-    size_t header_offset; // Always action_size
-    size_t header_size; // Always sizeof(SharedDataHeader)
-    size_t initial_environment_offset; // Always action_size + sizeof(SharedDataHeader)
-    size_t initial_environment_size; // to be set on initialization
-};
-
-
-struct SharedDataHeader {
+    size_t layout_size;                // to be set on initialization
+    size_t action_offset;              // Always sizeof(SharedMemoryLayout)
+    size_t action_size;                // to be set on initialization
+    size_t initial_environment_offset; // Always action_size +
+                                       // sizeof(SharedDataHeader)
+    size_t initial_environment_size;   // to be set on initialization
     interprocess_mutex mutex;
     interprocess_condition condition;
-    size_t size;
-    bool ready;
+    bool p2j_ready;
+    bool j2p_ready;
 };
 
-// Message follows the header
+struct J2PSharedMemoryLayout {
+    size_t layout_size; // to be set on initialization
+    size_t data_offset; // Always sizeof(J2PSharedMemoryLayout)
+    size_t data_size;   // to be set on initialization
+};
 
 int create_shared_memory_impl(
     int port,
@@ -39,15 +41,11 @@ int create_shared_memory_impl(
 );
 
 void write_to_shared_memory_impl(
-    const std::string &memory_name,
-    const char *data,
-    const size_t data_size
+    const std::string &p2j_memory_name, const char *data, const size_t data_size
 );
 
-const char *read_from_shared_memory_impl(
-    const std::string &memory_name,
-    const std::string &management_memory_name,
-    size_t &data_size
+py::bytes read_from_shared_memory_impl(
+    const std::string &p2j_memory_name, const std::string &j2p_memory_name
 );
 
 // remove shared memory

@@ -9,32 +9,36 @@
 
 using namespace boost::interprocess;
 
-// explicit structure of the object is handled using protobuf
-struct SharedDataHeader {
+struct SharedMemoryLayout {
+    size_t layout_size;                // to be set on initialization
+    size_t action_offset;              // Always sizeof(SharedMemoryLayout)
+    size_t action_size;                // to be set on initialization
+    size_t initial_environment_offset; // Always action_size +
+                                       // sizeof(SharedDataHeader)
+    size_t initial_environment_size;   // to be set on initialization
     interprocess_mutex mutex;
     interprocess_condition condition;
-    size_t size;
-    bool ready;
+    bool p2j_ready;
+    bool j2p_ready;
 };
-// Message follows the header
+
+struct J2PSharedMemoryLayout {
+    size_t layout_size; // to be set on initialization
+    size_t data_offset; // Always sizeof(J2PSharedMemoryLayout)
+    size_t data_size;   // to be set on initialization
+};
 
 // Returns ByteArray object containing the initial environment message
 jobject read_initial_environment(
-    JNIEnv *env,
-    jclass clazz,
-    const std::string &initial_environment_memory_name
+    JNIEnv *env, jclass clazz, const std::string &p2j_memory_name
 ) {
-    managed_shared_memory sharedMemoryInitialEnvironment(
-        open_only, initial_environment_memory_name.c_str()
-    );
-    void *addrInitialEnvironment = sharedMemoryInitialEnvironment.get_address();
-    auto *headerInitialEnvironment =
-        reinterpret_cast<SharedDataHeader *>(addrInitialEnvironment);
-    // Read the initial environment message
-    char *data_startInitialEnvironment =
-        reinterpret_cast<char *>(headerInitialEnvironment) +
-        sizeof(SharedDataHeader);
-    size_t data_size = headerInitialEnvironment->size;
+    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    SharedMemoryLayout *p2jLayout =
+        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+
+    char *data_startInitialEnvironment = reinterpret_cast<char *>(p2jLayout) +
+                                         p2jLayout->initial_environment_offset;
+    size_t data_size = p2jLayout->initial_environment_size;
 
     jbyteArray byteArray = env->NewByteArray(data_size);
     if (byteArray == nullptr || env->ExceptionCheck()) {
@@ -46,104 +50,85 @@ jobject read_initial_environment(
         data_size,
         reinterpret_cast<jbyte *>(data_startInitialEnvironment)
     );
-    // Delete the shared memory
-    shared_memory_object::remove(initial_environment_memory_name.c_str());
     return byteArray;
 }
 
 jbyteArray read_action(
     JNIEnv *env,
     jclass clazz,
-    const std::string &action_memory_name,
+    const std::string &p2j_memory_name,
     jbyteArray data
 ) {
-    managed_shared_memory actionSharedMemory(
-        open_only, action_memory_name.c_str()
-    );
-    void *addr = actionSharedMemory.get_address();
-    auto *actionHeader = reinterpret_cast<SharedDataHeader *>(addr);
+    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    SharedMemoryLayout *p2jHeader =
+        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+    char *data_start =
+        reinterpret_cast<char *>(p2jHeader) + p2jHeader->action_offset;
 
-    std::unique_lock<interprocess_mutex> actionLock(actionHeader->mutex);
-    actionHeader->condition.wait(actionLock, [&] {
-        return actionHeader->ready;
-    });
+    std::unique_lock<interprocess_mutex> actionLock(p2jHeader->mutex);
+    p2jHeader->condition.wait(actionLock, [&] { return p2jHeader->p2j_ready; });
 
     if (data == nullptr) {
-        data = env->NewByteArray(actionHeader->size);
+        data = env->NewByteArray(p2jHeader->action_size);
     }
     if (data == nullptr || env->ExceptionCheck()) {
         return nullptr;
     }
     // Read the action message
-    char *data_start =
-        reinterpret_cast<char *>(actionHeader) + sizeof(SharedDataHeader);
     env->SetByteArrayRegion(
-        data, 0, actionHeader->size, reinterpret_cast<jbyte *>(data_start)
+        data, 0, p2jHeader->action_size, reinterpret_cast<jbyte *>(data_start)
     );
-    actionHeader->ready = false;
+    p2jHeader->p2j_ready = false;
+    p2jHeader->j2p_ready = false;
     actionLock.unlock();
     return data;
 }
 
 void write_observation(
-    const std::string &observation_memory_name,
-    const std::string &synchronization_memory_name,
+    const std::string &p2j_memory_name,
+    const std::string &j2p_memory_name,
     const char *data,
     const size_t observation_size
 ) {
-    managed_shared_memory synchronizationSharedMemory(
-        open_only, synchronization_memory_name.c_str()
-    );
-    void *addrSynchronization = synchronizationSharedMemory.get_address();
-    auto *headerSynchronization =
-        reinterpret_cast<SharedDataHeader *>(addrSynchronization);
-    std::unique_lock<interprocess_mutex> lockSynchronization(
-        headerSynchronization->mutex
-    );
-    headerSynchronization->ready = false;
+    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    SharedMemoryLayout *p2jLayout =
+        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
 
-    managed_shared_memory observationSharedMemory(
-        open_only, observation_memory_name.c_str()
-    );
+    std::unique_lock<interprocess_mutex> lockSynchronization(p2jLayout->mutex);
+    p2jLayout->j2p_ready = false;
+
+    managed_shared_memory j2pMemory(open_only, j2p_memory_name.c_str());
 
     // Resize the shared memory if needed
-    const size_t currentSize = observationSharedMemory.get_size();
-    const size_t requiredSize = observation_size + sizeof(SharedDataHeader);
+    const size_t currentSize = j2pMemory.get_size();
+    const size_t requiredSize =
+        observation_size + sizeof(J2PSharedMemoryLayout);
     if (currentSize < requiredSize) {
-        observationSharedMemory.grow(
-            observation_memory_name.c_str(), (requiredSize - currentSize)
-        );
+        j2pMemory.grow(j2p_memory_name.c_str(), (requiredSize - currentSize));
     }
 
     // Write the observation to shared memory
-    void *observationAddr = observationSharedMemory.get_address();
-    auto *observationHeader =
-        reinterpret_cast<SharedDataHeader *>(observationAddr);
+    J2PSharedMemoryLayout *j2pHeader =
+        static_cast<J2PSharedMemoryLayout *>(j2pMemory.get_address());
     char *data_start =
-        reinterpret_cast<char *>(observationHeader) + sizeof(SharedDataHeader);
+        reinterpret_cast<char *>(j2pHeader) + j2pHeader->data_offset;
     std::memcpy(data_start, data, observation_size);
-    observationHeader->size = observation_size;
-    observationHeader->ready = true;
-    // mutex, condition of observationHeader SHOULD NOT BE USED. Use
-    // synchronizationSharedMemory instead
+    j2pHeader->data_size = observation_size;
 
     // Notify Python that the observation is ready
-    headerSynchronization->ready = true;
-    headerSynchronization->condition.notify_one();
+    p2jLayout->j2p_ready = true;
+    p2jLayout->p2j_ready = false;
+    p2jLayout->condition.notify_one();
 }
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImpl(
-    JNIEnv *env, jclass clazz, jstring initial_environment_memory_name
+    JNIEnv *env, jclass clazz, jstring p2j_memory_name
 ) {
-    const char *initial_environment_memory_name_cstr =
-        env->GetStringUTFChars(initial_environment_memory_name, nullptr);
-    jobject result = read_initial_environment(
-        env, clazz, initial_environment_memory_name_cstr
-    );
-    env->ReleaseStringUTFChars(
-        initial_environment_memory_name, initial_environment_memory_name_cstr
-    );
+    const char *p2j_memory_name_cstr =
+        env->GetStringUTFChars(p2j_memory_name, nullptr);
+    jobject result = read_initial_environment(env, clazz, p2j_memory_name_cstr);
+    env->ReleaseStringUTFChars(p2j_memory_name, p2j_memory_name_cstr);
     return result;
 }
 
@@ -151,18 +136,15 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImp
 // ByteArray
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readActionImpl(
-    JNIEnv *env,
-    jclass clazz,
-    jstring action_memory_name,
-    jbyteArray action_data
+    JNIEnv *env, jclass clazz, jstring p2j_memory_name, jbyteArray action_data
 ) {
-    const char *action_memory_name_cstr =
-        env->GetStringUTFChars(action_memory_name, nullptr);
+    const char *j2p_memory_name_cstr =
+        env->GetStringUTFChars(p2j_memory_name, nullptr);
 
     size_t data_size = 0;
     jbyteArray data =
-        read_action(env, clazz, action_memory_name_cstr, action_data);
-    env->ReleaseStringUTFChars(action_memory_name, action_memory_name_cstr);
+        read_action(env, clazz, j2p_memory_name_cstr, action_data);
+    env->ReleaseStringUTFChars(p2j_memory_name, j2p_memory_name_cstr);
     return data;
 }
 
@@ -175,31 +157,27 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
     JNIEnv *env,
     jclass clazz,
-    jstring observation_memory_name,
-    jstring synchronization_memory_name,
+    jstring p2j_memory_name,
+    jstring j2p_memory_name,
     jbyteArray observation_data
 ) {
-    const char *observation_memory_name_cstr =
-        env->GetStringUTFChars(observation_memory_name, nullptr);
-    const char *synchronization_memory_name_cstr =
-        env->GetStringUTFChars(synchronization_memory_name, nullptr);
+    const char *j2p_memory_name_cstr =
+        env->GetStringUTFChars(j2p_memory_name, nullptr);
+    const char *p2j_memory_name_cstr =
+        env->GetStringUTFChars(p2j_memory_name, nullptr);
     jbyte *observation_data_ptr =
         env->GetByteArrayElements(observation_data, nullptr);
     jsize observation_data_size = env->GetArrayLength(observation_data);
 
     write_observation(
-        observation_memory_name_cstr,
-        synchronization_memory_name_cstr,
+        p2j_memory_name_cstr,
+        j2p_memory_name_cstr,
         reinterpret_cast<const char *>(observation_data_ptr),
         static_cast<size_t>(observation_data_size)
     );
 
-    env->ReleaseStringUTFChars(
-        observation_memory_name, observation_memory_name_cstr
-    );
-    env->ReleaseStringUTFChars(
-        synchronization_memory_name, synchronization_memory_name_cstr
-    );
+    env->ReleaseStringUTFChars(j2p_memory_name, j2p_memory_name_cstr);
+    env->ReleaseStringUTFChars(p2j_memory_name, p2j_memory_name_cstr);
     env->ReleaseByteArrayElements(
         observation_data, observation_data_ptr, JNI_ABORT
     );
