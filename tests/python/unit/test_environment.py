@@ -3,12 +3,12 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 
-from environment.environment import CraftGroundEnvironment
-from environment.observation_converter import ObservationConverter
-from environment.socket_ipc import SocketIPC
-from initial_environment_config import InitialEnvironmentConfig
-from screen_encoding_modes import ScreenEncodingMode
-from environment.boost_ipc import BoostIPC
+from craftground.environment.environment import CraftGroundEnvironment
+from craftground.environment.observation_converter import ObservationConverter
+from craftground.environment.socket_ipc import SocketIPC
+from craftground.initial_environment_config import InitialEnvironmentConfig
+from craftground.screen_encoding_modes import ScreenEncodingMode
+from craftground.environment.boost_ipc import BoostIPC
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def environment(mock_initial_env):
     return CraftGroundEnvironment(initial_env=mock_initial_env)
 
 
-@patch("environment.environment.SocketIPC")
+@patch("craftground.environment.environment.SocketIPC")
 def test_initialize_socket_environment(mock_ipc_class, mock_initial_env):
     mock_ipc_instance = MagicMock(spec=SocketIPC)
     mock_ipc_class.return_value = mock_ipc_instance
@@ -42,7 +42,7 @@ def test_initialize_socket_environment(mock_ipc_class, mock_initial_env):
     assert isinstance(env.ipc, SocketIPC)
 
 
-@patch("environment.boost_ipc.BoostIPC")
+@patch("craftground.environment.boost_ipc.BoostIPC")
 def test_initialize_boost_environment(mock_ipc_class, mock_initial_env):
     mock_ipc_instance = MagicMock(spec=BoostIPC)
     mock_ipc_class.return_value = mock_ipc_instance
@@ -86,7 +86,7 @@ def test_update_override_resolutions(mock_open, environment):
     mock_file.write.assert_called()
 
 
-@patch("environment.environment.CraftGroundEnvironment.reset")
+@patch("craftground.environment.environment.CraftGroundEnvironment.reset")
 def test_reset_environment(mock_reset, environment):
     mock_reset.return_value = ({"observation": "data"}, {})
 
@@ -96,7 +96,7 @@ def test_reset_environment(mock_reset, environment):
     assert isinstance(info, dict)
 
 
-@patch("environment.environment.CraftGroundEnvironment.step")
+@patch("craftground.environment.environment.CraftGroundEnvironment.step")
 def test_step_action(mock_step, environment):
     mock_step.return_value = ("observation", 1.0, False, False, {})
 
@@ -109,7 +109,7 @@ def test_step_action(mock_step, environment):
     assert isinstance(info, dict)
 
 
-@patch("environment.environment.CraftGroundEnvironment.close")
+@patch("craftground.environment.environment.CraftGroundEnvironment.close")
 def test_close_environment(mock_close, environment):
     environment.close()
     mock_close.assert_called()

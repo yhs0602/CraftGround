@@ -10,15 +10,15 @@ import gymnasium as gym
 import numpy as np
 from gymnasium.core import ActType, ObsType, RenderFrame
 
-from ..environment.action_space import (
+from .action_space import (
     ActionSpaceVersion,
     action_v2_dict_to_message,
     declare_action_space,
     translate_action_to_v2,
 )
-from ..environment.observation_converter import ObservationConverter
-from ..environment.observation_space import declare_observation_space
-from ..environment.socket_ipc import SocketIPC
+from .observation_converter import ObservationConverter
+from .observation_space import declare_observation_space
+from .socket_ipc import SocketIPC
 
 from ..csv_logger import CsvLogger, LogBackend
 from ..initial_environment_config import InitialEnvironmentConfig

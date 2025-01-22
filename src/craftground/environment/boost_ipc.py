@@ -8,7 +8,7 @@ try:
 except ImportError:
     pass
 
-from ..craftground_native import (  # noqa
+from craftground_native import (  # noqa
     initialize_shared_memory,  # noqa
     write_to_shared_memory,  # noqa
     read_from_shared_memory,  # noqa
