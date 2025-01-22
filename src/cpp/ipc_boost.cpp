@@ -1,6 +1,9 @@
 #include "ipc_boost.hpp"
+#include "boost/interprocess/interprocess_fwd.hpp"
+#include <cstddef>
 #include <mutex>
 #include <string>
+#include <iostream>
 
 bool shared_memory_exists(const std::string &name) {
     try {
@@ -25,32 +28,65 @@ int create_shared_memory_impl(
     std::string synchronization_memory_name;
     std::string action_memory_name;
     bool found_free_port = false;
-    do {
-        initial_memory_name =
-            "craftground_" + std::to_string(port) + "_initial";
-        synchronization_memory_name =
-            "craftground_" + std::to_string(port) + "_synchronization";
-        action_memory_name = "craftground_" + std::to_string(port) + "_action";
-        if (shared_memory_exists(initial_memory_name)) {
-            if (find_free_port) {
-                port++;
-                continue;
-            } else {
-                throw std::runtime_error(
-                    "Shared memory " + initial_memory_name + " already exists"
-                );
-            }
-        }
-        found_free_port = true;
-    } while (!found_free_port);
 
-    shared_memory_object::remove(initial_memory_name.c_str());
-    managed_shared_memory sharedMemory(
-        create_only,
-        initial_memory_name.c_str(),
-        sizeof(SharedDataHeader) + data_size
-    );
-    void *addr = sharedMemory.allocate(sizeof(SharedDataHeader) + data_size);
+    try {
+        do {
+            initial_memory_name =
+                "/craftground_" + std::to_string(port) + "_initial";
+            synchronization_memory_name =
+                "/craftground_" + std::to_string(port) + "_synchronization";
+            action_memory_name =
+                "/craftground_" + std::to_string(port) + "_action";
+            if (shared_memory_exists(initial_memory_name)) {
+                if (find_free_port) {
+                    port++;
+                    continue;
+                } else {
+                    throw std::runtime_error(
+                        "Shared memory " + initial_memory_name +
+                        " already exists"
+                    );
+                }
+            }
+            found_free_port = true;
+        } while (!found_free_port);
+    } catch (const interprocess_exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr
+            << "Failed to initialize shared memory during finding port: errno="
+            << errno << std::endl;
+        throw std::runtime_error(e.what());
+    }
+    errno = 0;
+
+    if (!shared_memory_object::remove(initial_memory_name.c_str())) {
+        std::cerr << "Failed to remove shared memory: errno=" << errno
+                  << std::endl;
+    }
+
+    managed_shared_memory sharedMemory;
+    try {
+        sharedMemory = managed_shared_memory(
+            create_only,
+            initial_memory_name.c_str(),
+            sizeof(SharedDataHeader) + data_size
+        );
+    } catch (const interprocess_exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << "Failed to initialize shared memory creating"
+                  << initial_memory_name << " : errno=" << errno << std::endl;
+        throw std::runtime_error(e.what());
+    }
+
+    void *addr = nullptr;
+    try {
+        addr = sharedMemory.allocate(sizeof(SharedDataHeader) + data_size);
+    } catch (const interprocess_exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << "Failed to initialize shared memory allocating"
+                  << initial_memory_name << " : errno=" << errno << std::endl;
+        throw std::runtime_error(e.what());
+    }
 
     auto *header = new (addr) SharedDataHeader();
     header->ready = false;
@@ -64,7 +100,10 @@ int create_shared_memory_impl(
     // Java will remove the initial environment shared memory
 
     // Create synchronization shared memory (fixed size, the size field )
-    shared_memory_object::remove(synchronization_memory_name.c_str());
+    if (!shared_memory_object::remove(synchronization_memory_name.c_str())) {
+        std::cerr << "Failed to remove shared memory: errno=" << errno
+                  << std::endl;
+    }
     managed_shared_memory sharedMemorySynchronization(
         create_only,
         synchronization_memory_name.c_str(),
@@ -77,7 +116,10 @@ int create_shared_memory_impl(
     headerSynchronization->ready = true;
 
     // Allocate shared memory for action
-    shared_memory_object::remove(action_memory_name.c_str());
+    if (!shared_memory_object::remove(action_memory_name.c_str())) {
+        std::cerr << "Failed to remove shared memory: errno=" << errno
+                  << std::endl;
+    }
     managed_shared_memory sharedMemoryAction(
         create_only,
         action_memory_name.c_str(),

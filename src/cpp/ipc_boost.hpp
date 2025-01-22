@@ -11,12 +11,23 @@
 
 using namespace boost::interprocess;
 
+struct SharedMemoryLayout {
+    size_t action_offset; // Always 0
+    size_t action_size; // to be set on initialization
+    size_t header_offset; // Always action_size
+    size_t header_size; // Always sizeof(SharedDataHeader)
+    size_t initial_environment_offset; // Always action_size + sizeof(SharedDataHeader)
+    size_t initial_environment_size; // to be set on initialization
+};
+
+
 struct SharedDataHeader {
     interprocess_mutex mutex;
     interprocess_condition condition;
     size_t size;
     bool ready;
 };
+
 // Message follows the header
 
 int create_shared_memory_impl(
