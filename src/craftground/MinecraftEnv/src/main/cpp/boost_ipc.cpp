@@ -127,7 +127,13 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImp
 ) {
     const char *p2j_memory_name_cstr =
         env->GetStringUTFChars(p2j_memory_name, nullptr);
-    jobject result = read_initial_environment(env, clazz, p2j_memory_name_cstr);
+    jobject result = nullptr;
+    try {
+        result = read_initial_environment(env, clazz, p2j_memory_name_cstr);
+    } catch (const std::exception &e) {
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
+        return nullptr;
+    }
     env->ReleaseStringUTFChars(p2j_memory_name, p2j_memory_name_cstr);
     return result;
 }
@@ -142,8 +148,13 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readActionImpl(
         env->GetStringUTFChars(p2j_memory_name, nullptr);
 
     size_t data_size = 0;
-    jbyteArray data =
-        read_action(env, clazz, j2p_memory_name_cstr, action_data);
+    jbyteArray data;
+    try {
+        data = read_action(env, clazz, j2p_memory_name_cstr, action_data);
+    } catch (const std::exception &e) {
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
+        return nullptr;
+    }
     env->ReleaseStringUTFChars(p2j_memory_name, j2p_memory_name_cstr);
     return data;
 }
@@ -169,12 +180,16 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
         env->GetByteArrayElements(observation_data, nullptr);
     jsize observation_data_size = env->GetArrayLength(observation_data);
 
-    write_observation(
-        p2j_memory_name_cstr,
-        j2p_memory_name_cstr,
-        reinterpret_cast<const char *>(observation_data_ptr),
-        static_cast<size_t>(observation_data_size)
-    );
+    try {
+        write_observation(
+            p2j_memory_name_cstr,
+            j2p_memory_name_cstr,
+            reinterpret_cast<const char *>(observation_data_ptr),
+            static_cast<size_t>(observation_data_size)
+        );
+    } catch (const std::exception &e) {
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
+    }
 
     env->ReleaseStringUTFChars(j2p_memory_name, j2p_memory_name_cstr);
     env->ReleaseStringUTFChars(p2j_memory_name, p2j_memory_name_cstr);
