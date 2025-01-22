@@ -1,3 +1,4 @@
+import time
 from ..environment.ipc_interface import IPCInterface
 from ..proto.action_space_pb2 import ActionSpaceMessageV2
 from ..proto.initial_environment_pb2 import InitialEnvironmentMessage
@@ -13,6 +14,7 @@ from ..craftground_native import (  # noqa
     write_to_shared_memory,  # noqa
     read_from_shared_memory,  # noqa
     destroy_shared_memory,  # noqa
+    shared_memory_exists,  # noqa
 )
 
 
@@ -63,9 +65,23 @@ class BoostIPC(IPCInterface):
 
     def start_communication(self):
         # wait until the j2p shared memory is created
+        wait_time = 1
+        next_output = 1  # 3 7 15 31 63 127 255  seconds passed
         while True:
-            if self.is_alive():
+            if shared_memory_exists(self.j2p_shared_memory_name):
                 break
+            self.logger.log(
+                f"Waiting for Java process to create shared memory {self.j2p_shared_memory_name}"
+            )
+            time.sleep(wait_time)
+            wait_time *= 2
+            if wait_time > 1024:
+                raise Exception(
+                    f"Java process failed to create shared memory {self.j2p_shared_memory_name}"
+                )
+        self.logger.log(
+            f"Java process created shared memory {self.j2p_shared_memory_name}"
+        )
 
     def __del__(self):
         self.destroy()
