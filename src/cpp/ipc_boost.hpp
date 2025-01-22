@@ -41,7 +41,7 @@ int create_shared_memory_impl(
 );
 
 void write_to_shared_memory_impl(
-    const std::string &p2j_memory_name, const char *data, const size_t data_size
+    const std::string &p2j_memory_name, const char *data
 );
 
 py::bytes read_from_shared_memory_impl(

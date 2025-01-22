@@ -17,12 +17,10 @@ int initialize_shared_memory(
     bool find_free_port
 );
 
-void write_to_shared_memory(
-    const char *memory_name, const char *data, const size_t data_size
-);
+void write_to_shared_memory(const char *memory_name, const char *data);
 
 py::bytes read_from_shared_memory(
-    const char *memory_name, const char *management_memory_name
+    const char *p2j_memory_name, const char *j2p_memory_name
 );
 
 void destroy_shared_memory(const char *memory_name);
