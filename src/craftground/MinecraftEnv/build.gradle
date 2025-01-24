@@ -91,7 +91,7 @@ tasks.register('compileCpp', Exec) {
             // Copy the built native library to the project root
             def debugOutput = new File("Debug/native-lib.dll")
             def releaseOutput = new File("Release/native-lib.dll")
-            def targetDir = new File("native-lib.dll") // Copy to the project root
+            def targetDir = new File("./native-lib.dll") // Copy to the project root
 
             if (debugOutput.exists()) {
                 copy {
