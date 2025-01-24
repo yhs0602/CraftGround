@@ -224,7 +224,10 @@ class CraftGroundEnvironment(gym.Env):
                 pass
                 # self.update_override_resolutions(options_txt_path)
 
-        cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
+        if os.name == "nt":
+            cmd = f".\\gradlew runClient -w --no-daemon"
+        else:
+            cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
         if self.use_vglrun:
             cmd = f"vglrun {cmd}"
         if self.ld_preload:
