@@ -588,6 +588,8 @@ class CraftGroundEnvironment(gym.Env):
                             raise ConnectionError(
                                 f"Port {port} is already in use. Please choose another port."
                             )
+                    else:
+                        break
         else:
             socket_path = f"/tmp/minecraftrl_{port}.sock"
             if os.path.exists(socket_path):
@@ -621,7 +623,10 @@ class CraftGroundEnvironment(gym.Env):
                 pass
                 # self.update_override_resolutions(options_txt_path)
 
-        cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
+        if os.name == "nt":
+            cmd = f".\\gradlew runClient -w --no-daemon"
+        else:
+            cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
         if use_vglrun:
             cmd = f"vglrun {cmd}"
         if ld_preload:
