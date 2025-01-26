@@ -54,16 +54,16 @@ tasks.register('configureCppProject', Exec) {
     if (os.isWindows() && vcpkgToolchainFile && file(vcpkgToolchainFile).exists()) {
         project.logger.lifecycle('Using vcpkg toolchain file: ' + vcpkgToolchainFile)
         if (useConda) {
-            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp', '--config', 'Release'
         } else {
-            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, 'src/main/cpp'
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, 'src/main/cpp', '--config', 'Release'
         } 
     } else {
         project.logger.lifecycle('Using default cmake, not using vcpkg')
         if (useConda) {
-            commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+            commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp', '--config', 'Release'
         } else {
-            commandLine 'cmake', 'src/main/cpp'
+            commandLine 'cmake', 'src/main/cpp', '--config', 'Release'
         }
     }
     
