@@ -93,18 +93,18 @@ tasks.register('compileCpp', Exec) {
             def releaseOutput = new File("Release/native-lib.dll")
             def targetDir = new File("./native-lib.dll") // Copy to the project root
 
-            if (debugOutput.exists()) {
-                copy {
-                    from debugOutput
-                    into targetDir.parentFile
-                }
-                println "Copied ${debugOutput} to ${targetDir}"
-            } else if (releaseOutput.exists()) {
+            if (releaseOutput.exists()) {
                 copy {
                     from releaseOutput
                     into targetDir.parentFile
                 }
                 println "Copied ${releaseOutput} to ${targetDir}"
+            } else if (debugOutput.exists()) {
+                copy {
+                    from debugOutput
+                    into targetDir.parentFile
+                }
+                println "Copied ${debugOutput} to ${targetDir}"
             } else {
                 throw new RuntimeException("Cannot find the built native library")
             }
