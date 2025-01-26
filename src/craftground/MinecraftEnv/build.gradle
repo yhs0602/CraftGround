@@ -54,16 +54,16 @@ tasks.register('configureCppProject', Exec) {
     if (os.isWindows() && vcpkgToolchainFile && file(vcpkgToolchainFile).exists()) {
         project.logger.lifecycle('Using vcpkg toolchain file: ' + vcpkgToolchainFile)
         if (useConda) {
-            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp', '--config', 'Release'
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
         } else {
-            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, 'src/main/cpp', '--config', 'Release'
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, 'src/main/cpp'
         } 
     } else {
         project.logger.lifecycle('Using default cmake, not using vcpkg')
         if (useConda) {
-            commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp', '--config', 'Release'
+            commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
         } else {
-            commandLine 'cmake', 'src/main/cpp', '--config', 'Release'
+            commandLine 'cmake', 'src/main/cpp'
         }
     }
     
@@ -73,7 +73,7 @@ tasks.register('configureCppProject', Exec) {
 }
 
 tasks.register('compileCpp', Exec) {
-    commandLine 'cmake', '--build', '.'
+    commandLine 'cmake', '--build', '.',  '--config', 'Release'
     inputs.dir("src/main/cpp")
     def os = org.gradle.internal.os.OperatingSystem.current()
     if (os.isLinux()) {
