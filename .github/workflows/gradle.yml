@@ -14,7 +14,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  gradle_build:
     runs-on: ${{ matrix.os }}
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
@@ -99,9 +99,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ${GITHUB_WORKSPACE}/src/craftground/MinecraftEnv/_deps
+          ${GITHUB_WORKSPACE}/CraftGround/src/craftground/MinecraftEnv/_deps
           ${HOME}/.cmake/packages
-        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('src/craftground/MinecraftEnv/CMakeLists.txt') }}
+        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
         restore-keys: |
           ${{ runner.os }}-fetchcontent-  
 
