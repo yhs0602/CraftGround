@@ -10,9 +10,6 @@ requires = [
 ]
 
 [project]
-authors = [
-  {name = "yhs0602", email = "jourhyang123@gmail.com"},
-]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",

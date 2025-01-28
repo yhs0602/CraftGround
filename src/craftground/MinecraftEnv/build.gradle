@@ -73,7 +73,7 @@ tasks.register('configureCppProject', Exec) {
 }
 
 tasks.register('compileCpp', Exec) {
-    commandLine 'cmake', '--build', '.'
+    commandLine 'cmake', '--build', '.',  '--config', 'Release'
     inputs.dir("src/main/cpp")
     def os = org.gradle.internal.os.OperatingSystem.current()
     if (os.isLinux()) {
@@ -81,9 +81,35 @@ tasks.register('compileCpp', Exec) {
     } else if (os.isMacOsX()) {
         outputs.file("libnative-lib.dylib")
     } else if (os.isWindows()) {
-        outputs.file("native-lib.dll")
+        outputs.files(file("Debug/native-lib.dll"), file("Release/native-lib.dll"))
     }
     dependsOn 'configureCppProject'
+
+    // Copy the built native library to the project root (Only for Windows)
+    doLast {
+        if (os.isWindows()) {
+            // Copy the built native library to the project root
+            def debugOutput = new File("Debug/native-lib.dll")
+            def releaseOutput = new File("Release/native-lib.dll")
+            def targetDir = new File("./native-lib.dll") // Copy to the project root
+
+            if (releaseOutput.exists()) {
+                copy {
+                    from releaseOutput
+                    into targetDir.parentFile
+                }
+                println "Copied ${releaseOutput} to ${targetDir}"
+            } else if (debugOutput.exists()) {
+                copy {
+                    from debugOutput
+                    into targetDir.parentFile
+                }
+                println "Copied ${debugOutput} to ${targetDir}"
+            } else {
+                throw new RuntimeException("Cannot find the built native library")
+            }
+        }
+    }
 }
 
 tasks.named('runClient').configure {
