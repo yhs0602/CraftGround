@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15...3.29)
+cmake_minimum_required(VERSION 3.28)
 project(craftground LANGUAGES CXX)
 include(GNUInstallDirs)
 include(FetchContent)

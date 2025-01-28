@@ -30,12 +30,12 @@ struct J2PSharedMemoryLayout {
     size_t data_size;   // to be set on initialization
 };
 
-void printHex(const char* data, size_t data_size) {
+void printHex(const char *data, size_t data_size) {
     for (size_t i = 0; i < data_size; ++i) {
         // Print the hexadecimal representation of the byte
         std::cout << std::hex << std::setw(2) << std::setfill('0')
                   << (static_cast<unsigned int>(data[i]) & 0xFF) << " ";
-        
+
         // Print a newline every 16 bytes
         if ((i + 1) % 16 == 0) {
             std::cout << std::endl;
@@ -44,18 +44,26 @@ void printHex(const char* data, size_t data_size) {
     std::cout << std::dec << std::endl; // Reset the output format
 }
 
-
 // Returns ByteArray object containing the initial environment message
 jobject read_initial_environment(
     JNIEnv *env, jclass clazz, const std::string &p2j_memory_name
 ) {
     managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
-    SharedMemoryLayout *p2jLayout =
-        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+    SharedMemoryLayout *p2jLayout = reinterpret_cast<SharedMemoryLayout*>(p2jMemory.find<char>("0").first);
 
     char *data_startInitialEnvironment = reinterpret_cast<char *>(p2jLayout) +
                                          p2jLayout->initial_environment_offset;
     size_t data_size = p2jLayout->initial_environment_size;
+
+    std::cout << "Java read data_size: " << p2jLayout->initial_environment_size
+              << std::endl;
+    std::cout << "Java initial environment offset:"
+              << p2jLayout->initial_environment_offset << std::endl;
+    std::cout << "Java layout size:" << p2jLayout->layout_size << std::endl;
+    std::cout << "Java action offset:" << p2jLayout->action_offset << std::endl;
+    std::cout << "Java action size:" << p2jLayout->action_size << std::endl;
+    std::cout << "Java p2j ready:" << p2jLayout->j2p_ready << std::endl;
+    std::cout << "Java j2p ready:" << p2jLayout->p2j_ready << std::endl;
     std::cout << "Java read data_size: " << data_size << std::endl;
 
     jbyteArray byteArray = env->NewByteArray(data_size);

@@ -7,12 +7,12 @@
 #include <string>
 #include <iostream>
 
-void printHex(const char* data, size_t data_size) {
+void printHex(const char *data, size_t data_size) {
     for (size_t i = 0; i < data_size; ++i) {
         // Print the hexadecimal representation of the byte
         std::cout << std::hex << std::setw(2) << std::setfill('0')
                   << (static_cast<unsigned int>(data[i]) & 0xFF) << " ";
-        
+
         // Print a newline every 16 bytes
         if ((i + 1) % 16 == 0) {
             std::cout << std::endl;
@@ -20,7 +20,6 @@ void printHex(const char* data, size_t data_size) {
     }
     std::cout << std::dec << std::endl; // Reset the output format
 }
-
 
 bool shared_memory_exists(const std::string &name) {
     try {
@@ -109,10 +108,15 @@ int create_shared_memory_impl(
     j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
     j2pLayout->data_size = 0;
 
+    // SharedMemoryLayout *layout =
+    //     static_cast<SharedMemoryLayout *>(p2jSharedMemory.allocate(
+    //         sizeof(SharedMemoryLayout) + action_size + data_size
+    //     ));
+
     SharedMemoryLayout *layout =
-        static_cast<SharedMemoryLayout *>(p2jSharedMemory.allocate(
-            sizeof(SharedMemoryLayout) + action_size + data_size
-        ));
+        reinterpret_cast<SharedMemoryLayout *>(p2jSharedMemory.construct<char>(
+            "0"
+        )[sizeof(SharedMemoryLayout) + action_size + data_size]('\0'));
     layout->layout_size = sizeof(SharedMemoryLayout);
     layout->action_offset = sizeof(SharedMemoryLayout);
     layout->action_size = action_size;
@@ -131,9 +135,18 @@ int create_shared_memory_impl(
     }
     std::memcpy(data_start, initial_data, data_size);
 
-    std::cout<<"Wrote initial data to shared memory:"<<std::endl;
+    std::cout << "Wrote initial data to shared memory:" << std::endl;
     printHex(initial_data, data_size);
-    std::cout<<"Data size: "<<data_size<<std::endl;
+    std::cout << "Data size: " << data_size << std::endl;
+    std::cout << "Action size: " << action_size << std::endl;
+    std::cout << "Initial environment offset: "
+              << layout->initial_environment_offset << std::endl;
+    std::cout << "Initial environment size: "
+              << layout->initial_environment_size << std::endl;
+    std::cout << "Action offset: " << layout->action_offset << std::endl;
+    std::cout << "Action size: " << layout->action_size << std::endl;
+    std::cout << "p2j ready: " << layout->p2j_ready << std::endl;
+    std::cout << "j2p ready: " << layout->j2p_ready << std::endl;
 
     layout->p2j_ready = true;
     layout->j2p_ready = false;
