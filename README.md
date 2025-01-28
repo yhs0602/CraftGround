@@ -37,8 +37,7 @@
 ```bash
 conda create -n my_experiment_env python=3.11
 conda activate my_experiment_env
-conda install conda-forge::openjdk=21 cmake
-sudo apt install libglew-dev
+conda install conda-forge::openjdk=21 conda-forge::cmake conda-forge::glew-dev conda-forge::libpng conda-forge::libzlib conda-forge::libopengl conda-forge::libflite
 pip install craftground
 ```
 
@@ -56,7 +55,27 @@ pip3 install cmake # You need latest cmake, not the one provided by apt-get
 pip3 install craftground
 ```
 
-### Setup Headless Environment
+### Windows Setup
+#### Resolve Windows Path Length Limitation
+Note: you may need to enable long file path due to windows limitation. You can enable it by editing registry as mentioned [here](https://docs.python.org/3/using/windows.html#removing-the-max-path-limitation)
+
+> In the latest versions of Windows, this limitation can be expanded to approximately 32,000 characters. Your administrator will need to activate the “Enable Win32 long paths” group policy, or set LongPathsEnabled to 1 in the registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem.
+
+The following command does the same as the above instruction:
+```cmd
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+```
+
+#### Resolve Conda Installation Issues
+Using conda is recommended for Windows users. You can install conda from [here](https://docs.anaconda.com/miniconda/). Make sure to execute
+```powershell
+powershell -ExecutionPolicy Bypass
+conda init powershell
+```
+if you are using PowerShell, in the anaconda powershell prompt.
+
+
+### Setup Headless Environment (Linux)
 Refer to [Headless Environment Setup](docs/headless.md) for setting up a headless environment.
 
 ### Install development version
@@ -66,7 +85,6 @@ pip install git+https://github.com/yhs0602/CraftGround.git@dev
 
 ## Run your first experiment
 ### Example repositories
-- Check [the demo repository](https://github.com/yhs0602/CraftGround-Baselines3) for detailed examples.
 - Check [the example repository](https://github.com/yhs0602/minecraft-simulator-benchmark) for benchmarking experiments.
 
 ### Example code
