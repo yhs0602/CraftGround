@@ -78,6 +78,16 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Set up cache for CMake FetchContent
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${GITHUB_WORKSPACE}/.build/_deps
+          ${HOME}/.cmake/packages
+        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-fetchcontent-
+
     - name: Configure CMake for python part
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
