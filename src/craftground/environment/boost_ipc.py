@@ -43,8 +43,8 @@ class BoostIPC(IPCInterface):
             len(dummy_action_bytes),
             find_free_port,
         )
-        self.p2j_shared_memory_name = f"craftground_{port}_p2j"
-        self.j2p_shared_memory_name = f"craftground_{port}_j2p"
+        self.p2j_shared_memory_name = f"craftground_{self.port}_p2j"
+        self.j2p_shared_memory_name = f"craftground_{self.port}_j2p"
 
     def send_action(self, action: ActionSpaceMessageV2):
         action_bytes: bytes = action.SerializeToString()
