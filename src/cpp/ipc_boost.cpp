@@ -146,8 +146,8 @@ py::bytes read_from_shared_memory_impl(
         p2jMemory = managed_shared_memory(open_only, p2j_memory_name.c_str());
     } catch (const interprocess_exception &e) {
         std::cerr << e.what() << std::endl;
-        std::cerr << "Failed to open shared memory to read observation: " << p2j_memory_name << " errno=" << errno
-                  << std::endl;
+        std::cerr << "Failed to open shared memory to read observation: "
+                  << p2j_memory_name << " errno=" << errno << std::endl;
         throw std::runtime_error(e.what());
     }
     SharedMemoryLayout *p2jLayout =
