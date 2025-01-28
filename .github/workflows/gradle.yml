@@ -99,8 +99,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ${GITHUB_WORKSPACE}/CraftGround/src/craftground/MinecraftEnv/_deps
-          ${HOME}/.cmake/packages
+          ${GITHUB_WORKSPACE}/src/craftground/MinecraftEnv/_deps
         key: ${{ runner.os }}-fetchcontent-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
         restore-keys: |
           ${{ runner.os }}-fetchcontent-  

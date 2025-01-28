@@ -36,7 +36,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ${GITHUB_WORKSPACE}/CraftGround/build/_deps
+          ${GITHUB_WORKSPACE}/build/_deps
         key: ${{ runner.os }}-fetchcontent-python-${{ hashFiles('CMakeLists.txt') }}
         restore-keys: |
           ${{ runner.os }}-fetchcontent-python-
@@ -45,7 +45,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ${GITHUB_WORKSPACE}/CraftGround/src/craftground/MinecraftEnv/_deps
+          ${GITHUB_WORKSPACE}/src/craftground/MinecraftEnv/_deps
         key: ${{ runner.os }}-fetchcontent-gradle-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
         restore-keys: |
           ${{ runner.os }}-fetchcontent-gradle-

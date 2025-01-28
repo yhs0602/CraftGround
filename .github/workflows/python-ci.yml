@@ -41,7 +41,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ${GITHUB_WORKSPACE}/CraftGround/build/_deps
+          ${GITHUB_WORKSPACE}/build/_deps
         key: ${{ runner.os }}-fetchcontent-python-${{ hashFiles('CMakeLists.txt') }}
         restore-keys: |
           ${{ runner.os }}-fetchcontent-python-
