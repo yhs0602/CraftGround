@@ -112,6 +112,7 @@ class CraftGroundEnvironment(gym.Env):
                 port,
                 find_free_port,
                 self.initial_env_message,
+                self.logger,
             )
         else:
             self.ipc = SocketIPC(
@@ -190,6 +191,7 @@ class CraftGroundEnvironment(gym.Env):
                 self.ipc.port,
                 self.ipc.find_free_port,
                 self.initial_env_message,
+                self.logger,
             )
         else:
             self.ipc = SocketIPC(

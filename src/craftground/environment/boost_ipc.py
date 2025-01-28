@@ -1,4 +1,6 @@
 import time
+
+from ..csv_logger import CsvLogger
 from ..environment.ipc_interface import IPCInterface
 from ..proto.action_space_pb2 import ActionSpaceMessageV2
 from ..proto.initial_environment_pb2 import InitialEnvironmentMessage
@@ -24,8 +26,10 @@ class BoostIPC(IPCInterface):
         port: int,
         find_free_port: bool,
         initial_environment: InitialEnvironmentMessage,
+        logger: CsvLogger,
     ):
         self.port = port
+        self.logger = logger
         initial_environment_bytes: bytes = initial_environment.SerializeToString()
 
         # Get the length of the action space message
