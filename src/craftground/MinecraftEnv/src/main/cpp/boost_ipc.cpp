@@ -4,8 +4,10 @@
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <cstddef>
 #include <cstring>
+#include <iomanip>
 #include <jni.h>
 #include <mutex>
+#include <iostream>
 
 using namespace boost::interprocess;
 
@@ -28,6 +30,21 @@ struct J2PSharedMemoryLayout {
     size_t data_size;   // to be set on initialization
 };
 
+void printHex(const char* data, size_t data_size) {
+    for (size_t i = 0; i < data_size; ++i) {
+        // Print the hexadecimal representation of the byte
+        std::cout << std::hex << std::setw(2) << std::setfill('0')
+                  << (static_cast<unsigned int>(data[i]) & 0xFF) << " ";
+        
+        // Print a newline every 16 bytes
+        if ((i + 1) % 16 == 0) {
+            std::cout << std::endl;
+        }
+    }
+    std::cout << std::dec << std::endl; // Reset the output format
+}
+
+
 // Returns ByteArray object containing the initial environment message
 jobject read_initial_environment(
     JNIEnv *env, jclass clazz, const std::string &p2j_memory_name
@@ -39,11 +56,14 @@ jobject read_initial_environment(
     char *data_startInitialEnvironment = reinterpret_cast<char *>(p2jLayout) +
                                          p2jLayout->initial_environment_offset;
     size_t data_size = p2jLayout->initial_environment_size;
+    std::cout << "Java read data_size: " << data_size << std::endl;
 
     jbyteArray byteArray = env->NewByteArray(data_size);
     if (byteArray == nullptr || env->ExceptionCheck()) {
         return nullptr;
     }
+    std::cout << "Java read array: ";
+    printHex(data_startInitialEnvironment, data_size);
     env->SetByteArrayRegion(
         byteArray,
         0,

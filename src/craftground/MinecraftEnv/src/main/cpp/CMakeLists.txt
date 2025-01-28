@@ -79,6 +79,7 @@ FetchContent_Declare(
   GIT_TAG boost-1.87.0
   GIT_SHALLOW TRUE
   GIT_PROGRESS TRUE
+  EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(Boost)
 
