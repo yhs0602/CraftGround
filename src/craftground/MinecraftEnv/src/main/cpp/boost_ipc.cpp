@@ -1,5 +1,7 @@
+#include "boost/interprocess/detail/os_file_functions.hpp"
+#include "boost/interprocess/mapped_region.hpp"
+#include "boost/interprocess/shared_memory_object.hpp"
 #include <boost/interprocess/interprocess_fwd.hpp>
-#include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <cstddef>
@@ -48,9 +50,12 @@ void printHex(const char *data, size_t data_size) {
 jobject read_initial_environment(
     JNIEnv *env, jclass clazz, const std::string &p2j_memory_name
 ) {
-    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
-    SharedMemoryLayout *p2jLayout = reinterpret_cast<SharedMemoryLayout*>(p2jMemory.find<char>("0").first);
-
+    shared_memory_object p2jMemory(
+        open_only, p2j_memory_name.c_str(), read_only
+    );
+    mapped_region p2jRegion(p2jMemory, read_only);
+    SharedMemoryLayout *p2jLayout =
+        reinterpret_cast<SharedMemoryLayout *>(p2jRegion.get_address());
     char *data_startInitialEnvironment = reinterpret_cast<char *>(p2jLayout) +
                                          p2jLayout->initial_environment_offset;
     size_t data_size = p2jLayout->initial_environment_size;
@@ -87,9 +92,12 @@ jbyteArray read_action(
     const std::string &p2j_memory_name,
     jbyteArray data
 ) {
-    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    shared_memory_object p2jMemory(
+        open_only, p2j_memory_name.c_str(), read_write
+    );
+    mapped_region p2jRegion(p2jMemory, read_write);
     SharedMemoryLayout *p2jHeader =
-        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+        static_cast<SharedMemoryLayout *>(p2jRegion.get_address());
     char *data_start =
         reinterpret_cast<char *>(p2jHeader) + p2jHeader->action_offset;
 
@@ -118,35 +126,70 @@ void write_observation(
     const char *data,
     const size_t observation_size
 ) {
-    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    shared_memory_object p2jMemory(
+        open_only, p2j_memory_name.c_str(), read_write
+    );
+    mapped_region p2jRegion(p2jMemory, read_write);
     SharedMemoryLayout *p2jLayout =
-        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+        static_cast<SharedMemoryLayout *>(p2jRegion.get_address());
 
     std::unique_lock<interprocess_mutex> lockSynchronization(p2jLayout->mutex);
     p2jLayout->j2p_ready = false;
+    lockSynchronization.unlock();
 
-    managed_shared_memory j2pMemory(open_only, j2p_memory_name.c_str());
-
+    shared_memory_object j2pMemory(
+        open_only, j2p_memory_name.c_str(), read_write
+    );
+    mapped_region j2pMemoryRegion(j2pMemory, read_write);
     // Resize the shared memory if needed
-    const size_t currentSize = j2pMemory.get_size();
-    const size_t requiredSize =
-        observation_size + sizeof(J2PSharedMemoryLayout);
+    offset_t size = 0;
+    const size_t currentSize = j2pMemory.get_size(size);
+    size_t requiredSize = observation_size + sizeof(J2PSharedMemoryLayout);
     if (currentSize < requiredSize) {
-        j2pMemory.grow(j2p_memory_name.c_str(), (requiredSize - currentSize));
+        try {
+            shared_memory_object::remove(j2p_memory_name.c_str());
+        } catch (const interprocess_exception &e) {
+            std::cerr << e.what() << std::endl;
+            std::cerr << "Failed to remove shared memory to write observation: "
+                      << j2p_memory_name << " errno=" << errno << std::endl;
+            throw std::runtime_error(e.what());
+        }
+        try {
+            j2pMemory = shared_memory_object(
+                create_only, j2p_memory_name.c_str(), read_write
+            );
+        } catch (const interprocess_exception &e) {
+            std::cerr << e.what() << std::endl;
+            std::cerr << "Failed to create shared memory to write observation: "
+                      << j2p_memory_name << " errno=" << errno << std::endl;
+            throw std::runtime_error(e.what());
+        }
+        requiredSize = requiredSize > 1024 ? requiredSize : 1024;
+        j2pMemory.truncate(requiredSize);
+        j2pMemoryRegion = mapped_region(j2pMemory, read_write);
+        J2PSharedMemoryLayout *j2pHeader =
+            static_cast<J2PSharedMemoryLayout *>(j2pMemoryRegion.get_address());
+        j2pHeader->layout_size = sizeof(J2PSharedMemoryLayout);
+        j2pHeader->data_offset = sizeof(J2PSharedMemoryLayout);
+        j2pHeader->data_size = observation_size;
+        // j2pMemory.grow(j2p_memory_name.c_str(), (requiredSize -
+        // currentSize));
     }
 
     // Write the observation to shared memory
     J2PSharedMemoryLayout *j2pHeader =
-        static_cast<J2PSharedMemoryLayout *>(j2pMemory.get_address());
+        static_cast<J2PSharedMemoryLayout *>(j2pMemoryRegion.get_address());
     char *data_start =
         reinterpret_cast<char *>(j2pHeader) + j2pHeader->data_offset;
     std::memcpy(data_start, data, observation_size);
     j2pHeader->data_size = observation_size;
 
     // Notify Python that the observation is ready
+    std::unique_lock<interprocess_mutex> lockSynchronization2(p2jLayout->mutex);
     p2jLayout->j2p_ready = true;
     p2jLayout->p2j_ready = false;
     p2jLayout->condition.notify_one();
+    lockSynchronization2.unlock();
 }
 
 extern "C" JNIEXPORT jobject JNICALL

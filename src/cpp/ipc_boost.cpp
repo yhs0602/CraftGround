@@ -1,7 +1,10 @@
 #include <iomanip>
 #include <pybind11/pybind11.h>
 #include "ipc_boost.hpp"
+#include "boost/interprocess/detail/os_file_functions.hpp"
 #include "boost/interprocess/interprocess_fwd.hpp"
+#include "boost/interprocess/mapped_region.hpp"
+#include "boost/interprocess/shared_memory_object.hpp"
 #include <cstddef>
 #include <mutex>
 #include <string>
@@ -75,13 +78,12 @@ int create_shared_memory_impl(
                   << std::endl;
     }
 
-    managed_shared_memory p2jSharedMemory, j2pSharedMemory;
+    shared_memory_object p2jSharedMemory, j2pSharedMemory;
     try {
-        p2jSharedMemory = managed_shared_memory(
-            create_only,
-            p2j_memory_name.c_str(),
-            1024 // Too small size fails to allocate
+        p2jSharedMemory = shared_memory_object(
+            create_only, p2j_memory_name.c_str(), read_write
         );
+        p2jSharedMemory.truncate(1024); // Too small size fails to allocate
     } catch (const interprocess_exception &e) {
         std::cerr << e.what() << std::endl;
         std::cerr << "Failed to initialize shared memory creating"
@@ -90,45 +92,38 @@ int create_shared_memory_impl(
     }
 
     try {
-        j2pSharedMemory = managed_shared_memory(
-            create_only,
-            j2p_memory_name.c_str(),
-            1024 // Too small size fails to allocate
+        j2pSharedMemory = shared_memory_object(
+            create_only, j2p_memory_name.c_str(), read_write
         );
+        j2pSharedMemory.truncate(1024); // Too small size fails to allocate
     } catch (const interprocess_exception &e) {
         std::cerr << e.what() << std::endl;
         std::cerr << "Failed to initialize shared memory creating"
                   << j2p_memory_name << " : errno=" << errno << std::endl;
         throw std::runtime_error(e.what());
     }
-    J2PSharedMemoryLayout *j2pLayout = static_cast<J2PSharedMemoryLayout *>(
-        j2pSharedMemory.allocate(sizeof(J2PSharedMemoryLayout))
-    );
+    mapped_region j2pRegion(j2pSharedMemory, read_write);
+    mapped_region p2jRegion(p2jSharedMemory, read_write);
+    J2PSharedMemoryLayout *j2pLayout =
+        static_cast<J2PSharedMemoryLayout *>(j2pRegion.get_address());
     j2pLayout->layout_size = sizeof(J2PSharedMemoryLayout);
     j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
     j2pLayout->data_size = 0;
 
-    // SharedMemoryLayout *layout =
-    //     static_cast<SharedMemoryLayout *>(p2jSharedMemory.allocate(
-    //         sizeof(SharedMemoryLayout) + action_size + data_size
-    //     ));
-
-    SharedMemoryLayout *layout =
-        reinterpret_cast<SharedMemoryLayout *>(p2jSharedMemory.construct<char>(
-            "0"
-        )[sizeof(SharedMemoryLayout) + action_size + data_size]('\0'));
-    layout->layout_size = sizeof(SharedMemoryLayout);
-    layout->action_offset = sizeof(SharedMemoryLayout);
-    layout->action_size = action_size;
-    layout->initial_environment_offset =
+    SharedMemoryLayout *p2jLayout =
+        static_cast<SharedMemoryLayout *>(p2jRegion.get_address());
+    p2jLayout->layout_size = sizeof(SharedMemoryLayout);
+    p2jLayout->action_offset = sizeof(SharedMemoryLayout);
+    p2jLayout->action_size = action_size;
+    p2jLayout->initial_environment_offset =
         sizeof(SharedMemoryLayout) + action_size;
-    layout->initial_environment_size = data_size;
+    p2jLayout->initial_environment_size = data_size;
     void *action_start =
-        reinterpret_cast<char *>(layout) + layout->action_offset;
-    void *data_start =
-        reinterpret_cast<char *>(layout) + layout->initial_environment_offset;
+        reinterpret_cast<char *>(p2jLayout) + p2jLayout->action_offset;
+    void *data_start = reinterpret_cast<char *>(p2jLayout) +
+                       p2jLayout->initial_environment_offset;
 
-    if (data_size > layout->initial_environment_size) {
+    if (data_size > p2jLayout->initial_environment_size) {
         throw std::runtime_error(
             "Data size exceeds allocated shared memory size"
         );
@@ -140,16 +135,16 @@ int create_shared_memory_impl(
     std::cout << "Data size: " << data_size << std::endl;
     std::cout << "Action size: " << action_size << std::endl;
     std::cout << "Initial environment offset: "
-              << layout->initial_environment_offset << std::endl;
+              << p2jLayout->initial_environment_offset << std::endl;
     std::cout << "Initial environment size: "
-              << layout->initial_environment_size << std::endl;
-    std::cout << "Action offset: " << layout->action_offset << std::endl;
-    std::cout << "Action size: " << layout->action_size << std::endl;
-    std::cout << "p2j ready: " << layout->p2j_ready << std::endl;
-    std::cout << "j2p ready: " << layout->j2p_ready << std::endl;
+              << p2jLayout->initial_environment_size << std::endl;
+    std::cout << "Action offset: " << p2jLayout->action_offset << std::endl;
+    std::cout << "Action size: " << p2jLayout->action_size << std::endl;
+    std::cout << "p2j ready: " << p2jLayout->p2j_ready << std::endl;
+    std::cout << "j2p ready: " << p2jLayout->j2p_ready << std::endl;
 
-    layout->p2j_ready = true;
-    layout->j2p_ready = false;
+    p2jLayout->p2j_ready = true;
+    p2jLayout->j2p_ready = false;
     return port;
 }
 
@@ -157,11 +152,14 @@ int create_shared_memory_impl(
 void write_to_shared_memory_impl(
     const std::string &p2j_memory_name, const char *data
 ) {
-    managed_shared_memory p2jMemory(open_only, p2j_memory_name.c_str());
+    shared_memory_object p2jMemory(
+        open_only, p2j_memory_name.c_str(), read_write
+    );
+    mapped_region p2jRegion(p2jMemory, read_write);
     SharedMemoryLayout *layout =
-        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+        static_cast<SharedMemoryLayout *>(p2jRegion.get_address());
     char *action_addr =
-        static_cast<char *>(p2jMemory.get_address()) + layout->action_offset;
+        reinterpret_cast<char *>(layout) + layout->action_offset;
 
     std::unique_lock<interprocess_mutex> actionLock(layout->mutex);
     std::memcpy(action_addr, data, layout->action_size);
@@ -175,17 +173,20 @@ void write_to_shared_memory_impl(
 py::bytes read_from_shared_memory_impl(
     const std::string &p2j_memory_name, const std::string &j2p_memory_name
 ) {
-    managed_shared_memory p2jMemory;
+    shared_memory_object p2jMemory;
     try {
-        p2jMemory = managed_shared_memory(open_only, p2j_memory_name.c_str());
+        p2jMemory = shared_memory_object(
+            open_only, p2j_memory_name.c_str(), read_write
+        );
     } catch (const interprocess_exception &e) {
         std::cerr << e.what() << std::endl;
         std::cerr << "Failed to open shared memory to read observation: "
                   << p2j_memory_name << " errno=" << errno << std::endl;
         throw std::runtime_error(e.what());
     }
+    mapped_region p2jRegion(p2jMemory, read_write);
     SharedMemoryLayout *p2jLayout =
-        static_cast<SharedMemoryLayout *>(p2jMemory.get_address());
+        static_cast<SharedMemoryLayout *>(p2jRegion.get_address());
 
     std::unique_lock<interprocess_mutex> lockSynchronization(p2jLayout->mutex);
     // wait for java to write the observation
@@ -194,9 +195,12 @@ py::bytes read_from_shared_memory_impl(
     });
 
     // Read the observation from shared memory
-    managed_shared_memory j2pMemory(open_only, j2p_memory_name.c_str());
+    shared_memory_object j2pMemory(
+        open_only, j2p_memory_name.c_str(), read_write
+    );
+    mapped_region j2pMemoryRegion(j2pMemory, read_write);
     J2PSharedMemoryLayout *j2pLayout =
-        static_cast<J2PSharedMemoryLayout *>(j2pMemory.get_address());
+        static_cast<J2PSharedMemoryLayout *>(j2pMemoryRegion.get_address());
 
     const char *data_start =
         reinterpret_cast<char *>(j2pLayout) + j2pLayout->data_offset;
