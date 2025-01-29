@@ -48,9 +48,11 @@ class BoostIPC(IPCInterface):
 
     def send_action(self, action: ActionSpaceMessageV2):
         action_bytes: bytes = action.SerializeToString()
+        self.logger.log("Sending action to shared memory")
         write_to_shared_memory(self.p2j_shared_memory_name, action_bytes)
 
     def read_observation(self) -> bytes:
+        self.logger.log("Reading observation from shared memory")
         return read_from_shared_memory(
             self.p2j_shared_memory_name, self.j2p_shared_memory_name
         )

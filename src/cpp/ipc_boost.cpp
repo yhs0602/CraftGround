@@ -118,6 +118,9 @@ int create_shared_memory_impl(
     p2jLayout->initial_environment_offset =
         sizeof(SharedMemoryLayout) + action_size;
     p2jLayout->initial_environment_size = data_size;
+    new (&p2jLayout->mutex) interprocess_mutex();
+    new (&p2jLayout->condition) interprocess_condition();
+
     void *action_start =
         reinterpret_cast<char *>(p2jLayout) + p2jLayout->action_offset;
     void *data_start = reinterpret_cast<char *>(p2jLayout) +
@@ -143,7 +146,7 @@ int create_shared_memory_impl(
     std::cout << "p2j ready: " << p2jLayout->p2j_ready << std::endl;
     std::cout << "j2p ready: " << p2jLayout->j2p_ready << std::endl;
 
-    p2jLayout->p2j_ready = true;
+    p2jLayout->p2j_ready = false;
     p2jLayout->j2p_ready = false;
     return port;
 }
@@ -161,12 +164,14 @@ void write_to_shared_memory_impl(
     char *action_addr =
         reinterpret_cast<char *>(layout) + layout->action_offset;
 
+    std::cout << "Writing action to shared memory" << std::endl;
     std::unique_lock<interprocess_mutex> actionLock(layout->mutex);
     std::memcpy(action_addr, data, layout->action_size);
     layout->p2j_ready = true;
     layout->j2p_ready = false;
     layout->condition.notify_one();
     actionLock.unlock();
+    std::cout << "Wrote action to shared memory" << std::endl;
 }
 
 // Read observation from shared memory
@@ -190,6 +195,7 @@ py::bytes read_from_shared_memory_impl(
 
     std::unique_lock<interprocess_mutex> lockSynchronization(p2jLayout->mutex);
     // wait for java to write the observation
+    std::cout << "Waiting for Java to write observation" << std::endl;
     p2jLayout->condition.wait(lockSynchronization, [&] {
         return p2jLayout->j2p_ready;
     });
@@ -209,6 +215,7 @@ py::bytes read_from_shared_memory_impl(
     p2jLayout->j2p_ready = false;
     p2jLayout->p2j_ready = false;
     lockSynchronization.unlock();
+    std::cout << "Read observation from shared memory" << std::endl;
 
     return data;
 }

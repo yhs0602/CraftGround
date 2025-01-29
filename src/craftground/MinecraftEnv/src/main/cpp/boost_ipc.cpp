@@ -92,6 +92,7 @@ jbyteArray read_action(
     const std::string &p2j_memory_name,
     jbyteArray data
 ) {
+    std::cout << "Reading action from shared memory 1" << std::endl;
     shared_memory_object p2jMemory(
         open_only, p2j_memory_name.c_str(), read_write
     );
@@ -102,7 +103,9 @@ jbyteArray read_action(
         reinterpret_cast<char *>(p2jHeader) + p2jHeader->action_offset;
 
     std::unique_lock<interprocess_mutex> actionLock(p2jHeader->mutex);
+    std::cout << "Reading action from shared memory: Acquired Lock" << std::endl;
     p2jHeader->condition.wait(actionLock, [&] { return p2jHeader->p2j_ready; });
+    p2jHeader->p2j_ready = false;
 
     if (data == nullptr) {
         data = env->NewByteArray(p2jHeader->action_size);
@@ -117,6 +120,7 @@ jbyteArray read_action(
     p2jHeader->p2j_ready = false;
     p2jHeader->j2p_ready = false;
     actionLock.unlock();
+    std::cout << "Read action from shared memory 2" << std::endl;
     return data;
 }
 
@@ -126,6 +130,7 @@ void write_observation(
     const char *data,
     const size_t observation_size
 ) {
+    std::cout << "Writing observation to shared memory 1" << std::endl;
     shared_memory_object p2jMemory(
         open_only, p2j_memory_name.c_str(), read_write
     );
@@ -175,7 +180,7 @@ void write_observation(
         // j2pMemory.grow(j2p_memory_name.c_str(), (requiredSize -
         // currentSize));
     }
-
+    std::cout << "Writing observation to shared memory 2" << std::endl;
     // Write the observation to shared memory
     J2PSharedMemoryLayout *j2pHeader =
         static_cast<J2PSharedMemoryLayout *>(j2pMemoryRegion.get_address());
@@ -185,11 +190,13 @@ void write_observation(
     j2pHeader->data_size = observation_size;
 
     // Notify Python that the observation is ready
+    std::cout << "Writing observation to shared memory 3" << std::endl;
     std::unique_lock<interprocess_mutex> lockSynchronization2(p2jLayout->mutex);
     p2jLayout->j2p_ready = true;
     p2jLayout->p2j_ready = false;
-    p2jLayout->condition.notify_one();
+    p2jLayout->condition.notify_all();
     lockSynchronization2.unlock();
+    std::cout << "Wrote observation to shared memory 4" << std::endl;
 }
 
 extern "C" JNIEXPORT jobject JNICALL
