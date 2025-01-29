@@ -103,7 +103,8 @@ jbyteArray read_action(
         reinterpret_cast<char *>(p2jHeader) + p2jHeader->action_offset;
 
     std::unique_lock<interprocess_mutex> actionLock(p2jHeader->mutex);
-    std::cout << "Reading action from shared memory: Acquired Lock" << std::endl;
+    std::cout << "Reading action from shared memory: Acquired Lock"
+              << std::endl;
     p2jHeader->condition.wait(actionLock, [&] { return p2jHeader->p2j_ready; });
     p2jHeader->p2j_ready = false;
 
