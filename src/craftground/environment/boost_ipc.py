@@ -1,4 +1,7 @@
+import platform
 import time
+
+from ..proto.observation_space_pb2 import ObservationSpaceMessage
 
 from ..csv_logger import CsvLogger
 from ..environment.ipc_interface import IPCInterface
@@ -19,6 +22,8 @@ from ..craftground_native import (  # noqa
     shared_memory_exists,  # noqa
 )
 
+from ..environment.action_space import no_op_v2, action_v2_dict_to_message
+
 
 class BoostIPC(IPCInterface):
     def __init__(
@@ -33,8 +38,9 @@ class BoostIPC(IPCInterface):
         initial_environment_bytes: bytes = initial_environment.SerializeToString()
 
         # Get the length of the action space message
-        dummy_action: ActionSpaceMessageV2 = ActionSpaceMessageV2()
+        dummy_action: ActionSpaceMessageV2 = action_v2_dict_to_message(no_op_v2())
         dummy_action_bytes: bytes = dummy_action.SerializeToString()
+        print(f"Length of Dummy_action_bytes: {len(dummy_action_bytes)}")
         self.find_free_port = find_free_port
         self.port = initialize_shared_memory(
             int(self.port),
@@ -43,23 +49,29 @@ class BoostIPC(IPCInterface):
             len(dummy_action_bytes),
             find_free_port,
         )
-        self.p2j_shared_memory_name = f"craftground_{self.port}_p2j"
-        self.j2p_shared_memory_name = f"craftground_{self.port}_j2p"
+        self.SHMEM_PREFIX = "Global\\" if platform.system() == "Windows" else "/"
+        self.p2j_shared_memory_name = f"{self.SHMEM_PREFIX}craftground_{self.port}_p2j"
+        self.j2p_shared_memory_name = f"{self.SHMEM_PREFIX}craftground_{self.port}_j2p"
 
     def send_action(self, action: ActionSpaceMessageV2):
         action_bytes: bytes = action.SerializeToString()
-        self.logger.log("Sending action to shared memory")
-        write_to_shared_memory(self.p2j_shared_memory_name, action_bytes)
-
-    def read_observation(self) -> bytes:
-        self.logger.log("Reading observation from shared memory")
-        return read_from_shared_memory(
-            self.p2j_shared_memory_name, self.j2p_shared_memory_name
+        self.logger.log(f"Sending action to shared memory: {len(action_bytes)} bytes")
+        write_to_shared_memory(
+            self.p2j_shared_memory_name, action_bytes, len(action_bytes)
         )
 
+    def read_observation(self) -> ObservationSpaceMessage:
+        self.logger.log("Reading observation from shared memory")
+        observation_space = ObservationSpaceMessage()
+        data_bytes = read_from_shared_memory(
+            self.p2j_shared_memory_name, self.j2p_shared_memory_name
+        )
+        observation_space.ParseFromString(data_bytes)
+        return observation_space
+
     def destroy(self):
-        destroy_shared_memory(self.p2j_shared_memory_name)
-        destroy_shared_memory(self.j2p_shared_memory_name)
+        destroy_shared_memory(self.p2j_shared_memory_name, True)
+        destroy_shared_memory(self.j2p_shared_memory_name, True)
         # Java destroys the initial environment shared memory
         # destroy_shared_memory(self.initial_environment_shared_memory_name)
 

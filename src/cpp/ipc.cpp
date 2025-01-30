@@ -59,7 +59,8 @@ py::capsule mtl_tensor_from_cuda_mem_handle(
 }
 #endif
 
-#include "ipc_boost.hpp"
+// #include "ipc_boost.hpp"
+#include "ipc_noboost.hpp"
 
 int initialize_shared_memory(
     int port,
@@ -80,8 +81,10 @@ int initialize_shared_memory(
     }
 }
 
-void write_to_shared_memory(const char *p2j_memory_name, const char *data) {
-    write_to_shared_memory_impl(p2j_memory_name, data);
+void write_to_shared_memory(
+    const char *p2j_memory_name, const char *data, size_t action_size
+) {
+    write_to_shared_memory_impl(p2j_memory_name, data, action_size);
 }
 
 py::bytes read_from_shared_memory(
@@ -90,8 +93,8 @@ py::bytes read_from_shared_memory(
     return read_from_shared_memory_impl(p2j_memory_name, j2p_memory_name);
 }
 
-void destroy_shared_memory(const char *memory_name) {
-    destroy_shared_memory_impl(memory_name);
+void destroy_shared_memory(const char *memory_name, bool release_semaphores) {
+    destroy_shared_memory_impl(memory_name, release_semaphores);
 }
 
 PYBIND11_MODULE(craftground_native, m) {

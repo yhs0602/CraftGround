@@ -81,7 +81,7 @@ FetchContent_Declare(
   GIT_PROGRESS TRUE
   EXCLUDE_FROM_ALL
 )
-FetchContent_MakeAvailable(Boost)
+# FetchContent_MakeAvailable(Boost)
 
 message(STATUS "Boost is now available")
 
@@ -89,7 +89,7 @@ message(STATUS "Boost is now available")
 set(
     SOURCE_FILES
     framebuffer_capturer.cpp
-    boost_ipc.cpp
+    noboost_ipc.cpp
 )
 
 message(STATUS "SOURCE_FILES=${SOURCE_FILES}")
@@ -111,8 +111,9 @@ if(CRAFGROUND_NATIVE_DEBUG)
 endif()
 
 # Link with JNI and OpenGL libraries
-target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} glm::glm Boost::system Boost::thread Boost::interprocess)
-target_include_directories(native-lib PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} glm::glm)
+# target_link_libraries(native-lib Boost::system Boost::thread Boost::interprocess)
+# target_include_directories(native-lib PRIVATE ${Boost_INCLUDE_DIRS})
 
 if(PNG_FOUND)
     target_link_libraries(native-lib ${PNG_LIBRARIES} ${ZLIB_LIBRARIES})

@@ -1,4 +1,3 @@
-#include <iomanip>
 #include <pybind11/pybind11.h>
 #include "ipc_boost.hpp"
 #include "boost/interprocess/detail/os_file_functions.hpp"
@@ -9,20 +8,7 @@
 #include <mutex>
 #include <string>
 #include <iostream>
-
-void printHex(const char *data, size_t data_size) {
-    for (size_t i = 0; i < data_size; ++i) {
-        // Print the hexadecimal representation of the byte
-        std::cout << std::hex << std::setw(2) << std::setfill('0')
-                  << (static_cast<unsigned int>(data[i]) & 0xFF) << " ";
-
-        // Print a newline every 16 bytes
-        if ((i + 1) % 16 == 0) {
-            std::cout << std::endl;
-        }
-    }
-    std::cout << std::dec << std::endl; // Reset the output format
-}
+#include "print_hex.h"
 
 bool shared_memory_exists(const std::string &name) {
     try {
@@ -148,6 +134,8 @@ int create_shared_memory_impl(
 
     p2jLayout->p2j_ready = false;
     p2jLayout->j2p_ready = false;
+    p2jLayout->p2j_recv_ready = false;
+    p2jLayout->j2p_recv_ready = false;
     return port;
 }
 
@@ -166,9 +154,12 @@ void write_to_shared_memory_impl(
 
     std::cout << "Writing action to shared memory" << std::endl;
     std::unique_lock<interprocess_mutex> actionLock(layout->mutex);
+    layout->condition.wait(actionLock, [&] { return !layout->p2j_recv_ready; });
     std::memcpy(action_addr, data, layout->action_size);
     layout->p2j_ready = true;
     layout->j2p_ready = false;
+    layout->p2j_recv_ready = false;
+    layout->j2p_recv_ready = false;
     layout->condition.notify_one();
     actionLock.unlock();
     std::cout << "Wrote action to shared memory" << std::endl;
@@ -194,6 +185,10 @@ py::bytes read_from_shared_memory_impl(
         static_cast<SharedMemoryLayout *>(p2jRegion.get_address());
 
     std::unique_lock<interprocess_mutex> lockSynchronization(p2jLayout->mutex);
+    p2jLayout->j2p_recv_ready = true;
+    p2jLayout->condition.notify_all();
+    lockSynchronization.unlock();
+    lockSynchronization.lock();
     // wait for java to write the observation
     std::cout << "Waiting for Java to write observation" << std::endl;
     p2jLayout->condition.wait(lockSynchronization, [&] {
@@ -214,6 +209,8 @@ py::bytes read_from_shared_memory_impl(
 
     p2jLayout->j2p_ready = false;
     p2jLayout->p2j_ready = false;
+    p2jLayout->j2p_recv_ready = false;
+    p2jLayout->p2j_recv_ready = false;
     lockSynchronization.unlock();
     std::cout << "Read observation from shared memory" << std::endl;
 
@@ -221,6 +218,8 @@ py::bytes read_from_shared_memory_impl(
 }
 
 // Destroy shared memory
-void destroy_shared_memory_impl(const std::string &memory_name) {
+void destroy_shared_memory_impl(
+    const std::string &memory_name, bool destroy_semaphores
+) {
     shared_memory_object::remove(memory_name.c_str());
 }

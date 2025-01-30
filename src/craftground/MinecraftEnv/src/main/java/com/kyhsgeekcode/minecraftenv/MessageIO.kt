@@ -192,8 +192,14 @@ class NamedPipeMessageIO(
 class SharedMemoryMessageIO(
     val port: Int,
 ) : MessageIO {
-    private val p2jMemoryName = "craftground_${port}_p2j"
-    private val j2pMemoryName = "craftground_${port}_j2p"
+    val shmemPrefix =
+        if (System.getProperty("os.name").contains("Windows", ignoreCase = true)) {
+            "Global\\"
+        } else {
+            "/"
+        }
+    private val p2jMemoryName = "${shmemPrefix}craftground_${port}_p2j"
+    private val j2pMemoryName = "${shmemPrefix}craftground_${port}_j2p"
 
     override fun readAction(): ActionSpace.ActionSpaceMessageV2 = FramebufferCapturer.readAction(p2jMemoryName)
 

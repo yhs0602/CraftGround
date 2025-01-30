@@ -68,7 +68,7 @@ else()
 endif()
 
 # Collect source files for the module
-set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp src/cpp/ipc_boost.cpp)
+set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp src/cpp/ipc_noboost.cpp src/cpp/print_hex.cpp)
 
 if(APPLE)
     # Add Apple-specific source files
@@ -101,13 +101,13 @@ FetchContent_Declare(
   GIT_PROGRESS TRUE
   EXCLUDE_FROM_ALL
 )
-FetchContent_MakeAvailable(Boost)
+# FetchContent_MakeAvailable(Boost)
 
 message(STATUS "Boost is now available")
 # Add the module
 pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
-target_link_libraries(craftground_native PRIVATE Boost::system Boost::thread Boost::interprocess)
-target_include_directories(craftground_native PRIVATE ${Boost_INCLUDE_DIRS})
+# target_link_libraries(craftground_native PRIVATE Boost::system Boost::thread Boost::interprocess)
+# target_include_directories(craftground_native PRIVATE ${Boost_INCLUDE_DIRS})
 if(APPLE)
     if(Torch_FOUND)
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")

@@ -24,6 +24,8 @@ struct SharedMemoryLayout {
     interprocess_condition condition;
     bool p2j_ready;
     bool j2p_ready;
+    bool p2j_recv_ready;
+    bool j2p_recv_ready;
 };
 
 struct J2PSharedMemoryLayout {
@@ -103,6 +105,10 @@ jbyteArray read_action(
         reinterpret_cast<char *>(p2jHeader) + p2jHeader->action_offset;
 
     std::unique_lock<interprocess_mutex> actionLock(p2jHeader->mutex);
+    p2jHeader->p2j_recv_ready = true;
+    p2jHeader->condition.notify_all();
+    actionLock.unlock();
+    actionLock.lock();
     std::cout << "Reading action from shared memory: Acquired Lock"
               << std::endl;
     p2jHeader->condition.wait(actionLock, [&] { return p2jHeader->p2j_ready; });
@@ -120,6 +126,8 @@ jbyteArray read_action(
     );
     p2jHeader->p2j_ready = false;
     p2jHeader->j2p_ready = false;
+    p2jHeader->p2j_recv_ready = false;
+    p2jHeader->j2p_recv_ready = false;
     actionLock.unlock();
     std::cout << "Read action from shared memory 2" << std::endl;
     return data;
@@ -140,8 +148,10 @@ void write_observation(
         static_cast<SharedMemoryLayout *>(p2jRegion.get_address());
 
     std::unique_lock<interprocess_mutex> lockSynchronization(p2jLayout->mutex);
-    p2jLayout->j2p_ready = false;
-    lockSynchronization.unlock();
+    p2jLayout->condition.wait(lockSynchronization, [&] {
+        return p2jLayout->j2p_recv_ready;
+    });
+    p2jLayout->j2p_recv_ready = false;
 
     shared_memory_object j2pMemory(
         open_only, j2p_memory_name.c_str(), read_write
@@ -192,11 +202,13 @@ void write_observation(
 
     // Notify Python that the observation is ready
     std::cout << "Writing observation to shared memory 3" << std::endl;
-    std::unique_lock<interprocess_mutex> lockSynchronization2(p2jLayout->mutex);
+    lockSynchronization.lock();
     p2jLayout->j2p_ready = true;
     p2jLayout->p2j_ready = false;
+    p2jLayout->j2p_recv_ready = false;
+    p2jLayout->p2j_recv_ready = false;
     p2jLayout->condition.notify_all();
-    lockSynchronization2.unlock();
+    lockSynchronization.unlock();
     std::cout << "Wrote observation to shared memory 4" << std::endl;
 }
 

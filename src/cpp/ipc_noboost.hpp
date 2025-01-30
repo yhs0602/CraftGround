@@ -1,16 +1,20 @@
-#ifndef SHARED_MEMORY_UTILS_HPP
-#define SHARED_MEMORY_UTILS_HPP
+#ifndef IPC_NOBOOST_HPP
+#define IPC_NOBOOST_HPP
 
-#include <boost/interprocess/interprocess_fwd.hpp>
-#include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/interprocess/sync/interprocess_mutex.hpp>
-#include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <cstddef>
 #include <cstring>
 #include <string>
 #include <pybind11/pybind11.h>
 
-using namespace boost::interprocess;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#define IS_WINDOWS 1
+#define SHMEM_PREFIX "Global\\"
+#else
+#define SHMEM_PREFIX "/"
+#define IS_WINDOWS 0
+#endif
+#include "cross_semaphore.h"
+
 namespace py = pybind11;
 
 struct SharedMemoryLayout {
@@ -20,12 +24,8 @@ struct SharedMemoryLayout {
     size_t initial_environment_offset; // Always action_size +
                                        // sizeof(SharedDataHeader)
     size_t initial_environment_size;   // to be set on initialization
-    interprocess_mutex mutex;
-    interprocess_condition condition;
-    bool p2j_ready;
-    bool j2p_ready;
-    bool p2j_recv_ready;
-    bool j2p_recv_ready;
+    rk_sema sem_obs_ready;
+    rk_sema sem_action_ready;
 };
 
 struct J2PSharedMemoryLayout {
@@ -43,14 +43,14 @@ int create_shared_memory_impl(
 );
 
 void write_to_shared_memory_impl(
-    const std::string &p2j_memory_name, const char *data
+    const std::string &p2j_memory_name, const char *data,  size_t action_size
 );
 
 py::bytes read_from_shared_memory_impl(
     const std::string &p2j_memory_name, const std::string &j2p_memory_name
 );
 
-// remove shared memory
+// remove shared memory노
 void destroy_shared_memory_impl(const std::string &memory_name, bool release_semaphores);
 
 #endif // SHARED_MEMORY_UTILS_HPP
