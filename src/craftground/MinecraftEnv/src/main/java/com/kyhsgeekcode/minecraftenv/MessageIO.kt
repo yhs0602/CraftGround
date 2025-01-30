@@ -35,7 +35,7 @@ class TCPSocketMessageIO(
         inputStream.read(buffer.array())
         val len = buffer.order(ByteOrder.LITTLE_ENDIAN).int
         val bytes = inputStream.readNBytes(len)
-//        println("Read action space bytes $len")
+        //        println("Read action space bytes $len")
         val actionSpace = ActionSpace.ActionSpaceMessageV2.parseFrom(bytes)
         printWithTime("Read action space")
         return actionSpace
@@ -51,8 +51,11 @@ class TCPSocketMessageIO(
                 val len = buffer.order(ByteOrder.LITTLE_ENDIAN).int
                 printWithTime("$len")
                 val bytes = inputStream.readNBytes(len.toInt())
-                val initialEnvironment = InitialEnvironment.InitialEnvironmentMessage.parseFrom(bytes)
-                printWithTime("Read initial environment ${initialEnvironment!!.imageSizeX} ${initialEnvironment!!.imageSizeY}")
+                val initialEnvironment =
+                    InitialEnvironment.InitialEnvironmentMessage.parseFrom(bytes)
+                printWithTime(
+                    "Read initial environment ${initialEnvironment!!.imageSizeX} ${initialEnvironment!!.imageSizeY}",
+                )
                 return initialEnvironment
             } catch (e: SocketTimeoutException) {
                 println("Socket timeout")
@@ -68,9 +71,9 @@ class TCPSocketMessageIO(
         printWithTime("Writing observation with size ${observationSpace.serializedSize}")
         val dataOutputStream = LittleEndianDataOutputStream(outputStream)
         dataOutputStream.writeInt(observationSpace.serializedSize)
-//        println("Wrote observation size ${observationSpace.serializedSize}")
+        //        println("Wrote observation size ${observationSpace.serializedSize}")
         observationSpace.writeTo(outputStream)
-//        println("Wrote observation ${observationSpace.serializedSize}")
+        //        println("Wrote observation ${observationSpace.serializedSize}")
         outputStream.flush()
         printWithTime("Flushed")
     }
@@ -87,7 +90,7 @@ class DomainSocketMessageIO(
         buffer.flip()
         val len = buffer.order(ByteOrder.LITTLE_ENDIAN).int
         val bytes = socketChannel.readNBytes(len)
-//        println("Read action space bytes $len")
+        //        println("Read action space bytes $len")
         val actionSpaceMessageV2 = ActionSpace.ActionSpaceMessageV2.parseFrom(bytes)
         printWithTime("Read action space")
         return actionSpaceMessageV2
@@ -105,8 +108,11 @@ class DomainSocketMessageIO(
                 val len = buffer.order(ByteOrder.LITTLE_ENDIAN).int
                 printWithTime("$len")
                 val dataBuffer = socketChannel.readNBytes(len)
-                val initialEnvironment = InitialEnvironment.InitialEnvironmentMessage.parseFrom(dataBuffer)
-                printWithTime("Read initial environment ${initialEnvironment.imageSizeX} ${initialEnvironment.imageSizeY}")
+                val initialEnvironment =
+                    InitialEnvironment.InitialEnvironmentMessage.parseFrom(dataBuffer)
+                printWithTime(
+                    "Read initial environment ${initialEnvironment.imageSizeX} ${initialEnvironment.imageSizeY}",
+                )
                 return initialEnvironment
             } catch (e: SocketTimeoutException) {
                 println("Socket timeout")
@@ -204,8 +210,8 @@ class SharedMemoryMessageIO(
     override fun readAction(): ActionSpace.ActionSpaceMessageV2 = FramebufferCapturer.readAction(p2jMemoryName)
 
     override fun readInitialEnvironment(): InitialEnvironment.InitialEnvironmentMessage =
-        FramebufferCapturer.readInitialEnvironment(p2jMemoryName)
+        FramebufferCapturer.readInitialEnvironment(p2jMemoryName, port)
 
     override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) =
-        FramebufferCapturer.writeObservation(j2pMemoryName, p2jMemoryName, observation)
+        FramebufferCapturer.writeObservation(p2jMemoryName, j2pMemoryName, observation)
 }

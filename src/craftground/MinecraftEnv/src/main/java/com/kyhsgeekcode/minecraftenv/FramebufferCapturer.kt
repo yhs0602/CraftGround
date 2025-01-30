@@ -149,7 +149,10 @@ object FramebufferCapturer {
 
     private var actionBuffer: ByteArray? = null
 
-    external fun readInitialEnvironmentImpl(p2jMemoryName: String): ByteArray
+    external fun readInitialEnvironmentImpl(
+        p2jMemoryName: String,
+        port: Int,
+    ): ByteArray
 
     external fun readActionImpl(
         p2jMemoryName: String,
@@ -162,8 +165,11 @@ object FramebufferCapturer {
         observationData: ByteArray,
     )
 
-    fun readInitialEnvironment(p2jMemoryName: String): InitialEnvironment.InitialEnvironmentMessage =
-        InitialEnvironment.InitialEnvironmentMessage.parseFrom(readInitialEnvironmentImpl(p2jMemoryName))
+    fun readInitialEnvironment(
+        p2jMemoryName: String,
+        port: Int,
+    ): InitialEnvironment.InitialEnvironmentMessage =
+        InitialEnvironment.InitialEnvironmentMessage.parseFrom(readInitialEnvironmentImpl(p2jMemoryName, port))
 
     fun readAction(p2jMemoryName: String): ActionSpace.ActionSpaceMessageV2 {
         actionBuffer = readActionImpl(p2jMemoryName, actionBuffer)

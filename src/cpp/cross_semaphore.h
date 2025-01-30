@@ -4,6 +4,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
+#include <iostream>
 #include <sys/semaphore.h>
 #if IS_WINDOWS
 #include <windows.h>
@@ -13,9 +14,11 @@
 
 struct rk_sema {
 #if IS_WINDOWS
-    HANDLE sem;
+    HANDLE sem_python;
+    HANDLE sem_java;
 #else
-    sem_t *sem;
+    sem_t *sem_python;
+    sem_t *sem_java;
     char name[30]; // Save the name of the semaphore
 #endif
 };
@@ -26,38 +29,53 @@ static inline void rk_sema_init(
 #if IS_WINDOWS
     s->sem = CreateSemaphore(NULL, value, max, name);
 #else
-    snprintf(s->name, sizeof(s->name), "/%s", name);
+    snprintf(s->name, sizeof(s->name), "%s", name);
     sem_unlink(s->name); // Remove any existing semaphore with the same name
-    s->sem = sem_open(s->name, O_CREAT, 0644, value); // Binary semaphore
-    if (s->sem == SEM_FAILED) {
-        perror("sem_open failed");
+    s->sem_python = sem_open(s->name, O_CREAT, 0644, value); // Binary semaphore
+    if (s->sem_python == SEM_FAILED) {
+        perror("sem_open failed in create");
         return;
     }
 #endif
 }
 
-static inline void rk_sema_wait(struct rk_sema *s) {
+static inline void rk_sema_open(struct rk_sema *s) {
+#if IS_WINDOWS
+    s->sem_python = OpenSemaphore(SEMAPHORE_ALL_ACCESS, FALSE, s->name);
+#else
+    s->sem_python = sem_open(s->name, 0); // Open existing semaphore
+    if (s->sem_python == SEM_FAILED) {
+        std::cout << "sem_open failed in python open" << s->name << std::endl;
+        perror("sem_open failed in open");
+        return;
+    }
+#endif
+}
+
+static inline int rk_sema_wait(struct rk_sema *s) {
 
 #if IS_WINDOWS
     DWORD r;
     do {
-        r = WaitForSingleObject(s->sem, INFINITE);
+        r = WaitForSingleObject(s->sem_python, INFINITE);
     } while (r == WAIT_FAILED && GetLastError() == ERROR_INTERRUPT);
+    return r;
 #else
     int r;
 
     do {
-        r = sem_wait(s->sem);
+        r = sem_wait(s->sem_python);
     } while (r == -1 && errno == EINTR);
+    return r;
 #endif
 }
 
-static inline void rk_sema_post(struct rk_sema *s) {
+static inline int rk_sema_post(struct rk_sema *s) {
 
 #if IS_WINDOWS
-    ReleaseSemaphore(s->sem, 1, NULL);
+    return ReleaseSemaphore(s->sem_python, 1, NULL);
 #else
-    sem_post(s->sem);
+    return sem_post(s->sem_python);
 #endif
 }
 
@@ -65,7 +83,8 @@ static inline void rk_sema_destroy(struct rk_sema *s) {
 #if IS_WINDOWS
     CloseHandle(s->sem);
 #else
-    sem_close(s->sem);
+    sem_close(s->sem_python);
+    sem_close(s->sem_java);
     sem_unlink(s->name); // Named semaphores are removed after unlinking
 #endif
 }

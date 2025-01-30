@@ -1,5 +1,6 @@
 import platform
 import time
+from typing import List, Optional
 
 from ..proto.observation_space_pb2 import ObservationSpaceMessage
 
@@ -53,7 +54,13 @@ class BoostIPC(IPCInterface):
         self.p2j_shared_memory_name = f"{self.SHMEM_PREFIX}craftground_{self.port}_p2j"
         self.j2p_shared_memory_name = f"{self.SHMEM_PREFIX}craftground_{self.port}_j2p"
 
-    def send_action(self, action: ActionSpaceMessageV2):
+    def send_action(
+        self, action: ActionSpaceMessageV2, commands: Optional[List[str]] = None
+    ):
+        if not commands:
+            commands = []
+        action.commands.extend(commands)
+
         action_bytes: bytes = action.SerializeToString()
         self.logger.log(f"Sending action to shared memory: {len(action_bytes)} bytes")
         write_to_shared_memory(
@@ -80,6 +87,20 @@ class BoostIPC(IPCInterface):
 
     def remove_orphan_java_processes(self):
         pass
+
+    def send_fastreset2(self, extra_commands: List[str] = None):
+        extra_cmd_str = ""
+        if extra_commands is not None:
+            extra_cmd_str = ";".join(extra_commands)
+        self.send_commands([f"fastreset {extra_cmd_str}"])
+
+    def send_commands(self, commands: List[str]):
+        # print("Sending command")
+        action_space = action_v2_dict_to_message(no_op_v2())
+        action_space.commands.extend(commands)
+        v = action_space.SerializeToString()
+        self.logger.log(f"Sending action to shared memory: {len(v)} bytes")
+        write_to_shared_memory(self.p2j_shared_memory_name, v, len(v))
 
     def start_communication(self):
         # wait until the j2p shared memory is created

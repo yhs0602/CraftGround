@@ -97,17 +97,19 @@ int create_shared_memory_impl(
     SharedMemoryLayout *p2jLayout = static_cast<SharedMemoryLayout *>(ptr);
     new (p2jLayout) SharedMemoryLayout();
 
-    std::string sema_obs_ready_name = make_shared_memory_name(
-        port, "cg_sem_obs" + std::to_string(port)
-    );
-    std::string sema_action_ready_name = make_shared_memory_name(
-        port, "cg_sem_act" + std::to_string(port)
-    );
+    std::string sema_obs_ready_name =
+        SHMEM_PREFIX "cg_sem_obs" + std::to_string(port);
+    std::string sema_action_ready_name =
+        SHMEM_PREFIX "cg_sem_act" + std::to_string(port);
 
     rk_sema_init(&p2jLayout->sem_obs_ready, sema_obs_ready_name.c_str(), 0, 1);
     rk_sema_init(
         &p2jLayout->sem_action_ready, sema_action_ready_name.c_str(), 0, 1
     );
+    std::cout << "Initialized semaphore for Python"
+              << p2jLayout->sem_obs_ready.name << std::endl;
+    std::cout << "Initialized semaphore for Python"
+              << p2jLayout->sem_action_ready.name << std::endl;
 
     p2jLayout->action_offset = sizeof(SharedMemoryLayout);
     p2jLayout->action_size = action_size;
@@ -142,7 +144,7 @@ void write_to_shared_memory_impl(
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
     void *ptr = mmap(
         0,
-        sizeof(SharedMemoryLayout),
+        sizeof(SharedMemoryLayout) + action_size,
         PROT_READ | PROT_WRITE,
         MAP_SHARED,
         p2jFd,
@@ -153,24 +155,14 @@ void write_to_shared_memory_impl(
         close(p2jFd);
         return;
     }
-
     SharedMemoryLayout *layout = static_cast<SharedMemoryLayout *>(ptr);
     layout->action_size = action_size;
-    const size_t action_offset = layout->action_offset;
-    munmap(ptr, sizeof(SharedMemoryLayout));
-    ptr = mmap(
-        0,
-        sizeof(SharedMemoryLayout) + action_size,
-        PROT_READ | PROT_WRITE,
-        MAP_SHARED,
-        p2jFd,
-        0
-    );
-    layout = static_cast<SharedMemoryLayout *>(ptr);
-    std::cout << "Writing action to shared memory" << std::endl;
-    rk_sema_wait(&layout->sem_action_ready);
+    layout->action_offset = sizeof(SharedMemoryLayout);
     std::memcpy((char *)ptr + layout->action_offset, data, layout->action_size);
-    rk_sema_post(&layout->sem_action_ready);
+    rk_sema_open(&layout->sem_obs_ready);
+    if (rk_sema_post(&layout->sem_action_ready) < 0) {
+        perror("rk_sema_post failed while notifying java");
+    }
     std::cout << "Wrote action to shared memory" << std::endl;
     munmap(ptr, sizeof(SharedMemoryLayout) + action_size);
     close(p2jFd);
@@ -179,7 +171,6 @@ void write_to_shared_memory_impl(
 py::bytes read_from_shared_memory_impl(
     const std::string &p2j_memory_name, const std::string &j2p_memory_name
 ) {
-    std::cout << "Reading observation from shared memory 1" << std::endl;
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
     if (p2jFd == -1) {
         perror("shm_open p2j failed while reading from shared memory");
@@ -203,9 +194,12 @@ py::bytes read_from_shared_memory_impl(
     size_t action_size = layout->action_size;
     size_t data_size = layout->initial_environment_size;
 
-    std::cout << "Reading observation from shared memory 2" << std::endl;
+    std::cout << "Waiting for java to write observation" << std::endl;
 
     // Wait for the observation to be ready
+    rk_sema_open(&layout->sem_obs_ready);
+    rk_sema_open(&layout->sem_action_ready);
+    rk_sema_post(&layout->sem_action_ready);
     rk_sema_wait(&layout->sem_obs_ready);
 
     int j2pFd = shm_open(j2p_memory_name.c_str(), O_RDWR, 0666);
@@ -259,9 +253,10 @@ py::bytes read_from_shared_memory_impl(
     const char *data_start = (char *)j2pPtr + j2pLayout->data_offset;
 
     py::bytes data(data_start, j2pLayout->data_size);
-    rk_sema_post(&layout->sem_obs_ready); // Notify that the observation is read
 
-    std::cout << "Read observation from shared memory" << std::endl;
+    std::cout << "Read observation from shared memory. Notified to java read "
+                 "finish observation"
+              << std::endl;
     munmap(j2pPtr, sizeof(J2PSharedMemoryLayout) + obs_length);
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
     close(p2jFd);

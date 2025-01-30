@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
 #include <iomanip>
 #include <jni.h>
@@ -48,9 +49,13 @@ void printHex(const char *data, size_t data_size) {
     std::cout << std::dec << std::endl; // Reset the output format
 }
 
+std::string make_shared_memory_name(int port, const std::string &suffix) {
+    return SHMEM_PREFIX "craftground_" + std::to_string(port) + "_" + suffix;
+}
+
 // Returns ByteArray object containing the initial environment message
 jobject read_initial_environment(
-    JNIEnv *env, jclass clazz, const std::string &p2j_memory_name
+    JNIEnv *env, jclass clazz, const std::string &p2j_memory_name, int port
 ) {
     std::cout << "Reading initial environment from shared memory 1"
               << std::endl;
@@ -129,6 +134,20 @@ jobject read_initial_environment(
         data_size,
         reinterpret_cast<jbyte *>(data_startInitialEnvironment)
     );
+
+    std::string sema_obs_ready_name =
+        SHMEM_PREFIX "cg_sem_obs" + std::to_string(port);
+    std::string sema_action_ready_name =
+        SHMEM_PREFIX "cg_sem_act" + std::to_string(port);
+
+    rk_sema_init(&p2jLayout->sem_obs_ready, sema_obs_ready_name.c_str(), 0, 1);
+    rk_sema_init(
+        &p2jLayout->sem_action_ready, sema_action_ready_name.c_str(), 0, 1
+    );
+    std::cout << "Initialied semaphore for Java"
+              << p2jLayout->sem_obs_ready.name << std::endl;
+    std::cout << "Initialied semaphore for Java"
+              << p2jLayout->sem_action_ready.name << std::endl;
     return byteArray;
 }
 
@@ -138,7 +157,6 @@ jbyteArray read_action(
     const std::string &p2j_memory_name,
     jbyteArray data
 ) {
-    std::cout << "Reading action from shared memory 1" << std::endl;
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
     if (p2jFd == -1) {
         perror("shm_open p2j failed while reading from shared memory");
@@ -161,8 +179,6 @@ jbyteArray read_action(
     SharedMemoryLayout *p2jHeader = static_cast<SharedMemoryLayout *>(p2jPtr);
     size_t action_size = p2jHeader->action_size;
 
-    std::cout << "Reading action from shared memory 2" << std::endl;
-
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
     p2jPtr = mmap(
         0,
@@ -182,9 +198,10 @@ jbyteArray read_action(
 
     char *data_start = static_cast<char *>(p2jPtr) + p2jHeader->action_offset;
 
-    std::cout << "Reading action from shared memory: Acquired Lock"
-              << std::endl;
-
+    std::cout << "Waiting for Python to write the action" << std::endl;
+    printHex((const char *)p2jHeader, sizeof(SharedMemoryLayout));
+    // OK
+    rk_sema_open(&p2jHeader->sem_action_ready);
     rk_sema_wait(&p2jHeader->sem_action_ready);
     if (data != nullptr) {
         jsize oldSize = env->GetArrayLength(data);
@@ -207,23 +224,25 @@ jbyteArray read_action(
         return nullptr;
     }
     // Read the action message
-    env->SetByteArrayRegion(
-        data, 0, p2jHeader->action_size, reinterpret_cast<jbyte *>(data_start)
-    );
-    // Notify that the action has been read
-    rk_sema_post(&p2jHeader->sem_action_ready);
-    std::cout << "Read action from shared memory 3" << std::endl;
+    if (action_size > 0) {
+        env->SetByteArrayRegion(
+            data,
+            0,
+            p2jHeader->action_size,
+            reinterpret_cast<jbyte *>(data_start)
+        );
+    }
+    std::cout << "Read action from shared memory" << std::endl;
     return data;
 }
 
 void write_observation(
-    const std::string &p2j_memory_name,
-    const std::string &j2p_memory_name,
+    const char *p2j_memory_name,
+    const char *j2p_memory_name,
     const char *data,
     const size_t observation_size
 ) {
-    std::cout << "Writing observation to shared memory 1" << std::endl;
-    int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
+    int p2jFd = shm_open(p2j_memory_name, O_RDWR, 0666);
     if (p2jFd == -1) {
         perror("shm_open p2j failed while writing to shared memory");
         return;
@@ -243,11 +262,7 @@ void write_observation(
     }
     SharedMemoryLayout *p2jLayout = static_cast<SharedMemoryLayout *>(p2jPtr);
 
-    rk_sema_wait(&p2jLayout->sem_obs_ready);
-
-    std::cout << "Writing observation to shared memory 2" << std::endl;
-
-    int j2pFd = shm_open(j2p_memory_name.c_str(), O_RDWR, 0666);
+    int j2pFd = shm_open(j2p_memory_name, O_RDWR, 0666);
     if (j2pFd == -1) {
         perror("shm_open j2p failed while writing to shared memory");
         munmap(p2jPtr, sizeof(SharedMemoryLayout));
@@ -270,8 +285,13 @@ void write_observation(
         close(j2pFd);
         return;
     }
+    std::cout << "Writing observation to shared memory adfsadf" << std::endl;
     J2PSharedMemoryLayout *j2pLayout =
         static_cast<J2PSharedMemoryLayout *>(j2pPtr);
+    j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
+
+    std::cout << "Writing observation to shared memory adfsad222sdsfsasdff"
+              << std::endl;
 
     struct stat statbuf;
     if (fstat(j2pFd, &statbuf) == -1) {
@@ -281,6 +301,8 @@ void write_observation(
         close(j2pFd);
         close(p2jFd);
         return;
+    } else {
+        std::cout << "Shared memory size: " << statbuf.st_size << std::endl;
     }
     const size_t current_shmem_size = statbuf.st_size;
     size_t requiredSize = observation_size + sizeof(J2PSharedMemoryLayout);
@@ -317,14 +339,20 @@ void write_observation(
         j2pLayout->data_size = observation_size;
         std::cout << "Resized shared memory to " << requiredSize << std::endl;
     }
-    std::cout << "Writing observation to shared memory 2" << std::endl;
+    std::cout << "Writing observation to shared memory KKKAKAAKAK" << std::endl;
+
     // Write the observation to shared memory
     char *data_start = static_cast<char *>(j2pPtr) + j2pLayout->data_offset;
     std::memcpy(data_start, data, observation_size);
     j2pLayout->data_size = observation_size;
 
     // Notify Python that the observation is ready
-    rk_sema_post(&p2jLayout->sem_obs_ready);
+    printHex((const char *)p2jLayout, sizeof(SharedMemoryLayout));
+    rk_sema_open(&p2jLayout->sem_obs_ready);
+    if (rk_sema_post(&p2jLayout->sem_obs_ready) < 0) {
+        perror("rk_sema_post failed while notifying python");
+    }
+    std::cout << "Wrote and notified observation to python" << std::endl;
 
     // Clean up resources
     munmap(j2pPtr, requiredSize);
@@ -335,13 +363,14 @@ void write_observation(
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImpl(
-    JNIEnv *env, jclass clazz, jstring p2j_memory_name
+    JNIEnv *env, jclass clazz, jstring p2j_memory_name, jint port
 ) {
     const char *p2j_memory_name_cstr =
         env->GetStringUTFChars(p2j_memory_name, nullptr);
     jobject result = nullptr;
     try {
-        result = read_initial_environment(env, clazz, p2j_memory_name_cstr);
+        result =
+            read_initial_environment(env, clazz, p2j_memory_name_cstr, port);
     } catch (const std::exception &e) {
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
         return nullptr;
@@ -388,9 +417,22 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
         env->GetStringUTFChars(j2p_memory_name, nullptr);
     const char *p2j_memory_name_cstr =
         env->GetStringUTFChars(p2j_memory_name, nullptr);
+
+    if (j2p_memory_name_cstr == nullptr || p2j_memory_name_cstr == nullptr) {
+        std::cerr << "Failed to get memory name: " << j2p_memory_name_cstr
+                  << ";" << p2j_memory_name_cstr << std::endl;
+        return;
+    }
     jbyte *observation_data_ptr =
         env->GetByteArrayElements(observation_data, nullptr);
+
+    if (observation_data_ptr == nullptr) {
+        std::cerr << "Failed to get observation data" << std::endl;
+        return;
+    }
     jsize observation_data_size = env->GetArrayLength(observation_data);
+    std::cout << "Writing observation to shared memory with length"
+              << std::to_string(observation_data_size) << std::endl;
 
     try {
         write_observation(
@@ -403,8 +445,11 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
     }
 
+    std::cout << "Releasing utf chars 1" << std::endl;
     env->ReleaseStringUTFChars(j2p_memory_name, j2p_memory_name_cstr);
+    std::cout << "Releasing utf chars 1" << std::endl;
     env->ReleaseStringUTFChars(p2j_memory_name, p2j_memory_name_cstr);
+    std::cout << "Releasing array elements" << std::endl;
     env->ReleaseByteArrayElements(
         observation_data, observation_data_ptr, JNI_ABORT
     );
