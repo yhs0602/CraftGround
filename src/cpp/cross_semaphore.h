@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <iostream>
 #include <sys/semaphore.h>
+#include <thread>
 #if IS_WINDOWS
 #include <windows.h>
 #else
@@ -43,6 +44,9 @@ static inline void rk_sema_open(struct rk_sema *s) {
 #if IS_WINDOWS
     s->sem_python = OpenSemaphore(SEMAPHORE_ALL_ACCESS, FALSE, s->name);
 #else
+    if (s->sem_python != nullptr) {
+        return;
+    }
     s->sem_python = sem_open(s->name, 0); // Open existing semaphore
     if (s->sem_python == SEM_FAILED) {
         std::cout << "sem_open failed in python open" << s->name << std::endl;
@@ -77,6 +81,14 @@ static inline int rk_sema_post(struct rk_sema *s) {
 #else
     return sem_post(s->sem_python);
 #endif
+}
+
+static inline void async_rk_sema_post(struct rk_sema *s) {
+    std::thread([s]() {
+        if (rk_sema_post(s) < 0) {
+            perror("Failed to post semaphore");
+        };
+    }).detach();
 }
 
 static inline void rk_sema_destroy(struct rk_sema *s) {

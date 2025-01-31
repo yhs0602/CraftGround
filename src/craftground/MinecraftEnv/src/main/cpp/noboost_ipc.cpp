@@ -57,8 +57,8 @@ std::string make_shared_memory_name(int port, const std::string &suffix) {
 jobject read_initial_environment(
     JNIEnv *env, jclass clazz, const std::string &p2j_memory_name, int port
 ) {
-    std::cout << "Reading initial environment from shared memory 1"
-              << std::endl;
+    // std::cout << "Reading initial environment from shared memory 1"
+    //           << std::endl;
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
     if (p2jFd == -1) {
         perror("shm_open p2j failed while reading from shared memory");
@@ -81,8 +81,8 @@ jobject read_initial_environment(
 
     const size_t initial_environment_size = p2jLayout->initial_environment_size;
     const size_t action_size = p2jLayout->action_size;
-    std::cout << "Reading initial environment from shared memory 2"
-              << std::endl;
+    // std::cout << "Reading initial environment from shared memory 2"
+    //           << std::endl;
 
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
     // Note: action_size is 0 when dummy is provided; actually python overwrites
@@ -108,14 +108,16 @@ jobject read_initial_environment(
         static_cast<char *>(p2jPtr) + p2jLayout->initial_environment_offset;
     size_t data_size = p2jLayout->initial_environment_size;
 
-    std::cout << "Java read data_size: " << p2jLayout->initial_environment_size
-              << std::endl;
-    std::cout << "Java initial environment offset:"
-              << p2jLayout->initial_environment_offset << std::endl;
-    std::cout << "Java layout size:" << p2jLayout->layout_size << std::endl;
-    std::cout << "Java action offset:" << p2jLayout->action_offset << std::endl;
-    std::cout << "Java action size:" << p2jLayout->action_size << std::endl;
-    std::cout << "Java read data_size: " << data_size << std::endl;
+    // std::cout << "Java read data_size: " <<
+    // p2jLayout->initial_environment_size
+    //           << std::endl;
+    // std::cout << "Java initial environment offset:"
+    //           << p2jLayout->initial_environment_offset << std::endl;
+    // std::cout << "Java layout size:" << p2jLayout->layout_size << std::endl;
+    // std::cout << "Java action offset:" << p2jLayout->action_offset <<
+    // std::endl; std::cout << "Java action size:" << p2jLayout->action_size <<
+    // std::endl; std::cout << "Java read data_size: " << data_size <<
+    // std::endl;
 
     jbyteArray byteArray = env->NewByteArray(data_size);
     if (byteArray == nullptr || env->ExceptionCheck()) {
@@ -126,8 +128,8 @@ jobject read_initial_environment(
         close(p2jFd);
         return nullptr;
     }
-    std::cout << "Java read array: ";
-    printHex(data_startInitialEnvironment, data_size);
+    // std::cout << "Java read array: ";
+    // printHex(data_startInitialEnvironment, data_size);
     env->SetByteArrayRegion(
         byteArray,
         0,
@@ -144,10 +146,10 @@ jobject read_initial_environment(
     rk_sema_init(
         &p2jLayout->sem_action_ready, sema_action_ready_name.c_str(), 0, 1
     );
-    std::cout << "Initialied semaphore for Java"
-              << p2jLayout->sem_obs_ready.name << std::endl;
-    std::cout << "Initialied semaphore for Java"
-              << p2jLayout->sem_action_ready.name << std::endl;
+    // std::cout << "Initialied semaphore for Java"
+    //           << p2jLayout->sem_obs_ready.name << std::endl;
+    // std::cout << "Initialied semaphore for Java"
+    //           << p2jLayout->sem_action_ready.name << std::endl;
     return byteArray;
 }
 
@@ -198,23 +200,23 @@ jbyteArray read_action(
 
     char *data_start = static_cast<char *>(p2jPtr) + p2jHeader->action_offset;
 
-    std::cout << "Waiting for Python to write the action" << std::endl;
-    printHex((const char *)p2jHeader, sizeof(SharedMemoryLayout));
+    // std::cout << "Waiting for Python to write the action" << std::endl;
+    // printHex((const char *)p2jHeader, sizeof(SharedMemoryLayout));
     // OK
     rk_sema_open(&p2jHeader->sem_action_ready);
     rk_sema_wait(&p2jHeader->sem_action_ready);
     if (data != nullptr) {
         jsize oldSize = env->GetArrayLength(data);
         if (oldSize != p2jHeader->action_size) {
-            std::cout << "Resizing byte array to"
-                      << std::to_string(p2jHeader->action_size) << std::endl;
+            // std::cout << "Resizing byte array to"
+            //           << std::to_string(p2jHeader->action_size) << std::endl;
             env->DeleteLocalRef(data);
             data = nullptr;
             data = env->NewByteArray(p2jHeader->action_size);
         }
     } else {
-        std::cout << "Creating new byte array"
-                  << std::to_string(p2jHeader->action_size) << std::endl;
+        // std::cout << "Creating new byte array"
+        //           << std::to_string(p2jHeader->action_size) << std::endl;
         data = env->NewByteArray(p2jHeader->action_size);
     }
 
@@ -232,7 +234,7 @@ jbyteArray read_action(
             reinterpret_cast<jbyte *>(data_start)
         );
     }
-    std::cout << "Read action from shared memory" << std::endl;
+    // std::cout << "Read action from shared memory" << std::endl;
     return data;
 }
 
@@ -285,13 +287,13 @@ void write_observation(
         close(j2pFd);
         return;
     }
-    std::cout << "Writing observation to shared memory adfsadf" << std::endl;
+    // std::cout << "Writing observation to shared memory adfsadf" << std::endl;
     J2PSharedMemoryLayout *j2pLayout =
         static_cast<J2PSharedMemoryLayout *>(j2pPtr);
     j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
 
-    std::cout << "Writing observation to shared memory adfsad222sdsfsasdff"
-              << std::endl;
+    // std::cout << "Writing observation to shared memory adfsad222sdsfsasdff"
+    //           << std::endl;
 
     struct stat statbuf;
     if (fstat(j2pFd, &statbuf) == -1) {
@@ -302,11 +304,11 @@ void write_observation(
         close(p2jFd);
         return;
     } else {
-        std::cout << "Shared memory size: " << statbuf.st_size << std::endl;
+        // std::cout << "Shared memory size: " << statbuf.st_size << std::endl;
     }
     const size_t current_shmem_size = statbuf.st_size;
     size_t requiredSize = observation_size + sizeof(J2PSharedMemoryLayout);
-    // requiredSize = requiredSize > 1024 ? requiredSize : 1024;
+    requiredSize = requiredSize > 1024 ? requiredSize : 1024;
 
     if (current_shmem_size < requiredSize) {
         // Unmap existing memory before resizing
@@ -337,9 +339,11 @@ void write_observation(
         j2pLayout->layout_size = sizeof(J2PSharedMemoryLayout);
         j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
         j2pLayout->data_size = observation_size;
-        std::cout << "Resized shared memory to " << requiredSize << std::endl;
+        // std::cout << "Resized shared memory to " << requiredSize <<
+        // std::endl;
     }
-    std::cout << "Writing observation to shared memory KKKAKAAKAK" << std::endl;
+    // std::cout << "Writing observation to shared memory KKKAKAAKAK" <<
+    // std::endl;
 
     // Write the observation to shared memory
     char *data_start = static_cast<char *>(j2pPtr) + j2pLayout->data_offset;
@@ -347,12 +351,12 @@ void write_observation(
     j2pLayout->data_size = observation_size;
 
     // Notify Python that the observation is ready
-    printHex((const char *)p2jLayout, sizeof(SharedMemoryLayout));
+    // printHex((const char *)p2jLayout, sizeof(SharedMemoryLayout));
     rk_sema_open(&p2jLayout->sem_obs_ready);
     if (rk_sema_post(&p2jLayout->sem_obs_ready) < 0) {
         perror("rk_sema_post failed while notifying python");
     }
-    std::cout << "Wrote and notified observation to python" << std::endl;
+    // std::cout << "Wrote and notified observation to python" << std::endl;
 
     // Clean up resources
     munmap(j2pPtr, requiredSize);
@@ -431,8 +435,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
         return;
     }
     jsize observation_data_size = env->GetArrayLength(observation_data);
-    std::cout << "Writing observation to shared memory with length"
-              << std::to_string(observation_data_size) << std::endl;
+    // std::cout << "Writing observation to shared memory with length"
+    //           << std::to_string(observation_data_size) << std::endl;
 
     try {
         write_observation(
@@ -445,11 +449,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
     }
 
-    std::cout << "Releasing utf chars 1" << std::endl;
     env->ReleaseStringUTFChars(j2p_memory_name, j2p_memory_name_cstr);
-    std::cout << "Releasing utf chars 1" << std::endl;
     env->ReleaseStringUTFChars(p2j_memory_name, p2j_memory_name_cstr);
-    std::cout << "Releasing array elements" << std::endl;
     env->ReleaseByteArrayElements(
         observation_data, observation_data_ptr, JNI_ABORT
     );

@@ -1,3 +1,4 @@
+#include <csignal>
 #include <cstddef>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -8,6 +9,10 @@
 #include "ipc_noboost.hpp"
 #include "cross_semaphore.h"
 #include "print_hex.h"
+
+#ifndef MAP_POPULATE
+#define MAP_POPULATE 0
+#endif
 
 bool shared_memory_exists(const std::string &name) {
     int fd = shm_open(name.c_str(), O_RDONLY, 0666);
@@ -20,6 +25,72 @@ bool shared_memory_exists(const std::string &name) {
 
 std::string make_shared_memory_name(int port, const std::string &suffix) {
     return SHMEM_PREFIX "craftground_" + std::to_string(port) + "_" + suffix;
+}
+
+std::unordered_map<std::string, int> shm_fd_cache;
+std::mutex shm_fd_cache_mutex;
+
+int get_shared_memory_fd(const std::string &memory_name) {
+    std::lock_guard<std::mutex> lock(shm_fd_cache_mutex);
+    if (shm_fd_cache.count(memory_name)) {
+        return shm_fd_cache[memory_name];
+    }
+
+    int fd = shm_open(memory_name.c_str(), O_RDWR, 0666);
+    if (fd == -1) {
+        perror(("shm_open failed for " + memory_name).c_str());
+        return -1;
+    }
+
+    shm_fd_cache[memory_name] = fd;
+    return fd;
+}
+
+void close_shared_memory_fd(const std::string &memory_name) {
+    std::lock_guard<std::mutex> lock(shm_fd_cache_mutex);
+    if (shm_fd_cache.count(memory_name)) {
+        close(shm_fd_cache[memory_name]);
+        shm_fd_cache.erase(memory_name);
+    }
+}
+
+void *map_shared_memory(int fd, size_t size) {
+    void *ptr =
+        mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd, 0);
+    if (ptr == MAP_FAILED) {
+        perror("mmap failed while mapping shared memory");
+        return nullptr;
+    }
+    return ptr;
+}
+
+std::unordered_map<std::thread::id, std::pair<std::string, std::string>>
+    shm_map;
+std::mutex shm_map_mutex;
+
+void signal_handler(int signal) {
+    std::cout << "Received signal " << signal
+              << ", cleaning up shared memory..." << std::endl;
+    std::lock_guard<std::mutex> lock(shm_map_mutex);
+
+    for (const auto &[tid, names] : shm_map) {
+        shm_unlink(names.first.c_str());
+        shm_unlink(names.second.c_str());
+    }
+
+    exit(1);
+}
+
+void register_signal_handlers() {
+    struct sigaction sa;
+    sa.sa_handler = signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGTERM, &sa, nullptr); // kill, systemd
+    sigaction(SIGINT, &sa, nullptr);  // Ctrl+C
+    sigaction(SIGHUP, &sa, nullptr);  // Terminal closed
+    sigaction(SIGQUIT, &sa, nullptr); // Quit Signal
 }
 
 int create_shared_memory_impl(
@@ -73,6 +144,9 @@ int create_shared_memory_impl(
         return -1;
     }
 
+    std::lock_guard<std::mutex> lock(shm_map_mutex);
+    shm_map[std::this_thread::get_id()] = {p2j_memory_name, j2p_memory_name};
+
     if (ftruncate(j2pFd, sizeof(J2PSharedMemoryLayout) + data_size) == -1) {
         perror("ftruncate failed for j2pFd");
         close(j2pFd);
@@ -106,10 +180,10 @@ int create_shared_memory_impl(
     rk_sema_init(
         &p2jLayout->sem_action_ready, sema_action_ready_name.c_str(), 0, 1
     );
-    std::cout << "Initialized semaphore for Python"
-              << p2jLayout->sem_obs_ready.name << std::endl;
-    std::cout << "Initialized semaphore for Python"
-              << p2jLayout->sem_action_ready.name << std::endl;
+    // std::cout << "Initialized semaphore for Python"
+    //           << p2jLayout->sem_obs_ready.name << std::endl;
+    // std::cout << "Initialized semaphore for Python"
+    //           << p2jLayout->sem_action_ready.name << std::endl;
 
     p2jLayout->action_offset = sizeof(SharedMemoryLayout);
     p2jLayout->action_size = action_size;
@@ -120,19 +194,21 @@ int create_shared_memory_impl(
     void *action_start = (char *)ptr + p2jLayout->action_offset;
     void *data_start = (char *)ptr + p2jLayout->initial_environment_offset;
     std::memcpy(data_start, initial_data, data_size);
-    std::cout << "Wrote initial data to shared memory:" << std::endl;
+    // std::cout << "Wrote initial data to shared memory:" << std::endl;
 
-    printHex(initial_data, data_size);
-    std::cout << "Data size: " << data_size << std::endl;
-    std::cout << "Action size: " << action_size << std::endl;
-    std::cout << "Initial environment offset: "
-              << p2jLayout->initial_environment_offset << std::endl;
-    std::cout << "Initial environment size: "
-              << p2jLayout->initial_environment_size << std::endl;
-    std::cout << "Action offset: " << p2jLayout->action_offset << std::endl;
-    std::cout << "Action size: " << p2jLayout->action_size << std::endl;
+    // printHex(initial_data, data_size);
+    // std::cout << "Data size: " << data_size << std::endl;
+    // std::cout << "Action size: " << action_size << std::endl;
+    // std::cout << "Initial environment offset: "
+    //           << p2jLayout->initial_environment_offset << std::endl;
+    // std::cout << "Initial environment size: "
+    //           << p2jLayout->initial_environment_size << std::endl;
+    // std::cout << "Action offset: " << p2jLayout->action_offset << std::endl;
+    // std::cout << "Action size: " << p2jLayout->action_size << std::endl;
 
-    munmap(ptr, shared_memory_size);
+    if (munmap(ptr, shared_memory_size) == -1) {
+        perror("munmap failed while creating shared memory");
+    }
     close(p2jFd);
     close(j2pFd);
     return port;
@@ -141,7 +217,7 @@ int create_shared_memory_impl(
 void write_to_shared_memory_impl(
     const std::string &p2j_memory_name, const char *data, size_t action_size
 ) {
-    int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
+    int p2jFd = get_shared_memory_fd(p2j_memory_name.c_str());
     void *ptr = mmap(
         0,
         sizeof(SharedMemoryLayout) + action_size,
@@ -160,10 +236,8 @@ void write_to_shared_memory_impl(
     layout->action_offset = sizeof(SharedMemoryLayout);
     std::memcpy((char *)ptr + layout->action_offset, data, layout->action_size);
     rk_sema_open(&layout->sem_obs_ready);
-    if (rk_sema_post(&layout->sem_action_ready) < 0) {
-        perror("rk_sema_post failed while notifying java");
-    }
-    std::cout << "Wrote action to shared memory" << std::endl;
+    async_rk_sema_post(&layout->sem_action_ready);
+    // std::cout << "Wrote action to shared memory" << std::endl;
     munmap(ptr, sizeof(SharedMemoryLayout) + action_size);
     close(p2jFd);
 }
@@ -171,7 +245,7 @@ void write_to_shared_memory_impl(
 py::bytes read_from_shared_memory_impl(
     const std::string &p2j_memory_name, const std::string &j2p_memory_name
 ) {
-    int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
+    int p2jFd = get_shared_memory_fd(p2j_memory_name.c_str());
     if (p2jFd == -1) {
         perror("shm_open p2j failed while reading from shared memory");
         return py::bytes(); // return empty bytes
@@ -194,12 +268,12 @@ py::bytes read_from_shared_memory_impl(
     size_t action_size = layout->action_size;
     size_t data_size = layout->initial_environment_size;
 
-    std::cout << "Waiting for java to write observation" << std::endl;
+    // std::cout << "Waiting for java to write observation" << std::endl;
 
     // Wait for the observation to be ready
     rk_sema_open(&layout->sem_obs_ready);
-    rk_sema_open(&layout->sem_action_ready);
-    rk_sema_post(&layout->sem_action_ready);
+    // rk_sema_open(&layout->sem_action_ready);
+    // rk_sema_post(&layout->sem_action_ready);
     rk_sema_wait(&layout->sem_obs_ready);
 
     int j2pFd = shm_open(j2p_memory_name.c_str(), O_RDWR, 0666);
@@ -254,9 +328,10 @@ py::bytes read_from_shared_memory_impl(
 
     py::bytes data(data_start, j2pLayout->data_size);
 
-    std::cout << "Read observation from shared memory. Notified to java read "
-                 "finish observation"
-              << std::endl;
+    // std::cout << "Read observation from shared memory. Notified to java read
+    // "
+    //              "finish observation"
+    //           << std::endl;
     munmap(j2pPtr, sizeof(J2PSharedMemoryLayout) + obs_length);
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
     close(p2jFd);
@@ -269,9 +344,10 @@ void destroy_shared_memory_impl(
     const std::string &memory_name, bool release_semaphores
 ) {
     if (release_semaphores) {
-        int p2jFd = shm_open(memory_name.c_str(), O_RDWR, 0666);
+        int p2jFd = get_shared_memory_fd(memory_name.c_str());
         if (p2jFd == -1) {
             perror("shm_open failed while destroying shared memory");
+            return;
         } else {
             void *ptr = mmap(
                 0,
