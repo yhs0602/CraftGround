@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
-#include <sys/semaphore.h>
 #include <thread>
 #if IS_WINDOWS
 #include <windows.h>
