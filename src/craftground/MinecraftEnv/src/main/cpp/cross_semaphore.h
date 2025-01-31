@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
+#include <fcntl.h>
 #if IS_WINDOWS
 #include <windows.h>
 #else

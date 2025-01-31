@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <iostream>
 #include <thread>
+#include <fcntl.h>
 #if IS_WINDOWS
 #include <windows.h>
 #else
