@@ -2,7 +2,6 @@
 #include <cstddef>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include <sys/semaphore.h>
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
