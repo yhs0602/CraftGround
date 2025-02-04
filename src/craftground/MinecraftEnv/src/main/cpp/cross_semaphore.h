@@ -85,7 +85,8 @@ static inline int rk_sema_post(struct rk_sema *s) {
 
 static inline void rk_sema_destroy(struct rk_sema *s) {
 #if IS_WINDOWS
-    CloseHandle(s->sem);
+    CloseHandle(s->sem_java);
+    CloseHandle(s->sem_python);
 #else
     sem_close(s->sem_java);
     sem_close(s->sem_python);
