@@ -196,6 +196,7 @@ void signal_handler(int signal) {
 }
 
 void register_signal_handlers() {
+    #ifdef _WIN32
     struct sigaction sa;
     sa.sa_handler = signal_handler;
     sigemptyset(&sa.sa_mask);
@@ -205,6 +206,7 @@ void register_signal_handlers() {
     sigaction(SIGINT, &sa, nullptr);  // Ctrl+C
     sigaction(SIGHUP, &sa, nullptr);  // Terminal closed
     sigaction(SIGQUIT, &sa, nullptr); // Quit Signal
+    #endif
 }
 
 int create_shared_memory_impl(
