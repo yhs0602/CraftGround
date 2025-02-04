@@ -10,6 +10,7 @@
     defined(__WIN32) && !defined(__CYGWIN__)
 #define IS_WINDOWS 1
 #define SHMEM_PREFIX "Global\\"
+#include <windows.h>
 #else
 #include <sys/mman.h>
 #include <unistd.h>
@@ -57,13 +58,29 @@ std::string make_shared_memory_name(int port, const std::string &suffix) {
 jobject read_initial_environment(
     JNIEnv *env, jclass clazz, const std::string &p2j_memory_name, int port
 ) {
-    // std::cout << "Reading initial environment from shared memory 1"
-    //           << std::endl;
+#ifdef _WIN32
+    HANDLE hMapFile =
+        OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, p2j_memory_name.c_str());
+    if (!hMapFile) {
+        std::cerr << "OpenFileMapping failed: " << GetLastError() << std::endl;
+        return nullptr;
+    }
+
+    void *p2jPtr = MapViewOfFile(
+        hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(SharedMemoryLayout)
+    );
+    if (!p2jPtr) {
+        std::cerr << "MapViewOfFile failed: " << GetLastError() << std::endl;
+        CloseHandle(hMapFile);
+        return nullptr;
+    }
+#else
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
     if (p2jFd == -1) {
         perror("shm_open p2j failed while reading from shared memory");
         return nullptr;
     }
+
     void *p2jPtr = mmap(
         0,
         sizeof(SharedMemoryLayout),
@@ -77,16 +94,29 @@ jobject read_initial_environment(
         close(p2jFd);
         return nullptr;
     }
-    SharedMemoryLayout *p2jLayout = static_cast<SharedMemoryLayout *>(p2jPtr);
+#endif
 
+    SharedMemoryLayout *p2jLayout = static_cast<SharedMemoryLayout *>(p2jPtr);
     const size_t initial_environment_size = p2jLayout->initial_environment_size;
     const size_t action_size = p2jLayout->action_size;
-    // std::cout << "Reading initial environment from shared memory 2"
-    //           << std::endl;
 
+#ifdef _WIN32
+    UnmapViewOfFile(p2jPtr);
+    p2jPtr = MapViewOfFile(
+        hMapFile,
+        FILE_MAP_ALL_ACCESS,
+        0,
+        0,
+        sizeof(SharedMemoryLayout) + action_size + initial_environment_size
+    );
+    if (!p2jPtr) {
+        std::cerr << "MapViewOfFile failed on second mapping: "
+                  << GetLastError() << std::endl;
+        CloseHandle(hMapFile);
+        return nullptr;
+    }
+#else
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
-    // Note: action_size is 0 when dummy is provided; actually python overwrites
-    // on initial environment section.
     p2jPtr = mmap(
         0,
         sizeof(SharedMemoryLayout) + action_size + initial_environment_size,
@@ -95,41 +125,33 @@ jobject read_initial_environment(
         p2jFd,
         0
     );
-
     if (p2jPtr == MAP_FAILED) {
         perror("mmap p2j failed while reading from shared memory");
         close(p2jFd);
         return nullptr;
     }
+#endif
 
     p2jLayout = static_cast<SharedMemoryLayout *>(p2jPtr);
-
     char *data_startInitialEnvironment =
         static_cast<char *>(p2jPtr) + p2jLayout->initial_environment_offset;
     size_t data_size = p2jLayout->initial_environment_size;
 
-    // std::cout << "Java read data_size: " <<
-    // p2jLayout->initial_environment_size
-    //           << std::endl;
-    // std::cout << "Java initial environment offset:"
-    //           << p2jLayout->initial_environment_offset << std::endl;
-    // std::cout << "Java layout size:" << p2jLayout->layout_size << std::endl;
-    // std::cout << "Java action offset:" << p2jLayout->action_offset <<
-    // std::endl; std::cout << "Java action size:" << p2jLayout->action_size <<
-    // std::endl; std::cout << "Java read data_size: " << data_size <<
-    // std::endl;
-
     jbyteArray byteArray = env->NewByteArray(data_size);
     if (byteArray == nullptr || env->ExceptionCheck()) {
+#ifdef _WIN32
+        UnmapViewOfFile(p2jPtr);
+        CloseHandle(hMapFile);
+#else
         munmap(
             p2jPtr,
             sizeof(SharedMemoryLayout) + action_size + initial_environment_size
         );
         close(p2jFd);
+#endif
         return nullptr;
     }
-    // std::cout << "Java read array: ";
-    // printHex(data_startInitialEnvironment, data_size);
+
     env->SetByteArrayRegion(
         byteArray,
         0,
@@ -137,19 +159,17 @@ jobject read_initial_environment(
         reinterpret_cast<jbyte *>(data_startInitialEnvironment)
     );
 
-    std::string sema_obs_ready_name =
-        SHMEM_PREFIX "cg_sem_obs" + std::to_string(port);
-    std::string sema_action_ready_name =
-        SHMEM_PREFIX "cg_sem_act" + std::to_string(port);
-
-    rk_sema_init(&p2jLayout->sem_obs_ready, sema_obs_ready_name.c_str(), 0, 1);
-    rk_sema_init(
-        &p2jLayout->sem_action_ready, sema_action_ready_name.c_str(), 0, 1
+#ifdef _WIN32
+    UnmapViewOfFile(p2jPtr);
+    CloseHandle(hMapFile);
+#else
+    munmap(
+        p2jPtr,
+        sizeof(SharedMemoryLayout) + action_size + initial_environment_size
     );
-    // std::cout << "Initialied semaphore for Java"
-    //           << p2jLayout->sem_obs_ready.name << std::endl;
-    // std::cout << "Initialied semaphore for Java"
-    //           << p2jLayout->sem_action_ready.name << std::endl;
+    close(p2jFd);
+#endif
+
     return byteArray;
 }
 
@@ -159,11 +179,29 @@ jbyteArray read_action(
     const std::string &p2j_memory_name,
     jbyteArray data
 ) {
+#ifdef _WIN32
+    HANDLE hMapFile =
+        OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, p2j_memory_name.c_str());
+    if (!hMapFile) {
+        std::cerr << "OpenFileMapping failed: " << GetLastError() << std::endl;
+        return nullptr;
+    }
+
+    void *p2jPtr = MapViewOfFile(
+        hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(SharedMemoryLayout)
+    );
+    if (!p2jPtr) {
+        std::cerr << "MapViewOfFile failed: " << GetLastError() << std::endl;
+        CloseHandle(hMapFile);
+        return nullptr;
+    }
+#else
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
     if (p2jFd == -1) {
         perror("shm_open p2j failed while reading from shared memory");
         return nullptr;
     }
+
     void *p2jPtr = mmap(
         0,
         sizeof(SharedMemoryLayout),
@@ -177,10 +215,27 @@ jbyteArray read_action(
         close(p2jFd);
         return nullptr;
     }
+#endif
 
     SharedMemoryLayout *p2jHeader = static_cast<SharedMemoryLayout *>(p2jPtr);
     size_t action_size = p2jHeader->action_size;
 
+#ifdef _WIN32
+    UnmapViewOfFile(p2jPtr);
+    p2jPtr = MapViewOfFile(
+        hMapFile,
+        FILE_MAP_ALL_ACCESS,
+        0,
+        0,
+        sizeof(SharedMemoryLayout) + action_size
+    );
+    if (!p2jPtr) {
+        std::cerr << "MapViewOfFile failed on second mapping: "
+                  << GetLastError() << std::endl;
+        CloseHandle(hMapFile);
+        return nullptr;
+    }
+#else
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
     p2jPtr = mmap(
         0,
@@ -190,42 +245,38 @@ jbyteArray read_action(
         p2jFd,
         0
     );
-
     if (p2jPtr == MAP_FAILED) {
         perror("mmap p2j failed while reading from shared memory");
         close(p2jFd);
         return nullptr;
     }
-    p2jHeader = static_cast<SharedMemoryLayout *>(p2jPtr);
+#endif
 
+    p2jHeader = static_cast<SharedMemoryLayout *>(p2jPtr);
     char *data_start = static_cast<char *>(p2jPtr) + p2jHeader->action_offset;
 
-    // std::cout << "Waiting for Python to write the action" << std::endl;
-    // printHex((const char *)p2jHeader, sizeof(SharedMemoryLayout));
-    // OK
-    rk_sema_open(&p2jHeader->sem_action_ready);
-    rk_sema_wait(&p2jHeader->sem_action_ready);
     if (data != nullptr) {
         jsize oldSize = env->GetArrayLength(data);
         if (oldSize != p2jHeader->action_size) {
-            // std::cout << "Resizing byte array to"
-            //           << std::to_string(p2jHeader->action_size) << std::endl;
             env->DeleteLocalRef(data);
             data = nullptr;
             data = env->NewByteArray(p2jHeader->action_size);
         }
     } else {
-        // std::cout << "Creating new byte array"
-        //           << std::to_string(p2jHeader->action_size) << std::endl;
         data = env->NewByteArray(p2jHeader->action_size);
     }
 
     if (data == nullptr || env->ExceptionCheck()) {
+#ifdef _WIN32
+        UnmapViewOfFile(p2jPtr);
+        CloseHandle(hMapFile);
+#else
         munmap(p2jPtr, sizeof(SharedMemoryLayout) + action_size);
         close(p2jFd);
+#endif
         return nullptr;
     }
-    // Read the action message
+
     if (action_size > 0) {
         env->SetByteArrayRegion(
             data,
@@ -234,7 +285,14 @@ jbyteArray read_action(
             reinterpret_cast<jbyte *>(data_start)
         );
     }
-    // std::cout << "Read action from shared memory" << std::endl;
+
+#ifdef _WIN32
+    UnmapViewOfFile(p2jPtr);
+    CloseHandle(hMapFile);
+#else
+    munmap(p2jPtr, sizeof(SharedMemoryLayout) + action_size);
+    close(p2jFd);
+#endif
     return data;
 }
 
@@ -244,6 +302,24 @@ void write_observation(
     const char *data,
     const size_t observation_size
 ) {
+#ifdef _WIN32
+    HANDLE p2jFd =
+        OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, p2j_memory_name);
+    if (!p2jFd) {
+        std::cerr << "OpenFileMapping failed for p2j: " << GetLastError()
+                  << std::endl;
+        return;
+    }
+    void *p2jPtr = MapViewOfFile(
+        p2jFd, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(SharedMemoryLayout)
+    );
+    if (!p2jPtr) {
+        std::cerr << "MapViewOfFile failed for p2j: " << GetLastError()
+                  << std::endl;
+        CloseHandle(p2jFd);
+        return;
+    }
+#else
     int p2jFd = shm_open(p2j_memory_name, O_RDWR, 0666);
     if (p2jFd == -1) {
         perror("shm_open p2j failed while writing to shared memory");
@@ -262,15 +338,38 @@ void write_observation(
         close(p2jFd);
         return;
     }
+#endif
     SharedMemoryLayout *p2jLayout = static_cast<SharedMemoryLayout *>(p2jPtr);
 
+#ifdef _WIN32
+    HANDLE j2pFd =
+        OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, j2p_memory_name);
+    if (!j2pFd) {
+        std::cerr << "OpenFileMapping failed for j2p: " << GetLastError()
+                  << std::endl;
+        UnmapViewOfFile(p2jPtr);
+        CloseHandle(p2jFd);
+        return;
+    }
+    void *j2pPtr = MapViewOfFile(
+        j2pFd, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(J2PSharedMemoryLayout)
+    );
+    if (!j2pPtr) {
+        std::cerr << "MapViewOfFile failed for j2p: " << GetLastError()
+                  << std::endl;
+        UnmapViewOfFile(p2jPtr);
+        CloseHandle(p2jFd);
+        CloseHandle(j2pFd);
+        return;
+    }
+#else
     int j2pFd = shm_open(j2p_memory_name, O_RDWR, 0666);
     if (j2pFd == -1) {
         perror("shm_open j2p failed while writing to shared memory");
         munmap(p2jPtr, sizeof(SharedMemoryLayout));
+        close(p2jFd);
         return;
     }
-
     void *j2pPtr = mmap(
         0,
         sizeof(J2PSharedMemoryLayout),
@@ -279,7 +378,6 @@ void write_observation(
         j2pFd,
         0
     );
-
     if (j2pPtr == MAP_FAILED) {
         perror("mmap j2p failed while writing to shared memory");
         munmap(p2jPtr, sizeof(SharedMemoryLayout));
@@ -287,82 +385,31 @@ void write_observation(
         close(j2pFd);
         return;
     }
-    // std::cout << "Writing observation to shared memory adfsadf" << std::endl;
+#endif
     J2PSharedMemoryLayout *j2pLayout =
         static_cast<J2PSharedMemoryLayout *>(j2pPtr);
     j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
 
-    // std::cout << "Writing observation to shared memory adfsad222sdsfsasdff"
-    //           << std::endl;
-
-    struct stat statbuf;
-    if (fstat(j2pFd, &statbuf) == -1) {
-        perror("fstat failed while getting shared memory size");
-        munmap(j2pPtr, sizeof(J2PSharedMemoryLayout));
-        munmap(p2jPtr, sizeof(SharedMemoryLayout));
-        close(j2pFd);
-        close(p2jFd);
-        return;
-    } else {
-        // std::cout << "Shared memory size: " << statbuf.st_size << std::endl;
-    }
-    const size_t current_shmem_size = statbuf.st_size;
-    size_t requiredSize = observation_size + sizeof(J2PSharedMemoryLayout);
-    requiredSize = requiredSize > 1024 ? requiredSize : 1024;
-
-    if (current_shmem_size < requiredSize) {
-        // Unmap existing memory before resizing
-        munmap(j2pPtr, sizeof(J2PSharedMemoryLayout));
-
-        // Resize the shared memory
-        if (ftruncate(j2pFd, requiredSize) == -1) {
-            perror("ftruncate failed while resizing shared memory");
-            munmap(p2jPtr, sizeof(SharedMemoryLayout));
-            close(j2pFd);
-            close(p2jFd);
-            return;
-        }
-
-        // Remap with new size
-        j2pPtr =
-            mmap(0, requiredSize, PROT_READ | PROT_WRITE, MAP_SHARED, j2pFd, 0);
-        if (j2pPtr == MAP_FAILED) {
-            perror("mmap failed after resizing shared memory");
-            munmap(p2jPtr, sizeof(SharedMemoryLayout));
-            close(j2pFd);
-            close(p2jFd);
-            return;
-        }
-
-        // Initialize the header
-        j2pLayout = static_cast<J2PSharedMemoryLayout *>(j2pPtr);
-        j2pLayout->layout_size = sizeof(J2PSharedMemoryLayout);
-        j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
-        j2pLayout->data_size = observation_size;
-        // std::cout << "Resized shared memory to " << requiredSize <<
-        // std::endl;
-    }
-    // std::cout << "Writing observation to shared memory KKKAKAAKAK" <<
-    // std::endl;
-
-    // Write the observation to shared memory
     char *data_start = static_cast<char *>(j2pPtr) + j2pLayout->data_offset;
     std::memcpy(data_start, data, observation_size);
     j2pLayout->data_size = observation_size;
 
-    // Notify Python that the observation is ready
-    // printHex((const char *)p2jLayout, sizeof(SharedMemoryLayout));
     rk_sema_open(&p2jLayout->sem_obs_ready);
     if (rk_sema_post(&p2jLayout->sem_obs_ready) < 0) {
         perror("rk_sema_post failed while notifying python");
     }
-    // std::cout << "Wrote and notified observation to python" << std::endl;
 
-    // Clean up resources
-    munmap(j2pPtr, requiredSize);
+#ifdef _WIN32
+    UnmapViewOfFile(j2pPtr);
+    UnmapViewOfFile(p2jPtr);
+    CloseHandle(j2pFd);
+    CloseHandle(p2jFd);
+#else
+    munmap(j2pPtr, sizeof(J2PSharedMemoryLayout));
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
     close(j2pFd);
     close(p2jFd);
+#endif
 }
 
 extern "C" JNIEXPORT jobject JNICALL
