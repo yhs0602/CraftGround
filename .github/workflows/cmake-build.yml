@@ -66,7 +66,6 @@ jobs:
         sudo mv libtorch $LIBTORCH
     
     - name: Install python < 3.13 if macos # https://groups.google.com/g/vim_dev/c/1I20UCzmtF4
-      if: matrix.os == 'macos-latest'
       uses: actions/setup-python@v5
       with:
         python-version: '3.12' 
@@ -97,6 +96,11 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
         -DBUILD_TESTS=ON  # Enable testing
+
+    # - name: Install Windows Universal CRT
+    #   run: |
+    #     curl -LO https://download.visualstudio.microsoft.com/download/pr/b6b7b0c1-4475-4a21-9c59-63722e3fdf18/7e2b0a8fc72e4f0ba9ea8c7ed1b7c13d/windows10.0-kb3118401-x64.msu
+    #     start /wait wusa.exe windows10.0-kb3118401-x64.msu /quiet /norestart
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
