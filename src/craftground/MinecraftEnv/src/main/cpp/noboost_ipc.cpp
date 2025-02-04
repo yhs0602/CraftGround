@@ -5,7 +5,6 @@
 #include <jni.h>
 #include <iostream>
 #include <string>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #if defined(WIN32) || defined(_WIN32) ||                                       \
@@ -13,6 +12,7 @@
 #define IS_WINDOWS 1
 #define SHMEM_PREFIX "Global\\"
 #else
+#include <sys/mman.h>
 #define SHMEM_PREFIX "/"
 #define IS_WINDOWS 0
 #endif

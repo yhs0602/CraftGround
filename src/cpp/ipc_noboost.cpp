@@ -1,7 +1,12 @@
 #include <csignal>
 #include <cstddef>
 #include <fcntl.h>
+
+#if defined(WIN32) || defined(_WIN32) ||                                       \
+    defined(__WIN32) && !defined(__CYGWIN__)
+#else
 #include <sys/mman.h>
+#endif
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
