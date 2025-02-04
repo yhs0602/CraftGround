@@ -1,4 +1,3 @@
-#include <csignal>
 #include <cstddef>
 #include <fcntl.h>
 #include <cstring>
@@ -9,6 +8,7 @@
 
 #if defined(WIN32) || defined(_WIN32) ||                                       \
     defined(__WIN32) && !defined(__CYGWIN__)
+#define _WIN32 1
 #include <windows.h>
 #include <cstdint>
 #include <cstdio>
