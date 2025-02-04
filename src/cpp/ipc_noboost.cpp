@@ -121,12 +121,19 @@
 #endif
 
 bool shared_memory_exists(const std::string &name) {
+#ifdef _WIN32
+    HANDLE hMap = OpenFileMapping(FILE_MAP_READ, FALSE, name.c_str());
+    if (hMap == NULL)
+        return false;
+    CloseHandle(hMap);
+    return true;
+#else
     int fd = shm_open(name.c_str(), O_RDONLY, 0666);
-    if (fd == -1) {
-        return false; // Shared memory does not exist
-    }
-    close(fd);   // Close the file descriptor
-    return true; // Shared memory exists
+    if (fd == -1)
+        return false;
+    close(fd);
+    return true;
+#endif
 }
 
 std::string make_shared_memory_name(int port, const std::string &suffix) {
@@ -138,16 +145,17 @@ std::mutex shm_fd_cache_mutex;
 
 int get_shared_memory_fd(const std::string &memory_name) {
     std::lock_guard<std::mutex> lock(shm_fd_cache_mutex);
-    if (shm_fd_cache.count(memory_name)) {
+    if (shm_fd_cache.count(memory_name))
         return shm_fd_cache[memory_name];
-    }
-
+#ifdef _WIN32
+    int fd = shm_open_existing(memory_name.c_str(), 0666);
+#else
     int fd = shm_open(memory_name.c_str(), O_RDWR, 0666);
+#endif
     if (fd == -1) {
         perror(("shm_open failed for " + memory_name).c_str());
         return -1;
     }
-
     shm_fd_cache[memory_name] = fd;
     return fd;
 }
@@ -229,26 +237,35 @@ int create_shared_memory_impl(
         found_free_port = true;
     } while (!found_free_port);
 
+#ifdef _WIN32
+    int p2jFd = shm_open_create(p2j_memory_name.c_str(), 0666, shared_memory_size);
+#else
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_CREAT | O_RDWR, 0666);
-    if (p2jFd == -1) {
-        perror("shm_open failed while creating shared memory p2j");
-        return -1;
-    }
-
-    if (ftruncate(p2jFd, shared_memory_size) == -1) {
+    if (p2jFd != -1 && ftruncate(p2jFd, shared_memory_size) == -1) {
         perror("ftruncate failed for p2jFd");
         close(p2jFd);
         shm_unlink(p2j_memory_name.c_str());
         return -1;
     }
-
-    int j2pFd = shm_open(j2p_memory_name.c_str(), O_CREAT | O_RDWR, 0666);
-    if (j2pFd == -1) {
-        close(p2jFd);
-        shm_unlink(p2j_memory_name.c_str());
-        perror("shm_open failed while creating shared memory j2p");
+#endif
+    if (p2jFd == -1) {
+        perror("shm_open failed while creating shared memory p2j");
         return -1;
     }
+
+#ifdef _WIN32
+    int j2pFd = shm_open_create(j2p_memory_name.c_str(), 0666, sizeof(J2PSharedMemoryLayout) + data_size);
+#else
+    int j2pFd = shm_open(j2p_memory_name.c_str(), O_CREAT | O_RDWR, 0666);
+    if (j2pFd != -1 && ftruncate(j2pFd, sizeof(J2PSharedMemoryLayout) + data_size) == -1) {
+        perror("ftruncate failed for j2pFd");
+        close(j2pFd);
+        close(p2jFd);
+        shm_unlink(j2p_memory_name.c_str());
+        shm_unlink(p2j_memory_name.c_str());
+        return -1;
+    }
+#endif
 
     std::lock_guard<std::mutex> lock(shm_map_mutex);
     shm_map[std::this_thread::get_id()] = {p2j_memory_name, j2p_memory_name};
@@ -382,7 +399,12 @@ py::bytes read_from_shared_memory_impl(
     // rk_sema_post(&layout->sem_action_ready);
     rk_sema_wait(&layout->sem_obs_ready);
 
-    int j2pFd = shm_open(j2p_memory_name.c_str(), O_RDWR, 0666);
+    int j2pFd;
+#ifdef _WIN32
+    j2pFd = shm_open_existing(j2p_memory_name.c_str(), 0666);
+#else
+    j2pFd = shm_open(j2p_memory_name.c_str(), O_RDWR, 0666);
+#endif
     if (j2pFd == -1) {
         perror("shm_open j2p failed while reading from shared memory");
         munmap(p2jPtr, sizeof(SharedMemoryLayout));
