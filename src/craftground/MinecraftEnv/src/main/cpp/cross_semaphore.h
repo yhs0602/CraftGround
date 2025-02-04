@@ -19,8 +19,8 @@ struct rk_sema {
 #else
     sem_t *sem_python;
     sem_t *sem_java;
-    char name[30]; // Save the name of the semaphore
 #endif
+    char name[30]; // Save the name of the semaphore
 };
 
 static inline void rk_sema_init(
@@ -41,7 +41,12 @@ static inline void rk_sema_init(
 
 static inline void rk_sema_open(struct rk_sema *s) {
 #if IS_WINDOWS
-    s->sem_java = OpenSemaphore(SEMAPHORE_ALL_ACCESS, FALSE, s->name);
+    s->sem_java = OpenSemaphoreA(
+        SEMAPHORE_ALL_ACCESS, FALSE, s->name
+    ); // Open existing semaphore
+    if (s->sem_java == NULL) {
+        std::cerr << "OpenSemaphore failed: " << GetLastError() << std::endl;
+    }
 #else
     s->sem_java = sem_open(s->name, 0); // Open existing semaphore
     if (s->sem_java == SEM_FAILED) {
@@ -52,19 +57,20 @@ static inline void rk_sema_open(struct rk_sema *s) {
 #endif
 }
 
-static inline void rk_sema_wait(struct rk_sema *s) {
-
+static inline int rk_sema_wait(struct rk_sema *s) {
 #if IS_WINDOWS
     DWORD r;
     do {
         r = WaitForSingleObject(s->sem_java, INFINITE);
-    } while (r == WAIT_FAILED && GetLastError() == ERROR_INTERRUPT);
+    } while (r == WAIT_FAILED && GetLastError() == ERROR_IO_PENDING
+    ); // 적절한 오류 코드로 변경
+    return r;
 #else
     int r;
-
     do {
         r = sem_wait(s->sem_java);
     } while (r == -1 && errno == EINTR);
+    return r;
 #endif
 }
 

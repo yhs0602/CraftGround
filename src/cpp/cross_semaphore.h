@@ -20,15 +20,15 @@ struct rk_sema {
 #else
     sem_t *sem_python;
     sem_t *sem_java;
-    char name[30]; // Save the name of the semaphore
 #endif
+    char name[30]; // Save the name of the semaphore
 };
 
 static inline void rk_sema_init(
     struct rk_sema *s, const char *name, uint32_t value, uint32_t max
 ) {
 #if IS_WINDOWS
-    s->sem = CreateSemaphore(NULL, value, max, name);
+    s->sem_python = CreateSemaphore(NULL, value, max, name);
 #else
     snprintf(s->name, sizeof(s->name), "%s", name);
     sem_unlink(s->name); // Remove any existing semaphore with the same name
@@ -42,7 +42,12 @@ static inline void rk_sema_init(
 
 static inline void rk_sema_open(struct rk_sema *s) {
 #if IS_WINDOWS
-    s->sem_python = OpenSemaphore(SEMAPHORE_ALL_ACCESS, FALSE, s->name);
+    s->sem_python = OpenSemaphoreA(
+        SEMAPHORE_ALL_ACCESS, FALSE, s->name
+    ); // Open existing semaphore
+    if (s->sem_python == NULL) {
+        std::cerr << "OpenSemaphore failed: " << GetLastError() << std::endl;
+    }
 #else
     if (s->sem_python != nullptr) {
         return;
@@ -57,16 +62,15 @@ static inline void rk_sema_open(struct rk_sema *s) {
 }
 
 static inline int rk_sema_wait(struct rk_sema *s) {
-
 #if IS_WINDOWS
     DWORD r;
     do {
         r = WaitForSingleObject(s->sem_python, INFINITE);
-    } while (r == WAIT_FAILED && GetLastError() == ERROR_INTERRUPT);
+    } while (r == WAIT_FAILED && GetLastError() == ERROR_IO_PENDING
+    ); // 적절한 오류 코드로 변경
     return r;
 #else
     int r;
-
     do {
         r = sem_wait(s->sem_python);
     } while (r == -1 && errno == EINTR);
@@ -93,7 +97,8 @@ static inline void async_rk_sema_post(struct rk_sema *s) {
 
 static inline void rk_sema_destroy(struct rk_sema *s) {
 #if IS_WINDOWS
-    CloseHandle(s->sem);
+    CloseHandle(s->sem_python);
+    CloseHandle(s->sem_java);
 #else
     sem_close(s->sem_python);
     sem_close(s->sem_java);
