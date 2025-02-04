@@ -103,7 +103,7 @@ FetchContent_Declare(
 )
 # FetchContent_MakeAvailable(Boost)
 
-message(STATUS "Boost is now available")
+# message(STATUS "Boost is now available")
 # Add the module
 pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
 # target_link_libraries(craftground_native PRIVATE Boost::system Boost::thread Boost::interprocess)
@@ -132,6 +132,10 @@ elseif(CUDAToolkit_FOUND)
         # On Linux, use the CUDA targets provided by CMake
         target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
     endif()
+endif()
+if(WIN32)
+    add_definitions(-D_WIN32)
+    target_link_libraries(craftground_native PRIVATE kernel32.lib user32.lib Synchronization.lib)
 endif()
 
 
@@ -186,6 +190,10 @@ if(BUILD_TESTS)
     endif()
     # target_link_libraries(craftground PRIVATE Boost::system Boost::thread Boost::interprocess)
     # target_include_directories(craftground PRIVATE ${Boost_INCLUDE_DIRS})
+    if(WIN32)
+        add_definitions(-D_WIN32)
+        target_link_libraries(craftground PRIVATE kernel32.lib user32.lib Synchronization.lib)
+    endif()
     target_link_options(craftground PRIVATE "-Wl,--whole-archive" "-Wl,--no-whole-archive")
     target_include_directories(craftground PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
 
