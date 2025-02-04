@@ -7,113 +7,136 @@
 #include "cross_semaphore.h"
 #include "print_hex.h"
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-  #include <windows.h>
-  #include <cstdint>
-  #include <cstdio>
+#if defined(WIN32) || defined(_WIN32) ||                                       \
+    defined(__WIN32) && !defined(__CYGWIN__)
+#include <windows.h>
+#include <cstdint>
+#include <cstdio>
 
-  // Define some POSIX-like constants for use with our mmap_win
-  #ifndef PROT_READ
-  #define PROT_READ  0x1
-  #endif
-  #ifndef PROT_WRITE
-  #define PROT_WRITE 0x2
-  #endif
-  #ifndef MAP_SHARED
-  #define MAP_SHARED 0x01
-  #endif
-  #ifndef MAP_FAILED
-  #define MAP_FAILED ((void*) -1)
-  #endif
+// Define some POSIX-like constants for use with our mmap_win
+#ifndef PROT_READ
+#define PROT_READ 0x1
+#endif
+#ifndef PROT_WRITE
+#define PROT_WRITE 0x2
+#endif
+#ifndef MAP_SHARED
+#define MAP_SHARED 0x01
+#endif
+#ifndef MAP_FAILED
+#define MAP_FAILED ((void *)-1)
+#endif
 
-  // Windows does not need an unlink; when all handles are closed the mapping is gone.
-  int shm_unlink_win(const char* name) {
-      return 0;
-  }
+// Windows does not need an unlink; when all handles are closed the mapping is
+// gone.
+int shm_unlink_win(const char *name) { return 0; }
 
-  // ftruncate is not needed on Windows because the size is set at creation.
-  int ftruncate_win(int /*fd*/, size_t /*size*/) {
-      return 0;
-  }
+// ftruncate is not needed on Windows because the size is set at creation.
+int ftruncate_win(int /*fd*/, size_t /*size*/) { return 0; }
 
-  // Our wrapper for opening/creating a shared memory “file”
-  // (Note: when creating, we pass in the desired size.)
-  int shm_open_wrapper(const char* name, int oflag, int mode, size_t size) {
-      HANDLE hMap;
-      DWORD dwDesiredAccess = FILE_MAP_READ | FILE_MAP_WRITE;
-      if (oflag & O_CREAT) {
-          hMap = CreateFileMapping(
-              INVALID_HANDLE_VALUE,
-              NULL,
-              PAGE_READWRITE,
-              (DWORD)((size >> 32) & 0xFFFFFFFF),
-              (DWORD)(size & 0xFFFFFFFF),
-              name
-          );
-          if (hMap == NULL) {
-              fprintf(stderr, "CreateFileMapping failed for %s with error %lu\n", name, GetLastError());
-              return -1;
-          }
-      } else {
-          hMap = OpenFileMapping(dwDesiredAccess, FALSE, name);
-          if (hMap == NULL) {
-              fprintf(stderr, "OpenFileMapping failed for %s with error %lu\n", name, GetLastError());
-              return -1;
-          }
-      }
-      return (int)(intptr_t)hMap;
-  }
+// Our wrapper for opening/creating a shared memory “file”
+// (Note: when creating, we pass in the desired size.)
+int shm_open_wrapper(const char *name, int oflag, int mode, size_t size) {
+    HANDLE hMap;
+    DWORD dwDesiredAccess = FILE_MAP_READ | FILE_MAP_WRITE;
+    if (oflag & O_CREAT) {
+        hMap = CreateFileMapping(
+            INVALID_HANDLE_VALUE,
+            NULL,
+            PAGE_READWRITE,
+            (DWORD)((size >> 32) & 0xFFFFFFFF),
+            (DWORD)(size & 0xFFFFFFFF),
+            name
+        );
+        if (hMap == NULL) {
+            fprintf(
+                stderr,
+                "CreateFileMapping failed for %s with error %lu\n",
+                name,
+                GetLastError()
+            );
+            return -1;
+        }
+    } else {
+        hMap = OpenFileMapping(dwDesiredAccess, FALSE, name);
+        if (hMap == NULL) {
+            fprintf(
+                stderr,
+                "OpenFileMapping failed for %s with error %lu\n",
+                name,
+                GetLastError()
+            );
+            return -1;
+        }
+    }
+    return (int)(intptr_t)hMap;
+}
 
-  // Our wrapper for mapping a view of the shared memory
-  void* mmap_win(void* /*addr*/, size_t length, int prot, int /*flags*/, int fd, size_t offset) {
-      HANDLE hMap = (HANDLE)(intptr_t)fd;
-      DWORD dwDesiredAccess = 0;
-      if (prot & PROT_READ) dwDesiredAccess |= FILE_MAP_READ;
-      if (prot & PROT_WRITE) dwDesiredAccess |= FILE_MAP_WRITE;
-      void* map = MapViewOfFile(
-          hMap,
-          dwDesiredAccess,
-          (DWORD)((offset >> 32) & 0xFFFFFFFF),
-          (DWORD)(offset & 0xFFFFFFFF),
-          length
-      );
-      if (map == NULL) {
-          fprintf(stderr, "MapViewOfFile failed with error %lu\n", GetLastError());
-          return MAP_FAILED;
-      }
-      return map;
-  }
+// Our wrapper for mapping a view of the shared memory
+void *mmap_win(
+    void * /*addr*/,
+    size_t length,
+    int prot,
+    int /*flags*/,
+    int fd,
+    size_t offset
+) {
+    HANDLE hMap = (HANDLE)(intptr_t)fd;
+    DWORD dwDesiredAccess = 0;
+    if (prot & PROT_READ)
+        dwDesiredAccess |= FILE_MAP_READ;
+    if (prot & PROT_WRITE)
+        dwDesiredAccess |= FILE_MAP_WRITE;
+    void *map = MapViewOfFile(
+        hMap,
+        dwDesiredAccess,
+        (DWORD)((offset >> 32) & 0xFFFFFFFF),
+        (DWORD)(offset & 0xFFFFFFFF),
+        length
+    );
+    if (map == NULL) {
+        fprintf(
+            stderr, "MapViewOfFile failed with error %lu\n", GetLastError()
+        );
+        return MAP_FAILED;
+    }
+    return map;
+}
 
-  int munmap_win(void* addr, size_t /*length*/) {
-      if (!UnmapViewOfFile(addr)) {
-          fprintf(stderr, "UnmapViewOfFile failed with error %lu\n", GetLastError());
-          return -1;
-      }
-      return 0;
-  }
+int munmap_win(void *addr, size_t /*length*/) {
+    if (!UnmapViewOfFile(addr)) {
+        fprintf(
+            stderr, "UnmapViewOfFile failed with error %lu\n", GetLastError()
+        );
+        return -1;
+    }
+    return 0;
+}
 
-  int close_win(int fd) {
-      HANDLE hMap = (HANDLE)(intptr_t)fd;
-      if (!CloseHandle(hMap)) {
-          fprintf(stderr, "CloseHandle failed with error %lu\n", GetLastError());
-          return -1;
-      }
-      return 0;
-  }
+int close_win(int fd) {
+    HANDLE hMap = (HANDLE)(intptr_t)fd;
+    if (!CloseHandle(hMap)) {
+        fprintf(stderr, "CloseHandle failed with error %lu\n", GetLastError());
+        return -1;
+    }
+    return 0;
+}
 
-  // To differentiate “create” versus “open” calls we define two macros:
-  #define shm_open_create(name, mode, size) shm_open_wrapper(name, O_CREAT | O_RDWR, mode, size)
-  #define shm_open_existing(name, mode)       shm_open_wrapper(name, O_RDWR, mode, 0)
-  #define ftruncate(fd, size)                 ftruncate_win(fd, size)
-  #define mmap(addr, length, prot, flags, fd, offset)  mmap_win(addr, length, prot, flags, fd, offset)
-  #define munmap(addr, length)                munmap_win(addr, length)
-  #define close(fd)                           close_win(fd)
-  #define shm_unlink(name)                    shm_unlink_win(name)
+// To differentiate “create” versus “open” calls we define two macros:
+#define shm_open_create(name, mode, size)                                      \
+    shm_open_wrapper(name, O_CREAT | O_RDWR, mode, size)
+#define shm_open_existing(name, mode) shm_open_wrapper(name, O_RDWR, mode, 0)
+#define ftruncate(fd, size) ftruncate_win(fd, size)
+#define mmap(addr, length, prot, flags, fd, offset)                            \
+    mmap_win(addr, length, prot, flags, fd, offset)
+#define munmap(addr, length) munmap_win(addr, length)
+#define close(fd) close_win(fd)
+#define shm_unlink(name) shm_unlink_win(name)
 
 #else
-  // On POSIX systems use the normal headers.
-  #include <sys/mman.h>
-  #include <unistd.h>
+// On POSIX systems use the normal headers.
+#include <sys/mman.h>
+#include <unistd.h>
 #endif
 
 #ifndef MAP_POPULATE
@@ -196,7 +219,7 @@ void signal_handler(int signal) {
 }
 
 void register_signal_handlers() {
-    #ifdef _WIN32
+#ifdef _WIN32
     struct sigaction sa;
     sa.sa_handler = signal_handler;
     sigemptyset(&sa.sa_mask);
@@ -206,7 +229,7 @@ void register_signal_handlers() {
     sigaction(SIGINT, &sa, nullptr);  // Ctrl+C
     sigaction(SIGHUP, &sa, nullptr);  // Terminal closed
     sigaction(SIGQUIT, &sa, nullptr); // Quit Signal
-    #endif
+#endif
 }
 
 int create_shared_memory_impl(
@@ -240,7 +263,8 @@ int create_shared_memory_impl(
     } while (!found_free_port);
 
 #ifdef _WIN32
-    int p2jFd = shm_open_create(p2j_memory_name.c_str(), 0666, shared_memory_size);
+    int p2jFd =
+        shm_open_create(p2j_memory_name.c_str(), 0666, shared_memory_size);
 #else
     int p2jFd = shm_open(p2j_memory_name.c_str(), O_CREAT | O_RDWR, 0666);
     if (p2jFd != -1 && ftruncate(p2jFd, shared_memory_size) == -1) {
@@ -256,10 +280,13 @@ int create_shared_memory_impl(
     }
 
 #ifdef _WIN32
-    int j2pFd = shm_open_create(j2p_memory_name.c_str(), 0666, sizeof(J2PSharedMemoryLayout) + data_size);
+    int j2pFd = shm_open_create(
+        j2p_memory_name.c_str(), 0666, sizeof(J2PSharedMemoryLayout) + data_size
+    );
 #else
     int j2pFd = shm_open(j2p_memory_name.c_str(), O_CREAT | O_RDWR, 0666);
-    if (j2pFd != -1 && ftruncate(j2pFd, sizeof(J2PSharedMemoryLayout) + data_size) == -1) {
+    if (j2pFd != -1 &&
+        ftruncate(j2pFd, sizeof(J2PSharedMemoryLayout) + data_size) == -1) {
         perror("ftruncate failed for j2pFd");
         close(j2pFd);
         close(p2jFd);
