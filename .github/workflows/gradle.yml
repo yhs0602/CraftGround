@@ -14,7 +14,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  gradle_build:
     runs-on: ${{ matrix.os }}
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
@@ -94,6 +94,15 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
       # with:
       #    gradle-version: "8.8" # Quotes required to prevent YAML converting to number
+        
+    - name: Set up cache for CMake FetchContent
+      uses: actions/cache@v3
+      with:
+        path: |
+          src/craftground/MinecraftEnv/_deps
+        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-fetchcontent-  
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build

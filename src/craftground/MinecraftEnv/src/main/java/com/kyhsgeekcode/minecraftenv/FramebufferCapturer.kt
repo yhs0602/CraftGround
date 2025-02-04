@@ -1,6 +1,9 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
+import com.kyhsgeekcode.minecraftenv.proto.ActionSpace
+import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment
+import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 
@@ -143,4 +146,41 @@ object FramebufferCapturer {
     private var hasInitializedGLEW: Boolean = false
     var ipcHandle: ByteString = ByteString.EMPTY
         private set
+
+    private var actionBuffer: ByteArray? = null
+
+    external fun readInitialEnvironmentImpl(
+        p2jMemoryName: String,
+        port: Int,
+    ): ByteArray
+
+    external fun readActionImpl(
+        p2jMemoryName: String,
+        actionData: ByteArray?,
+    ): ByteArray
+
+    external fun writeObservationImpl(
+        p2jMemoryName: String,
+        j2pMemoryName: String,
+        observationData: ByteArray,
+    )
+
+    fun readInitialEnvironment(
+        p2jMemoryName: String,
+        port: Int,
+    ): InitialEnvironment.InitialEnvironmentMessage =
+        InitialEnvironment.InitialEnvironmentMessage.parseFrom(readInitialEnvironmentImpl(p2jMemoryName, port))
+
+    fun readAction(p2jMemoryName: String): ActionSpace.ActionSpaceMessageV2 {
+        actionBuffer = readActionImpl(p2jMemoryName, actionBuffer)
+        return ActionSpace.ActionSpaceMessageV2.parseFrom(actionBuffer)
+    }
+
+    fun writeObservation(
+        p2jMemoryName: String,
+        j2pMemoryName: String,
+        observationData: ObservationSpace.ObservationSpaceMessage,
+    ) {
+        writeObservationImpl(p2jMemoryName, j2pMemoryName, observationData.toByteArray())
+    }
 }

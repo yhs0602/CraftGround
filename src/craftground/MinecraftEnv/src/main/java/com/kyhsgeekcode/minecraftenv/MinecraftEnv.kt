@@ -91,6 +91,7 @@ class MinecraftEnv :
     private val variableCommandsAfterReset = mutableListOf<String>()
     private var skipSync = false
     private var ioPhase = IOPhase.BEGINNING
+    private var useSharedMemory = false
 
     override fun onInitialize() {
         val isLdPreloadSet = System.getenv("LD_PRELOAD")
@@ -112,28 +113,39 @@ class MinecraftEnv :
                 }
             doPrintWithTime = verbose
 
-            val isWindows = System.getProperty("os.name").lowercase().contains("win")
-            if (isWindows) {
-                val serverSocket = ServerSocketChannel.open()
-                serverSocket.bind(InetSocketAddress("127.0.0.1", port))
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
-                socket = serverSocket.accept()
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
-                messageIO = DomainSocketMessageIO(socket)
+            useSharedMemory =
+                when (val useSharedMemoryStr = System.getenv("USE_SHARED_MEMORY")) {
+                    "1" -> true
+                    "0" -> false
+                    else -> useSharedMemoryStr?.toBoolean() ?: false
+                }
+
+            if (useSharedMemory) {
+                messageIO = SharedMemoryMessageIO(port)
             } else {
-                val socketFilePath = Path.of("/tmp/minecraftrl_$port.sock")
-                socketFilePath.toFile().deleteOnExit()
-                csvLogger.log("Connecting to $port")
-                printWithTime("Connecting to $port")
-                Files.deleteIfExists(socketFilePath)
-                val serverSocket =
-                    ServerSocketChannel
-                        .open(StandardProtocolFamily.UNIX)
-                        .bind(UnixDomainSocketAddress.of(socketFilePath))
-                csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
-                socket = serverSocket.accept()
-                csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
-                messageIO = DomainSocketMessageIO(socket)
+                val isWindows = System.getProperty("os.name").lowercase().contains("win")
+                if (isWindows) {
+                    val serverSocket = ServerSocketChannel.open()
+                    serverSocket.bind(InetSocketAddress("127.0.0.1", port))
+                    csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
+                    socket = serverSocket.accept()
+                    csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
+                    messageIO = DomainSocketMessageIO(socket)
+                } else {
+                    val socketFilePath = Path.of("/tmp/minecraftrl_$port.sock")
+                    socketFilePath.toFile().deleteOnExit()
+                    csvLogger.log("Connecting to $port")
+                    printWithTime("Connecting to $port")
+                    Files.deleteIfExists(socketFilePath)
+                    val serverSocket =
+                        ServerSocketChannel
+                            .open(StandardProtocolFamily.UNIX)
+                            .bind(UnixDomainSocketAddress.of(socketFilePath))
+                    csvLogger.profileStartPrint("Minecraft_env/onInitialize/Accept")
+                    socket = serverSocket.accept()
+                    csvLogger.profileEndPrint("Minecraft_env/onInitialize/Accept")
+                    messageIO = DomainSocketMessageIO(socket)
+                }
             }
         } catch (e: IOException) {
             throw RuntimeException(e)

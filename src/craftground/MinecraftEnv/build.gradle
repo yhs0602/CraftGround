@@ -73,7 +73,7 @@ tasks.register('configureCppProject', Exec) {
 }
 
 tasks.register('compileCpp', Exec) {
-    commandLine 'cmake', '--build', '.',  '--config', 'Release'
+    commandLine 'cmake', '--build', '.',  '--config', 'Release', '--parallel', '8'
     inputs.dir("src/main/cpp")
     def os = org.gradle.internal.os.OperatingSystem.current()
     if (os.isLinux()) {

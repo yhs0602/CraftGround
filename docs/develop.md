@@ -19,9 +19,9 @@ sudo ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
 ## Run formatters
 
 ```bash
-find . \( -iname '*.h' -o -iname '*.cpp' -o -iname '*.mm' \) | xargs clang-format -i
+git ls-files -- '*.h' '*.cpp' '*.mm' | xargs clang-format -i
+git ls-files -- '*.java' -z | xargs -0 -P 4 google-java-format -i
 ktlint '!**/com/kyhsgeekcode/minecraftenv/proto/**' --format
-find . -name '*.java' -print0 | xargs -0 -P 4 google-java-format -i
 ```
 
 # Managing proto files
@@ -70,7 +70,13 @@ cd src/craftground/MinecraftEnv
 ## Python unit test with coverage
 ```bash
 python -m pip install coverage pytest
-coverage run --source=src/craftground -m pytest tests/python/unit/
+cd build
+cmake ..
+cmake --build .
+cd ..
+ln -s build/*.dylib craftground/src/
+ln -s build/*.so craftground/src/
+ln -s build/*.pyd craftground/src/
+PYTHONPATH=./build:src coverage run --source=src/craftground -m pytest tests/python/unit/
 coverage report
 ```
-

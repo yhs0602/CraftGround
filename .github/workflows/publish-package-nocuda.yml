@@ -38,6 +38,24 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12' 
+    
+    - name: Set up cache for CMake FetchContent python cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          build/_deps
+        key: ${{ runner.os }}-fetchcontent-python-${{ hashFiles('CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-fetchcontent-python-
+  
+    - name: Set up cache for CMake FetchContent gradle cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          src/craftground/MinecraftEnv/_deps
+        key: ${{ runner.os }}-fetchcontent-gradle-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-fetchcontent-gradle-
 
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
