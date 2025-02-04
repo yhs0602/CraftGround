@@ -83,6 +83,7 @@ elseif(WIN32)
         message(STATUS "CUDA is available in Windows")
         list(APPEND LINK_LIBRARIES CUDA::cudart)
     endif()
+    list(APPEND LINK_LIBRARIES kernel32.lib user32.lib Synchronization.lib)
 endif()
 
 # Apply the libraries to the target
