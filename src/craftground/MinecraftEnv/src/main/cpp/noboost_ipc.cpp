@@ -6,13 +6,13 @@
 #include <iostream>
 #include <string>
 #include <sys/stat.h>
-#include <unistd.h>
 #if defined(WIN32) || defined(_WIN32) ||                                       \
     defined(__WIN32) && !defined(__CYGWIN__)
 #define IS_WINDOWS 1
 #define SHMEM_PREFIX "Global\\"
 #else
 #include <sys/mman.h>
+#include <unistd.h>
 #define SHMEM_PREFIX "/"
 #define IS_WINDOWS 0
 #endif

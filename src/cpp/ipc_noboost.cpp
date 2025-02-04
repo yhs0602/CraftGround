@@ -6,8 +6,8 @@
     defined(__WIN32) && !defined(__CYGWIN__)
 #else
 #include <sys/mman.h>
-#endif
 #include <unistd.h>
+#endif
 #include <cstring>
 #include <iostream>
 #include "ipc_noboost.hpp"
