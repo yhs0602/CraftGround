@@ -4,6 +4,7 @@ description: A fast, up-to-date, and feature-rich Minecraft-based reinforcement 
 nav_enabled: true
 heading_anchors: true
 favicon_ico: "craftground.ico"
+enable_copy_code_button: true
 nav_external_links:
   - title: CraftGround on GitHub
     url: https://github.com/yhs0602/CraftGround

@@ -117,8 +117,8 @@ model.save("a2c_craftground")
 ## Environment Specifications
 For detailed specifications, refer to the following documents:
 
-- [Initial Environment](initial_environment)
-- [Observation Space](observation_space)
+- [Initial Environment](configuration/initial_environment)
+- [Observation Space](observation_space/index)
 - [Action Space](action_space)
 
 

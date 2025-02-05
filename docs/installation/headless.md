@@ -121,3 +121,41 @@ xset -q # Check if the screen saver is disabled
 export DISPLAY=:2 # Change back to the display to the 2D X server
 ```
 This effectively disables the screen saver and DPMS features. You may want to add these commands to your startup scripts such as `.xinitrc` or `.xprofile` to make it permanent even after reboot.
+
+# Summary
+
+
+```bash
+echo $WAYLAND_DISPLAY
+echo $XDG_SESSION_TYPE
+ps aux | grep -E ’weston|sway’
+sudo apt install virtualgl
+wget https://sourceforge.net/projects/virtualgl/files/3.1/virtualgl_3.1_amd64.
+deb/download
+mv download vgl3.1.deb
+sudo dpkg -i vgl3.1.deb
+sudo vglserver_config
+# During configuration, select the option to install both GLX and EGL and adjust device permissions as required
+# In case you meed the following error, run the following command
+# modprobe: FATAL: Module nvidia_drm is in use. You must execute modprobe -r nvidia_uvm nvidia_drm nvidia_modeset nvidia’ with the display manager stopped in order for the new device permission settings to become effective.
+sudo systemctl stop gdm
+sudo modprobe -r nvidia_uvm nvidia_drm nvidia_modeset nvidia
+# If you meet modprobe: FATAL: Module nvidia_drm is in use.
+sudo lsof /dev/nvidia*
+pkill <pid>
+# Restart the display manager
+sudo modprobe nvidia_uvm nvidia_drm nvidia_modeset nvidia
+sudo systemctl restart gdm
+# Install Xvfb
+sudo apt install xvfb
+Xvfb :2 -screen 0 1024x768x24 +extension GLX -ac +extension RENDER & 
+export DISPLAY=:2
+VGL_DISPLAY=:0 vglrun /opt/VirtualGL/bin/glxspheres64
+sudo nvidia-xconfig --query-gpu-info
+sudo nvidia-xconfig -a --allow-empty-initial-configuration \
+--use-display-device=None --virtual=1920x1200 \
+--busid PCI:<BusID>
+sudo systemctl restart gdm
+VGL_DISPLAY=:0 vglrun /opt/VirtualGL/bin/glxspheres64
+# OpenGL Renderer: NVIDIA GeForce RTX 3090/PCIe/SSE2.
+```
