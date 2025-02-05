@@ -250,7 +250,15 @@ void renderCursor(int mouseX, int mouseY) {
     glBindVertexArray(0);
 }
 
-void drawCursorCPU(int xPos, int yPos, int targetSizeX, int targetSizeY, int cursorWidth, int cursorHeight, GLubyte *pixels) {
+void drawCursorCPU(
+    int xPos,
+    int yPos,
+    int targetSizeX,
+    int targetSizeY,
+    int cursorWidth,
+    int cursorHeight,
+    GLubyte *pixels
+) {
     for (int dy = 0; dy < cursorHeight; ++dy) {
         for (int dx = 0; dx < cursorWidth; ++dx) {
             int pixelX = xPos + dx;
@@ -263,8 +271,7 @@ void drawCursorCPU(int xPos, int yPos, int targetSizeX, int targetSizeY, int cur
                 int index = ((targetSizeY - pixelY) * targetSizeX + pixelX) *
                             3; // calculate the index of the pixel
 
-                if (index >= 0 &&
-                    index + 2 < targetSizeX * targetSizeY * 3) {
+                if (index >= 0 && index + 2 < targetSizeX * targetSizeY * 3) {
                     // draw black if color is 2
                     if (cursor[dy][dx] == 2) {
                         pixels[index] = 0;     // Red

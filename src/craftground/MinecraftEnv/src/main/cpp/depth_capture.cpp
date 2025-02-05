@@ -3,7 +3,7 @@
 static float *depthPixels = nullptr;
 static size_t depthPixelsSize = 0;
 
-float* captureDepth(GLuint depthFramebufferId, int width, int height) {
+float *captureDepth(GLuint depthFramebufferId, int width, int height) {
     glBindFramebuffer(GL_FRAMEBUFFER, depthFramebufferId);
     const size_t newDepthPixelsSize = width * height;
 
