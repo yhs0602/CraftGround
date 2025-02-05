@@ -1,3 +1,4 @@
 remote_theme: just-the-docs/just-the-docs
 title: CraftGround
 description: A fast, up-to-date, and feature-rich Minecraft-based reinforcement learning environment.
+nav_enabled: true
