@@ -6,38 +6,38 @@ The `InitialEnvironmentConfig` class defines the configuration parameters for in
 
 ### **Constructor Parameters**  
 
-| Parameter                      | Type                 | Default                  | Description                                                                           |
-| ------------------------------ | -------------------- | ------------------------ | ------------------------------------------------------------------------------------- |
-| `image_width`                  | `int`                | `640`                    | Width of the rendered image.                                                          |
-| `image_height`                 | `int`                | `360`                    | Height of the rendered image.                                                         |
-| `gamemode`                     | `GameMode`           | `GameMode.SURVIVAL`      | Game mode (Survival, Hardcore, Creative).                                             |
-| `difficulty`                   | `Difficulty`         | `Difficulty.NORMAL`      | Difficulty level (Peaceful, Easy, Normal, Hard).                                      |
-| `world_type`                   | `WorldType`          | `WorldType.DEFAULT`      | Type of world generation (Default, Superflat, Large Biomes, Amplified, Single Biome). |
-| `world_type_args`              | `str`                | `""`                     | Additional arguments for world type settings.                                         |
-| `seed`                         | `str`                | `""`                     | World seed for deterministic world generation.                                        |
-| `generate_structures`          | `bool`               | `True`                   | Whether to generate structures like villages and dungeons.                            |
-| `bonus_chest`                  | `bool`               | `False`                  | Whether to spawn a bonus chest at the start.                                          |
-| `datapack_paths`               | `List[str]`          | `None`                   | Paths to custom datapacks to load.                                                    |
-| `initial_extra_commands`       | `List[str]`          | `None`                   | Commands executed at world initialization.                                            |
-| `killed_stat_keys`             | `List[str]`          | `None`                   | Statistics keys related to player kills.                                              |
-| `mined_stat_keys`              | `List[str]`          | `None`                   | Statistics keys related to blocks mined.                                              |
-| `misc_stat_keys`               | `List[str]`          | `None`                   | Other relevant player statistics keys.                                                |
-| `surrounding_entity_distances` | `List[int]`          | `None`                   | Distances for tracking surrounding entities.                                          |
-| `hud_hidden`                   | `bool`               | `False`                  | Whether to hide the in-game HUD.                                                      |
-| `render_distance`              | `int`                | `6`                      | Number of chunks rendered around the player.                                          |
-| `simulation_distance`          | `int`                | `6`                      | Number of chunks simulated around the player.                                         |
-| `eye_distance`                 | `float`              | `0.0`                    | Distance between the eyes (e.g., for binocular vision).                               |
-| `structure_paths`              | `List[str]`          | `None`                   | Paths to pre-defined structures to be loaded.                                         |
-| `no_fov_effect`                | `bool`               | `False`                  | Disables FOV changes due to movement effects.                                         |
-| `request_raycast`              | `bool`               | `False`                  | Whether to request raycasting data.                                                   |
-| `screen_encoding_mode`         | `ScreenEncodingMode` | `ScreenEncodingMode.RAW` | Encoding mode for screen output.                                                      |
-| `requires_surrounding_blocks`  | `bool`               | `False`                  | Whether to include surrounding block information.                                     |
-| `level_display_name_to_play`   | `str`                | `""`                     | Name of the level to load.                                                            |
-| `fov`                          | `int`                | `70`                     | Field of view setting.                                                                |
-| `requires_biome_info`          | `bool`               | `False`                  | Whether to include biome information in observations.                                 |
-| `requires_heightmap`           | `bool`               | `False`                  | Whether to include the world's heightmap.                                             |
-| `requires_depth`               | `bool`               | `False`                  | Whether to include depth information.                                                 |
-| `requires_depth_conversion`    | `bool`               | `True`                   | Whether depth information needs to be converted.                                      |
+| Parameter                      | Type                 | Default                  | Description                                                                                                                                                                |
+| ------------------------------ | -------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `image_width`                  | `int`                | `640`                    | Width of the rendered image.                                                                                                                                               |
+| `image_height`                 | `int`                | `360`                    | Height of the rendered image.                                                                                                                                              |
+| `gamemode`                     | `GameMode`           | `GameMode.SURVIVAL`      | Game mode (Survival, Hardcore, Creative).                                                                                                                                  |
+| `difficulty`                   | `Difficulty`         | `Difficulty.NORMAL`      | Difficulty level (Peaceful, Easy, Normal, Hard).                                                                                                                           |
+| `world_type`                   | `WorldType`          | `WorldType.DEFAULT`      | Type of world generation (Default, Superflat, Large Biomes, Amplified, Single Biome).                                                                                      |
+| `world_type_args`              | `str`                | `""`                     | Additional arguments for world type settings.                                                                                                                              |
+| `seed`                         | `str`                | `""`                     | World seed for deterministic world generation.                                                                                                                             |
+| `generate_structures`          | `bool`               | `True`                   | Whether to generate structures like villages and dungeons.                                                                                                                 |
+| `bonus_chest`                  | `bool`               | `False`                  | Whether to spawn a bonus chest at the start.                                                                                                                               |
+| `datapack_paths`               | `List[str]`          | `None`                   | Paths to custom datapacks to load.                                                                                                                                         |
+| `initial_extra_commands`       | `List[str]`          | `None`                   | Commands executed at world initialization.                                                                                                                                 |
+| `killed_stat_keys`             | `List[str]`          | `None`                   | Statistics keys related to player kills.                                                                                                                                   |
+| `mined_stat_keys`              | `List[str]`          | `None`                   | Statistics keys related to blocks mined.                                                                                                                                   |
+| `misc_stat_keys`               | `List[str]`          | `None`                   | Other relevant player statistics keys.                                                                                                                                     |
+| `surrounding_entity_distances` | `List[int]`          | `None`                   | Distances for tracking surrounding entities.                                                                                                                               |
+| `hud_hidden`                   | `bool`               | `False`                  | Whether to hide the in-game HUD.                                                                                                                                           |
+| `render_distance`              | `int`                | `6`                      | Number of chunks rendered around the player.                                                                                                                               |
+| `simulation_distance`          | `int`                | `6`                      | Number of chunks simulated around the player.                                                                                                                              |
+| `eye_distance`                 | `float`              | `0.0`                    | Distance between the eyes (e.g., for binocular vision).                                                                                                                    |
+| `structure_paths`              | `List[str]`          | `None`                   | Paths to pre-defined structures to be loaded.                                                                                                                              |
+| `no_fov_effect`                | `bool`               | `False`                  | Disables FOV changes due to movement effects.                                                                                                                              |
+| `request_raycast`              | `bool`               | `False`                  | Whether to request raycasting data.                                                                                                                                        |
+| `screen_encoding_mode`         | `ScreenEncodingMode` | `ScreenEncodingMode.RAW` | Encoding mode for screen output.                                                                                                                                           |
+| `requires_surrounding_blocks`  | `bool`               | `False`                  | Whether to include surrounding block information.                                                                                                                          |
+| `level_display_name_to_play`   | `str`                | `""`                     | Name of the level to load.                                                                                                                                                 |
+| `fov`                          | `int`                | `70`                     | Field of view setting.                                                                                                                                                     |
+| `requires_biome_info`          | `bool`               | `False`                  | Whether to include biome information in observations.                                                                                                                      |
+| `requires_heightmap`           | `bool`               | `False`                  | Whether to include the world's heightmap.                                                                                                                                  |
+| `requires_depth`               | `bool`               | `False`                  | Whether to include depth information.                                                                                                                                      |
+| `requires_depth_conversion`    | `bool`               | `True`                   | If `True`, depth values are transformed into real-world distances and normalized. The conversion uses a near plane of `0.05` and a far plane set to `4.0 * view distance`. |
 
 ### **GameMode Enum**
 Defines the available game modes.
