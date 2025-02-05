@@ -26,7 +26,8 @@ else()
     message("CRAFGROUND_NATIVE_DEBUG not set")
 endif()
 
-
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+message("CMAKE_CURRENT_LIST_DIR=${CMAKE_CURRENT_LIST_DIR}")
 # Find JNI
 find_package(Java COMPONENTS Development)
 find_package(JNI REQUIRED)
@@ -90,19 +91,25 @@ set(
     SOURCE_FILES
     framebuffer_capturer.cpp
     cursor.cpp
+    rgb_capture.cpp
     depth_capture.cpp
-    png_util.cpp
     noboost_ipc.cpp
 )
 
 message(STATUS "SOURCE_FILES=${SOURCE_FILES}")
 
 if(APPLE)
-    list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm)
+    list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm jni/jni_macos_zerocopy.cpp)
+elseif(CUDAToolkit_FOUND)
+    list(APPEND SOURCE_FILES framebuffer_capturer_cuda.cpp jni/jni_cuda_zerocopy.cpp)
+else()
+    list(APPEND SOURCE_FILES jni/jni_dummy_zerocopy.cpp)
 endif()
 
-if(CUDAToolkit_FOUND)
-    list(APPEND SOURCE_FILES framebuffer_capturer_cuda.cpp)
+
+
+if (PNG_FOUND)
+    list(APPEND SOURCE_FILES png_util.cpp)
 endif()
 
 # Add a library target for your native library

@@ -251,14 +251,10 @@ void renderCursor(int mouseX, int mouseY) {
 }
 
 void drawCursorCPU(
-    int xPos,
-    int yPos,
-    int targetSizeX,
-    int targetSizeY,
-    int cursorWidth,
-    int cursorHeight,
-    GLubyte *pixels
+    int xPos, int yPos, int targetSizeX, int targetSizeY, GLubyte *pixels
 ) {
+    int cursorHeight = 16;
+    int cursorWidth = 16;
     for (int dy = 0; dy < cursorHeight; ++dy) {
         for (int dx = 0; dx < cursorWidth; ++dx) {
             int pixelX = xPos + dx;

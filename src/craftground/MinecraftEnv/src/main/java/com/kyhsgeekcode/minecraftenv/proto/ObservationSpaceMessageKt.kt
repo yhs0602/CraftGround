@@ -1322,39 +1322,135 @@ public object ObservationSpaceMessageKt {
     }
 
     /**
-     * `bytes depth = 38;`
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
      */
-    public var depth: com.google.protobuf.ByteString
-      @JvmName("getDepth")
-      get() = _builder.depth
-      @JvmName("setDepth")
-      set(value) {
-        _builder.depth = value
-      }
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    public class DepthProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
     /**
-     * `bytes depth = 38;`
+     * `repeated float depth = 38 [packed = true];`
      */
-    public fun clearDepth() {
+     public val depth: com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.depthList
+      )
+    /**
+     * `repeated float depth = 38 [packed = true];`
+     * @param value The depth to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addDepth")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>.add(value: kotlin.Float) {
+      _builder.addDepth(value)
+    }/**
+     * `repeated float depth = 38 [packed = true];`
+     * @param value The depth to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignDepth")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>.plusAssign(value: kotlin.Float) {
+      add(value)
+    }/**
+     * `repeated float depth = 38 [packed = true];`
+     * @param values The depth to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllDepth")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>.addAll(values: kotlin.collections.Iterable<kotlin.Float>) {
+      _builder.addAllDepth(values)
+    }/**
+     * `repeated float depth = 38 [packed = true];`
+     * @param values The depth to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllDepth")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.Float>) {
+      addAll(values)
+    }/**
+     * `repeated float depth = 38 [packed = true];`
+     * @param index The index to set the value at.
+     * @param value The depth to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setDepth")
+    public operator fun com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>.set(index: kotlin.Int, value: kotlin.Float) {
+      _builder.setDepth(index, value)
+    }/**
+     * `repeated float depth = 38 [packed = true];`
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearDepth")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>.clear() {
       _builder.clearDepth()
     }
-
     /**
-     * `bytes depth_2 = 39;`
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
      */
-    public var depth2: com.google.protobuf.ByteString
-      @JvmName("getDepth2")
-      get() = _builder.depth2
-      @JvmName("setDepth2")
-      set(value) {
-        _builder.depth2 = value
-      }
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    public class Depth2Proxy private constructor() : com.google.protobuf.kotlin.DslProxy()
     /**
-     * `bytes depth_2 = 39;`
+     * `repeated float depth_2 = 39 [packed = true];`
      */
-    public fun clearDepth2() {
+     public val depth2: com.google.protobuf.kotlin.DslList<kotlin.Float, Depth2Proxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.depth2List
+      )
+    /**
+     * `repeated float depth_2 = 39 [packed = true];`
+     * @param value The depth2 to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addDepth2")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.Float, Depth2Proxy>.add(value: kotlin.Float) {
+      _builder.addDepth2(value)
+    }/**
+     * `repeated float depth_2 = 39 [packed = true];`
+     * @param value The depth2 to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignDepth2")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.Float, Depth2Proxy>.plusAssign(value: kotlin.Float) {
+      add(value)
+    }/**
+     * `repeated float depth_2 = 39 [packed = true];`
+     * @param values The depth2 to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllDepth2")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.Float, Depth2Proxy>.addAll(values: kotlin.collections.Iterable<kotlin.Float>) {
+      _builder.addAllDepth2(values)
+    }/**
+     * `repeated float depth_2 = 39 [packed = true];`
+     * @param values The depth2 to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllDepth2")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.Float, Depth2Proxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.Float>) {
+      addAll(values)
+    }/**
+     * `repeated float depth_2 = 39 [packed = true];`
+     * @param index The index to set the value at.
+     * @param value The depth2 to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setDepth2")
+    public operator fun com.google.protobuf.kotlin.DslList<kotlin.Float, Depth2Proxy>.set(index: kotlin.Int, value: kotlin.Float) {
+      _builder.setDepth2(index, value)
+    }/**
+     * `repeated float depth_2 = 39 [packed = true];`
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearDepth2")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.Float, Depth2Proxy>.clear() {
       _builder.clearDepth2()
-    }
-  }
+    }}
 }
 @kotlin.jvm.JvmSynthetic
 public inline fun com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessage.copy(block: `com.kyhsgeekcode.minecraftenv.proto`.ObservationSpaceMessageKt.Dsl.() -> kotlin.Unit): com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessage =

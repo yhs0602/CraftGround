@@ -9413,16 +9413,38 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     com.google.protobuf.ByteString getIpcHandle();
 
     /**
-     * <code>bytes depth = 38;</code>
-     * @return The depth.
+     * <code>repeated float depth = 38 [packed = true];</code>
+     * @return A list containing the depth.
      */
-    com.google.protobuf.ByteString getDepth();
+    java.util.List<java.lang.Float> getDepthList();
+    /**
+     * <code>repeated float depth = 38 [packed = true];</code>
+     * @return The count of depth.
+     */
+    int getDepthCount();
+    /**
+     * <code>repeated float depth = 38 [packed = true];</code>
+     * @param index The index of the element to return.
+     * @return The depth at the given index.
+     */
+    float getDepth(int index);
 
     /**
-     * <code>bytes depth_2 = 39;</code>
-     * @return The depth2.
+     * <code>repeated float depth_2 = 39 [packed = true];</code>
+     * @return A list containing the depth2.
      */
-    com.google.protobuf.ByteString getDepth2();
+    java.util.List<java.lang.Float> getDepth2List();
+    /**
+     * <code>repeated float depth_2 = 39 [packed = true];</code>
+     * @return The count of depth2.
+     */
+    int getDepth2Count();
+    /**
+     * <code>repeated float depth_2 = 39 [packed = true];</code>
+     * @param index The index of the element to return.
+     * @return The depth2 at the given index.
+     */
+    float getDepth2(int index);
   }
   /**
    * Protobuf type {@code ObservationSpaceMessage}
@@ -9458,8 +9480,8 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       nearbyBiomes_ = java.util.Collections.emptyList();
       heightInfo_ = java.util.Collections.emptyList();
       ipcHandle_ = com.google.protobuf.ByteString.EMPTY;
-      depth_ = com.google.protobuf.ByteString.EMPTY;
-      depth2_ = com.google.protobuf.ByteString.EMPTY;
+      depth_ = emptyFloatList();
+      depth2_ = emptyFloatList();
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
@@ -10486,26 +10508,64 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     }
 
     public static final int DEPTH_FIELD_NUMBER = 38;
-    private com.google.protobuf.ByteString depth_ = com.google.protobuf.ByteString.EMPTY;
+    @SuppressWarnings("serial")
+    private com.google.protobuf.Internal.FloatList depth_ =
+        emptyFloatList();
     /**
-     * <code>bytes depth = 38;</code>
-     * @return The depth.
+     * <code>repeated float depth = 38 [packed = true];</code>
+     * @return A list containing the depth.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString getDepth() {
+    public java.util.List<java.lang.Float>
+        getDepthList() {
       return depth_;
     }
+    /**
+     * <code>repeated float depth = 38 [packed = true];</code>
+     * @return The count of depth.
+     */
+    public int getDepthCount() {
+      return depth_.size();
+    }
+    /**
+     * <code>repeated float depth = 38 [packed = true];</code>
+     * @param index The index of the element to return.
+     * @return The depth at the given index.
+     */
+    public float getDepth(int index) {
+      return depth_.getFloat(index);
+    }
+    private int depthMemoizedSerializedSize = -1;
 
     public static final int DEPTH_2_FIELD_NUMBER = 39;
-    private com.google.protobuf.ByteString depth2_ = com.google.protobuf.ByteString.EMPTY;
+    @SuppressWarnings("serial")
+    private com.google.protobuf.Internal.FloatList depth2_ =
+        emptyFloatList();
     /**
-     * <code>bytes depth_2 = 39;</code>
-     * @return The depth2.
+     * <code>repeated float depth_2 = 39 [packed = true];</code>
+     * @return A list containing the depth2.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString getDepth2() {
+    public java.util.List<java.lang.Float>
+        getDepth2List() {
       return depth2_;
     }
+    /**
+     * <code>repeated float depth_2 = 39 [packed = true];</code>
+     * @return The count of depth2.
+     */
+    public int getDepth2Count() {
+      return depth2_.size();
+    }
+    /**
+     * <code>repeated float depth_2 = 39 [packed = true];</code>
+     * @param index The index of the element to return.
+     * @return The depth2 at the given index.
+     */
+    public float getDepth2(int index) {
+      return depth2_.getFloat(index);
+    }
+    private int depth2MemoizedSerializedSize = -1;
 
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
@@ -10521,6 +10581,7 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       if (!image_.isEmpty()) {
         output.writeBytes(1, image_);
       }
@@ -10644,11 +10705,19 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       if (!ipcHandle_.isEmpty()) {
         output.writeBytes(37, ipcHandle_);
       }
-      if (!depth_.isEmpty()) {
-        output.writeBytes(38, depth_);
+      if (getDepthList().size() > 0) {
+        output.writeUInt32NoTag(306);
+        output.writeUInt32NoTag(depthMemoizedSerializedSize);
       }
-      if (!depth2_.isEmpty()) {
-        output.writeBytes(39, depth2_);
+      for (int i = 0; i < depth_.size(); i++) {
+        output.writeFloatNoTag(depth_.getFloat(i));
+      }
+      if (getDepth2List().size() > 0) {
+        output.writeUInt32NoTag(314);
+        output.writeUInt32NoTag(depth2MemoizedSerializedSize);
+      }
+      for (int i = 0; i < depth2_.size(); i++) {
+        output.writeFloatNoTag(depth2_.getFloat(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -10830,13 +10899,27 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(37, ipcHandle_);
       }
-      if (!depth_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(38, depth_);
+      {
+        int dataSize = 0;
+        dataSize = 4 * getDepthList().size();
+        size += dataSize;
+        if (!getDepthList().isEmpty()) {
+          size += 2;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        depthMemoizedSerializedSize = dataSize;
       }
-      if (!depth2_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(39, depth2_);
+      {
+        int dataSize = 0;
+        dataSize = 4 * getDepth2List().size();
+        size += dataSize;
+        if (!getDepth2List().isEmpty()) {
+          size += 2;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        depth2MemoizedSerializedSize = dataSize;
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
@@ -10941,10 +11024,10 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           != other.getIsTouchingWater()) return false;
       if (!getIpcHandle()
           .equals(other.getIpcHandle())) return false;
-      if (!getDepth()
-          .equals(other.getDepth())) return false;
-      if (!getDepth2()
-          .equals(other.getDepth2())) return false;
+      if (!getDepthList()
+          .equals(other.getDepthList())) return false;
+      if (!getDepth2List()
+          .equals(other.getDepth2List())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -11076,10 +11159,14 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           getIsTouchingWater());
       hash = (37 * hash) + IPC_HANDLE_FIELD_NUMBER;
       hash = (53 * hash) + getIpcHandle().hashCode();
-      hash = (37 * hash) + DEPTH_FIELD_NUMBER;
-      hash = (53 * hash) + getDepth().hashCode();
-      hash = (37 * hash) + DEPTH_2_FIELD_NUMBER;
-      hash = (53 * hash) + getDepth2().hashCode();
+      if (getDepthCount() > 0) {
+        hash = (37 * hash) + DEPTH_FIELD_NUMBER;
+        hash = (53 * hash) + getDepthList().hashCode();
+      }
+      if (getDepth2Count() > 0) {
+        hash = (37 * hash) + DEPTH_2_FIELD_NUMBER;
+        hash = (53 * hash) + getDepth2List().hashCode();
+      }
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -11354,8 +11441,8 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         isOnGround_ = false;
         isTouchingWater_ = false;
         ipcHandle_ = com.google.protobuf.ByteString.EMPTY;
-        depth_ = com.google.protobuf.ByteString.EMPTY;
-        depth2_ = com.google.protobuf.ByteString.EMPTY;
+        depth_ = emptyFloatList();
+        depth2_ = emptyFloatList();
         return this;
       }
 
@@ -11569,9 +11656,11 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           result.ipcHandle_ = ipcHandle_;
         }
         if (((from_bitField1_ & 0x00000020) != 0)) {
+          depth_.makeImmutable();
           result.depth_ = depth_;
         }
         if (((from_bitField1_ & 0x00000040) != 0)) {
+          depth2_.makeImmutable();
           result.depth2_ = depth2_;
         }
       }
@@ -11885,11 +11974,27 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         if (other.getIpcHandle() != com.google.protobuf.ByteString.EMPTY) {
           setIpcHandle(other.getIpcHandle());
         }
-        if (other.getDepth() != com.google.protobuf.ByteString.EMPTY) {
-          setDepth(other.getDepth());
+        if (!other.depth_.isEmpty()) {
+          if (depth_.isEmpty()) {
+            depth_ = other.depth_;
+            depth_.makeImmutable();
+            bitField1_ |= 0x00000020;
+          } else {
+            ensureDepthIsMutable();
+            depth_.addAll(other.depth_);
+          }
+          onChanged();
         }
-        if (other.getDepth2() != com.google.protobuf.ByteString.EMPTY) {
-          setDepth2(other.getDepth2());
+        if (!other.depth2_.isEmpty()) {
+          if (depth2_.isEmpty()) {
+            depth2_ = other.depth2_;
+            depth2_.makeImmutable();
+            bitField1_ |= 0x00000040;
+          } else {
+            ensureDepth2IsMutable();
+            depth2_.addAll(other.depth2_);
+          }
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
@@ -12186,14 +12291,38 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
                 bitField1_ |= 0x00000010;
                 break;
               } // case 298
+              case 309: {
+                float v = input.readFloat();
+                ensureDepthIsMutable();
+                depth_.addFloat(v);
+                break;
+              } // case 309
               case 306: {
-                depth_ = input.readBytes();
-                bitField1_ |= 0x00000020;
+                int length = input.readRawVarint32();
+                int limit = input.pushLimit(length);
+                int alloc = length > 4096 ? 4096 : length;
+                ensureDepthIsMutable(alloc / 4);
+                while (input.getBytesUntilLimit() > 0) {
+                  depth_.addFloat(input.readFloat());
+                }
+                input.popLimit(limit);
                 break;
               } // case 306
+              case 317: {
+                float v = input.readFloat();
+                ensureDepth2IsMutable();
+                depth2_.addFloat(v);
+                break;
+              } // case 317
               case 314: {
-                depth2_ = input.readBytes();
-                bitField1_ |= 0x00000040;
+                int length = input.readRawVarint32();
+                int limit = input.pushLimit(length);
+                int alloc = length > 4096 ? 4096 : length;
+                ensureDepth2IsMutable(alloc / 4);
+                while (input.getBytesUntilLimit() > 0) {
+                  depth2_.addFloat(input.readFloat());
+                }
+                input.popLimit(limit);
                 break;
               } // case 314
               default: {
@@ -15754,66 +15883,182 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         return this;
       }
 
-      private com.google.protobuf.ByteString depth_ = com.google.protobuf.ByteString.EMPTY;
+      private com.google.protobuf.Internal.FloatList depth_ = emptyFloatList();
+      private void ensureDepthIsMutable() {
+        if (!depth_.isModifiable()) {
+          depth_ = makeMutableCopy(depth_);
+        }
+        bitField1_ |= 0x00000020;
+      }
+      private void ensureDepthIsMutable(int capacity) {
+        if (!depth_.isModifiable()) {
+          depth_ = makeMutableCopy(depth_, capacity);
+        }
+        bitField1_ |= 0x00000020;
+      }
       /**
-       * <code>bytes depth = 38;</code>
-       * @return The depth.
+       * <code>repeated float depth = 38 [packed = true];</code>
+       * @return A list containing the depth.
        */
-      @java.lang.Override
-      public com.google.protobuf.ByteString getDepth() {
+      public java.util.List<java.lang.Float>
+          getDepthList() {
+        depth_.makeImmutable();
         return depth_;
       }
       /**
-       * <code>bytes depth = 38;</code>
+       * <code>repeated float depth = 38 [packed = true];</code>
+       * @return The count of depth.
+       */
+      public int getDepthCount() {
+        return depth_.size();
+      }
+      /**
+       * <code>repeated float depth = 38 [packed = true];</code>
+       * @param index The index of the element to return.
+       * @return The depth at the given index.
+       */
+      public float getDepth(int index) {
+        return depth_.getFloat(index);
+      }
+      /**
+       * <code>repeated float depth = 38 [packed = true];</code>
+       * @param index The index to set the value at.
        * @param value The depth to set.
        * @return This builder for chaining.
        */
-      public Builder setDepth(com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        depth_ = value;
+      public Builder setDepth(
+          int index, float value) {
+
+        ensureDepthIsMutable();
+        depth_.setFloat(index, value);
         bitField1_ |= 0x00000020;
         onChanged();
         return this;
       }
       /**
-       * <code>bytes depth = 38;</code>
+       * <code>repeated float depth = 38 [packed = true];</code>
+       * @param value The depth to add.
+       * @return This builder for chaining.
+       */
+      public Builder addDepth(float value) {
+
+        ensureDepthIsMutable();
+        depth_.addFloat(value);
+        bitField1_ |= 0x00000020;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float depth = 38 [packed = true];</code>
+       * @param values The depth to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllDepth(
+          java.lang.Iterable<? extends java.lang.Float> values) {
+        ensureDepthIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, depth_);
+        bitField1_ |= 0x00000020;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float depth = 38 [packed = true];</code>
        * @return This builder for chaining.
        */
       public Builder clearDepth() {
+        depth_ = emptyFloatList();
         bitField1_ = (bitField1_ & ~0x00000020);
-        depth_ = getDefaultInstance().getDepth();
         onChanged();
         return this;
       }
 
-      private com.google.protobuf.ByteString depth2_ = com.google.protobuf.ByteString.EMPTY;
+      private com.google.protobuf.Internal.FloatList depth2_ = emptyFloatList();
+      private void ensureDepth2IsMutable() {
+        if (!depth2_.isModifiable()) {
+          depth2_ = makeMutableCopy(depth2_);
+        }
+        bitField1_ |= 0x00000040;
+      }
+      private void ensureDepth2IsMutable(int capacity) {
+        if (!depth2_.isModifiable()) {
+          depth2_ = makeMutableCopy(depth2_, capacity);
+        }
+        bitField1_ |= 0x00000040;
+      }
       /**
-       * <code>bytes depth_2 = 39;</code>
-       * @return The depth2.
+       * <code>repeated float depth_2 = 39 [packed = true];</code>
+       * @return A list containing the depth2.
        */
-      @java.lang.Override
-      public com.google.protobuf.ByteString getDepth2() {
+      public java.util.List<java.lang.Float>
+          getDepth2List() {
+        depth2_.makeImmutable();
         return depth2_;
       }
       /**
-       * <code>bytes depth_2 = 39;</code>
+       * <code>repeated float depth_2 = 39 [packed = true];</code>
+       * @return The count of depth2.
+       */
+      public int getDepth2Count() {
+        return depth2_.size();
+      }
+      /**
+       * <code>repeated float depth_2 = 39 [packed = true];</code>
+       * @param index The index of the element to return.
+       * @return The depth2 at the given index.
+       */
+      public float getDepth2(int index) {
+        return depth2_.getFloat(index);
+      }
+      /**
+       * <code>repeated float depth_2 = 39 [packed = true];</code>
+       * @param index The index to set the value at.
        * @param value The depth2 to set.
        * @return This builder for chaining.
        */
-      public Builder setDepth2(com.google.protobuf.ByteString value) {
-        if (value == null) { throw new NullPointerException(); }
-        depth2_ = value;
+      public Builder setDepth2(
+          int index, float value) {
+
+        ensureDepth2IsMutable();
+        depth2_.setFloat(index, value);
         bitField1_ |= 0x00000040;
         onChanged();
         return this;
       }
       /**
-       * <code>bytes depth_2 = 39;</code>
+       * <code>repeated float depth_2 = 39 [packed = true];</code>
+       * @param value The depth2 to add.
+       * @return This builder for chaining.
+       */
+      public Builder addDepth2(float value) {
+
+        ensureDepth2IsMutable();
+        depth2_.addFloat(value);
+        bitField1_ |= 0x00000040;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float depth_2 = 39 [packed = true];</code>
+       * @param values The depth2 to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllDepth2(
+          java.lang.Iterable<? extends java.lang.Float> values) {
+        ensureDepth2IsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, depth2_);
+        bitField1_ |= 0x00000040;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float depth_2 = 39 [packed = true];</code>
        * @return This builder for chaining.
        */
       public Builder clearDepth2() {
+        depth2_ = emptyFloatList();
         bitField1_ = (bitField1_ & ~0x00000040);
-        depth2_ = getDefaultInstance().getDepth2();
         onChanged();
         return this;
       }
@@ -15983,7 +16228,7 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       "r_z\030\004 \001(\005\"B\n\013NearbyBiome\022\022\n\nbiome_name\030\001" +
       " \001(\t\022\t\n\001x\030\002 \001(\005\022\t\n\001y\030\003 \001(\005\022\t\n\001z\030\004 \001(\005\"F\n" +
       "\nHeightInfo\022\t\n\001x\030\001 \001(\005\022\t\n\001z\030\002 \001(\005\022\016\n\006hei" +
-      "ght\030\003 \001(\005\022\022\n\nblock_name\030\004 \001(\t\"\223\013\n\027Observ" +
+      "ght\030\003 \001(\005\022\022\n\nblock_name\030\004 \001(\t\"\233\013\n\027Observ" +
       "ationSpaceMessage\022\r\n\005image\030\001 \001(\014\022\t\n\001x\030\002 " +
       "\001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003yaw\030\005 \001(\001\022\r" +
       "\n\005pitch\030\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022\n\nfood_le" +
@@ -16012,15 +16257,15 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       " \001(\010\022\031\n\021submerged_in_lava\030! \001(\010\022 \n\013heigh" +
       "t_info\030\" \003(\0132\013.HeightInfo\022\024\n\014is_on_groun" +
       "d\030# \001(\010\022\031\n\021is_touching_water\030$ \001(\010\022\022\n\nip" +
-      "c_handle\030% \001(\014\022\r\n\005depth\030& \001(\014\022\017\n\007depth_2" +
-      "\030\' \001(\014\0327\n\025KilledStatisticsEntry\022\013\n\003key\030\001" +
-      " \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0326\n\024MinedStatisti" +
-      "csEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\032" +
-      "5\n\023MiscStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005v" +
-      "alue\030\002 \001(\005:\0028\001\032S\n\030SurroundingEntitiesEnt" +
-      "ry\022\013\n\003key\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027.Entitie" +
-      "sWithinDistance:\0028\001B%\n#com.kyhsgeekcode." +
-      "minecraftenv.protob\006proto3"
+      "c_handle\030% \001(\014\022\021\n\005depth\030& \003(\002B\002\020\001\022\023\n\007dep" +
+      "th_2\030\' \003(\002B\002\020\001\0327\n\025KilledStatisticsEntry\022" +
+      "\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0326\n\024Mined" +
+      "StatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 " +
+      "\001(\005:\0028\001\0325\n\023MiscStatisticsEntry\022\013\n\003key\030\001 " +
+      "\001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\032S\n\030SurroundingEnt" +
+      "itiesEntry\022\013\n\003key\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027" +
+      ".EntitiesWithinDistance:\0028\001B%\n#com.kyhsg" +
+      "eekcode.minecraftenv.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
