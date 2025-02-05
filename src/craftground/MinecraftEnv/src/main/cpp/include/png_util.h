@@ -2,6 +2,7 @@
 #ifdef HAS_PNG
 #include <png.h>
 #include <iostream>
+#include <vector>
 
 // https://gist.github.com/dobrokot/10486786
 typedef unsigned char ui8;

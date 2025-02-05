@@ -1,4 +1,3 @@
-#include <OpenGL/OpenGL.h>
 #include <cstddef>
 #include <jni.h>
 #include "cross_gl.h"
