@@ -23,5 +23,5 @@ jobs:
 
       - name: Check formatting
         run: |
-          git ls-files -- '*.java' -z | xargs -0 -P 4 java -jar google-java-format.jar --dry-run --set-exit-if-changed -i
+          git ls-files -- '*.java' -z | xargs -0 -P 4 java -jar google-java-format.jar --dry-run --set-exit-if-changed
           # java -jar google-java-format.jar --dry-run --set-exit-if-changed $(find . -name '*.java')
