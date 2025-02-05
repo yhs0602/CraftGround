@@ -123,7 +123,7 @@ For detailed specifications, refer to the following documents:
 
 
 ## Technical Details
-See [Technical Details](technical_report) for detailed technical information.
+See [Technical Details](blog/technical_report) for detailed technical information.
 
 
 ## License and Acknowledgements
