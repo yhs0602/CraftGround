@@ -10,6 +10,9 @@
 
 #include "framebuffer_capturer_cuda.h"
 
+extern jclass byteStringClass;
+extern jmethodID copyFromMethod;
+
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
@@ -32,15 +35,16 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
         return nullptr; // JVM automatically throws NoClassDefFoundError
     }
 
-    jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
+    // jclass byteStringClass =
+    // env->FindClass("com/google/protobuf/ByteString");
     if (byteStringClass == nullptr || env->ExceptionCheck()) {
         fprintf(stderr, "Failed to find ByteString class\n");
         fflush(stderr);
         return nullptr; // JVM automatically throws NoClassDefFoundError
     }
-    jmethodID copyFromMethod = env->GetStaticMethodID(
-        byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
-    );
+    // jmethodID copyFromMethod = env->GetStaticMethodID(
+    //     byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
+    // );
     if (copyFromMethod == nullptr || env->ExceptionCheck()) {
         fprintf(stderr, "Failed to get copyFrom method\n");
         fflush(stderr);

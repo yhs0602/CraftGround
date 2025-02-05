@@ -1,4 +1,26 @@
 #if !defined(HAS_CUDA) && !defined(__APPLE__)
+#include <jni.h>
+
+extern jclass byteStringClass;
+extern jmethodID copyFromMethod;
+
+extern JNIEXPORT jobject JNICALL
+Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
+    JNIEnv *env,
+    jclass clazz,
+    jint textureId,
+    jint frameBufferId,
+    jint textureWidth,
+    jint textureHeight,
+    jint targetSizeX,
+    jint targetSizeY,
+    jint encodingMode,
+    jboolean isExtensionAvailable,
+    jboolean drawCursor,
+    jint xPos,
+    jint yPos
+);
+
 // Returns an empty ByteString object.
 // TODO: Implement this function for normal mmap IPC based one copy. (GPU ->
 // CPU)
@@ -12,7 +34,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     jint depthAttachment,
     jint python_pid
 ) {
-    jclass byteStringClass = env->FindClass("com/google/protobuf/ByteString");
+    // jclass byteStringClass =
+    // env->FindClass("com/google/protobuf/ByteString");
     if (byteStringClass == nullptr || env->ExceptionCheck()) {
         return nullptr;
     }
