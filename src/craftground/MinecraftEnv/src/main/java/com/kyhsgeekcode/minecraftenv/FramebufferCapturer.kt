@@ -141,6 +141,9 @@ object FramebufferCapturer {
         depthFrameBufferId: Int,
         textureWidth: Int,
         textureHeight: Int,
+        requiresDepthConversion: Boolean,
+        near: Float,
+        far: Float,
     ): FloatArray
 
     const val RAW = 0

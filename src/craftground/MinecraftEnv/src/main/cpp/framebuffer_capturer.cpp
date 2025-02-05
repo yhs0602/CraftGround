@@ -27,7 +27,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (tmpByteStringClass == nullptr || env->ExceptionCheck()) {
         return JNI_ERR;
     }
-    byteStringClass = static_cast<jclass>(env->NewGlobalRef(tmpByteStringClass));
+    byteStringClass =
+        static_cast<jclass>(env->NewGlobalRef(tmpByteStringClass));
     env->DeleteLocalRef(tmpByteStringClass);
     copyFromMethod = env->GetStaticMethodID(
         byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
@@ -253,10 +254,19 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
     jclass clazz,
     jint depthFrameBufferId,
     jint textureWidth,
-    jint textureHeight
+    jint textureHeight,
+    jboolean requiresDepthConversion,
+    jfloat near,
+    jfloat far
 ) {
-    float *depthBuffer =
-        captureDepth(depthFrameBufferId, textureWidth, textureHeight);
+    float *depthBuffer = captureDepth(
+        depthFrameBufferId,
+        textureWidth,
+        textureHeight,
+        requiresDepthConversion,
+        near,
+        far
+    );
     jfloatArray depthArray = env->NewFloatArray(textureWidth * textureHeight);
     env->SetFloatArrayRegion(
         depthArray,

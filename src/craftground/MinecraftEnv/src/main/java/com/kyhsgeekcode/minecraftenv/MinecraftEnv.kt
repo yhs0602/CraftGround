@@ -42,7 +42,6 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.World
 import net.minecraft.world.biome.source.BiomeCoords
-import java.awt.Frame
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
@@ -288,7 +287,6 @@ class MinecraftEnv :
                 }
                 return
             }
-
             ResetPhase.WAIT_PLAYER_RESPAWN -> {
                 printWithTime("Waiting for player respawn")
                 csvLogger.log("Waiting for player respawn")
@@ -299,7 +297,6 @@ class MinecraftEnv :
                 }
                 return
             }
-
             ResetPhase.WAIT_INIT_ENDS -> {
                 printWithTime("Waiting for the initialization ends")
                 csvLogger.log("Waiting for the initialization ends")
@@ -309,7 +306,6 @@ class MinecraftEnv :
                 }
                 return
             }
-
             ResetPhase.END_RESET -> {
                 printWithTime("Reset end")
                 csvLogger.log("Reset end")
@@ -580,12 +576,12 @@ class MinecraftEnv :
                     (
                         MouseInfo.mouseX * client.window.scaledWidth.toDouble() /
                             client.window.width.toDouble()
-                        ).toInt()
+                    ).toInt()
                 val j: Int =
                     (
                         MouseInfo.mouseY * client.window.scaledHeight.toDouble() /
                             client.window.height.toDouble()
-                        ).toInt()
+                    ).toInt()
                 imageByteString1 =
                     FramebufferCapturer.captureFramebuffer(
                         buffer.colorAttachment,
@@ -786,13 +782,19 @@ class MinecraftEnv :
                     if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
                         ipcHandle = FramebufferCapturer.ipcHandle
                     }
-                    depth.addAll(
-                        FramebufferCapturer.captureDepthImpl(
-                            buffer.colorAttachment,
-                            buffer.textureWidth,
-                            buffer.textureHeight,
-                        ).asIterable()
-                    )
+                    if (initialEnvironment.requiresDepth) {
+                        depth.addAll(
+                            FramebufferCapturer
+                                .captureDepthImpl(
+                                    buffer.colorAttachment,
+                                    buffer.textureWidth,
+                                    buffer.textureHeight,
+                                    initialEnvironment.requiresDepthConversion,
+                                    0.05f,
+                                    client.options.viewDistance.value * 4.0f,
+                                ).asIterable(),
+                        )
+                    }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
                 //                csvLogger.log("Sent observation; $ioPhase")
