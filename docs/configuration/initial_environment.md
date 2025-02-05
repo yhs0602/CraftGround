@@ -1,3 +1,8 @@
+---
+title: Initial Environment Configuration
+parent: Configuration
+---
+
 # Initial Environment Configuration
 
 ## `InitialEnvironmentConfig`  

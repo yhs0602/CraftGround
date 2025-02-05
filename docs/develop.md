@@ -1,3 +1,8 @@
+---
+title: Development Guide
+nav_order: 7
+---
+
 # **CraftGround Development Guide**  
 
 This guide provides instructions for setting up the **CraftGround** development environment, modifying `.proto` files, formatting the code, building the project, and running tests.  

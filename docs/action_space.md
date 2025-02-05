@@ -1,3 +1,8 @@
+---
+title: Action Space
+nav_order: 4
+---
+
 # **Action Space**  
 
 Craftground provides two modes of action space:  

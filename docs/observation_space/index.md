@@ -1,6 +1,6 @@
 ---
 title: Observation Space
-nav_order: 2
+nav_order: 4
 ---
 
 # **Observation Space**
