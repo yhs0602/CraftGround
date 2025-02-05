@@ -1,3 +1,9 @@
+---
+title: Setting up Custom Structures
+parent: configuration
+
+---
+
 # Custom Structures in CraftGround
 
 Utilizing custom structures are of significant interest for researchers as they allow for a variety of powerful experiments. In this reinforcement learning environment, unlike other environments, it is easy to experiment with custom structures. This section describes how to create and use custom structures within the CraftGround environment.

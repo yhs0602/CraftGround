@@ -1,3 +1,8 @@
+---
+title: Bimodal Observation
+parent: Observation Space
+---
+
 # Bimodal Observation
 CraftGround supports not only (binocular) vision observation, but also sound subtitles, which provides a bimodal observation experience. The sound subtitles are actually the Minecraft's translation keys of its sound subtitles option in the accessibility settings. It provides relative position information of the sound source. We recommend adding the agent's yaw value to the observation of the agent to make it handle the position information of the sound source more effectively.
 

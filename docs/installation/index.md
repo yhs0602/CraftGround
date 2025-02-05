@@ -1,3 +1,9 @@
+---
+title: Installation
+nav_order: 2
+---
+
+
 # Installation
 Latest cmake is required for Craftground to ensure it find the cuda libraries correctly. Currently the apt repository has cmake 3.10.2, which is not enough for Craftground. To install the latest version of cmake on linux, you should use pip or conda to install it.
 ```bash

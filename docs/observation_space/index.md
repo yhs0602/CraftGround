@@ -1,3 +1,8 @@
+---
+title: Observation Space
+nav_order: 2
+---
+
 # **Observation Space**
 
 The observation space represents the agent's perception of the Minecraft environment, including visual input, player state, entities, blocks, and other relevant data.

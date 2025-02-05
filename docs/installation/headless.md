@@ -1,3 +1,8 @@
+---
+title: Installation on Headless Servers
+parent: installation
+---
+
 # How to run minecraft environments on headless server
 
 To run Minecraft environments on a headless server with GPU acceleration, you need to emulate a 3D X server (and of course, 2D X server.) Here, we use [VirtualGL](https://virtualgl.org/) to emulate the 3D X server.
