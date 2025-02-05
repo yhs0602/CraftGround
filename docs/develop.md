@@ -19,12 +19,24 @@ sudo ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
 ## Run formatters
 
 ```bash
+source ./dev_tools.sh
+format_code
+```
+
+Or:
+```bash
 git ls-files -- '*.h' '*.cpp' '*.mm' | xargs clang-format -i
 git ls-files -- '*.java' -z | xargs -0 -P 4 google-java-format -i
 ktlint '!**/com/kyhsgeekcode/minecraftenv/proto/**' --format
 ```
 
 # Managing proto files
+```bash
+source ./dev_tools.sh
+generate_proto
+```
+
+Or:
 ```bash
 cd src/
 protoc proto/action_space.proto --python_out=craftground

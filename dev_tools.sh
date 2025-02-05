@@ -6,7 +6,7 @@ format_code() {
     black .
 }
 
-generate_protoc() {
+generate_proto() {
     cd src/
     protoc proto/action_space.proto --python_out=craftground
     protoc proto/initial_environment.proto --python_out=craftground
