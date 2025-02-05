@@ -1014,37 +1014,37 @@ public object InitialEnvironmentMessageKt {
     }
 
     /**
-     * `bool requiresDepthSeparation = 31;`
+     * `bool requiresDepthUnification = 31;`
      */
-    public var requiresDepthSeparation: kotlin.Boolean
-      @JvmName("getRequiresDepthSeparation")
-      get() = _builder.requiresDepthSeparation
-      @JvmName("setRequiresDepthSeparation")
+    public var requiresDepthUnification: kotlin.Boolean
+      @JvmName("getRequiresDepthUnification")
+      get() = _builder.requiresDepthUnification
+      @JvmName("setRequiresDepthUnification")
       set(value) {
-        _builder.requiresDepthSeparation = value
+        _builder.requiresDepthUnification = value
       }
     /**
-     * `bool requiresDepthSeparation = 31;`
+     * `bool requiresDepthUnification = 31;`
      */
-    public fun clearRequiresDepthSeparation() {
-      _builder.clearRequiresDepthSeparation()
+    public fun clearRequiresDepthUnification() {
+      _builder.clearRequiresDepthUnification()
     }
 
     /**
-     * `bool reqruiesDepthConversion = 32;`
+     * `bool requiresDepthConversion = 32;`
      */
-    public var reqruiesDepthConversion: kotlin.Boolean
-      @JvmName("getReqruiesDepthConversion")
-      get() = _builder.reqruiesDepthConversion
-      @JvmName("setReqruiesDepthConversion")
+    public var requiresDepthConversion: kotlin.Boolean
+      @JvmName("getRequiresDepthConversion")
+      get() = _builder.requiresDepthConversion
+      @JvmName("setRequiresDepthConversion")
       set(value) {
-        _builder.reqruiesDepthConversion = value
+        _builder.requiresDepthConversion = value
       }
     /**
-     * `bool reqruiesDepthConversion = 32;`
+     * `bool requiresDepthConversion = 32;`
      */
-    public fun clearReqruiesDepthConversion() {
-      _builder.clearReqruiesDepthConversion()
+    public fun clearRequiresDepthConversion() {
+      _builder.clearRequiresDepthConversion()
     }
   }
 }

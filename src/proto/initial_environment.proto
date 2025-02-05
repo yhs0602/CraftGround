@@ -53,6 +53,6 @@ message InitialEnvironmentMessage {
   bool requiresHeightmap = 28;
   int32 python_pid = 29;
   bool requiresDepth = 30;
-  bool requiresDepthSeparation = 31;
-  bool reqruiesDepthConversion = 32;
+  bool requiresDepthUnification = 31;
+  bool requiresDepthConversion = 32;
 }

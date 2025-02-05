@@ -837,16 +837,16 @@ public final class InitialEnvironment {
     boolean getRequiresDepth();
 
     /**
-     * <code>bool requiresDepthSeparation = 31;</code>
-     * @return The requiresDepthSeparation.
+     * <code>bool requiresDepthUnification = 31;</code>
+     * @return The requiresDepthUnification.
      */
-    boolean getRequiresDepthSeparation();
+    boolean getRequiresDepthUnification();
 
     /**
-     * <code>bool reqruiesDepthConversion = 32;</code>
-     * @return The reqruiesDepthConversion.
+     * <code>bool requiresDepthConversion = 32;</code>
+     * @return The requiresDepthConversion.
      */
-    boolean getReqruiesDepthConversion();
+    boolean getRequiresDepthConversion();
   }
   /**
    * Protobuf type {@code InitialEnvironmentMessage}
@@ -1578,26 +1578,26 @@ public final class InitialEnvironment {
       return requiresDepth_;
     }
 
-    public static final int REQUIRESDEPTHSEPARATION_FIELD_NUMBER = 31;
-    private boolean requiresDepthSeparation_ = false;
+    public static final int REQUIRESDEPTHUNIFICATION_FIELD_NUMBER = 31;
+    private boolean requiresDepthUnification_ = false;
     /**
-     * <code>bool requiresDepthSeparation = 31;</code>
-     * @return The requiresDepthSeparation.
+     * <code>bool requiresDepthUnification = 31;</code>
+     * @return The requiresDepthUnification.
      */
     @java.lang.Override
-    public boolean getRequiresDepthSeparation() {
-      return requiresDepthSeparation_;
+    public boolean getRequiresDepthUnification() {
+      return requiresDepthUnification_;
     }
 
-    public static final int REQRUIESDEPTHCONVERSION_FIELD_NUMBER = 32;
-    private boolean reqruiesDepthConversion_ = false;
+    public static final int REQUIRESDEPTHCONVERSION_FIELD_NUMBER = 32;
+    private boolean requiresDepthConversion_ = false;
     /**
-     * <code>bool reqruiesDepthConversion = 32;</code>
-     * @return The reqruiesDepthConversion.
+     * <code>bool requiresDepthConversion = 32;</code>
+     * @return The requiresDepthConversion.
      */
     @java.lang.Override
-    public boolean getReqruiesDepthConversion() {
-      return reqruiesDepthConversion_;
+    public boolean getRequiresDepthConversion() {
+      return requiresDepthConversion_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -1709,11 +1709,11 @@ public final class InitialEnvironment {
       if (requiresDepth_ != false) {
         output.writeBool(30, requiresDepth_);
       }
-      if (requiresDepthSeparation_ != false) {
-        output.writeBool(31, requiresDepthSeparation_);
+      if (requiresDepthUnification_ != false) {
+        output.writeBool(31, requiresDepthUnification_);
       }
-      if (reqruiesDepthConversion_ != false) {
-        output.writeBool(32, reqruiesDepthConversion_);
+      if (requiresDepthConversion_ != false) {
+        output.writeBool(32, requiresDepthConversion_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1875,13 +1875,13 @@ public final class InitialEnvironment {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(30, requiresDepth_);
       }
-      if (requiresDepthSeparation_ != false) {
+      if (requiresDepthUnification_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(31, requiresDepthSeparation_);
+          .computeBoolSize(31, requiresDepthUnification_);
       }
-      if (reqruiesDepthConversion_ != false) {
+      if (requiresDepthConversion_ != false) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(32, reqruiesDepthConversion_);
+          .computeBoolSize(32, requiresDepthConversion_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
@@ -1957,10 +1957,10 @@ public final class InitialEnvironment {
           != other.getPythonPid()) return false;
       if (getRequiresDepth()
           != other.getRequiresDepth()) return false;
-      if (getRequiresDepthSeparation()
-          != other.getRequiresDepthSeparation()) return false;
-      if (getReqruiesDepthConversion()
-          != other.getReqruiesDepthConversion()) return false;
+      if (getRequiresDepthUnification()
+          != other.getRequiresDepthUnification()) return false;
+      if (getRequiresDepthConversion()
+          != other.getRequiresDepthConversion()) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -2057,12 +2057,12 @@ public final class InitialEnvironment {
       hash = (37 * hash) + REQUIRESDEPTH_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getRequiresDepth());
-      hash = (37 * hash) + REQUIRESDEPTHSEPARATION_FIELD_NUMBER;
+      hash = (37 * hash) + REQUIRESDEPTHUNIFICATION_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getRequiresDepthSeparation());
-      hash = (37 * hash) + REQRUIESDEPTHCONVERSION_FIELD_NUMBER;
+          getRequiresDepthUnification());
+      hash = (37 * hash) + REQUIRESDEPTHCONVERSION_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getReqruiesDepthConversion());
+          getRequiresDepthConversion());
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -2230,8 +2230,8 @@ public final class InitialEnvironment {
         requiresHeightmap_ = false;
         pythonPid_ = 0;
         requiresDepth_ = false;
-        requiresDepthSeparation_ = false;
-        reqruiesDepthConversion_ = false;
+        requiresDepthUnification_ = false;
+        requiresDepthConversion_ = false;
         return this;
       }
 
@@ -2363,10 +2363,10 @@ public final class InitialEnvironment {
           result.requiresDepth_ = requiresDepth_;
         }
         if (((from_bitField0_ & 0x40000000) != 0)) {
-          result.requiresDepthSeparation_ = requiresDepthSeparation_;
+          result.requiresDepthUnification_ = requiresDepthUnification_;
         }
         if (((from_bitField0_ & 0x80000000) != 0)) {
-          result.reqruiesDepthConversion_ = reqruiesDepthConversion_;
+          result.requiresDepthConversion_ = requiresDepthConversion_;
         }
       }
 
@@ -2528,11 +2528,11 @@ public final class InitialEnvironment {
         if (other.getRequiresDepth() != false) {
           setRequiresDepth(other.getRequiresDepth());
         }
-        if (other.getRequiresDepthSeparation() != false) {
-          setRequiresDepthSeparation(other.getRequiresDepthSeparation());
+        if (other.getRequiresDepthUnification() != false) {
+          setRequiresDepthUnification(other.getRequiresDepthUnification());
         }
-        if (other.getReqruiesDepthConversion() != false) {
-          setReqruiesDepthConversion(other.getReqruiesDepthConversion());
+        if (other.getRequiresDepthConversion() != false) {
+          setRequiresDepthConversion(other.getRequiresDepthConversion());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
@@ -2728,12 +2728,12 @@ public final class InitialEnvironment {
                 break;
               } // case 240
               case 248: {
-                requiresDepthSeparation_ = input.readBool();
+                requiresDepthUnification_ = input.readBool();
                 bitField0_ |= 0x40000000;
                 break;
               } // case 248
               case 256: {
-                reqruiesDepthConversion_ = input.readBool();
+                requiresDepthConversion_ = input.readBool();
                 bitField0_ |= 0x80000000;
                 break;
               } // case 256
@@ -4595,66 +4595,66 @@ public final class InitialEnvironment {
         return this;
       }
 
-      private boolean requiresDepthSeparation_ ;
+      private boolean requiresDepthUnification_ ;
       /**
-       * <code>bool requiresDepthSeparation = 31;</code>
-       * @return The requiresDepthSeparation.
+       * <code>bool requiresDepthUnification = 31;</code>
+       * @return The requiresDepthUnification.
        */
       @java.lang.Override
-      public boolean getRequiresDepthSeparation() {
-        return requiresDepthSeparation_;
+      public boolean getRequiresDepthUnification() {
+        return requiresDepthUnification_;
       }
       /**
-       * <code>bool requiresDepthSeparation = 31;</code>
-       * @param value The requiresDepthSeparation to set.
+       * <code>bool requiresDepthUnification = 31;</code>
+       * @param value The requiresDepthUnification to set.
        * @return This builder for chaining.
        */
-      public Builder setRequiresDepthSeparation(boolean value) {
+      public Builder setRequiresDepthUnification(boolean value) {
 
-        requiresDepthSeparation_ = value;
+        requiresDepthUnification_ = value;
         bitField0_ |= 0x40000000;
         onChanged();
         return this;
       }
       /**
-       * <code>bool requiresDepthSeparation = 31;</code>
+       * <code>bool requiresDepthUnification = 31;</code>
        * @return This builder for chaining.
        */
-      public Builder clearRequiresDepthSeparation() {
+      public Builder clearRequiresDepthUnification() {
         bitField0_ = (bitField0_ & ~0x40000000);
-        requiresDepthSeparation_ = false;
+        requiresDepthUnification_ = false;
         onChanged();
         return this;
       }
 
-      private boolean reqruiesDepthConversion_ ;
+      private boolean requiresDepthConversion_ ;
       /**
-       * <code>bool reqruiesDepthConversion = 32;</code>
-       * @return The reqruiesDepthConversion.
+       * <code>bool requiresDepthConversion = 32;</code>
+       * @return The requiresDepthConversion.
        */
       @java.lang.Override
-      public boolean getReqruiesDepthConversion() {
-        return reqruiesDepthConversion_;
+      public boolean getRequiresDepthConversion() {
+        return requiresDepthConversion_;
       }
       /**
-       * <code>bool reqruiesDepthConversion = 32;</code>
-       * @param value The reqruiesDepthConversion to set.
+       * <code>bool requiresDepthConversion = 32;</code>
+       * @param value The requiresDepthConversion to set.
        * @return This builder for chaining.
        */
-      public Builder setReqruiesDepthConversion(boolean value) {
+      public Builder setRequiresDepthConversion(boolean value) {
 
-        reqruiesDepthConversion_ = value;
+        requiresDepthConversion_ = value;
         bitField0_ |= 0x80000000;
         onChanged();
         return this;
       }
       /**
-       * <code>bool reqruiesDepthConversion = 32;</code>
+       * <code>bool requiresDepthConversion = 32;</code>
        * @return This builder for chaining.
        */
-      public Builder clearReqruiesDepthConversion() {
+      public Builder clearRequiresDepthConversion() {
         bitField0_ = (bitField0_ & ~0x80000000);
-        reqruiesDepthConversion_ = false;
+        requiresDepthConversion_ = false;
         onChanged();
         return this;
       }
@@ -4724,7 +4724,7 @@ public final class InitialEnvironment {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\037proto/initial_environment.proto\"\321\006\n\031In" +
+      "\n\037proto/initial_environment.proto\"\322\006\n\031In" +
       "itialEnvironmentMessage\022\022\n\nimageSizeX\030\001 " +
       "\001(\005\022\022\n\nimageSizeY\030\002 \001(\005\022\033\n\010gamemode\030\003 \001(" +
       "\0162\t.GameMode\022\037\n\ndifficulty\030\004 \001(\0162\013.Diffi" +
@@ -4744,15 +4744,15 @@ public final class InitialEnvironment {
       "el_display_name_to_play\030\031 \001(\t\022\013\n\003fov\030\032 \001" +
       "(\002\022\031\n\021requiresBiomeInfo\030\033 \001(\010\022\031\n\021require" +
       "sHeightmap\030\034 \001(\010\022\022\n\npython_pid\030\035 \001(\005\022\025\n\r" +
-      "requiresDepth\030\036 \001(\010\022\037\n\027requiresDepthSepa" +
-      "ration\030\037 \001(\010\022\037\n\027reqruiesDepthConversion\030" +
-      "  \001(\010*4\n\010GameMode\022\014\n\010SURVIVAL\020\000\022\014\n\010HARDC" +
-      "ORE\020\001\022\014\n\010CREATIVE\020\002*:\n\nDifficulty\022\014\n\010PEA" +
-      "CEFUL\020\000\022\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004HARD\020\003*" +
-      "Z\n\tWorldType\022\013\n\007DEFAULT\020\000\022\r\n\tSUPERFLAT\020\001" +
-      "\022\020\n\014LARGE_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003\022\020\n\014SIN" +
-      "GLE_BIOME\020\004B%\n#com.kyhsgeekcode.minecraf" +
-      "tenv.protob\006proto3"
+      "requiresDepth\030\036 \001(\010\022 \n\030requiresDepthUnif" +
+      "ication\030\037 \001(\010\022\037\n\027requiresDepthConversion" +
+      "\030  \001(\010*4\n\010GameMode\022\014\n\010SURVIVAL\020\000\022\014\n\010HARD" +
+      "CORE\020\001\022\014\n\010CREATIVE\020\002*:\n\nDifficulty\022\014\n\010PE" +
+      "ACEFUL\020\000\022\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004HARD\020\003" +
+      "*Z\n\tWorldType\022\013\n\007DEFAULT\020\000\022\r\n\tSUPERFLAT\020" +
+      "\001\022\020\n\014LARGE_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003\022\020\n\014SI" +
+      "NGLE_BIOME\020\004B%\n#com.kyhsgeekcode.minecra" +
+      "ftenv.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -4763,7 +4763,7 @@ public final class InitialEnvironment {
     internal_static_InitialEnvironmentMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_InitialEnvironmentMessage_descriptor,
-        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthSeparation", "ReqruiesDepthConversion", });
+        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthUnification", "RequiresDepthConversion", });
     descriptor.resolveAllFeaturesImmutable();
   }
 
