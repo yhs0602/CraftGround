@@ -112,7 +112,7 @@ For detailed specifications, refer to the following documents:
 
 
 ## Technical Details
-See [Technical Details](docs/technical_report.md) for detailed technical information.
+See [Technical Details](docs/blog/technical_report.md) for detailed technical information.
 
 
 ## License and Acknowledgements
