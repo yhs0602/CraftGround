@@ -25,6 +25,7 @@ object FramebufferCapturer {
         xPos: Int,
         yPos: Int,
     ): ByteString {
+        ByteString.wrap(byteArrayOf(0))
         if (encodingMode == ZEROCOPY) {
             assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
             return captureFramebufferZerocopyImpl(

@@ -1014,24 +1014,7 @@ public object InitialEnvironmentMessageKt {
     }
 
     /**
-     * `bool requiresDepthUnification = 31;`
-     */
-    public var requiresDepthUnification: kotlin.Boolean
-      @JvmName("getRequiresDepthUnification")
-      get() = _builder.requiresDepthUnification
-      @JvmName("setRequiresDepthUnification")
-      set(value) {
-        _builder.requiresDepthUnification = value
-      }
-    /**
-     * `bool requiresDepthUnification = 31;`
-     */
-    public fun clearRequiresDepthUnification() {
-      _builder.clearRequiresDepthUnification()
-    }
-
-    /**
-     * `bool requiresDepthConversion = 32;`
+     * `bool requiresDepthConversion = 31;`
      */
     public var requiresDepthConversion: kotlin.Boolean
       @JvmName("getRequiresDepthConversion")
@@ -1041,7 +1024,7 @@ public object InitialEnvironmentMessageKt {
         _builder.requiresDepthConversion = value
       }
     /**
-     * `bool requiresDepthConversion = 32;`
+     * `bool requiresDepthConversion = 31;`
      */
     public fun clearRequiresDepthConversion() {
       _builder.clearRequiresDepthConversion()
