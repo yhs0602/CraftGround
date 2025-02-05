@@ -1,6 +1,6 @@
 ---
 title: Setting up Custom Structures
-parent: configuration
+parent: Configuration
 ---
 
 # Custom Structures in CraftGround

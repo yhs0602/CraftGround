@@ -1,10 +1,7 @@
 ---
-title: Enhancing Cross-Language Protobuf Protocol for Improved Data Handling
+title: CraftGround Internals
 parent: Blog
 ---
-
-Utilizing protocol buffers, we've constructed a reinforcement learning environment specifically tailored for Minecraft.
-Below are detailed specifications of the environment's architecture:
 
 # CraftGround Internals
 ## Capturing Frames
