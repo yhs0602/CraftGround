@@ -1,3 +1,10 @@
+---
+title: CraftGround - Reinforcement Learning Environment for Minecraft
+nav_order: 1
+permalink: /
+description: CraftGround provides a lightweight and customizable environment for reinforcement learning experiments using Minecraft.
+---
+
 # CraftGround - Reinforcement Learning Environment for Minecraft
 [![Wheels (All))](https://github.com/yhs0602/CraftGround/actions/workflows/publish-upload.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/publish-upload.yml)
 [![Python package](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/python-ci.yml)
