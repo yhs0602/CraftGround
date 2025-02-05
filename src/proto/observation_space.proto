@@ -122,4 +122,6 @@ message ObservationSpaceMessage {
   bool is_on_ground = 35;
   bool is_touching_water = 36;
   bytes ipc_handle = 37;
+  bytes depth = 38;
+  bytes depth_2 = 39;
 }

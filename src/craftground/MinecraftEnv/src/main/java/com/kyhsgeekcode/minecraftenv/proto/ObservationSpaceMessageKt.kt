@@ -1320,6 +1320,40 @@ public object ObservationSpaceMessageKt {
     public fun clearIpcHandle() {
       _builder.clearIpcHandle()
     }
+
+    /**
+     * `bytes depth = 38;`
+     */
+    public var depth: com.google.protobuf.ByteString
+      @JvmName("getDepth")
+      get() = _builder.depth
+      @JvmName("setDepth")
+      set(value) {
+        _builder.depth = value
+      }
+    /**
+     * `bytes depth = 38;`
+     */
+    public fun clearDepth() {
+      _builder.clearDepth()
+    }
+
+    /**
+     * `bytes depth_2 = 39;`
+     */
+    public var depth2: com.google.protobuf.ByteString
+      @JvmName("getDepth2")
+      get() = _builder.depth2
+      @JvmName("setDepth2")
+      set(value) {
+        _builder.depth2 = value
+      }
+    /**
+     * `bytes depth_2 = 39;`
+     */
+    public fun clearDepth2() {
+      _builder.clearDepth2()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

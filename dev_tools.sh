@@ -3,4 +3,15 @@ format_code() {
     git ls-files -- '*.h' '*.cpp' '*.mm' | xargs clang-format -i
     git ls-files -- '*.java' -z | xargs -0 -P 4 google-java-format -i
     ktlint '!**/com/kyhsgeekcode/minecraftenv/proto/**' --format
+    black .
+}
+
+generate_protoc() {
+    cd src/
+    protoc proto/action_space.proto --python_out=craftground
+    protoc proto/initial_environment.proto --python_out=craftground
+    protoc proto/observation_space.proto --python_out=craftground
+    protoc proto/action_space.proto --java_out=craftground/MinecraftEnv/src/main/java/ --kotlin_out=craftground/MinecraftEnv/src/main/java/
+    protoc proto/initial_environment.proto --java_out=craftground/MinecraftEnv/src/main/java/ --kotlin_out=craftground/MinecraftEnv/src/main/java/
+    protoc proto/observation_space.proto --java_out=craftground/MinecraftEnv/src/main/java/ --kotlin_out=craftground/MinecraftEnv/src/main/java/
 }

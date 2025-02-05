@@ -995,6 +995,57 @@ public object InitialEnvironmentMessageKt {
     public fun clearPythonPid() {
       _builder.clearPythonPid()
     }
+
+    /**
+     * `bool requiresDepth = 30;`
+     */
+    public var requiresDepth: kotlin.Boolean
+      @JvmName("getRequiresDepth")
+      get() = _builder.requiresDepth
+      @JvmName("setRequiresDepth")
+      set(value) {
+        _builder.requiresDepth = value
+      }
+    /**
+     * `bool requiresDepth = 30;`
+     */
+    public fun clearRequiresDepth() {
+      _builder.clearRequiresDepth()
+    }
+
+    /**
+     * `bool requiresDepthSeparation = 31;`
+     */
+    public var requiresDepthSeparation: kotlin.Boolean
+      @JvmName("getRequiresDepthSeparation")
+      get() = _builder.requiresDepthSeparation
+      @JvmName("setRequiresDepthSeparation")
+      set(value) {
+        _builder.requiresDepthSeparation = value
+      }
+    /**
+     * `bool requiresDepthSeparation = 31;`
+     */
+    public fun clearRequiresDepthSeparation() {
+      _builder.clearRequiresDepthSeparation()
+    }
+
+    /**
+     * `bool reqruiesDepthConversion = 32;`
+     */
+    public var reqruiesDepthConversion: kotlin.Boolean
+      @JvmName("getReqruiesDepthConversion")
+      get() = _builder.reqruiesDepthConversion
+      @JvmName("setReqruiesDepthConversion")
+      set(value) {
+        _builder.reqruiesDepthConversion = value
+      }
+    /**
+     * `bool reqruiesDepthConversion = 32;`
+     */
+    public fun clearReqruiesDepthConversion() {
+      _builder.clearReqruiesDepthConversion()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic
