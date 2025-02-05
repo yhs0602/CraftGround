@@ -782,6 +782,19 @@ class MinecraftEnv :
                     if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
                         ipcHandle = FramebufferCapturer.ipcHandle
                     }
+                    if (initialEnvironment.requiresDepth) {
+                        depth.addAll(
+                            FramebufferCapturer
+                                .captureDepthImpl(
+                                    buffer.colorAttachment,
+                                    buffer.textureWidth,
+                                    buffer.textureHeight,
+                                    initialEnvironment.requiresDepthConversion,
+                                    0.05f,
+                                    client.options.viewDistance.value * 4.0f,
+                                ).asIterable(),
+                        )
+                    }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
                 //                csvLogger.log("Sent observation; $ioPhase")

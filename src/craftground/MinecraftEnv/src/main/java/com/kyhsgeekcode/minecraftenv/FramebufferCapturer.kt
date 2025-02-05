@@ -137,6 +137,15 @@ object FramebufferCapturer {
         mouseY: Int,
     ): ByteString?
 
+    external fun captureDepthImpl(
+        depthFrameBufferId: Int,
+        textureWidth: Int,
+        textureHeight: Int,
+        requiresDepthConversion: Boolean,
+        near: Float,
+        far: Float,
+    ): FloatArray
+
     const val RAW = 0
     const val PNG = 1
     const val ZEROCOPY = 2
