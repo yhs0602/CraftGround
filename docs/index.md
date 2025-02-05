@@ -7,7 +7,7 @@
 ![Static Badge](https://img.shields.io/badge/Minecraft-1.21.0-green)
 ![Static Badge](https://img.shields.io/badge/CraftGround-2.6.6-blue)
 
-<img src="../docs/craftground.webp" alt="CraftGround_Logo" width="50%"/>
+<img src="craftground.webp" alt="CraftGround_Logo" width="50%"/>
 
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fyhs0602%2FMinecraftRL)](https://github.com/yhs0602/MinecraftRL)
@@ -82,7 +82,7 @@ if you are using PowerShell, in the anaconda powershell prompt.
 
 
 ### Setup Headless Environment (Linux)
-Refer to [Headless Environment Setup](docs/headless.md) for setting up a headless environment.
+Refer to [Headless Environment Setup](headless.md) for setting up a headless environment.
 
 ### Install development version
 ```bash
@@ -110,13 +110,13 @@ model.save("a2c_craftground")
 ## Environment Specifications
 For detailed specifications, refer to the following documents:
 
-- [Initial Environment](docs/initial_environment.md)
-- [Observation Space](docs/observation_space.md)
-- [Action Space](docs/action_space.md)
+- [Initial Environment](initial_environment.md)
+- [Observation Space](observation_space.md)
+- [Action Space](action_space.md)
 
 
 ## Technical Details
-See [Technical Details](docs/technical_details.md) for detailed technical information.
+See [Technical Details](technical_details.md) for detailed technical information.
 
 
 ## License and Acknowledgements
@@ -137,4 +137,4 @@ This project includes code from the Fabric Carpet project, licensed under the MI
 
 
 ## Development / Customization
-For detailed development and customization instructions, see [Develop](docs/develop.md).
+For detailed development and customization instructions, see [Develop](develop.md).
