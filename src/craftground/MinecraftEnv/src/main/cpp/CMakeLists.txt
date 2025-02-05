@@ -89,6 +89,9 @@ message(STATUS "Boost is now available")
 set(
     SOURCE_FILES
     framebuffer_capturer.cpp
+    cursor.cpp
+    depth_capture.cpp
+    png_util.cpp
     noboost_ipc.cpp
 )
 
