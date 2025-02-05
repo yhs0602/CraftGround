@@ -12,7 +12,8 @@ Each mode defines a different representation of agent actions.
 
 This action space follows the MineDojo convention and represents actions as a list of integers, with each index corresponding to a specific action category.  
 
-### **Action Space Structure**  
+### **Action Space Structure**
+
 | Index | Action                      | Values                                                                                         |
 | ----- | --------------------------- | ---------------------------------------------------------------------------------------------- |
 | `0`   | Movement (forward/backward) | `0`: No-op, `1`: Move forward, `2`: Move backward                                              |
@@ -24,6 +25,7 @@ This action space follows the MineDojo convention and represents actions as a li
 | `6`   | Crafting argument           | Argument for `craft` (not yet supported)                                                       |
 | `7`   | Item manipulation           | Argument for `equip`, `place`, and `destroy` (not yet supported)                               |
 
+
 ### **Limitations**  
 - Currently, `craft`, `equip`, `place`, and `destroy` actions are **not supported** in Craftground.  
 
@@ -33,7 +35,8 @@ This action space follows the MineDojo convention and represents actions as a li
 
 This action space follows the MineRL convention and represents actions using a dictionary format. Each action is mapped to a discrete or continuous value.  
 
-### **Action Space Structure**  
+### **Action Space Structure**
+  
 | Key                     | Description                                      |
 | ----------------------- | ------------------------------------------------ |
 | `attack`                | Attack an entity in front of the agent.          |
