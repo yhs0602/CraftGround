@@ -6,7 +6,6 @@
 #include "framebuffer_capturer.h"
 #include "framebuffer_capturer_apple.h"
 
-
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
     JNIEnv *env,
