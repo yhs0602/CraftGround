@@ -23,10 +23,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
 
     // Cache classes and methods
-    byteStringClass = env->FindClass("com/google/protobuf/ByteString");
-    if (byteStringClass == nullptr || env->ExceptionCheck()) {
+    auto tmpByteStringClass = env->FindClass("com/google/protobuf/ByteString");
+    if (tmpByteStringClass == nullptr || env->ExceptionCheck()) {
         return JNI_ERR;
     }
+    byteStringClass = static_cast<jclass>(env->NewGlobalRef(tmpByteStringClass));
+    env->DeleteLocalRef(tmpByteStringClass);
     copyFromMethod = env->GetStaticMethodID(
         byteStringClass, "copyFrom", "([B)Lcom/google/protobuf/ByteString;"
     );
@@ -35,6 +37,19 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
 
     return JNI_VERSION_1_6;
+}
+
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
+    JNIEnv *env;
+    if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) !=
+        JNI_OK) {
+        return;
+    }
+
+    // Clean up
+    if (byteStringClass != nullptr) {
+        env->DeleteGlobalRef(byteStringClass);
+    }
 }
 
 // FIXME: Use glGetIntegerv(GL_NUM_EXTENSIONS) then use glGetStringi for
@@ -232,7 +247,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     return byteStringObject;
 }
 
-JNIEXPORT jobject JNICALL
+JNIEXPORT jfloatArray JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
     JNIEnv *env,
     jclass clazz,
@@ -249,7 +264,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
         textureWidth * textureHeight,
         reinterpret_cast<jfloat *>(depthBuffer)
     );
-    jobject byteStringObject = env->CallStaticObjectMethod(
-        byteStringClass, copyFromMethod, depthArray
-    );
+    // delete[] depthBuffer;
+    env->DeleteLocalRef(depthArray);
+    return depthArray;
 }
