@@ -82,7 +82,7 @@ if you are using PowerShell, in the anaconda powershell prompt.
 
 
 ### Setup Headless Environment (Linux)
-Refer to [Headless Environment Setup](headless.md) for setting up a headless environment.
+Refer to [Headless Environment Setup](headless) for setting up a headless environment.
 
 ### Install development version
 ```bash
@@ -110,13 +110,13 @@ model.save("a2c_craftground")
 ## Environment Specifications
 For detailed specifications, refer to the following documents:
 
-- [Initial Environment](initial_environment.md)
-- [Observation Space](observation_space.md)
-- [Action Space](action_space.md)
+- [Initial Environment](initial_environment)
+- [Observation Space](observation_space)
+- [Action Space](action_space)
 
 
 ## Technical Details
-See [Technical Details](technical_details.md) for detailed technical information.
+See [Technical Details](technical_details) for detailed technical information.
 
 
 ## License and Acknowledgements
@@ -137,4 +137,4 @@ This project includes code from the Fabric Carpet project, licensed under the MI
 
 
 ## Development / Customization
-For detailed development and customization instructions, see [Develop](develop.md).
+For detailed development and customization instructions, see [Develop](develop).
