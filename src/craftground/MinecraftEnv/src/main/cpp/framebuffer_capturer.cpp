@@ -6,6 +6,7 @@
 #include "cursor.h"
 #include "depth_capture.h"
 #include "rgb_capture.h"
+#include "framebuffer_capturer.h"
 
 #include <cstring> // For strcmp
 #include <iostream>
@@ -100,8 +101,6 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeGLEW(
     return err == GLEW_OK;
 #endif
 }
-
-enum EncodingMode { RAW = 0, PNG = 1, ZEROCOPY = 2 };
 
 extern "C" GLubyte *resize_pixels(
     jint &textureWidth,

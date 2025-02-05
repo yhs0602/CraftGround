@@ -1,13 +1,11 @@
+#ifdef __APPLE__
 #include <jni.h>
 #include "cross_gl.h"
 #include "cursor.h"
 #include <stdlib.h>
-
-#ifdef __APPLE__
+#include "framebuffer_capturer.h"
 #include "framebuffer_capturer_apple.h"
 
-extern jclass byteStringClass;
-extern jmethodID copyFromMethod;
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(

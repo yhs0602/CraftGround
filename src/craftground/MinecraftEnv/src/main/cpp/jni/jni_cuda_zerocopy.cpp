@@ -7,11 +7,8 @@
 #include <cstring> // For strcmp
 #include <iostream>
 #include <stdlib.h>
-
+#include "framebuffer_capturer.h"
 #include "framebuffer_capturer_cuda.h"
-
-extern jclass byteStringClass;
-extern jmethodID copyFromMethod;
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
