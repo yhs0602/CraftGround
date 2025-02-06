@@ -53,6 +53,7 @@ class CraftGroundEnvironment(gym.Env):
         verbose_gradle: bool = False,
         verbose_jvm: bool = False,
         profile: bool = False,
+        profile_jni: bool = False,
     ):
         self.action_space_version = action_space_version
         self.action_space = declare_action_space(action_space_version)
@@ -78,6 +79,7 @@ class CraftGroundEnvironment(gym.Env):
         self.verbose_gradle = verbose_gradle
         self.verbose_jvm = verbose_jvm
         self.profile = profile
+        self.profile_jni = profile_jni
 
         self.render_alternating_eyes = render_alternating_eyes
         self.render_alternating_eyes_counter = 0
@@ -234,6 +236,8 @@ class CraftGroundEnvironment(gym.Env):
             cmd = f"vglrun {cmd}"
         if self.ld_preload:
             my_env["LD_PRELOAD"] = self.ld_preload
+        if self.profile_jni:
+            my_env["CRAFTGROUND_NATIVE_PROFILE"] = "1"
         self.logger.log(f"Starting server with command: {cmd}")
 
         # Launch the server

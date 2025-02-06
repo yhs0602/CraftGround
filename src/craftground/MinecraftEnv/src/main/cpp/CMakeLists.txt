@@ -26,6 +26,14 @@ else()
     message("CRAFGROUND_NATIVE_DEBUG not set")
 endif()
 
+set(CRAFTGROUND_NATIVE_PROFILE $ENV{CRAFTGROUND_NATIVE_PROFILE})
+if(CRAFTGROUND_NATIVE_PROFILE)
+    message("CRAFTGROUND_NATIVE_PROFILE=${CRAFTGROUND_NATIVE_PROFILE}")
+    set(CMAKE_BUILD_TYPE Debug) # Set default build type to Debug
+else()
+    message("CRAFTGROUND_NATIVE_PROFILE not set")
+endif()
+
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 message("CMAKE_CURRENT_LIST_DIR=${CMAKE_CURRENT_LIST_DIR}")
 # Find JNI
@@ -75,12 +83,12 @@ set(BOOST_ENABLE_CMAKE ON)
 
 set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
-  Boost
-  GIT_REPOSITORY https://github.com/boostorg/boost.git
-  GIT_TAG boost-1.87.0
-  GIT_SHALLOW TRUE
-  GIT_PROGRESS TRUE
-  EXCLUDE_FROM_ALL
+    Boost
+    GIT_REPOSITORY https://github.com/boostorg/boost.git
+    GIT_TAG boost-1.87.0
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+    EXCLUDE_FROM_ALL
 )
 # FetchContent_MakeAvailable(Boost)
 
@@ -108,7 +116,7 @@ endif()
 
 
 
-if (PNG_FOUND)
+if(PNG_FOUND)
     list(APPEND SOURCE_FILES png_util.cpp)
 endif()
 
@@ -118,6 +126,12 @@ add_library(native-lib SHARED ${SOURCE_FILES})
 if(CRAFGROUND_NATIVE_DEBUG)
     message("CRAFGROUND_NATIVE_DEBUG=${CRAFGROUND_NATIVE_DEBUG}")
     target_compile_options(native-lib PRIVATE -g) # Add debug symbols
+endif()
+
+if(CRAFTGROUND_NATIVE_PROFILE)
+    message("CRAFTGROUND_NATIVE_PROFILE=${CRAFTGROUND_NATIVE_PROFILE}")
+    target_compile_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw -fcoverage-mapping) # Add profiling symbols
+    target_link_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw) # Add profiling symbols
 endif()
 
 # Link with JNI and OpenGL libraries

@@ -23,6 +23,7 @@ def make(
     verbose_python=False,
     verbose_jvm=False,
     verbose_gradle=False,
+    profile_jni=False,
 ) -> CraftGroundEnvironment:
     if not initial_env_config:
         initial_env_config = InitialEnvironmentConfig()
@@ -44,4 +45,5 @@ def make(
         verbose_jvm=verbose_jvm,
         verbose_gradle=verbose_gradle,
         use_shared_memory=use_shared_memory,
+        profile_jni=profile_jni,
     )

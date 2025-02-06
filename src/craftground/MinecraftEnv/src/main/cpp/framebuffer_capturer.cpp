@@ -1,3 +1,4 @@
+
 #include <cstddef>
 #include <jni.h>
 #include "cross_gl.h"
@@ -15,7 +16,7 @@
 jclass byteStringClass = nullptr;
 jmethodID copyFromMethod = nullptr;
 
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
     if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) !=
         JNI_OK) {
@@ -40,7 +41,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     return JNI_VERSION_1_6;
 }
 
-JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
+extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
     JNIEnv *env;
     if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) !=
         JNI_OK) {
@@ -139,7 +140,7 @@ extern "C" GLubyte *resize_pixels(
     return resizedPixels;
 }
 
-JNIEXPORT jobject JNICALL
+extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     JNIEnv *env,
     jclass clazz,
@@ -248,7 +249,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     return byteStringObject;
 }
 
-JNIEXPORT jfloatArray JNICALL
+extern "C" JNIEXPORT jfloatArray JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
     JNIEnv *env,
     jclass clazz,
