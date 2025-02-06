@@ -33,21 +33,45 @@ jobs:
 
     - uses: astral-sh/setup-uv@v4
 
-    - name: install pytorch headers if macos # export CMAKE_PREFIX_PATH=$LIBTORCH
+    - name: Install python < 3.13 if macos # https://groups.google.com/g/vim_dev/c/1I20UCzmtF4
       if: matrix.os == 'macos-latest'
-      run: |
-        curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
-        unzip libtorch-macos-arm64-2.5.1.zip
-        export LIBTORCH=/usr/local/libtorch
-        sudo mv libtorch $LIBTORCH
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12' 
+    
+    - name: Set up cache for CMake FetchContent python cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          build/_deps
+        key: ${{ runner.os }}-fetchcontent-python-${{ hashFiles('CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-fetchcontent-python-
+  
+    - name: Set up cache for CMake FetchContent gradle cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          src/craftground/MinecraftEnv/_deps
+        key: ${{ runner.os }}-fetchcontent-gradle-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-fetchcontent-gradle-
 
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.22.0
       env:
-        CIBW_SKIP: cp36-* cp37-* cp38-*
-        CIBW_ENABLE: cpython-prerelease
+        CIBW_SKIP: cp36-* cp37-* cp38-* cp313-macosx_*
         CIBW_ARCHS_WINDOWS: "x86"
         CIBW_ARCHS_MACOS: "arm64"
+        CIBW_ARCHS_LINUX: "i686"
+        CIBW_PROJECT_REQUIRES_PYTHON: "<=3.12"
+        CIBW_BEFORE_ALL_MACOS: >
+          curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip &&
+          unzip -q libtorch-macos-arm64-2.5.1.zip &&
+          export LIBTORCH=/usr/local/libtorch &&
+          sudo mv libtorch $LIBTORCH &&
+          python3 --version &&
+          pip3 install --break-system-packages torch
 
     - name: Verify clean directory
       run: git diff --exit-code

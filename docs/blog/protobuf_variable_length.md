@@ -1,3 +1,8 @@
+---
+title: Enhancing Cross-Language Protobuf Protocol for Improved Data Handling
+parent: Blog
+---
+
 # Enhancing Cross-Language Protobuf Protocol for Improved Data Handling
 
 ## Introduction

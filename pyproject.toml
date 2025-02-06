@@ -1,50 +1,65 @@
 [build-system]
-requires = [
-    "scikit-build-core",
-    "pybind11",
-    "setuptools>=42",
-    "wheel",
-    "cmake>=3.12",
-    "ninja",  # Optional, for Ninja builds
-]
 build-backend = "scikit_build_core.build"
+requires = [
+  "scikit-build-core",
+  "pybind11",
+  "setuptools>=42",
+  "wheel",
+  "cmake>=3.12",
+  "ninja", # Optional, for Ninja builds
+]
 
 [project]
-name = "craftground"
-version = "2.5.33"
-description = "Lightweight Minecraft Environment for Reinforcement Learning"
-readme = "README.md"
-license = { file = "LICENSE" }
-authors = [
-    { name = "yhs0602", email = "jourhyang123@gmail.com" }
-]
-keywords = ["minecraft", "reinforcement learning", "environment"]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
 ]
+description = "Lightweight Minecraft Environment for Reinforcement Learning"
+keywords = ["minecraft", "reinforcement learning", "environment"]
+license = {file = "LICENSE"}
+name = "craftground"
+readme = "README.md"
+version = "2.6.7"
 
 dependencies = [
-    "gymnasium",
-    "Pillow",
-    "numpy",
-    "protobuf>=5.29.1",
-    "typing_extensions",
-    "psutil",
-    "torch",
+  "gymnasium",
+  "Pillow",
+  "numpy",
+  "protobuf>=5.0.0",
+  "typing_extensions",
+  "psutil",
+  "torch",
+]
+
+[project.optional-dependencies]
+test = [
+  "flake8",
+  "pytest",
+  "flake8-pyproject",
+  "coverage",
+]
+
+jax_cuda = [
+  "jax[cuda]",
+]
+
+jax_metal = [
+  "jax",
+  "jax-metal",
 ]
 
 [project.urls]
 Source = "https://github.com/yhs0602/CraftGround"
 Tracker = "https://github.com/yhs0602/CraftGround/issues"
 
+[tool.cibuildwheel.macos]
+repair-wheel-command = "" # Disable repair wheel command on macOS
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
 
 [tool.black]
-force-exclude = 'pybind11'
 extend-exclude = '''
 /(
 \.git
@@ -57,34 +72,35 @@ extend-exclude = '''
 | src/craftground/MinecraftEnv
 )/
 '''
+force-exclude = 'pybind11'
 line-length = 88
 
 [tool.flake8]
-max-line-length = 120
 exclude = [
-    ".git",
-    "__pycache__",
-    "venv",
-    "src/cpp",
-    "build",
-    "dist",
-    "pybind11",
-    "src/craftground/MinecraftEnv",
-    "src/craftground/proto",
+  ".git",
+  "__pycache__",
+  "venv",
+  "src/cpp",
+  "build",
+  "dist",
+  "pybind11",
+  "src/craftground/MinecraftEnv",
+  "src/craftground/proto",
 ]
+max-line-length = 120
 # Use extend-ignore to add to already ignored checks which are anti-patterns like W503.
 extend-ignore = [
-    # PEP 8 recommends to treat : in slices as a binary operator with the lowest priority, and to leave an equal
-    # amount of space on either side, except if a parameter is omitted (e.g. ham[1 + 1 :]).
-    # This behaviour may raise E203 whitespace before ':' warnings in style guide enforcement tools like Flake8.
-    # Since E203 is not PEP 8 compliant, we tell Flake8 to ignore this warning.
-    # https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#slices    
-    "E203"
+  # PEP 8 recommends to treat : in slices as a binary operator with the lowest priority, and to leave an equal
+  # amount of space on either side, except if a parameter is omitted (e.g. ham[1 + 1 :]).
+  # This behaviour may raise E203 whitespace before ':' warnings in style guide enforcement tools like Flake8.
+  # Since E203 is not PEP 8 compliant, we tell Flake8 to ignore this warning.
+  # https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#slices    
+  "E203",
 ]
 
 [tool.pytest.ini_options]
-minversion = "6.0"
 addopts = "-ra -q"
+minversion = "6.0"
 testpaths = [
-    "tests",
+  "tests",
 ]

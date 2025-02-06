@@ -1,22 +1,29 @@
-# Ubuntu 베이스 이미지 선택
-FROM ubuntu:latest
+# Select ubuntu base image
+FROM ubuntu:22.04
 
-# 환경 설정 및 필요한 소프트웨어 설치
+ARG DEBIAN_FRONTEND=noninteractive
+# Install Java, Python, Git, OpenGL
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk python3-pip git && \
+    apt-get install -y openjdk-21-jdk python3-pip git libgl1-mesa-dev libegl1-mesa-dev libglew-dev xorg-dev libglu1-mesa-dev libglfw3-dev xvfb&& \
     apt-get clean
 
-# pip를 사용하여 GitHub에서 Python 패키지 직접 설치
-RUN pip3 install git+https://github.com/yhs0602/CraftGround
+# If you want to use PNG mode, you need to install libpng and zlib also
+# RUN apt-get install -y libpng-dev zlib1g-dev
 
-# Python 사이트 패키지 경로를 환경변수에 추가 (pip 패키지 경로를 찾기 위함)
-ENV PYTHON_SITE_PACKAGES=/usr/local/lib/python3.*/dist-packages
+RUN python3 --version
+RUN pip3 install --upgrade pip
+RUN pip3 install cmake
 
-# craftground/MinecraftEnv 디렉토리로 이동하여 gradlew build 실행
-RUN cd $(find $PYTHON_SITE_PACKAGES -type d -maxdepth 1 -name "craftground")/MinecraftEnv && chmod +x gradlew && ./gradlew build
+RUN echo "Installing CraftGround"
+RUN pip3 install git+https://github.com/yhs0602/CraftGround.git@dev  
 
-# 실험 파일이 추가될 작업 디렉토리 설정
+# Clone test repository
 WORKDIR /workspace
+RUN git clone https://github.com/yhs0602/minecraft-simulator-benchmark.git
 
-# 컨테이너 실행 시 기본 명령 설정
-CMD ["bash"]
+# Set work directory and default execution
+WORKDIR /workspace/minecraft-simulator-benchmark
+RUN pip3 install wandb tensorboard moviepy git+https://github.com/DLR-RM/stable-baselines3.git
+ENV DISPLAY=:99
+RUN WANDB_MODE=offline PYTHONPATH=. xvfb-run -e /dev/stdout -a --server-args="-screen 0 1024x768x24"  python3 experiments/craftground_exp.py --mode raw --image_width 64x64 --load simulation --max-steps 100
+ENTRYPOINT ["bash"]

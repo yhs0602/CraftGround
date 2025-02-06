@@ -17,6 +17,7 @@
     "ClientPlayNetworkHandlerMixin",
     "ClientRenderInvoker",
     "ClientWorldMixin",
+    "GameRendererDepthCaptureMixin",
     "GammaMixin",
     "InputUtilMixin",
     "MouseXYAccessor",

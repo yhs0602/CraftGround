@@ -1,3 +1,10 @@
-remote_theme: rundocs/jekyll-rtd-theme
+remote_theme: just-the-docs/just-the-docs
 title: CraftGround
 description: A fast, up-to-date, and feature-rich Minecraft-based reinforcement learning environment.
+nav_enabled: true
+heading_anchors: true
+favicon_ico: "craftground.ico"
+enable_copy_code_button: true
+nav_external_links:
+  - title: CraftGround on GitHub
+    url: https://github.com/yhs0602/CraftGround

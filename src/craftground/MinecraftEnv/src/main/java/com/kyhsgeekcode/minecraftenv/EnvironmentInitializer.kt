@@ -42,14 +42,14 @@ class EnvironmentInitializer(
     private val initialEnvironment: InitialEnvironmentMessage,
     private val csvLogger: CsvLogger,
 ) {
-    var hasRunInitWorld: Boolean = false
+    private var hasRunInitWorld: Boolean = false
         private set
     var initWorldFinished: Boolean = false
         private set
 
     private lateinit var minecraftServer: MinecraftServer
     private lateinit var player: ClientPlayerEntity
-    var hasMinimizedWindow: Boolean = false
+    private var hasMinimizedWindow: Boolean = false
 
     private var initializedClient = false
     private var finishedEnteringWorld = false

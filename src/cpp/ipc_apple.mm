@@ -57,6 +57,7 @@ id<MTLTexture> createMetalTextureFromIOSurface(
 */
 
 static void deleteDLManagedTensor(DLManagedTensor *self) {
+    // CFRelease((__bridge CFTypeRef)self->dl_tensor.data);
     free(self->dl_tensor.shape);
     free(self);
 }
@@ -66,7 +67,7 @@ createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
 
-    tensor->dl_tensor.data = (void *)mtlBuffer;
+    tensor->dl_tensor.data = (void *)CFBridgingRetain(mtlBuffer);
     tensor->dl_tensor.ndim = 3; // H x W x C
     tensor->dl_tensor.shape = (int64_t *)malloc(3 * sizeof(int64_t));
     tensor->dl_tensor.shape[0] = height;

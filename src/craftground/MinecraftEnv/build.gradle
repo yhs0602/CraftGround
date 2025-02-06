@@ -10,20 +10,70 @@ shadowJar {
     archiveClassifier.set('')
 }
 
+def findVcpkgRoot() {
+    try {
+        def vcpkgRoot = System.getenv('VCPKG_ROOT')
+        if (vcpkgRoot) {
+            return vcpkgRoot
+        }
+        def os = org.gradle.internal.os.OperatingSystem.current()
+
+        if (os.isWindows()) {
+            def process = new ProcessBuilder("cmd", "/c", "where vcpkg").start()
+            process.waitFor()
+            def output = process.inputStream.text.trim()
+            if (output) {
+                def vcpkgDir = new File(output).getParentFile()
+                return vcpkgDir.absolutePath
+            } else {
+                throw new RuntimeException("Cannot find vcpkg root")
+            }
+        } else {
+            def process = new ProcessBuilder("bash", "-c", "which vcpkg").start()
+            process.waitFor()
+            def output = process.inputStream.text.trim()
+            if (output) {
+                def vcpkgDir = new File(output).getParentFile()
+                return vcpkgDir.absolutePath
+            } else {
+                throw new RuntimeException("Cannot find vcpkg root")
+            }
+        }
+    } catch (Exception e) {
+        println "Cannot find vcpkg root: " + e
+        return null
+    }
+}
+
 tasks.register('configureCppProject', Exec) {
     def useConda = System.getenv('CRAFTGROUND_USE_CONDA')?.toBoolean() ?: false
-    if (useConda) {
-        commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+    def os = org.gradle.internal.os.OperatingSystem.current()
+    def vcpkgRoot = findVcpkgRoot()
+    def vcpkgToolchainFile = vcpkgRoot ? "${vcpkgRoot}/scripts/buildsystems/vcpkg.cmake" : null
+    project.logger.lifecycle('Use conda: ' + useConda + ', vcpkg root: ' + vcpkgRoot)
+    if (os.isWindows() && vcpkgToolchainFile && file(vcpkgToolchainFile).exists()) {
+        project.logger.lifecycle('Using vcpkg toolchain file: ' + vcpkgToolchainFile)
+        if (useConda) {
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+        } else {
+            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, 'src/main/cpp'
+        } 
     } else {
-        commandLine 'cmake', 'src/main/cpp'
+        project.logger.lifecycle('Using default cmake, not using vcpkg')
+        if (useConda) {
+            commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
+        } else {
+            commandLine 'cmake', 'src/main/cpp'
+        }
     }
+    
     inputs.dir("src/main/cpp")
     outputs.files("MakeFile", "CMakeCache.txt", "cmake_install.cmake")
     outputs.dir("CMakeFiles")
 }
 
 tasks.register('compileCpp', Exec) {
-    commandLine 'cmake', '--build', '.'
+    commandLine 'cmake', '--build', '.',  '--config', 'Release', '--parallel', '8'
     inputs.dir("src/main/cpp")
     def os = org.gradle.internal.os.OperatingSystem.current()
     if (os.isLinux()) {
@@ -31,12 +81,42 @@ tasks.register('compileCpp', Exec) {
     } else if (os.isMacOsX()) {
         outputs.file("libnative-lib.dylib")
     } else if (os.isWindows()) {
-        outputs.file("native-lib.dll")
+        outputs.files(file("Debug/native-lib.dll"), file("Release/native-lib.dll"))
     }
     dependsOn 'configureCppProject'
+
+    // Copy the built native library to the project root (Only for Windows)
+    doLast {
+        if (os.isWindows()) {
+            // Copy the built native library to the project root
+            def debugOutput = new File("Debug/native-lib.dll")
+            def releaseOutput = new File("Release/native-lib.dll")
+            def targetDir = new File("./native-lib.dll") // Copy to the project root
+
+            if (releaseOutput.exists()) {
+                copy {
+                    from releaseOutput
+                    into targetDir.parentFile
+                }
+                println "Copied ${releaseOutput} to ${targetDir}"
+            } else if (debugOutput.exists()) {
+                copy {
+                    from debugOutput
+                    into targetDir.parentFile
+                }
+                println "Copied ${debugOutput} to ${targetDir}"
+            } else {
+                throw new RuntimeException("Cannot find the built native library")
+            }
+        }
+    }
 }
 
 tasks.named('runClient').configure {
+    dependsOn compileCpp
+}
+
+tasks.named('build').configure {
     dependsOn compileCpp
 }
 

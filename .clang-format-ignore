@@ -6,6 +6,7 @@ venv/*
 .pytest_cache/*
 .vscode/*
 build/*
+./build/*
 craftground.egg-info/*
 docs/*
 figures/*
@@ -14,3 +15,6 @@ poster/*
 pybind11/*
 src/craftground.egg-info/*
 src/proto/*
+build/_deps/*
+./build/_deps/*
+src/craftground/MinecraftEnv/_deps/*

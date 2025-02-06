@@ -16,7 +16,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-// https://github.com/gnembon/fabric-carpet/blob/master/src/main/java/carpet/mixins/MinecraftServer_tickspeedMixin.java
+/*
+ * This file is based on code from the Fabric Carpet project.
+ * Source: https://github.com/gnembon/fabric-carpet/blob/master/src/main/java/carpet/mixins/MinecraftServer_tickspeedMixin.java
+ * Licensed under the MIT License (https://github.com/gnembon/fabric-carpet/blob/master/LICENSE).
+ *
+ * Modifications made by Hyeonseo Yang.
+ */
+
 @Mixin(value = MinecraftServer.class, priority = Integer.MAX_VALUE - 10)
 public abstract class MinecraftServer_tickspeedMixin extends ReentrantThreadExecutor<ServerTask> {
   @Shadow @Final private static Logger LOGGER;
