@@ -42,22 +42,25 @@ This action space follows the MineRL convention and represents actions using a d
 
 ### **Action Space Structure**
   
-| Key                     | Description                                      |
-| ----------------------- | ------------------------------------------------ |
-| `attack`                | Attack an entity in front of the agent.          |
-| `back`                  | Move the agent backward.                         |
-| `forward`               | Move the agent forward.                          |
-| `jump`                  | Make the agent jump.                             |
-| `left`                  | Move the agent to the left.                      |
-| `right`                 | Move the agent to the right.                     |
-| `sneak`                 | Make the agent sneak.                            |
-| `sprint`                | Make the agent sprint.                           |
-| `use`                   | Use the item in the agent’s hand.                |
-| `drop`                  | Drop the item in the agent’s hand.               |
-| `inventory`             | Open the agent’s inventory.                      |
-| `hotbar_1` - `hotbar_9` | Select an item slot in the agent’s hotbar (1-9). |
-| `camera_pitch`          | Adjust the agent’s camera pitch.                 |
-| `camera_yaw`            | Adjust the agent’s camera yaw.                   |
+| Key                     | Description                                         | Values                        |
+| ----------------------- | --------------------------------------------------- | ----------------------------- |
+| `attack`                | Attack an entity in front of the agent.             | `0` or `1`                    |
+| `back`                  | Move the agent backward.                            | `0` or `1`                    |
+| `forward`               | Move the agent forward.                             | `0` or `1`                    |
+| `jump`                  | Make the agent jump.                                | `0` or `1`                    |
+| `left`                  | Move the agent to the left.                         | `0` or `1`                    |
+| `right`                 | Move the agent to the right.                        | `0` or `1`                    |
+| `sneak`                 | Make the agent sneak.                               | `0` or `1`                    |
+| `sprint`                | Make the agent sprint.                              | `0` or `1`                    |
+| `use`                   | Use the item in the agent’s hand.                   | `0` or `1`                    |
+| `drop`                  | Drop the item in the agent’s hand.                  | `0` or `1`                    |
+| `inventory`             | Open the agent’s inventory.                         | `0` or `1`                    |
+| `hotbar_1` - `hotbar_9` | Select an item slot in the agent’s hotbar (1-9).    | `0` or `1`                    |
+| `camera_pitch`          | Adjust the agent’s camera pitch. (Option 1)         | `-180` to `180`               |
+| `camera_yaw`            | Adjust the agent’s camera yaw. (Option 1)           | `-180` to `180`               |
+| `camera`                | Adjust the agent’s camera pitch and yaw. (Option 2) | `[-180, -180]`to `[180, 180]` |
+
+For camera control, both Option 1 and Option 2 are valid. However, only one option should be used at a time.
 
 This version is closer to human-like control and is better suited for reinforcement learning with continuous or discrete action selection.
 

@@ -276,6 +276,6 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
         reinterpret_cast<jfloat *>(depthBuffer)
     );
     // delete[] depthBuffer;
-    env->DeleteLocalRef(depthArray);
+    // env->DeleteLocalRef(depthArray);
     return depthArray;
 }

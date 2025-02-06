@@ -89,8 +89,12 @@ def action_v2_dict_to_message(
     action_space.hotbar_7 = action_v2["hotbar.7"]
     action_space.hotbar_8 = action_v2["hotbar.8"]
     action_space.hotbar_9 = action_v2["hotbar.9"]
-    action_space.camera_pitch = action_v2["camera_pitch"]
-    action_space.camera_yaw = action_v2["camera_yaw"]
+    if "camera_pitch" in action_v2:
+        action_space.camera_pitch = action_v2["camera_pitch"]
+        action_space.camera_yaw = action_v2["camera_yaw"]
+    elif "camera" in action_v2:
+        action_space.camera_pitch = action_v2["camera"][0]
+        action_space.camera_yaw = action_v2["camera"][1]
     return action_space
 
 

@@ -374,3 +374,8 @@ class CraftGroundEnvironment(gym.Env):
     @staticmethod
     def get_env_option_path() -> str:
         return os.path.join(CraftGroundEnvironment.get_env_base_path(), "options.txt")
+
+    def __del__(self):
+        self.close()
+        if self.logger:
+            self.logger.close()
