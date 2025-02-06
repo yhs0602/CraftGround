@@ -1,6 +1,6 @@
 ---
 title: Installation on Headless Servers
-parent: installation
+parent: Installation
 ---
 
 # How to run minecraft environments on headless server

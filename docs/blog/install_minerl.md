@@ -6,9 +6,9 @@ parent: Blog
 # Brief Introduction
 ## MineRL 0.4.4
 
-This may help solving issues such as https://github.com/minerllabs/minerl/issues/788.
-- Use this table to get latest gcc version your OS supports: https://askubuntu.com/a/1163021/901082
-- To solve MixinGradle issue, follow the steps as mentioned here: https://github.com/MineDojo/MineDojo/issues/113#issuecomment-1908997704
+This may help solving issues such as [MineRL issue #788](https://github.com/minerllabs/minerl/issues/788).
+- Use this table to get latest gcc version your OS supports: [AskUbuntu](https://askubuntu.com/a/1163021/901082)
+- To solve MixinGradle issue, follow the steps as mentioned [in this issue comment](https://github.com/MineDojo/MineDojo/issues/113#issuecomment-1908997704)
 ```bash
 conda create -n exp_minerl044 python=3.11
 conda activate exp_minerl044
@@ -60,7 +60,7 @@ vglrun python experiments/minerl100_exp.py --image_width 64x64 --load simulation
 ```
 
 ## MineRL 1.0.0 on MacOS
-We should apply  https://github.com/MineDojo/MineDojo/pull/56/ to make it work on MacOS.
+We should apply [this solution](https://github.com/MineDojo/MineDojo/pull/56/) to make it work on MacOS.
 ```gradle
     def schemaIndexFile = new File('src/main/resources/schemas.index')
 ```
@@ -76,11 +76,11 @@ pip install git+https://github.com/yhs0602/minerl
 # Troubleshooting
 ## Installing MineRL 0.4.4
 ### Error because of MixinGradle
-Edit minerl-0.4.4/minerl/Malmo/Minecraft/build.gradle:L19 based on https://github.com/MineDojo/MineDojo/issues/113#issuecomment-1908997704
+Edit `minerl-0.4.4/minerl/Malmo/Minecraft/build.gradle:L19` based on [this issue comment](https://github.com/MineDojo/MineDojo/issues/113#issuecomment-1908997704).
 ```gradle
 classpath('MixinGradle-dcfaf61:MixinGradle:dcfaf61'){ // 0.6
 ```
-Add repository maven to the build.gradle
+Add repository maven to the `build.gradle`
 ```
 maven { url 'file:file:/absolute-path/to/that/repo's/parent' }
 ```
@@ -97,7 +97,7 @@ OPENSSL_ROOT_DIR=$CONDA_PREFIX pip download --no-binary :all: minerl==0.4.4
 ```
 
 ### NumPy requires GCC >= 8.4, SciPy requires GCC >= 9.1
-- Use this table to get latest gcc version your OS supports: https://askubuntu.com/a/1163021/901082
+- Use this table to get latest gcc version your OS supports [here:](https://askubuntu.com/a/1163021/901082)
 
 ```bash
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -120,7 +120,7 @@ sudo apt install libopenblas-dev
 
 
 ## Installing MineRL 1.0.0
-Ensure you have the correct version of JDK. MineRL 1.0.0 requires JDK 8.
+Ensure you have the correct version of JDK. MineRL 1.0.0 **requires the exact version** JDK 8.
 ```bash
 conda install conda-forge::openjdk=8
 ```
@@ -149,7 +149,7 @@ pip install --upgrade cmake
 ## Malmö, MineRL, and CraftGround is not using GPU on CUDA devices
 You should install VirtualGL and run the experiments. Take a look at this MineRL documentation:
 
-- https://minerl.readthedocs.io/en/latest/notes/performance-tips.html#faster-alternative-to-xvfb
+- [Faster alternative to xvfb](https://minerl.readthedocs.io/en/latest/notes/performance-tips.html#faster-alternative-to-xvfb)
 
 Also you can check this guide:
 
