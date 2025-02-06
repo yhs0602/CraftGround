@@ -211,7 +211,8 @@ float *captureDepth(
         depthPixelsSize = newDepthPixelsSize;
     }
 
-    if (requiresDepthConversion) {
+    bool use_cpu_conversion = true;
+    if (requiresDepthConversion && !use_cpu_conversion) {
         // Enable the shader program
         glUseProgram(depthConversionShader);
         glUniform1f(locationNearPlane, near);
@@ -234,10 +235,25 @@ float *captureDepth(
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     } else {
-        // 기존 Depth 읽기
+        // Read depth pixels directly
         glReadPixels(
             0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthPixels
         );
+
+        if (requiresDepthConversion) {
+            // Convert depth values to linear space using CPU
+            for (size_t i = 0; i < newDepthPixelsSize; i++) {
+                float rawDepth = depthPixels[i];
+
+                // OpenGL Non-linear Depth -> Linear Depth
+                float linearDepth =
+                    (2.0 * near * far) /
+                    (far + near - (2.0 * rawDepth - 1.0) * (far - near));
+
+                // Normalize by far plane (0~1)
+                depthPixels[i] = linearDepth / far;
+            }
+        }
     }
 
     return depthPixels;

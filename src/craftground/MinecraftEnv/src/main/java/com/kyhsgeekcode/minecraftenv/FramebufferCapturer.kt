@@ -157,6 +157,8 @@ object FramebufferCapturer {
         private set
 
     private var actionBuffer: ByteArray? = null
+    var shouldCaptureDepth: Boolean = false
+    var requiresDepthConversion: Boolean = false
 
     external fun readInitialEnvironmentImpl(
         p2jMemoryName: String,

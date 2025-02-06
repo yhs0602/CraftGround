@@ -4,11 +4,14 @@ import shutil
 import signal
 import subprocess
 from enum import Enum
-from typing import Tuple, Optional, Union, List, Any, Dict
+import threading
+from typing import Tuple, Optional, TypedDict, Union, List, Any, Dict
 
 import gymnasium as gym
 import numpy as np
-from gymnasium.core import ActType, ObsType, RenderFrame
+from gymnasium.core import ActType, RenderFrame
+
+from ..proto.observation_space_pb2 import ObservationSpaceMessage
 
 from .action_space import (
     ActionSpaceVersion,
@@ -29,6 +32,14 @@ class ObservationTensorType(Enum):
     NONE = 0
     CUDA_DLPACK = 1
     APPLE_TENSOR = 2
+
+
+class TypedObservation(TypedDict):
+    full: ObservationSpaceMessage
+    pov: Union[np.ndarray, torch.Tensor]
+    rgb: Union[np.ndarray, torch.Tensor]
+    pov_2: Union[np.ndarray, torch.Tensor]
+    rgb_2: Union[np.ndarray, torch.Tensor]
 
 
 class CraftGroundEnvironment(gym.Env):
@@ -138,7 +149,7 @@ class CraftGroundEnvironment(gym.Env):
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
-    ) -> Tuple[ObsType, Dict[str, Any]]:
+    ) -> Tuple[TypedObservation, TypedObservation]:
         if options is None:
             options = {}
         fast_reset = options.get("fast_reset", True)
@@ -151,18 +162,24 @@ class CraftGroundEnvironment(gym.Env):
         final_obs = self.convert_observation_v2(res)
         return final_obs, final_obs
 
-    def convert_observation_v2(self, res):
+    def convert_observation_v2(
+        self, res: ObservationSpaceMessage
+    ) -> Dict[str, Union[np.ndarray, "torch.Tensor", ObservationSpaceMessage]]:
         with self.logger.profile("convert_observation"):
             rgb_1, rgb_2 = self.observation_converter.convert(res)
 
         self.queued_commands = []
         res.yaw = ((res.yaw + 180) % 360) - 180
-        final_obs: Dict[str, Union[np.ndarray, "torch.Tensor"]] = {
+        final_obs: Dict[
+            str, Union[np.ndarray, "torch.Tensor", ObservationSpaceMessage]
+        ] = {
             "full": res,
             "pov": rgb_1,
+            "rgb": rgb_1,
         }
         if rgb_2 is not None:
             final_obs["pov_2"] = rgb_2
+            final_obs["rgb_2"] = rgb_2
         return final_obs
 
     @property
@@ -249,8 +266,15 @@ class CraftGroundEnvironment(gym.Env):
             env=my_env,
             preexec_fn=os.setsid,  # To kill the process and its children properly
         )
+        threading.Thread(
+            target=self.monitor_process, args=(self.process,), daemon=True
+        ).start()
 
         self.ipc.start_communication()
+
+    def monitor_process(self, process):
+        process.wait()
+        self.logger.log(f"Java process exited with code {process.returncode}")
 
     def update_override_resolutions(self, options_txt_path):
         with open(options_txt_path, "r") as file:
@@ -283,7 +307,13 @@ class CraftGroundEnvironment(gym.Env):
             f"Updated {options_txt_path} to {self.initial_env.imageSizeX}x{self.initial_env.imageSizeY}"
         )
 
-    def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
+    def step(self, action: ActType) -> Tuple[
+        TypedObservation,
+        float,
+        bool,
+        bool,
+        TypedObservation,
+    ]:
         # send the action
         self.last_action = action
         with self.logger.profile("send_action_and_commands"):

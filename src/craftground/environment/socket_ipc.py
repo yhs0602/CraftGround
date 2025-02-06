@@ -101,6 +101,9 @@ class SocketIPC(IPCInterface):
             self.send_exit()
             self.sock.close()
             self.sock = None
+            socket_path = f"/tmp/minecraftrl_{self.port}.sock"
+            if os.path.exists(socket_path):
+                os.remove(socket_path)
 
     def remove_orphan_java_processes(self):  # noqa: C901
         self.logger.log("Removing orphan Java processes...")

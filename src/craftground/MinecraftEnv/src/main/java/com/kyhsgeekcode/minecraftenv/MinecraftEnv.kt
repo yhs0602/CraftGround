@@ -154,6 +154,8 @@ class MinecraftEnv :
         csvLogger.log("Hello Fabric world!")
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
+        FramebufferCapturer.shouldCaptureDepth = initialEnvironment.requiresDepth
+        FramebufferCapturer.requiresDepthConversion = initialEnvironment.requiresDepthConversion
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
 
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
@@ -287,6 +289,7 @@ class MinecraftEnv :
                 }
                 return
             }
+
             ResetPhase.WAIT_PLAYER_RESPAWN -> {
                 printWithTime("Waiting for player respawn")
                 csvLogger.log("Waiting for player respawn")
@@ -297,6 +300,7 @@ class MinecraftEnv :
                 }
                 return
             }
+
             ResetPhase.WAIT_INIT_ENDS -> {
                 printWithTime("Waiting for the initialization ends")
                 csvLogger.log("Waiting for the initialization ends")
@@ -306,6 +310,7 @@ class MinecraftEnv :
                 }
                 return
             }
+
             ResetPhase.END_RESET -> {
                 printWithTime("Reset end")
                 csvLogger.log("Reset end")
@@ -784,16 +789,22 @@ class MinecraftEnv :
                     }
                     if (initialEnvironment.requiresDepth) {
                         depth.addAll(
-                            FramebufferCapturer
-                                .captureDepthImpl(
-                                    buffer.colorAttachment,
-                                    buffer.textureWidth,
-                                    buffer.textureHeight,
-                                    initialEnvironment.requiresDepthConversion,
-                                    0.05f,
-                                    client.options.viewDistance.value * 4.0f,
-                                ).asIterable(),
+                            (client.gameRenderer as GameRendererDepthCaptureMixinGetterInterface)
+                                .`minecraftEnv$getLastDepthBuffer`()
+                                ?.asIterable()
+                                ?: emptyList(),
                         )
+//                        depth.addAll(
+//                            FramebufferCapturer
+//                                .captureDepthImpl(
+//                                    buffer.fbo,
+//                                    buffer.textureWidth,
+//                                    buffer.textureHeight,
+//                                    initialEnvironment.requiresDepthConversion,
+//                                    0.05f,
+//                                    client.options.viewDistance.value * 4.0f,
+//                                ).asIterable(),
+//                        )
                     }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
