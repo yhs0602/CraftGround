@@ -1,7 +1,7 @@
 #if !defined(HAS_CUDA) && !defined(__APPLE__)
 #include "framebuffer_capturer.h"
 
-extern JNIEXPORT jobject JNICALL
+extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     JNIEnv *env,
     jclass clazz,
