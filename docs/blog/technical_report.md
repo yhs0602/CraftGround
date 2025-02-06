@@ -1,3 +1,8 @@
+---
+title: CraftGround Internals
+parent: Blog
+---
+
 # CraftGround Internals
 ## Capturing Frames
 ### Method 1: Using Default Screenshot Functionality

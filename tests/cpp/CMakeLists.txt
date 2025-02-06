@@ -10,7 +10,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 find_package(CUDAToolkit QUIET)
-find_package(Python3 REQUIRED COMPONENTS Development)
+set(Python_FIND_VIRTUALENV FIRST)
+find_package(Python3 QUIET COMPONENTS Interpreter Development)
 
 # Build Test directory
 add_executable(test_ipc test_ipc.cpp)
@@ -83,6 +84,13 @@ elseif(WIN32)
         message(STATUS "CUDA is available in Windows")
         list(APPEND LINK_LIBRARIES CUDA::cudart)
     endif()
+    list(APPEND LINK_LIBRARIES kernel32.lib user32.lib Synchronization.lib)
+    add_custom_command(TARGET test_ipc POST_BUILD
+        COMMAND dumpbin /DEPENDENTS $<TARGET_FILE:test_ipc> > log.txt 2>&1 || echo "Dumpbin error ignored"
+        COMMAND type log.txt
+        COMMENT "Running dumpbin to check dependencies on Windows..."
+        VERBATIM
+    )
 endif()
 
 # Apply the libraries to the target

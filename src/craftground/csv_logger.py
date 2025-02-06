@@ -15,9 +15,9 @@ class CsvLogger:
     def __init__(
         self, filename, profile: bool = False, backend: LogBackend = LogBackend.NONE
     ):
-        self.profile = profile
+        self.do_profile = profile
         self.backend = backend
-        if profile and backend not in [LogBackend.CSV, LogBackend.BOTH]:
+        if self.do_profile and backend not in [LogBackend.CSV, LogBackend.BOTH]:
             raise ValueError("Cannot enable profiling without a csv backend")
         if backend in [LogBackend.CSV, LogBackend.BOTH]:
             self.filename = filename
@@ -35,7 +35,7 @@ class CsvLogger:
             print(f"{time_str}: {message}")
 
     def profile_start(self, tag):
-        if not self.profile:
+        if not self.do_profile:
             return
         time_str = datetime.now().strftime("%H:%M:%S.%f")
         if self.backend in [LogBackend.CSV, LogBackend.BOTH]:
@@ -45,7 +45,7 @@ class CsvLogger:
             print(f"{time_str}: start: {tag}")
 
     def profile_end(self, tag):
-        if not self.profile:
+        if not self.do_profile:
             return
         time_str = datetime.now().strftime("%H:%M:%S.%f")
         if self.backend in [LogBackend.CONSOLE, LogBackend.BOTH]:
@@ -61,7 +61,7 @@ class CsvLogger:
     @contextmanager
     def profile(self, tag):
         """Context manager for profiling."""
-        if not self.profile:
+        if not self.do_profile:
             yield
             return
 

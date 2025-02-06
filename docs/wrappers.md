@@ -1,3 +1,8 @@
+---
+title: Wrappers
+parent: Integration
+---
+
 # Wrappers
 Craftground provides a set of wrappers that can be used to easily select the observation and action spaces for the agent. These wrappers can be used to define the agent's capabilities and the environment's feedback mechanisms. The following table lists the available wrappers and their descriptions.
 

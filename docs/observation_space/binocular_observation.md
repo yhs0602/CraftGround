@@ -1,3 +1,8 @@
+---
+title: Binocular Observation
+parent: Observation Space
+---
+
 # Binocular Observation
 CraftGround supports binocular observation, which provides a more realistic view of the environment. The binocular observation is enabled by setting the `biocular` parameter to `true` in the `craftground.make()` call. The binocular observation allows the agent to perceive the environment with a depth effect, similar to human vision.
 

@@ -995,6 +995,40 @@ public object InitialEnvironmentMessageKt {
     public fun clearPythonPid() {
       _builder.clearPythonPid()
     }
+
+    /**
+     * `bool requiresDepth = 30;`
+     */
+    public var requiresDepth: kotlin.Boolean
+      @JvmName("getRequiresDepth")
+      get() = _builder.requiresDepth
+      @JvmName("setRequiresDepth")
+      set(value) {
+        _builder.requiresDepth = value
+      }
+    /**
+     * `bool requiresDepth = 30;`
+     */
+    public fun clearRequiresDepth() {
+      _builder.clearRequiresDepth()
+    }
+
+    /**
+     * `bool requiresDepthConversion = 31;`
+     */
+    public var requiresDepthConversion: kotlin.Boolean
+      @JvmName("getRequiresDepthConversion")
+      get() = _builder.requiresDepthConversion
+      @JvmName("setRequiresDepthConversion")
+      set(value) {
+        _builder.requiresDepthConversion = value
+      }
+    /**
+     * `bool requiresDepthConversion = 31;`
+     */
+    public fun clearRequiresDepthConversion() {
+      _builder.clearRequiresDepthConversion()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

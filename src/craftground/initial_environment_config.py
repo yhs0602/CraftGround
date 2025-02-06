@@ -66,6 +66,8 @@ class InitialEnvironmentConfig:
         fov=70,
         requires_biome_info=False,
         requires_heightmap=False,
+        requires_depth=False,
+        requires_depth_conversion=True,
         **kwargs,
     ):
         self.imageSizeX = image_width
@@ -97,6 +99,8 @@ class InitialEnvironmentConfig:
         self.fov = fov
         self.requires_biome_info = requires_biome_info
         self.requires_heightmap = requires_heightmap
+        self.requires_depth = requires_depth
+        self.requires_depth_conversion = requires_depth_conversion
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
 
@@ -202,4 +206,6 @@ class InitialEnvironmentConfig:
         initial_env.requiresHeightmap = self.requires_heightmap
         # retrieve self pid
         initial_env.python_pid = os.getpid()
+        initial_env.requiresDepth = self.requires_depth
+        initial_env.requiresDepthConversion = self.requires_depth_conversion
         return initial_env

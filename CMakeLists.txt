@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.15...3.29)
+cmake_minimum_required(VERSION 3.28)
 project(craftground LANGUAGES CXX)
 include(GNUInstallDirs)
+include(FetchContent)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -67,7 +68,7 @@ else()
 endif()
 
 # Collect source files for the module
-set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp)
+set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp src/cpp/ipc_noboost.cpp src/cpp/print_hex.cpp)
 
 if(APPLE)
     # Add Apple-specific source files
@@ -86,9 +87,27 @@ elseif(CUDAToolkit_FOUND)
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_CUDA)
 endif()
 
+# Find Boost
+message(STATUS "Installing Boost")
+set(BOOST_INCLUDE_LIBRARIES interprocess thread system)
+set(BOOST_ENABLE_CMAKE ON)
+
+set(FETCHCONTENT_QUIET FALSE)
+FetchContent_Declare(
+  Boost
+  GIT_REPOSITORY https://github.com/boostorg/boost.git
+  GIT_TAG boost-1.87.0
+  GIT_SHALLOW TRUE
+  GIT_PROGRESS TRUE
+  EXCLUDE_FROM_ALL
+)
+# FetchContent_MakeAvailable(Boost)
+
+# message(STATUS "Boost is now available")
 # Add the module
 pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
-
+# target_link_libraries(craftground_native PRIVATE Boost::system Boost::thread Boost::interprocess)
+# target_include_directories(craftground_native PRIVATE ${Boost_INCLUDE_DIRS})
 if(APPLE)
     if(Torch_FOUND)
         target_include_directories(craftground_native PRIVATE "${TORCH_INCLUDE_DIRS}")
@@ -113,6 +132,10 @@ elseif(CUDAToolkit_FOUND)
         # On Linux, use the CUDA targets provided by CMake
         target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
     endif()
+endif()
+if(WIN32)
+    add_definitions(-D_WIN32)
+    target_link_libraries(craftground_native PRIVATE kernel32.lib user32.lib Synchronization.lib)
 endif()
 
 
@@ -155,15 +178,21 @@ if(BUILD_TESTS)
         target_include_directories(craftground PUBLIC ${CUDAToolkit_INCLUDE_DIRS})
         if(WIN32)
             target_link_libraries(
-                craftground_native PRIVATE
+                craftground PRIVATE
                 ${CUDAToolkit_LIBRARY_DIR}/cudart.lib
                 # ${CUDAToolkit_LIBRARY_DIR}/cudart_static.lib
                 ${CUDAToolkit_LIBRARY_DIR}/cuda.lib
             )
         else()
             # On Linux, use the CUDA targets provided by CMake
-            target_link_libraries(craftground_native PRIVATE CUDA::cudart CUDA::cudart_static)
+            target_link_libraries(craftground PRIVATE CUDA::cudart CUDA::cudart_static)
         endif()
+    endif()
+    # target_link_libraries(craftground PRIVATE Boost::system Boost::thread Boost::interprocess)
+    # target_include_directories(craftground PRIVATE ${Boost_INCLUDE_DIRS})
+    if(WIN32)
+        add_definitions(-D_WIN32)
+        target_link_libraries(craftground PRIVATE kernel32.lib user32.lib Synchronization.lib)
     endif()
     target_link_options(craftground PRIVATE "-Wl,--whole-archive" "-Wl,--no-whole-archive")
     target_include_directories(craftground PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)

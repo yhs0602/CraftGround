@@ -1,3 +1,8 @@
+---
+title: Integrating with Stable Baselines3
+parent: Integration
+---
+
 # Integrating with Stable Baselines3
 You can integrate [stable-baselines3](https://stable-baselines3.readthedocs.io/en/master/) with this project.
 Here is an example of how to do it:

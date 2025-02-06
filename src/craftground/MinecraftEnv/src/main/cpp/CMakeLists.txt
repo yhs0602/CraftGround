@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.28)
 project(framebuffer_capturer)
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)
 set(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
@@ -26,7 +26,16 @@ else()
     message("CRAFGROUND_NATIVE_DEBUG not set")
 endif()
 
+set(CRAFTGROUND_NATIVE_PROFILE $ENV{CRAFTGROUND_NATIVE_PROFILE})
+if(CRAFTGROUND_NATIVE_PROFILE)
+    message("CRAFTGROUND_NATIVE_PROFILE=${CRAFTGROUND_NATIVE_PROFILE}")
+    set(CMAKE_BUILD_TYPE Debug) # Set default build type to Debug
+else()
+    message("CRAFTGROUND_NATIVE_PROFILE not set")
+endif()
 
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+message("CMAKE_CURRENT_LIST_DIR=${CMAKE_CURRENT_LIST_DIR}")
 # Find JNI
 find_package(Java COMPONENTS Development)
 find_package(JNI REQUIRED)
@@ -68,18 +77,47 @@ else()
     message(STATUS "CUDA is not available")
 endif()
 
+# Find Boost
+set(BOOST_INCLUDE_LIBRARIES interprocess thread system)
+set(BOOST_ENABLE_CMAKE ON)
+
+set(FETCHCONTENT_QUIET FALSE)
+FetchContent_Declare(
+    Boost
+    GIT_REPOSITORY https://github.com/boostorg/boost.git
+    GIT_TAG boost-1.87.0
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+    EXCLUDE_FROM_ALL
+)
+# FetchContent_MakeAvailable(Boost)
+
+message(STATUS "Boost is now available")
 
 # Add your source files here
-set(SOURCE_FILES
+set(
+    SOURCE_FILES
     framebuffer_capturer.cpp
+    cursor.cpp
+    rgb_capture.cpp
+    depth_capture.cpp
+    noboost_ipc.cpp
 )
 
+message(STATUS "SOURCE_FILES=${SOURCE_FILES}")
+
 if(APPLE)
-    list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm)
+    list(APPEND SOURCE_FILES framebuffer_capturer_apple.mm jni/jni_macos_zerocopy.cpp)
+elseif(CUDAToolkit_FOUND)
+    list(APPEND SOURCE_FILES framebuffer_capturer_cuda.cpp jni/jni_cuda_zerocopy.cpp)
+else()
+    list(APPEND SOURCE_FILES jni/jni_dummy_zerocopy.cpp)
 endif()
 
-if(CUDAToolkit_FOUND)
-    list(APPEND SOURCE_FILES framebuffer_capturer_cuda.cpp)
+
+
+if(PNG_FOUND)
+    list(APPEND SOURCE_FILES png_util.cpp)
 endif()
 
 # Add a library target for your native library
@@ -90,8 +128,16 @@ if(CRAFGROUND_NATIVE_DEBUG)
     target_compile_options(native-lib PRIVATE -g) # Add debug symbols
 endif()
 
+if(CRAFTGROUND_NATIVE_PROFILE)
+    message("CRAFTGROUND_NATIVE_PROFILE=${CRAFTGROUND_NATIVE_PROFILE}")
+    target_compile_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw -fcoverage-mapping) # Add profiling symbols
+    target_link_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw) # Add profiling symbols
+endif()
+
 # Link with JNI and OpenGL libraries
 target_link_libraries(native-lib ${JNI_LIBRARIES} ${OPENGL_LIBRARIES} glm::glm)
+# target_link_libraries(native-lib Boost::system Boost::thread Boost::interprocess)
+# target_include_directories(native-lib PRIVATE ${Boost_INCLUDE_DIRS})
 
 if(PNG_FOUND)
     target_link_libraries(native-lib ${PNG_LIBRARIES} ${ZLIB_LIBRARIES})

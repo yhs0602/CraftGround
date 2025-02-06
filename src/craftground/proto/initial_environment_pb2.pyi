@@ -40,7 +40,7 @@ AMPLIFIED: WorldType
 SINGLE_BIOME: WorldType
 
 class InitialEnvironmentMessage(_message.Message):
-    __slots__ = ("imageSizeX", "imageSizeY", "gamemode", "difficulty", "worldType", "worldTypeArgs", "seed", "generate_structures", "bonus_chest", "datapackPaths", "initialExtraCommands", "killedStatKeys", "minedStatKeys", "miscStatKeys", "surroundingEntityDistances", "hudHidden", "render_distance", "simulation_distance", "eye_distance", "structurePaths", "no_fov_effect", "request_raycast", "screen_encoding_mode", "requiresSurroundingBlocks", "level_display_name_to_play", "fov", "requiresBiomeInfo", "requiresHeightmap", "python_pid")
+    __slots__ = ("imageSizeX", "imageSizeY", "gamemode", "difficulty", "worldType", "worldTypeArgs", "seed", "generate_structures", "bonus_chest", "datapackPaths", "initialExtraCommands", "killedStatKeys", "minedStatKeys", "miscStatKeys", "surroundingEntityDistances", "hudHidden", "render_distance", "simulation_distance", "eye_distance", "structurePaths", "no_fov_effect", "request_raycast", "screen_encoding_mode", "requiresSurroundingBlocks", "level_display_name_to_play", "fov", "requiresBiomeInfo", "requiresHeightmap", "python_pid", "requiresDepth", "requiresDepthConversion")
     IMAGESIZEX_FIELD_NUMBER: _ClassVar[int]
     IMAGESIZEY_FIELD_NUMBER: _ClassVar[int]
     GAMEMODE_FIELD_NUMBER: _ClassVar[int]
@@ -70,6 +70,8 @@ class InitialEnvironmentMessage(_message.Message):
     REQUIRESBIOMEINFO_FIELD_NUMBER: _ClassVar[int]
     REQUIRESHEIGHTMAP_FIELD_NUMBER: _ClassVar[int]
     PYTHON_PID_FIELD_NUMBER: _ClassVar[int]
+    REQUIRESDEPTH_FIELD_NUMBER: _ClassVar[int]
+    REQUIRESDEPTHCONVERSION_FIELD_NUMBER: _ClassVar[int]
     imageSizeX: int
     imageSizeY: int
     gamemode: GameMode
@@ -99,4 +101,6 @@ class InitialEnvironmentMessage(_message.Message):
     requiresBiomeInfo: bool
     requiresHeightmap: bool
     python_pid: int
-    def __init__(self, imageSizeX: _Optional[int] = ..., imageSizeY: _Optional[int] = ..., gamemode: _Optional[_Union[GameMode, str]] = ..., difficulty: _Optional[_Union[Difficulty, str]] = ..., worldType: _Optional[_Union[WorldType, str]] = ..., worldTypeArgs: _Optional[str] = ..., seed: _Optional[str] = ..., generate_structures: bool = ..., bonus_chest: bool = ..., datapackPaths: _Optional[_Iterable[str]] = ..., initialExtraCommands: _Optional[_Iterable[str]] = ..., killedStatKeys: _Optional[_Iterable[str]] = ..., minedStatKeys: _Optional[_Iterable[str]] = ..., miscStatKeys: _Optional[_Iterable[str]] = ..., surroundingEntityDistances: _Optional[_Iterable[int]] = ..., hudHidden: bool = ..., render_distance: _Optional[int] = ..., simulation_distance: _Optional[int] = ..., eye_distance: _Optional[float] = ..., structurePaths: _Optional[_Iterable[str]] = ..., no_fov_effect: bool = ..., request_raycast: bool = ..., screen_encoding_mode: _Optional[int] = ..., requiresSurroundingBlocks: bool = ..., level_display_name_to_play: _Optional[str] = ..., fov: _Optional[float] = ..., requiresBiomeInfo: bool = ..., requiresHeightmap: bool = ..., python_pid: _Optional[int] = ...) -> None: ...
+    requiresDepth: bool
+    requiresDepthConversion: bool
+    def __init__(self, imageSizeX: _Optional[int] = ..., imageSizeY: _Optional[int] = ..., gamemode: _Optional[_Union[GameMode, str]] = ..., difficulty: _Optional[_Union[Difficulty, str]] = ..., worldType: _Optional[_Union[WorldType, str]] = ..., worldTypeArgs: _Optional[str] = ..., seed: _Optional[str] = ..., generate_structures: bool = ..., bonus_chest: bool = ..., datapackPaths: _Optional[_Iterable[str]] = ..., initialExtraCommands: _Optional[_Iterable[str]] = ..., killedStatKeys: _Optional[_Iterable[str]] = ..., minedStatKeys: _Optional[_Iterable[str]] = ..., miscStatKeys: _Optional[_Iterable[str]] = ..., surroundingEntityDistances: _Optional[_Iterable[int]] = ..., hudHidden: bool = ..., render_distance: _Optional[int] = ..., simulation_distance: _Optional[int] = ..., eye_distance: _Optional[float] = ..., structurePaths: _Optional[_Iterable[str]] = ..., no_fov_effect: bool = ..., request_raycast: bool = ..., screen_encoding_mode: _Optional[int] = ..., requiresSurroundingBlocks: bool = ..., level_display_name_to_play: _Optional[str] = ..., fov: _Optional[float] = ..., requiresBiomeInfo: bool = ..., requiresHeightmap: bool = ..., python_pid: _Optional[int] = ..., requiresDepth: bool = ..., requiresDepthConversion: bool = ...) -> None: ...
