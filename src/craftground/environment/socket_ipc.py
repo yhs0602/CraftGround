@@ -1,6 +1,7 @@
 import os
 import signal
 import struct
+import threading
 import time
 from typing import Dict, List, Optional, Union
 
@@ -178,16 +179,16 @@ class SocketIPC(IPCInterface):
     def send_exit(self):
         self.send_commands(["exit"])
 
-    def start_communication(self):
-        self._connect_server()
+    def start_communication(self, server_event: threading.Event):
+        self._connect_server(server_event)
         self.buffered_socket = BufferedSocket(self.sock)
         self._send_initial_environment(self.initial_environment)
         self.logger.log("Sent initial environment")
 
-    def _connect_server(self):
+    def _connect_server(self, server_event: threading.Event):
         wait_time = 1
         next_output = 1  # 3 7 15 31 63 127 255  seconds passed
-        while True:
+        while not server_event.is_set():
             try:
                 if os.name == "nt":
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

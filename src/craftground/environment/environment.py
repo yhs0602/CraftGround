@@ -266,15 +266,19 @@ class CraftGroundEnvironment(gym.Env):
             env=my_env,
             preexec_fn=os.setsid,  # To kill the process and its children properly
         )
+        self.server_event = threading.Event()
         threading.Thread(
-            target=self.monitor_process, args=(self.process,), daemon=True
+            target=self.monitor_process,
+            args=(self.process, self.server_event),
+            daemon=True,
         ).start()
 
-        self.ipc.start_communication()
+        self.ipc.start_communication(self.server_event)
 
-    def monitor_process(self, process):
+    def monitor_process(self, process, server_event):
         process.wait()
         self.logger.log(f"Java process exited with code {process.returncode}")
+        server_event.set()
 
     def update_override_resolutions(self, options_txt_path):
         with open(options_txt_path, "r") as file:
@@ -371,6 +375,7 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.extend(commands)
 
     def terminate(self):
+        self.server_event = None
         self.ipc.destroy()
         pid = self.process.pid if self.process else None
         # wait for the pid to exit

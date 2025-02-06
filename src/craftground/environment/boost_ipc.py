@@ -1,4 +1,5 @@
 import platform
+import threading
 import time
 from typing import List, Optional
 
@@ -102,11 +103,11 @@ class BoostIPC(IPCInterface):
         self.logger.log(f"Sending action to shared memory: {len(v)} bytes")
         write_to_shared_memory(self.p2j_shared_memory_name, v, len(v))
 
-    def start_communication(self):
+    def start_communication(self, server_event: threading.Event):
         # wait until the j2p shared memory is created
         wait_time = 1
         next_output = 1  # 3 7 15 31 63 127 255  seconds passed
-        while True:
+        while not server_event.is_set():
             if shared_memory_exists(self.j2p_shared_memory_name):
                 break
             self.logger.log(

@@ -137,6 +137,7 @@ void initDepthTexture(int width, int height) {
         GL_FLOAT,
         NULL
     );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -152,6 +153,8 @@ void initDepthResources(int width, int height) {
         depthConvertVertexShader, depthConvertFragmentShader
     );
 
+    initDepthTexture(width, height);
+
     // Uniform locations
     locationNearPlane =
         glGetUniformLocation(depthConversionShader, "nearPlane");
@@ -161,7 +164,7 @@ void initDepthResources(int width, int height) {
 
     initQuad();
 
-    // Depth 변환 결과를 저장할 Framebuffer 생성
+    // Generate framebuffer to save the converted depth
     glGenFramebuffers(1, &depthFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
 
@@ -211,8 +214,13 @@ float *captureDepth(
         depthPixelsSize = newDepthPixelsSize;
     }
 
-    bool use_cpu_conversion = true;
+    bool use_cpu_conversion = false;
     if (requiresDepthConversion && !use_cpu_conversion) {
+        glBindTexture(GL_TEXTURE_2D, depthTexture);
+        glCopyTexImage2D(
+            GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, width, height, 0
+        );
+
         // Enable the shader program
         glUseProgram(depthConversionShader);
         glUniform1f(locationNearPlane, near);

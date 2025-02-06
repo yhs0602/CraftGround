@@ -249,6 +249,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     return byteStringObject;
 }
 
+static bool initializedDepth = false;
 extern "C" JNIEXPORT jfloatArray JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
     JNIEnv *env,
@@ -260,6 +261,13 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
     jfloat near,
     jfloat far
 ) {
+    if (requiresDepthConversion) {
+        if (!initializedDepth) {
+            initDepthResources(textureWidth, textureHeight);
+            initializedDepth = true;
+        }
+    }
+
     float *depthBuffer = captureDepth(
         depthFrameBufferId,
         textureWidth,

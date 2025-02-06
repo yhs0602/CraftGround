@@ -794,17 +794,6 @@ class MinecraftEnv :
                                 ?.asIterable()
                                 ?: emptyList(),
                         )
-//                        depth.addAll(
-//                            FramebufferCapturer
-//                                .captureDepthImpl(
-//                                    buffer.fbo,
-//                                    buffer.textureWidth,
-//                                    buffer.textureHeight,
-//                                    initialEnvironment.requiresDepthConversion,
-//                                    0.05f,
-//                                    client.options.viewDistance.value * 4.0f,
-//                                ).asIterable(),
-//                        )
                     }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
