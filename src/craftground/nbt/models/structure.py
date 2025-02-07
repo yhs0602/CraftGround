@@ -1,0 +1,53 @@
+from __future__ import annotations
+from dataclasses import dataclass
+from typing import Optional
+from nbt.nbt_dataclass import (
+    NBTBase,
+    NBTCompound,
+    NBTDouble,
+    NBTInt,
+    NBTList,
+    NBTSerializable,
+    NBTString,
+)
+
+
+@dataclass
+class PaletteNBT(NBTSerializable):
+    """Represents a block state in the structure palette."""
+
+    Name: NBTString
+    Properties: Optional[NBTCompound[NBTString]] = None  # Key-value property list
+
+
+@dataclass
+class BlockNBT(NBTSerializable):
+    """Represents an individual block in the structure."""
+
+    state: NBTInt  # Index in the palette
+    pos: NBTList[NBTInt]  # (x, y, z) position
+    nbt: Optional[NBTCompound[NBTBase]] = None  # Block entity NBT (optional)
+
+
+@dataclass
+class StructureEntityNBT(NBTSerializable):
+    """Represents an entity in the structure."""
+
+    pos: NBTList[NBTDouble]  # Exact position (x, y, z)
+    blockPos: NBTList[NBTInt]  # Block-aligned position (x, y, z)
+    nbt: NBTCompound[NBTBase]  # Entity data (mandatory)
+
+
+@dataclass
+class StructureNBT(NBTSerializable):
+    """Root NBT structure for Minecraft structure files."""
+
+    DataVersion: NBTInt  # Version number
+    author: Optional[NBTString] = None  # Creator name (1.13 이전만 존재)
+    size: NBTList[NBTInt]  # Structure size (3 ints)
+    palette: NBTList[PaletteNBT]  # Default block palette
+    palettes: Optional[NBTList[NBTList[PaletteNBT]]] = (
+        None  # Random palettes (for shipwrecks)
+    )
+    blocks: NBTList[BlockNBT]  # List of individual blocks
+    entities: NBTList[StructureEntityNBT]  # List of entities in the structure
