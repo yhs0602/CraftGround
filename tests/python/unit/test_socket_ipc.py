@@ -1,4 +1,6 @@
 import signal
+import threading
+from time import sleep
 import pytest
 from unittest.mock import MagicMock, patch
 import struct
@@ -111,7 +113,11 @@ def test_start_communication(mock_socket, socket_ipc):
     socket_ipc.sock = mock_sock
     socket_ipc.buffered_socket = MagicMock(spec=BufferedSocket)
 
-    socket_ipc.start_communication()
+    event = threading.Event()
+    socket_ipc.start_communication(event)
+
+    sleep(5)
+    event.set()
 
     mock_sock.send.assert_called()
     mock_sock.sendall.assert_called()
@@ -169,6 +175,10 @@ def test_send_exit(mock_socket, socket_ipc):
 def test_connect_server(mock_socket, socket_ipc):
     mock_sock = MagicMock()
     mock_socket.return_value = mock_sock
-    socket_ipc._connect_server()
+    event = threading.Event()
+    socket_ipc._connect_server(event)
+
+    sleep(5)
+    event.set()
 
     assert socket_ipc.sock is not None
