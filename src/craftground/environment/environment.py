@@ -392,6 +392,8 @@ class CraftGroundEnvironment(gym.Env):
                 self.logger.log("No process to terminate")
         except ChildProcessError:
             self.logger.log("Child process already terminated")
+        except PermissionError:
+            self.logger.log("Permission denied to terminate the child process")
         self.process = None
         self.logger.log("Terminated the java process")
 
