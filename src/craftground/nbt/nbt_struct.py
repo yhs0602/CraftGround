@@ -33,6 +33,10 @@ class NBT:
         d[self.name] = self.contents.dump()
         return d
 
+    def __iter__(self):
+        yield self.name
+        yield self.contents
+
 
 @dataclass
 class NbtContents:

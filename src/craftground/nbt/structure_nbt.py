@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from nbt.nbt_struct import NBT, NbtContents, TagType
+from nbt_struct import NBT, NbtContents, TagType
 
 
 @dataclass

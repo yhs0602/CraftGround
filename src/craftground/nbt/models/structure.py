@@ -1,7 +1,7 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
-from nbt.nbt_dataclass import (
+from nbt_dataclass import (
     NBTBase,
     NBTCompound,
     NBTDouble,
@@ -44,10 +44,12 @@ class StructureNBT(NBTSerializable):
 
     DataVersion: NBTInt  # Version number
     author: Optional[NBTString] = None  # Creator name (1.13 이전만 존재)
-    size: NBTList[NBTInt]  # Structure size (3 ints)
-    palette: NBTList[PaletteNBT]  # Default block palette
+    size: NBTList[NBTInt] = (0, 0, 0)  # Structure size (3 ints)
+    palette: NBTList[PaletteNBT] = field(default_factory=list)  # Default block palette
     palettes: Optional[NBTList[NBTList[PaletteNBT]]] = (
         None  # Random palettes (for shipwrecks)
     )
-    blocks: NBTList[BlockNBT]  # List of individual blocks
-    entities: NBTList[StructureEntityNBT]  # List of entities in the structure
+    blocks: NBTList[BlockNBT] = field(default_factory=list)  # List of individual blocks
+    entities: NBTList[StructureEntityNBT] = field(
+        default_factory=list
+    )  # List of entities in the structure

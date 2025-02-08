@@ -1,8 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass, fields, is_dataclass
+from pydoc import locate
+import sys
 from typing import Any, Generic, List, Dict, Type, TypeVar, Union
-from nbt.models.dict_nbt import CompoundNBT
-from nbt.nbt_struct import NBT, NbtContents, TagType
+import typing
+from nbt_struct import NBT, NbtContents, TagType
 
 # TypeVar definition
 T = TypeVar(
@@ -28,6 +30,9 @@ T = TypeVar(
 class NBTBase:
     def to_nbt_contents(self) -> NbtContents:
         raise NotImplementedError
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.value})"
 
 
 class NBTByte(NBTBase):
@@ -133,6 +138,15 @@ class NBTCompound(NBTBase, Dict[str, NBTBase]):
 U = TypeVar("U", bound="NBTSerializable")
 
 
+def str_to_class(classname: str) -> Type:
+    if classname.startswith("Optional["):
+        inner_type = classname[len("Optional[") : -1]  # 괄호 안의 타입 추출
+        return typing.Optional[str_to_class(inner_type)]
+    if hasattr(typing, classname):
+        return getattr(typing, classname)
+    return None  # None existing class
+
+
 @dataclass
 class NBTSerializable:
     """NBT Serializing Dataclass"""
@@ -148,11 +162,12 @@ class NBTSerializable:
         """Setter - Automatically wrap NBTBase, handle None safely"""
         field_types = {field.name: field.type for field in fields(self)}
         expected_type = field_types.get(name, None)
+        expected_type = str_to_class(expected_type) if expected_type else None
 
         if value is None:  # Explicitly allow None
             object.__setattr__(self, name, None)
             return
-
+        # print(f"Setattr: {name=} {value=} {expected_type=} {field_types=}")
         if expected_type and issubclass(expected_type, NBTBase):
             object.__setattr__(self, name, expected_type(value))
         else:
@@ -182,7 +197,7 @@ class NBTSerializable:
         nbt_dict = {field.name: field for field in fields(cls)}
         parsed_values = {}
 
-        for key, value in nbt.contents.value.items():
+        for key, value in nbt.contents.value:
             if key not in nbt_dict:
                 continue  # Skip unknown keys
 
@@ -192,27 +207,19 @@ class NBTSerializable:
                 # Recursively parse nested NBTSerializable classes
                 parsed_values[key] = field_type.from_nbt(NBT(key, value))
 
-            elif field_type == NBTInt and value.tag_type == TagType.IntType:
-                parsed_values[key] = NBTInt(value.value)
-
-            elif field_type == NBTString and value.tag_type == TagType.StringType:
-                parsed_values[key] = NBTString(value.value)
-
-            elif field_type == NBTList and value.tag_type == TagType.ListType:
+            elif value.tag_type == TagType.ListType:
                 parsed_values[key] = NBTList(
                     [NBTSerializable._parse_nbt_list_item(v) for v in value.value]
                 )
-
-            elif field_type == CompoundNBT and value.tag_type == TagType.CompoundType:
-                parsed_values[key] = CompoundNBT(value.value)
-
+            elif field_type == NBTCompound and value.tag_type == TagType.CompoundType:
+                parsed_values[key] = NBTCompound(value.value)
             else:
-                raise TypeError(f"Unsupported NBT field type: {field_type}")
+                parsed_values[key] = NBTSerializable._parse_nbt_list_item(value)
 
         return cls(**parsed_values)
 
     @staticmethod
-    def _parse_nbt_list_item(value: NbtContents):
+    def _parse_nbt_list_item(value: NbtContents) -> NBTBase:
         """Helper function to parse NBT list items correctly."""
         if value.tag_type == TagType.IntType:
             return NBTInt(value.value)
@@ -235,6 +242,6 @@ class NBTSerializable:
         elif value.tag_type == TagType.StringType:
             return NBTString(value.value)
         elif value.tag_type == TagType.CompoundType:
-            return CompoundNBT(value.value)
+            return NBTCompound(value.value)
         else:
             return value  # Return raw if no explicit mapping exists

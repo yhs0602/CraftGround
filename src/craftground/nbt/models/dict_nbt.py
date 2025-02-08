@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from nbt.nbt_dataclass import NBTSerializable
-from nbt.nbt_struct import NbtContents, TagType
+from nbt_dataclass import NBTSerializable
+from nbt_struct import NbtContents, TagType
 from typing import Dict, Any
 
 # A NBTSerializable class that represents unknown NBT data.
