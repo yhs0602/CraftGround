@@ -11,7 +11,7 @@ FetchContent_MakeAvailable(googletest)
 
 find_package(CUDAToolkit QUIET)
 set(Python_FIND_VIRTUALENV FIRST)
-find_package(Python3 QUIET COMPONENTS Interpreter Development)
+find_package(Python3 REQUIRED COMPONENTS Development)
 
 # Build Test directory
 add_executable(test_ipc test_ipc.cpp)
