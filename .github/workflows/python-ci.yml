@@ -50,7 +50,7 @@ jobs:
       run: |
         # build cpp extension first
         mkdir build && cd build && cmake .. && cmake --build . && cd .. && echo "cpp extension built"
-        PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest tests/python/unit/
+        PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest --trace tests/python/unit/
     
     - name: coverage
       run: |
