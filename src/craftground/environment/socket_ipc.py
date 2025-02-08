@@ -214,3 +214,4 @@ class SocketIPC(IPCInterface):
                         raise Exception("Server not started within 1024 seconds")
                 wait_time += 1
                 time.sleep(1)
+        raise RuntimeError("Minecraft process failed to start")
