@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Tuple
 from models.structure import BlockNBT, PaletteNBT, StructureEntityNBT, StructureNBT
 from models.entity import EntityNBT, ItemEntityNBT, ItemNBT
-from nbt_dataclass import NBTCompound, NBTInt, NBTString
+from nbt_dataclass import NBTCompound, NBTInt, NBTShort, NBTString
 from nbt_io import read_nbt, write_nbt
 
 
@@ -237,6 +237,8 @@ class Structure:
         z: float,
         item: str,
         count: int = 1,
+        auto_destroy: bool = False,
+        can_pickup: bool = True,
     ):
         """Adds an item to the structure."""
         self._entities.append(
@@ -247,7 +249,9 @@ class Structure:
                     Item=ItemNBT(
                         id=NBTString(item),
                         Count=NBTInt(count),
-                    )
+                    ),
+                    Age=NBTShort(0) if auto_destroy else NBTShort(-32768),
+                    PickupDelay=NBTShort(0) if can_pickup else NBTShort(32767),
                 ),
             )
         )
