@@ -2,7 +2,6 @@ from typing import Optional, Dict, Tuple
 from models.structure import BlockNBT, PaletteNBT, StructureNBT
 from nbt_dataclass import NBTCompound, NBTInt, NBTString
 from nbt_io import read_nbt, write_nbt
-import math
 
 
 class Structure:
@@ -228,10 +227,10 @@ class Structure:
 if __name__ == "__main__":
     structure = Structure()
     structure.set_cuboid(0, 0, 0, 10, 10, 10, "minecraft:stone")
-    structure.set_walls(0, 0, 0, 10, 10, 10, "minecraft:stone")
-    structure.set_line(0, 0, 0, 10, 10, 10, "minecraft:stone")
-    structure.set_filled_sphere(5, 5, 5, 5, "minecraft:stone")
-    structure.set_hollow_sphere(5, 5, 5, 3, 5, "minecraft:stone")
-    structure.set_cylinder(5, 5, 5, 5, "minecraft:stone")
-    structure.set_hollow_cylinder(5, 5, 3, 5, 5, "minecraft:stone")
+    structure.set_walls(0, 0, 0, 10, 10, 10, "minecraft:diamond_ore")
+    structure.set_line(0, 0, 0, 10, 10, 10, "minecraft:gold_ore")
+    structure.set_filled_sphere(5, 5, 5, 5, "minecraft:glass")
+    structure.set_hollow_sphere(5, 5, 5, 3, 5, "minecraft:air")
+    structure.set_cylinder(5, 5, 5, 5, "minecraft:gold_block")
+    structure.set_hollow_cylinder(5, 5, 3, 5, 5, "minecraft:oak_planks")
     structure.save("output.nbt")
