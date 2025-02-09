@@ -184,10 +184,11 @@ class NBTLongArray(NBTBase):
 
 
 # Recursive NBTList and NBTCompound
-class NBTList(NBTBase, Generic[T]):
+class NBTList(NBTBase, Generic[T], List[T]):
     def __init__(self, value: List[T]):
         self.type = TagType.ListType
         self.value = value
+        super().__init__(value)
 
     def write_to_file(self, f):
         """Writes a TAG_List to the file."""
@@ -220,11 +221,27 @@ class NBTCompound(NBTBase, Dict[str, NBTBase]):
     def __init__(self, value: Dict[str, NBTBase]):
         self.type = TagType.CompoundType
         self.value: Dict[str, NBTBase] = value
+        super().__init__(value)
+
+    def __getattr__(self, name: str) -> NBTBase:
+        """Allow accessing NBT values as properties."""
+        try:
+            return self.value[name]
+        except KeyError:
+            raise AttributeError(
+                f"'{self.__class__.__name__}' has no attribute '{name}'"
+            )
+
+    def __hash__(self):
+        """Make NBTCompound hashable if all values are hashable."""
+        return hash(tuple(sorted((k, hash(v)) for k, v in self.value.items())))
 
     def write_to_file(self, f):
         """Writes a TAG_Compound to the file."""
         for name, value in self.value.items():
-            f.write(struct.pack(">B", value.tag_type.value))
+            if value is None:
+                continue
+            f.write(struct.pack(">B", value.type.value))
             name_data = name.encode("utf-8")
             f.write(struct.pack(">h", len(name_data)))
             f.write(name_data)
@@ -262,23 +279,6 @@ class TagType(int, Enum):
     CompoundType = 10
     IntArrayType = 11
     LongArrayType = 12
-
-
-@dataclass
-class NBT:
-    """NBT Data Structure"""
-
-    name: str
-    contents: NBTBase
-
-    def dump_to_dict(self, d: dict) -> dict:
-        """Add NBT to dictionary"""
-        d[self.name] = self.contents.dump()
-        return d
-
-    def __iter__(self):
-        yield self.name
-        yield self.contents
 
 
 U = TypeVar("U", bound="NBTSerializable")
@@ -330,14 +330,7 @@ def get_type_hints_with_locate(obj):
 class NBTSerializable:
     """NBT Serializing Dataclass with SNBT and pretty-print support"""
 
-    def to_nbt_contents(self) -> NBTBase:
-        """Automatically convert to NbtContents, ignoring None values"""
-        compound_list = []
-        for field in fields(self):
-            value = getattr(self, field.name)
-            if value is not None and isinstance(value, NBTBase):
-                compound_list.append(NBT(field.name, value.to_nbt_contents()))
-        return NBTBase(compound_list)
+    type = TagType.CompoundType
 
     @classmethod
     def from_nbt(cls: Type[U], nbt: NBTCompound) -> U:
@@ -361,3 +354,51 @@ class NBTSerializable:
                 + f"\n{' ' * (indent * depth)}}}"
             )
         return "{" + ",".join(snbt_fields) + "}"
+
+    def write_to_file(self, f):
+        """Writes the NBTSerializable to a file."""
+        # Make nbt compound
+        nbt = NBTCompound(
+            {field.name: getattr(self, field.name) for field in fields(self)}
+        )
+        nbt.write_to_file(f)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if not isinstance(value, NBTBase):
+            print(f"Expected NBTBase, got {type(value).__name__}")
+            if value is None:
+                return  # Ignore None values
+            # Get the original type and convert the value to corresponding NBTBase
+            type_hints = get_type_hints_with_locate(self.__class__)
+            field_type = type_hints.get(name)
+            if not field_type:
+                raise ValueError(f"Unknown field type for {name}")
+            value = NBTSerializable.convert_to_nbtbase(value, field_type)
+            print(f"Converted {type(value).__name__} to {field_type}")  # : {value}
+
+        # Set the attribute
+        object.__setattr__(self, name, value)
+
+    @staticmethod
+    def convert_to_nbtbase(value: Any, field_type: Type) -> NBTBase:
+        """Converts a value to an NBTBase object."""
+        print(f"Converting {value} to {field_type}")
+        # Resolve generic types
+        origin_type = typing.get_origin(field_type)
+        if origin_type == NBTList:
+            return NBTList(
+                [
+                    NBTSerializable.convert_to_nbtbase(
+                        item, typing.get_args(field_type)[0]
+                    )
+                    for item in value
+                ]
+            )
+        if origin_type == NBTCompound:
+            return NBTCompound(value)
+        if isinstance(value, field_type):
+            return value
+        if is_dataclass(field_type):
+            print(f"Converting {value} to {field_type}")
+            return field_type(value)
+        return field_type(value)

@@ -1,10 +1,9 @@
 import gzip
 import struct
-from typing import List, Tuple
+from typing import Tuple
 
 import numpy as np
 from nbt_dataclass import (
-    NBT,
     NBTBase,
     NBTByte,
     NBTByteArray,
@@ -109,31 +108,3 @@ def write_nbt(nbt: NBTCompound, file_path: str):
     """Writes an NBT object to a file."""
     with gzip.open(file_path, "wb") as f:
         nbt.write_to_file(f)
-
-
-def _write_string(f, value: str):
-    """Writes a TAG_String to the file."""
-    encoded = value.encode("utf-8")
-    f.write(struct.pack(">h", len(encoded)))
-    f.write(encoded)
-
-
-def _write_array(f, value: np.ndarray):
-    """Writes an NBT array (ByteArray, IntArray, LongArray)."""
-    f.write(struct.pack(">i", len(value)))
-    f.write(value.tobytes())
-
-
-def _write_list(f, value: List[NBTBase]):
-    """Writes a TAG_List to the file."""
-    if not value:
-        f.write(struct.pack(">B", TagType.EndType.value))
-        f.write(struct.pack(">i", 0))
-        return
-
-    tag_type = value[0].tag_type
-    f.write(struct.pack(">B", tag_type.value))
-    f.write(struct.pack(">i", len(value)))
-
-    for item in value:
-        _write_payload(f, item)

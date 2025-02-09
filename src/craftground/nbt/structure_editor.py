@@ -1,6 +1,7 @@
 from typing import Optional, Dict, Tuple
-from nbt.nbt_io import read_nbt, write_nbt
-from nbt.nbt_struct import NBT, NbtContents, TagType
+from models.structure import BlockNBT, StructureNBT
+from nbt_dataclass import NBTCompound, NBTInt, NBTString
+from nbt_io import read_nbt, write_nbt
 import math
 
 
@@ -14,46 +15,10 @@ class Structure:
 
         if nbt_file:
             nbt = read_nbt(nbt_file)
-            self.nbt_dict = nbt.dump_to_dict({})[""]
             for block in self.nbt_dict["blocks"]:
                 self._blocks[tuple(block["pos"])] = block
             for palette_index, palette in enumerate(self.nbt_dict["palette"]):
                 self._palette[palette] = palette_index
-
-    def build_entity_nbt(self) -> NbtContents:
-        pass
-
-    @staticmethod
-    def build_block_nbt_nbt(nbt: dict) -> NbtContents:
-        pass
-
-    @staticmethod
-    def build_block_nbt(block: dict) -> NbtContents:
-        temp = [
-            NBT(
-                "state",
-                NbtContents.int(block["state"]),
-            ),
-            NBT(
-                "pos",
-                NbtContents.list(
-                    [
-                        NbtContents.int(block["pos"][0]),
-                        NbtContents.int(block["pos"][1]),
-                        NbtContents.int(block["pos"][2]),
-                    ]
-                ),
-            ),
-        ]
-        if "nbt" in block:
-            temp.append(NBT("nbt", NbtContents.compound(block["nbt"])))
-
-        return NbtContents(
-            TagType.CompoundType,
-        )
-
-    def build_palette_nbt(self) -> NbtContents:
-        pass
 
     def save(self, out_file: str):
         """Saves the structure to a file."""
@@ -66,54 +31,26 @@ class Structure:
         max_z = max(z for _, _, z in self._blocks)
         size = (max_x - min_x + 1, max_y - min_y + 1, max_z - min_z + 1)
 
-        structure_compound = NbtContents(
-            TagType.CompoundType,
-            [
-                NBT("DataVersion", NbtContents(TagType.IntType, 3953)),
-                NBT(
-                    "size",
-                    NbtContents.list(
-                        [
-                            NbtContents.int(size[0]),
-                            NbtContents.int(size[1]),
-                            NbtContents.int(size[2]),
-                        ]
-                    ),
-                ),
-                NBT(
-                    "palette",
-                    NbtContents.list(
-                        [
-                            NbtContents.compound(palette)
-                            for palette in self._palette.keys()
-                        ]
-                    ),
-                ),
-                NBT(
-                    "blocks",
-                    NbtContents.list(
-                        [
-                            NbtContents.compound(
-                                {
-                                    "pos": NbtContents.list(
-                                        [
-                                            NbtContents.int(x - min_x),
-                                            NbtContents.int(y - min_y),
-                                            NbtContents.int(z - min_z),
-                                        ]
-                                    ),
-                                    "state": NbtContents.int(block["state"]),
-                                    **block.get("nbt", {}),
-                                }
-                            )
-                            for (x, y, z), block in self._blocks.items()
-                        ]
-                    ),
-                ),
+        structure_file = StructureNBT(
+            DataVersion=NBTInt(19133),
+            size=size,
+            palette=[NBTCompound(palette) for palette in self._palette],
+            blocks=[
+                BlockNBT(
+                    state=block["state"],
+                    pos=[
+                        block["pos"][0] - min_x,
+                        block["pos"][1] - min_y,
+                        block["pos"][2] - min_z,
+                    ],
+                    nbt=NBTCompound(block["nbt"]) if "nbt" in block else None,
+                )
+                for block in self._blocks.values()
             ],
+            entities=[],  # no entities for now
         )
-        nbt = NBT("", structure_compound)
-        write_nbt(nbt, out_file)
+        # create the NBT structure
+        write_nbt(structure_file, out_file)
 
     def set_block_palette(
         self, x: int, y: int, z: int, palette_index: int, nbt: Optional[dict] = None
@@ -134,9 +71,9 @@ class Structure:
         nbt: Optional[dict] = None,
     ):
         """Sets a block at the given coordinates with name, properties, and optional NBT data."""
-        palette = {"Name": name}
+        palette = NBTCompound({"Name": NBTString(name)})
         if properties is not None:
-            palette["Properties"] = properties
+            palette.Properties = properties
 
         # Add to palette if not exists
         palette_index = self._palette.setdefault(palette, len(self._palette))
@@ -285,3 +222,15 @@ class Structure:
                 if r1**2 <= dist_sq <= r2**2:
                     for dy in range(h):
                         self.set_block(x + dx, dy, z + dz, name, properties, nbt)
+
+
+if __name__ == "__main__":
+    structure = Structure()
+    structure.set_cuboid(0, 0, 0, 10, 10, 10, "minecraft:stone")
+    structure.set_walls(0, 0, 0, 10, 10, 10, "minecraft:stone")
+    structure.set_line(0, 0, 0, 10, 10, 10, "minecraft:stone")
+    structure.set_filled_sphere(5, 5, 5, 5, "minecraft:stone")
+    structure.set_hollow_sphere(5, 5, 5, 3, 5, "minecraft:stone")
+    structure.set_cylinder(5, 5, 5, 5, "minecraft:stone")
+    structure.set_hollow_cylinder(5, 5, 3, 5, 5, "minecraft:stone")
+    structure.save("output.nbt")
