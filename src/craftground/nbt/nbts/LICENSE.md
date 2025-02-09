@@ -1,0 +1,2 @@
+XML files in this directory are from the Malmo project, which is licensed under the MIT License. The original source code can be found at
+https://github.com/microsoft/malmo/tree/master?tab=MIT-1-ov-file
