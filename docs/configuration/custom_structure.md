@@ -10,13 +10,13 @@ Utilizing custom structures are of significant interest for researchers as they 
 ## Creating Custom Structures in Minecraft
 
 1. Build your desired structure.
-2. Use commands to extract a jigsaw block to your inventory.
-`give @p minecraft:jigsaw`
-3. Place the jigsaw block at the starting and ending points of your structure, ensuring both have the same name.
-4. In a new jigsaw block interface, enter the name of your structure and hit the save button.
-5. Finally, copy the structure file from `saves/generated/structures/<structure_name>.nbt`.
+2. Use commands to extract a strcuture block to your inventory.
+`give @p minecraft:strcuture`
+3. Place the strcuture block at the starting and ending points of your structure, ensuring both have the same name.
+4. In a new strcuture block interface, enter the name of your structure and hit the save button.
+5. Finally, copy the structure file from `saves/<your_world_name>/generated/minecraft/structures/<structure_name>.nbt`.
 
-For a more detailed tutorial on using jigsaw blocks effectively, refer to [this guide](https://gist.github.com/GentlemanRevvnar/98a8f191f46d28f63592672022c41497).
+For a more detailed tutorial on using structure blocks effectively, refer to [this guide](https://gist.github.com/GentlemanRevvnar/98a8f191f46d28f63592672022c41497).
 
 ## Installing Custom Structures in the Environment
 
