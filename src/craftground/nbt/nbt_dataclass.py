@@ -135,6 +135,7 @@ class NBTByteArray(NBTBase):
 
 class NBTString(NBTBase):
     def __init__(self, value: str):
+        assert isinstance(value, str)
         self.type = TagType.StringType
         self.value = value
 
@@ -153,6 +154,14 @@ class NBTString(NBTBase):
             self.value.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'")
         )
         return f'"{escaped}"'
+
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, NBTString):
+            return False
+        return self.value == value.value
 
 
 class NBTIntArray(NBTBase):
@@ -264,6 +273,11 @@ class NBTCompound(NBTBase, Dict[str, NBTBase]):
         items = [f"{k}:{v.to_snbt()}" for k, v in self.value.items()]
         return "{" + ",".join(items) + "}"
 
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, NBTCompound):
+            return False
+        return self.value == value.value
+
 
 class TagType(int, Enum):
     EndType = 0
@@ -310,10 +324,10 @@ def str_to_class(classname: str) -> typing.Type:
 
 
 def get_type_hints_with_locate(obj):
-    """get_type_hints를 보완하여 locate를 이용해 미리 임포트되지 않은 타입도 찾도록 함"""
+    """Enhances get_type_hints by using locate to find types that haven't been imported yet"""
     globalns = sys.modules[
         obj.__module__
-    ].__dict__.copy()  # 현재 모듈의 네임스페이스 복사
+    ].__dict__.copy()  # Copy the namespace to avoid modifying the original
     localns = {}
 
     # __annotations__에서 타입 문자열을 가져오고 locate로 찾아서 globalns에 추가
@@ -365,16 +379,17 @@ class NBTSerializable:
 
     def __setattr__(self, name: str, value: Any) -> None:
         if not isinstance(value, NBTBase):
-            print(f"Expected NBTBase, got {type(value).__name__}")
+            # print(f"Expected NBTBase, got {type(value).__name__}")
             if value is None:
                 return  # Ignore None values
             # Get the original type and convert the value to corresponding NBTBase
             type_hints = get_type_hints_with_locate(self.__class__)
             field_type = type_hints.get(name)
+            # print(f"Field type for {name}: {field_type}, {type_hints=}")
             if not field_type:
                 raise ValueError(f"Unknown field type for {name}")
             value = NBTSerializable.convert_to_nbtbase(value, field_type)
-            print(f"Converted {type(value).__name__} to {field_type}")  # : {value}
+            # print(f"Converted {type(value).__name__} to {field_type}")  # : {value}
 
         # Set the attribute
         object.__setattr__(self, name, value)
@@ -382,7 +397,7 @@ class NBTSerializable:
     @staticmethod
     def convert_to_nbtbase(value: Any, field_type: Type) -> NBTBase:
         """Converts a value to an NBTBase object."""
-        print(f"Converting {value} to {field_type}")
+        # print(f"Converting {value} to {field_type}")
         # Resolve generic types
         origin_type = typing.get_origin(field_type)
         if origin_type == NBTList:
@@ -401,4 +416,5 @@ class NBTSerializable:
         if is_dataclass(field_type):
             print(f"Converting {value} to {field_type}")
             return field_type(value)
+        print(f"Converting {value} to {field_type}")
         return field_type(value)

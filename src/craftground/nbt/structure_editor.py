@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Tuple
-from models.structure import BlockNBT, StructureNBT
+from models.structure import BlockNBT, PaletteNBT, StructureNBT
 from nbt_dataclass import NBTCompound, NBTInt, NBTString
 from nbt_io import read_nbt, write_nbt
 import math
@@ -34,7 +34,7 @@ class Structure:
         structure_file = StructureNBT(
             DataVersion=NBTInt(19133),
             size=size,
-            palette=[NBTCompound(palette) for palette in self._palette],
+            palette=[palette for palette in self._palette],
             blocks=[
                 BlockNBT(
                     state=block["state"],
@@ -50,7 +50,8 @@ class Structure:
             entities=[],  # no entities for now
         )
         # create the NBT structure
-        write_nbt(structure_file, out_file)
+        print(structure_file.to_snbt(indent=2))
+        write_nbt(NBTCompound({"": structure_file}), out_file)
 
     def set_block_palette(
         self, x: int, y: int, z: int, palette_index: int, nbt: Optional[dict] = None
@@ -71,7 +72,7 @@ class Structure:
         nbt: Optional[dict] = None,
     ):
         """Sets a block at the given coordinates with name, properties, and optional NBT data."""
-        palette = NBTCompound({"Name": NBTString(name)})
+        palette = PaletteNBT(Name=NBTString(name))
         if properties is not None:
             palette.Properties = properties
 

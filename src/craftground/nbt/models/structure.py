@@ -19,6 +19,16 @@ class PaletteNBT(NBTSerializable):
     Name: NBTString
     Properties: Optional[NBTCompound[NBTString]] = None  # Key-value property list
 
+    def __hash__(self) -> int:
+        # Hash based on the name and properties
+        return hash((self.Name, self.Properties))
+
+    def __eq__(self, value: object) -> bool:
+        # Compare based on the name and properties
+        if not isinstance(value, PaletteNBT):
+            return False
+        return self.Name == value.Name and self.Properties == value.Properties
+
 
 @dataclass
 class BlockNBT(NBTSerializable):
