@@ -7,7 +7,7 @@ from nbt_io import read_nbt
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-nbt_path = os.path.join(current_dir, "output.nbt")
+nbt_path = os.path.join(current_dir, "nbts/room_with_item.nbt")
 
 
 if __name__ == "__main__":

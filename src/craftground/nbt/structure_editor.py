@@ -1,5 +1,6 @@
-from typing import Optional, Dict, Tuple
-from models.structure import BlockNBT, PaletteNBT, StructureNBT
+from typing import List, Optional, Dict, Tuple
+from models.structure import BlockNBT, PaletteNBT, StructureEntityNBT, StructureNBT
+from models.entity import EntityNBT, ItemEntityNBT, ItemNBT
 from nbt_dataclass import NBTCompound, NBTInt, NBTString
 from nbt_io import read_nbt, write_nbt
 
@@ -11,13 +12,17 @@ class Structure:
 
         self._blocks: Dict[Tuple[int, int, int], dict] = {}
         self._palette: Dict[dict, int] = {}
+        self._entites: List[StructureEntityNBT] = []
 
         if nbt_file:
             nbt = read_nbt(nbt_file)
-            for block in self.nbt_dict["blocks"]:
+            nbt_struct = StructureNBT.from_nbt(nbt)
+            for block in nbt_struct.blocks:
                 self._blocks[tuple(block["pos"])] = block
-            for palette_index, palette in enumerate(self.nbt_dict["palette"]):
+            for palette_index, palette in enumerate(nbt_struct.palette):
                 self._palette[palette] = palette_index
+            for entity in nbt_struct.entities:
+                self._entites.append(entity)
 
     def save(self, out_file: str):
         """Saves the structure to a file."""
@@ -46,7 +51,7 @@ class Structure:
                 )
                 for block in self._blocks.values()
             ],
-            entities=[],  # no entities for now
+            entities=self._entites,  # no entities for now
         )
         # create the NBT structure
         # print(structure_file.to_snbt(indent=2))
@@ -224,6 +229,28 @@ class Structure:
                 if r1**2 <= dist_sq <= r2**2:
                     for dy in range(h):
                         self.set_block(x + dx, y + dy, z + dz, name, properties, nbt)
+
+    def add_item(
+        self,
+        x: float,
+        y: float,
+        z: float,
+        item: str,
+        count: int = 1,
+    ):
+        """Adds an item to the structure."""
+        self._entities.append(
+            StructureEntityNBT(
+                pos=[x, y, z],
+                blockPos=[int(x), int(y), int(z)],
+                nbt=ItemEntityNBT(
+                    Item=ItemNBT(
+                        id=NBTString(item),
+                        Count=NBTInt(count),
+                    )
+                ),
+            )
+        )
 
 
 if __name__ == "__main__":

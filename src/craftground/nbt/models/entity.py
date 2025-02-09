@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from nbt.nbt_dataclass import (
+from nbt_dataclass import (
     NBTBase,
     NBTByte,
     NBTCompound,
@@ -20,10 +20,10 @@ class EntityNBT(NBTSerializable):
     """Base class for all entities."""
 
     Air: NBTShort
-    CustomName: Optional[NBTString] = None
-    CustomNameVisible: Optional[NBTByte] = None
-    FallDistance: Optional[NBTFloat] = None
-    fall_distance: Optional[NBTDouble] = None
+    CustomName: Optional[NBTString]
+    CustomNameVisible: Optional[NBTByte]
+    FallDistance: Optional[NBTFloat]
+    fall_distance: Optional[NBTDouble]
     Fire: NBTShort
     Glowing: NBTByte
     HasVisualFire: NBTByte
@@ -32,13 +32,13 @@ class EntityNBT(NBTSerializable):
     Motion: NBTList[NBTDouble]
     NoGravity: NBTByte
     OnGround: NBTByte
-    Passengers: Optional[NBTList["EntityNBT"]] = None
+    Passengers: Optional[NBTList["EntityNBT"]]
     PortalCooldown: NBTInt
     Pos: NBTList[NBTDouble]
     Rotation: NBTList[NBTFloat]
-    Silent: Optional[NBTByte] = None
-    Tags: Optional[NBTList[NBTString]] = None
-    TicksFrozen: Optional[NBTInt] = None
+    Silent: Optional[NBTByte]
+    Tags: Optional[NBTList[NBTString]]
+    TicksFrozen: Optional[NBTInt]
     UUID: NBTList[NBTInt]
 
 
@@ -49,9 +49,7 @@ class PotionEffectNBT(NBTSerializable):
     ambient: NBTByte  # If true, effect is provided by a beacon
     amplifier: NBTByte  # Potion effect level (0 = level 1)
     duration: NBTInt  # Duration in game ticks (-1 = infinite)
-    hidden_effect: Optional[NBTCompound] = (
-        None  # Lower amplifier effect of the same type
-    )
+    hidden_effect: Optional[NBTCompound]  # Lower amplifier effect of the same type
     id: NBTString  # Effect name (e.g., "minecraft:strength")
     show_icon: NBTByte  # If true, effect icon is shown
     show_particles: NBTByte  # If true, particles are shown
@@ -64,6 +62,30 @@ class ItemNBT(NBTSerializable):
     id: NBTString  # Item ID (e.g., "minecraft:diamond_sword")
     count: NBTInt  # Number of items in the stack
     components: Optional[NBTCompound] = None  # Item components
+
+
+@dataclass
+class ItemEntityNBT(EntityNBT):
+    """Item entity data."""
+
+    Age: NBTShort
+    Health: NBTFloat
+    Item: ItemNBT
+    Owner: NBTList[
+        NBTInt
+    ]  # UUID of the player who owns the item. Used by give command.
+    PickupDelay: NBTShort
+    Thrower: NBTList[NBTInt]  # UUID of the player who threw the item
+
+
+@dataclass
+class ExperienceOrbEntityNBT(EntityNBT):
+    """Experience orb entity data."""
+
+    Age: NBTShort
+    Count: NBTInt
+    Health: NBTShort
+    Value: NBTShort
 
 
 # @dataclass
@@ -89,7 +111,7 @@ class LivingEntityNBT(EntityNBT):
     attributes: Optional[NBTList[NBTCompound]] = None
     body_armor_drop_chance: (
         NBTFloat  # Until JE 1.21.5,  Chance to drop the item in the body armor slot.
-    )
+    ) = 0.0
     body_armor_item: Optional[ItemNBT] = None  # Until JE 1.21.5, Body armor item.
     Brain: Optional[NBTCompound[NBTBase]] = None
     CanPickUpLoot: Optional[NBTByte] = None
@@ -97,7 +119,7 @@ class LivingEntityNBT(EntityNBT):
     drop_chances: Optional[NBTCompound[NBTFloat]] = None
     equipment: Optional[NBTCompound[NBTCompound]] = None
     FallFlying: Optional[NBTByte] = None
-    Health: NBTFloat
+    Health: NBTFloat = 1.0
     HurtByTimestamp: Optional[NBTInt] = None
     HurtTime: Optional[NBTShort] = None
     HandDropChances: Optional[NBTList[NBTFloat]] = None
@@ -140,9 +162,9 @@ class AllayListenerNBT(NBTSerializable):
 
     distance: NBTInt  # Nonnegative integer
     event: Optional[EventNBT] = None
-    event_delay: NBTInt  # Nonnegative integer
-    event_distance: NBTInt  # Nonnegative integer
-    range: NBTInt  # Nonnegative integer
+    event_delay: NBTInt = 0  # Nonnegative integer
+    event_distance: NBTInt = 0  # Nonnegative integer
+    range: NBTInt = 0  # Nonnegative integer
 
 
 @dataclass
@@ -160,12 +182,12 @@ class PlayerNBT(LivingEntityNBT):
     """Player entity data."""
 
     PlayerGameMode: Optional[NBTInt] = None
-    PlayerUUID: NBTList[NBTInt]
+    PlayerUUID: NBTList[NBTInt] = None
     PlayerInventory: Optional[NBTList[NBTCompound]] = None
     PlayerEnderChest: Optional[NBTList[NBTCompound]] = None
     PlayerXP: Optional[NBTInt] = None
     PlayerLevel: Optional[NBTInt] = None
-    PlayerHealth: NBTFloat
+    PlayerHealth: NBTFloat = 0.0
     PlayerFoodLevel: Optional[NBTInt] = None
 
 

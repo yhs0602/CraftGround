@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
+from models.entity import EntityNBT
 from nbt_dataclass import (
     NBTBase,
     NBTCompound,
@@ -45,7 +46,7 @@ class StructureEntityNBT(NBTSerializable):
 
     pos: NBTList[NBTDouble]  # Exact position (x, y, z)
     blockPos: NBTList[NBTInt]  # Block-aligned position (x, y, z)
-    nbt: NBTCompound[NBTBase]  # Entity data (mandatory)
+    nbt: EntityNBT  # Entity data (mandatory)
 
 
 @dataclass
