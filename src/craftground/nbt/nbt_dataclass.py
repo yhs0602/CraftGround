@@ -1,10 +1,17 @@
+# https://github.com/acfoltzer/nbt/blob/master/NBT-spec.txt
+# https://minecraft.wiki/w/NBT_format
+
 from __future__ import annotations
 from dataclasses import dataclass, fields, is_dataclass
 from pydoc import locate
+import struct
 import sys
 from typing import Any, Generic, List, Dict, Type, TypeVar, Union
 import typing
-from nbt_struct import NBT, NbtContents, TagType
+from enum import Enum
+from dataclasses import dataclass
+from typing import Any, List, Union
+
 
 # TypeVar definition
 T = TypeVar(
@@ -28,8 +35,7 @@ T = TypeVar(
 
 # Basic NBT Type support Wrappers
 class NBTBase:
-    def to_nbt_contents(self) -> NbtContents:
-        raise NotImplementedError
+    type: TagType
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.value})"
@@ -37,13 +43,17 @@ class NBTBase:
     def to_snbt(self, indent: int, depth: int) -> str:
         raise NotImplementedError
 
+    def write_to_file(self, f):
+        raise NotImplementedError
+
 
 class NBTByte(NBTBase):
-    def __init__(self, value: bool):
+    def __init__(self, value: int):
+        self.type = TagType.ByteType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.ByteType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">b", self.value))
 
     def to_snbt(self, indent=0, depth=0):
         return f"{self.value}b"
@@ -51,10 +61,11 @@ class NBTByte(NBTBase):
 
 class NBTShort(NBTBase):
     def __init__(self, value: int):
+        self.type = TagType.ShortType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.ShortType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">h", self.value))
 
     def to_snbt(self, indent=0, depth=0):
         return f"{self.value}s"
@@ -62,10 +73,11 @@ class NBTShort(NBTBase):
 
 class NBTInt(NBTBase):
     def __init__(self, value: int):
+        self.type = TagType.IntType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.IntType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">i", self.value))
 
     def to_snbt(self, indent=0, depth=0):
         return f"{self.value}"
@@ -73,10 +85,11 @@ class NBTInt(NBTBase):
 
 class NBTLong(NBTBase):
     def __init__(self, value: int):
+        self.type = TagType.LongType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.LongType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">q", self.value))
 
     def to_snbt(self, indent=0, depth=0):
         return f"{self.value}l"
@@ -84,10 +97,11 @@ class NBTLong(NBTBase):
 
 class NBTFloat(NBTBase):
     def __init__(self, value: float):
+        self.type = TagType.FloatType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.FloatType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">f", self.value))
 
     def to_snbt(self, indent=0, depth=0):
         return f"{self.value}f"
@@ -95,10 +109,11 @@ class NBTFloat(NBTBase):
 
 class NBTDouble(NBTBase):
     def __init__(self, value: float):
+        self.type = TagType.DoubleType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.DoubleType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">d", self.value))
 
     def to_snbt(self, indent=0, depth=0):
         return f"{self.value}d"
@@ -106,10 +121,13 @@ class NBTDouble(NBTBase):
 
 class NBTByteArray(NBTBase):
     def __init__(self, value: List[int]):
+        self.type = TagType.ByteArrayType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.ByteArrayType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">i", len(self.value)))
+        # TODO
+        f.write(self.value.tobytes())
 
     def to_snbt(self, indent=0, depth=0):
         return f"[B;{','.join(f'{v}b' for v in self.value)}]"
@@ -117,10 +135,13 @@ class NBTByteArray(NBTBase):
 
 class NBTString(NBTBase):
     def __init__(self, value: str):
+        self.type = TagType.StringType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.StringType, self.value)
+    def write_to_file(self, f):
+        data = self.value.encode("utf-8")
+        f.write(struct.pack(">h", len(data)))
+        f.write(data)
 
     def to_snbt(self, indent=0, depth=0):
         """
@@ -136,10 +157,13 @@ class NBTString(NBTBase):
 
 class NBTIntArray(NBTBase):
     def __init__(self, value: List[int]):
+        self.type = TagType.IntArrayType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.IntArrayType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">i", len(self.value)))
+        # TODO
+        f.write(self.value.tobytes())
 
     def to_snbt(self, indent=0, depth=0):
         return f"[I;{','.join(str(v) for v in self.value)}]"
@@ -147,10 +171,13 @@ class NBTIntArray(NBTBase):
 
 class NBTLongArray(NBTBase):
     def __init__(self, value: List[int]):
+        self.type = TagType.LongArrayType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.LongArrayType, self.value)
+    def write_to_file(self, f):
+        f.write(struct.pack(">i", len(self.value)))
+        # TODO
+        f.write(self.value.tobytes())
 
     def to_snbt(self, indent=0, depth=0):
         return f"[L;{','.join(str(v) for v in self.value)}]"
@@ -159,10 +186,22 @@ class NBTLongArray(NBTBase):
 # Recursive NBTList and NBTCompound
 class NBTList(NBTBase, Generic[T]):
     def __init__(self, value: List[T]):
+        self.type = TagType.ListType
         self.value = value
 
-    def to_nbt_contents(self) -> NbtContents:
-        return NbtContents(TagType.ListType, [v.to_nbt_contents() for v in self.value])
+    def write_to_file(self, f):
+        """Writes a TAG_List to the file."""
+        if not self.value:
+            f.write(struct.pack(">B", TagType.EndType.value))
+            f.write(struct.pack(">i", 0))
+            return
+
+        tag_type = self.value[0].type
+        f.write(struct.pack(">B", tag_type.value))
+        f.write(struct.pack(">i", len(self.value)))
+
+        for item in self.value:
+            item.write_to_file(f)
 
     def to_snbt(self, indent=0, depth=0):
         if indent:
@@ -179,19 +218,25 @@ class NBTList(NBTBase, Generic[T]):
 
 class NBTCompound(NBTBase, Dict[str, NBTBase]):
     def __init__(self, value: Dict[str, NBTBase]):
-        self.value = value
+        self.type = TagType.CompoundType
+        self.value: Dict[str, NBTBase] = value
 
-    def to_nbt_contents(self, indent=0, depth=0) -> NbtContents:
-        return NbtContents(
-            TagType.CompoundType,
-            {k: v.to_nbt_contents() for k, v in self.value.items()},
-        )
+    def write_to_file(self, f):
+        """Writes a TAG_Compound to the file."""
+        for name, value in self.value.items():
+            f.write(struct.pack(">B", value.tag_type.value))
+            name_data = name.encode("utf-8")
+            f.write(struct.pack(">h", len(name_data)))
+            f.write(name_data)
+            value.write_to_file(f)
+
+        f.write(struct.pack(">B", TagType.EndType.value))
 
     def to_snbt(self, indent=0, depth=0):
         if indent:
             items = [
                 f"{k}:{v.to_snbt(indent=indent, depth=depth + 1)}"
-                for k, v in self.items()
+                for k, v in self.value.items()
             ]
             inner_indent = " " * (indent * (depth + 1))
             return (
@@ -203,135 +248,116 @@ class NBTCompound(NBTBase, Dict[str, NBTBase]):
         return "{" + ",".join(items) + "}"
 
 
+class TagType(int, Enum):
+    EndType = 0
+    ByteType = 1
+    ShortType = 2
+    IntType = 3
+    LongType = 4
+    FloatType = 5
+    DoubleType = 6
+    ByteArrayType = 7
+    StringType = 8
+    ListType = 9
+    CompoundType = 10
+    IntArrayType = 11
+    LongArrayType = 12
+
+
+@dataclass
+class NBT:
+    """NBT Data Structure"""
+
+    name: str
+    contents: NBTBase
+
+    def dump_to_dict(self, d: dict) -> dict:
+        """Add NBT to dictionary"""
+        d[self.name] = self.contents.dump()
+        return d
+
+    def __iter__(self):
+        yield self.name
+        yield self.contents
+
+
 U = TypeVar("U", bound="NBTSerializable")
 
 
-def str_to_class(classname: str) -> Type:
+def str_to_class(classname: str) -> typing.Type:
     if classname.startswith("Optional["):
-        inner_type = classname[len("Optional[") : -1]  # 괄호 안의 타입 추출
+        inner_type = classname[len("Optional[") : -1]
         return typing.Optional[str_to_class(inner_type)]
-    if hasattr(typing, classname):
-        return getattr(typing, classname)
-    return None  # None existing class
+
+    if "[" in classname and "]" in classname:  # Handle generics like NBTList[NBTInt]
+        base_type, inner_types = classname.split("[", 1)
+        inner_types = inner_types.rstrip("]")  # Remove closing bracket
+
+        # Resolve the base type
+        base_cls = locate(base_type) or getattr(sys.modules[__name__], base_type, None)
+        if not base_cls:
+            return None  # Unknown base type
+
+        # Resolve inner types recursively
+        inner_cls = tuple(
+            str_to_class(inner.strip()) for inner in inner_types.split(",")
+        )
+
+        # Construct generic type
+        return base_cls[inner_cls[0] if len(inner_cls) == 1 else inner_cls]
+
+    return locate(classname) or getattr(sys.modules[__name__], classname, None)
+
+
+def get_type_hints_with_locate(obj):
+    """get_type_hints를 보완하여 locate를 이용해 미리 임포트되지 않은 타입도 찾도록 함"""
+    globalns = sys.modules[
+        obj.__module__
+    ].__dict__.copy()  # 현재 모듈의 네임스페이스 복사
+    localns = {}
+
+    # __annotations__에서 타입 문자열을 가져오고 locate로 찾아서 globalns에 추가
+    for name, type_str in getattr(obj, "__annotations__", {}).items():
+        if isinstance(type_str, str) and type_str not in globalns:
+            resolved = locate(type_str)
+            if resolved:
+                globalns[type_str] = resolved  # locate로 찾은 타입 추가
+
+    return typing.get_type_hints(obj, globalns, localns)
 
 
 @dataclass
 class NBTSerializable:
-    """NBT Serializing Dataclass"""
+    """NBT Serializing Dataclass with SNBT and pretty-print support"""
 
-    def __getattribute__(self, name):
-        """Getter - Automatically unwrap NBTBase"""
-        value = object.__getattribute__(self, name)
-        if isinstance(value, NBTBase):
-            return value.value
-        return value
-
-    def __setattr__(self, name, value):
-        """Setter - Automatically wrap NBTBase, handle None safely"""
-        field_types = {field.name: field.type for field in fields(self)}
-        expected_type = field_types.get(name, None)
-        expected_type = str_to_class(expected_type) if expected_type else None
-
-        if value is None:  # Explicitly allow None
-            object.__setattr__(self, name, None)
-            return
-        # print(f"Setattr: {name=} {value=} {expected_type=} {field_types=}")
-        if expected_type and issubclass(expected_type, NBTBase):
-            object.__setattr__(self, name, expected_type(value))
-        else:
-            object.__setattr__(self, name, value)
-
-    def to_nbt_contents(self) -> NbtContents:
+    def to_nbt_contents(self) -> NBTBase:
         """Automatically convert to NbtContents, ignoring None values"""
         compound_list = []
         for field in fields(self):
             value = getattr(self, field.name)
-            if value is None:
-                continue  # Skip None fields
-            if isinstance(value, NBTBase):
+            if value is not None and isinstance(value, NBTBase):
                 compound_list.append(NBT(field.name, value.to_nbt_contents()))
-        return NbtContents(TagType.CompoundType, compound_list)
+        return NBTBase(compound_list)
 
     @classmethod
-    def from_nbt(cls: Type[U], nbt: NBT) -> U:
+    def from_nbt(cls: Type[U], nbt: NBTCompound) -> U:
         """Convert an NBT object to an NBTSerializable dataclass."""
-        if (
-            not isinstance(nbt.contents, NbtContents)
-            or nbt.contents.tag_type != TagType.CompoundType
-        ):
-            raise ValueError(f"Expected CompoundType NBT, got {nbt.contents.tag_type}")
+        inner_nbt = nbt.value[""]
+        return cls(**inner_nbt.value)
 
-        # Extract raw NBT dictionary
-        nbt_dict = {field.name: field for field in fields(cls)}
-        parsed_values = {}
-
-        for key, value in nbt.contents.value:
-            if key not in nbt_dict:
-                continue  # Skip unknown keys
-
-            field_type = nbt_dict[key].type
-
-            if is_dataclass(field_type) and issubclass(field_type, NBTSerializable):
-                # Recursively parse nested NBTSerializable classes
-                parsed_values[key] = field_type.from_nbt(NBT(key, value))
-
-            elif value.tag_type == TagType.ListType:
-                parsed_values[key] = NBTList(
-                    [NBTSerializable._parse_nbt_list_item(v) for v in value.value]
-                )
-            elif field_type == NBTCompound and value.tag_type == TagType.CompoundType:
-                parsed_values[key] = NBTCompound(value.value)
-            else:
-                parsed_values[key] = NBTSerializable._parse_nbt_list_item(value)
-
-        return cls(**parsed_values)
-
-    @staticmethod
-    def _parse_nbt_list_item(value: NbtContents) -> NBTBase:
-        """Helper function to parse NBT list items correctly."""
-        if value.tag_type == TagType.IntType:
-            return NBTInt(value.value)
-        elif value.tag_type == TagType.DoubleType:
-            return NBTDouble(value.value)
-        elif value.tag_type == TagType.FloatType:
-            return NBTFloat(value.value)
-        elif value.tag_type == TagType.LongType:
-            return NBTLong(value.value)
-        elif value.tag_type == TagType.ShortType:
-            return NBTShort(value.value)
-        elif value.tag_type == TagType.ByteType:
-            return NBTByte(value.value)
-        elif value.tag_type == TagType.ByteArrayType:
-            return NBTByteArray(value.value)
-        elif value.tag_type == TagType.IntArrayType:
-            return NBTIntArray(value.value)
-        elif value.tag_type == TagType.LongArrayType:
-            return NBTLongArray(value.value)
-        elif value.tag_type == TagType.StringType:
-            return NBTString(value.value)
-        elif value.tag_type == TagType.CompoundType:
-            return NBTCompound(value.value)
-        else:
-            return value  # Return raw if no explicit mapping exists
-
-    def to_snbt(self, indent: int = 0, depth_outer: int = 0) -> str:
-        # Convert dataclass fields into SNBT format
+    def to_snbt(self, indent: int = 0, depth: int = 0) -> str:
+        """Convert NBTSerializable to SNBT string format with optional indentation"""
         snbt_fields = []
         for field in fields(self):
             value = object.__getattribute__(self, field.name)
             if value is not None:
-                if indent:
-                    snbt_fields.append(
-                        f"{field.name}:{value.to_snbt(indent, depth_outer + 1)}"
-                    )
-                else:
-                    snbt_fields.append(f"{field.name}:{value.to_snbt()}")
+                snbt_fields.append(f"{field.name}:{value.to_snbt(indent, depth + 1)}")
 
         if indent:
-            inner_indent = " " * (indent * (depth_outer + 1))
+            inner_indent = " " * (indent * (depth + 1))
             return (
                 "{\n"
                 + ",\n".join(inner_indent + field for field in snbt_fields)
-                + f"\n{' ' * (indent * depth_outer)}}}"
+                + f"\n{' ' * (indent * depth)}}}"
             )
         return "{" + ",".join(snbt_fields) + "}"
