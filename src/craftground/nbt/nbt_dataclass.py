@@ -414,7 +414,7 @@ class NBTSerializable:
         if isinstance(value, field_type):
             return value
         if is_dataclass(field_type):
-            print(f"Converting {value} to {field_type}")
+            # print(f"Converting {value} to {field_type}")
             return field_type(value)
-        print(f"Converting {value} to {field_type}")
+        # print(f"Converting {value} to {field_type}")
         return field_type(value)

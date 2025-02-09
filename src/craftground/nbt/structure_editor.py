@@ -49,7 +49,7 @@ class Structure:
             entities=[],  # no entities for now
         )
         # create the NBT structure
-        print(structure_file.to_snbt(indent=2))
+        # print(structure_file.to_snbt(indent=2))
         write_nbt(NBTCompound({"": structure_file}), out_file)
 
     def set_block_palette(
@@ -190,6 +190,7 @@ class Structure:
     def set_cylinder(
         self,
         x: int,
+        y: int,
         z: int,
         r: int,
         h: int,
@@ -202,11 +203,12 @@ class Structure:
             for dz in range(-r, r + 1):
                 if dx**2 + dz**2 <= r**2:
                     for dy in range(h):
-                        self.set_block(x + dx, dy, z + dz, name, properties, nbt)
+                        self.set_block(x + dx, y + dy, z + dz, name, properties, nbt)
 
     def set_hollow_cylinder(
         self,
         x: int,
+        y: int,
         z: int,
         r1: int,
         r2: int,
@@ -221,7 +223,7 @@ class Structure:
                 dist_sq = dx**2 + dz**2
                 if r1**2 <= dist_sq <= r2**2:
                     for dy in range(h):
-                        self.set_block(x + dx, dy, z + dz, name, properties, nbt)
+                        self.set_block(x + dx, y + dy, z + dz, name, properties, nbt)
 
 
 if __name__ == "__main__":
@@ -231,6 +233,32 @@ if __name__ == "__main__":
     structure.set_line(0, 0, 0, 10, 10, 10, "minecraft:gold_ore")
     structure.set_filled_sphere(5, 5, 5, 5, "minecraft:glass")
     structure.set_hollow_sphere(5, 5, 5, 3, 5, "minecraft:air")
-    structure.set_cylinder(5, 5, 5, 5, "minecraft:gold_block")
-    structure.set_hollow_cylinder(5, 5, 3, 5, 5, "minecraft:oak_planks")
+    structure.set_cylinder(5, 5, 5, 5, 5, "minecraft:gold_block")
+    structure.set_hollow_cylinder(5, 5, 5, 3, 5, 5, "minecraft:oak_planks")
     structure.save("output.nbt")
+
+    structure = Structure()
+
+    # 1. Basic cuboid test (box filled with stone)
+    structure.set_cuboid(0, 0, 0, 10, 10, 10, "minecraft:stone")
+
+    # 2. Wall creation test (walls made of diamond ore)
+    structure.set_walls(15, 0, 0, 25, 10, 10, "minecraft:diamond_ore")
+
+    # 3. Line drawing test (diagonal line made of gold ore)
+    structure.set_line(30, 0, 0, 40, 10, 10, "minecraft:gold_ore")
+
+    # 4. Filled sphere test (glass sphere)
+    structure.set_filled_sphere(55, 5, 5, 5, "minecraft:glass")
+
+    # 5. Hollow sphere test (floating sphere)
+    structure.set_hollow_sphere(75, 5, 5, 3, 5, "minecraft:torch")
+
+    # 6. Cylinder test (pillar made of gold blocks)
+    structure.set_cylinder(95, 0, 5, 5, 10, "minecraft:gold_block")
+
+    # 7. Hollow cylinder test (cylindrical wall made of oak planks)
+    structure.set_hollow_cylinder(115, 0, 5, 5, 10, 10, "minecraft:oak_planks")
+
+    # Save result
+    structure.save("debug_structure.nbt")
