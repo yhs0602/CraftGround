@@ -58,7 +58,7 @@ repair-wheel-command = "" # Disable repair wheel command on macOS
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
-sdist.exclude = ["docs", "figures", "paper", "poster", "tools", ".github", ".idea", ".vscode"]
+sdist.exclude = ["docs", "figures", "paper", "poster", "/tools", ".github", ".idea", ".vscode"]
 
 [tool.black]
 extend-exclude = '''
