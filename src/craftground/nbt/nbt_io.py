@@ -3,7 +3,7 @@ import struct
 from typing import Tuple
 
 import numpy as np
-from nbt_dataclass import (
+from .nbt_dataclass import (
     NBTBase,
     NBTByte,
     NBTByteArray,

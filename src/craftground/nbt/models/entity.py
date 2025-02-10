@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from nbt_dataclass import (
+from ..nbt_dataclass import (
     NBTBase,
     NBTByte,
     NBTCompound,

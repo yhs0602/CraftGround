@@ -1,8 +1,8 @@
 from typing import List, Optional, Dict, Tuple
-from models.structure import BlockNBT, PaletteNBT, StructureEntityNBT, StructureNBT
-from models.entity import EntityNBT, ItemEntityNBT, ItemNBT
-from nbt_dataclass import NBTCompound, NBTInt, NBTShort, NBTString
-from nbt_io import read_nbt, write_nbt
+from .models.structure import BlockNBT, PaletteNBT, StructureEntityNBT, StructureNBT
+from .models.entity import ItemEntityNBT, ItemNBT
+from .nbt_dataclass import NBTCompound, NBTInt, NBTShort, NBTString
+from .nbt_io import read_nbt, write_nbt
 
 
 class Structure:

@@ -1,8 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
-from models.entity import EntityNBT
-from nbt_dataclass import (
+from ..models.entity import EntityNBT
+from ..nbt_dataclass import (
     NBTBase,
     NBTCompound,
     NBTDouble,

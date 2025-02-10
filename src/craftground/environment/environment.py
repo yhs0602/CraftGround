@@ -6,6 +6,7 @@ import subprocess
 from enum import Enum
 import threading
 from typing import Tuple, Optional, TypedDict, Union, List, Any, Dict
+import weakref
 
 import gymnasium as gym
 import numpy as np
@@ -143,6 +144,8 @@ class CraftGroundEnvironment(gym.Env):
             self.initial_env.eye_distance > 0,
             self.render_action,
         )
+
+        weakref.finalize(self, self.close)
 
     def reset(
         self,
