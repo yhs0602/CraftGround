@@ -20,7 +20,7 @@ keywords = ["minecraft", "reinforcement learning", "environment"]
 license = {file = "LICENSE"}
 name = "craftground"
 readme = "README.md"
-version = "2.6.7"
+version = "2.6.8"
 
 dependencies = [
   "gymnasium",
@@ -58,6 +58,7 @@ repair-wheel-command = "" # Disable repair wheel command on macOS
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
+sdist.exclude = ["docs", "figures", "paper", "poster", "/tools", ".github", ".idea", ".vscode"]
 
 [tool.black]
 extend-exclude = '''

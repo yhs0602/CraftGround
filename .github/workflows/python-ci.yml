@@ -49,8 +49,8 @@ jobs:
     - name: Test with pytest
       run: |
         # build cpp extension first
-        mkdir build && cd build && cmake .. && cmake --build . && cd ..
-        PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest tests/python/unit/
+        mkdir build && cd build && cmake .. && cmake --build . && cd .. && echo "cpp extension built"
+        PYTHONPATH=./build:src/craftground coverage run --source=src/craftground -m pytest --trace tests/python/unit/
     
     - name: coverage
       run: |
