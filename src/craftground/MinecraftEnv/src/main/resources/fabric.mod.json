@@ -33,5 +33,6 @@
         "com/kyhsgeekcode/minecraftenv/AddListenerInterface"
       ]
     }
-  }
+  },
+  "accessWidener": "minecraftenv.accesswidener"
 }
