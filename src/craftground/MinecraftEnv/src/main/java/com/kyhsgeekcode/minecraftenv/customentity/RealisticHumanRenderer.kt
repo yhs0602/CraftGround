@@ -1,4 +1,4 @@
-package com.kyhsgeekcode.minecraftenv.custom_entity
+package com.kyhsgeekcode.minecraftenv.customentity
 
 import com.kyhsgeekcode.minecraftenv.client.Minecraft_envClient
 import net.minecraft.client.render.OverlayTexture

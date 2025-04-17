@@ -3,7 +3,7 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
-import com.kyhsgeekcode.minecraftenv.custom_entity.RealisticHuman
+import com.kyhsgeekcode.minecraftenv.customentity.RealisticHuman
 import com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
 import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment
 import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace

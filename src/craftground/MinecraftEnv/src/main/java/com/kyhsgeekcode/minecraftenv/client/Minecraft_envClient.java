@@ -1,8 +1,8 @@
 package com.kyhsgeekcode.minecraftenv.client;
 
 import com.kyhsgeekcode.minecraftenv.MinecraftEnv;
-import com.kyhsgeekcode.minecraftenv.custom_entity.RealisticHumanModel;
-import com.kyhsgeekcode.minecraftenv.custom_entity.RealisticHumanRenderer;
+import com.kyhsgeekcode.minecraftenv.customentity.RealisticHumanModel;
+import com.kyhsgeekcode.minecraftenv.customentity.RealisticHumanRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

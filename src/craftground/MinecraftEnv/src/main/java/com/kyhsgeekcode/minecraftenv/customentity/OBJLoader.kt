@@ -1,4 +1,4 @@
-package com.kyhsgeekcode.minecraftenv.custom_entity
+package com.kyhsgeekcode.minecraftenv.customentity
 
 import net.minecraft.resource.ResourceManager
 import net.minecraft.util.Identifier
