@@ -3,6 +3,7 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
+import com.kyhsgeekcode.minecraftenv.customentity.RealisticHuman
 import com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
 import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment
 import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace
@@ -19,6 +20,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
 import net.minecraft.block.BlockState
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC
@@ -27,8 +29,11 @@ import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.render.BackgroundRenderer
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.SpawnGroup
+import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket
 import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import net.minecraft.registry.tag.FluidTags
 import net.minecraft.server.MinecraftServer
 import net.minecraft.stat.Stats
@@ -77,6 +82,21 @@ val chatList = mutableListOf<ChatMessageRecord>()
 class MinecraftEnv :
     ModInitializer,
     CommandExecutor {
+    companion object {
+        @JvmStatic
+        val REALISTIC_HUMAN =
+            Registry.register(
+                Registries.ENTITY_TYPE,
+                Identifier.of("entitytesting", "realistic_human"),
+                EntityType.Builder
+                    .create(
+                        { type, world -> RealisticHuman(type, world) },
+                        SpawnGroup.CREATURE,
+                    ).dimensions(0.75f, 0.75f)
+                    .build("realistic_human"),
+            )
+    }
+
     private lateinit var initialEnvironment: InitialEnvironment.InitialEnvironmentMessage
     private var soundListener: MinecraftSoundListener? = null
     private var entityListener: EntityRenderListenerImpl? =
@@ -152,6 +172,8 @@ class MinecraftEnv :
         }
         skipSync = true
         csvLogger.log("Hello Fabric world!")
+        FabricDefaultAttributeRegistry.register(REALISTIC_HUMAN, PathAwareEntity.createMobAttributes())
+
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
         FramebufferCapturer.shouldCaptureDepth = initialEnvironment.requiresDepth

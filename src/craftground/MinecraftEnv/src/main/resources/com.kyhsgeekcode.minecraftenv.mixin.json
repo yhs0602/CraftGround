@@ -21,6 +21,7 @@
     "GammaMixin",
     "InputUtilMixin",
     "MouseXYAccessor",
+    "RenderLayerTrianglesMixin",
     "RenderSystemPollEventsInvoker",
     "RenderTickCounterAccessor",
     "TickSpeedMixin",
