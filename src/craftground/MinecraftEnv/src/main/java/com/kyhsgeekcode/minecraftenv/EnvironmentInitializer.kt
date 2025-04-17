@@ -540,6 +540,21 @@ class EnvironmentInitializer(
         } ?: run {
             println("World path not found; server: $minecraftServer")
         }
+
+        minecraftServer?.getSavePath(WorldSavePath.RESOURCES_ZIP)?.let { targetZipPath ->
+            println("Copying resource zip file to: $targetZipPath")
+            val sourcePath = Path(initialEnvironment.resourceZipPath)
+            // Check if the resource zip path exists
+            if (!Files.exists(sourcePath)) {
+                println("Resource zip path not found: $sourcePath")
+                return@let
+            }
+            // copy
+            println("Copying resource zip file: $sourcePath to $targetZipPath")
+            sourcePath.copyTo(targetZipPath, true)
+        } ?: run {
+            println("Resource zip path not found; server: $minecraftServer")
+        }
         // NOTE: should be called only once when initial environment is set
         val myCommandExecutor = { player: ClientPlayerEntity, c: String ->
             commandExecutor.runCommand(player, c)

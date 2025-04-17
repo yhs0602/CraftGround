@@ -68,6 +68,7 @@ class InitialEnvironmentConfig:
         requires_heightmap=False,
         requires_depth=False,
         requires_depth_conversion=True,
+        resource_zip_path="",
         **kwargs,
     ):
         self.imageSizeX = image_width
@@ -101,6 +102,8 @@ class InitialEnvironmentConfig:
         self.requires_heightmap = requires_heightmap
         self.requires_depth = requires_depth
         self.requires_depth_conversion = requires_depth_conversion
+        self.resource_zip_path = resource_zip_path
+        # Check for unknown kwargs
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
 
@@ -208,4 +211,5 @@ class InitialEnvironmentConfig:
         initial_env.python_pid = os.getpid()
         initial_env.requiresDepth = self.requires_depth
         initial_env.requiresDepthConversion = self.requires_depth_conversion
+        initial_env.resourceZipPath = self.resource_zip_path
         return initial_env
