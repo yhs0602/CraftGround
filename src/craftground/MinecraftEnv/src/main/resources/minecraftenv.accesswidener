@@ -3,3 +3,4 @@ accessible class net/minecraft/client/render/RenderLayer$MultiPhaseParameters
 accessible class net/minecraft/client/render/RenderPhase$Texture
 accessible field net/minecraft/block/AbstractBlock slipperiness F
 mutable field net/minecraft/block/AbstractBlock slipperiness F
+accessible field net/minecraft/server/integrated/IntegratedServerLoader WORLD_PACK_ID Ljava/util/UUID;

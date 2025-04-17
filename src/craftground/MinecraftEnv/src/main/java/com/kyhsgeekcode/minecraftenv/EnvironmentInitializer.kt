@@ -23,6 +23,7 @@ import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.option.NarratorMode
 import net.minecraft.client.tutorial.TutorialStep
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.integrated.IntegratedServerLoader
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.WorldSavePath
 import net.minecraft.world.GameMode
@@ -62,7 +63,11 @@ class EnvironmentInitializer(
             return
         }
         if (shouldReloadResourcePack) {
-            reloadResourcePackFuture = client.reloadResources()
+// //            reloadResourcePackFuture = client.reloadResources()
+//            val loader = client.serverResourcePackProvider
+//            loader.initWorldPack()
+//            loader.getPackLoadFuture(IntegratedServerLoader.WORLD_PACK_ID)
+//            loader.addResourcePack(IntegratedServerLoader.WORLD_PACK_ID, path)
             shouldReloadResourcePack = false
         }
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
@@ -560,7 +565,11 @@ class EnvironmentInitializer(
             println("Copying resource zip file: $sourcePath to $targetZipPath")
             sourcePath.copyTo(targetZipPath, true)
             println("Reloading resources")
-            shouldReloadResourcePack = true
+            val loader = MinecraftClient.getInstance().serverResourcePackProvider
+            loader.initWorldPack()
+            loader.getPackLoadFuture(IntegratedServerLoader.WORLD_PACK_ID)
+            loader.addResourcePack(IntegratedServerLoader.WORLD_PACK_ID, targetZipPath)
+//            shouldReloadResourcePack = true
         } ?: run {
             println("Resource zip path not found; server: $minecraftServer")
         }
