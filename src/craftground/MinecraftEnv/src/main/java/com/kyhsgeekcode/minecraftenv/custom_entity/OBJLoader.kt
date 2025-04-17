@@ -10,7 +10,10 @@ object OBJLoader {
         val normals: FloatArray,
     )
 
-    fun load(resourceManager: ResourceManager, id: Identifier): ModelData {
+    fun load(
+        resourceManager: ResourceManager,
+        id: Identifier,
+    ): ModelData {
         val vertices = mutableListOf<Float>()
         val uvs = mutableListOf<Float>()
         val normals = mutableListOf<Float>()

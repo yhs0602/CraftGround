@@ -11,10 +11,10 @@ import net.minecraft.util.Identifier
 class RealisticHumanRenderer(
     context: EntityRendererFactory.Context,
 ) : MobEntityRenderer<RealisticHuman, RealisticHumanModel>(
-    context,
-    RealisticHumanModel(context.getPart(Minecraft_envClient.MODEL_CUBE_LAYER)),
-    0.5f,
-) {
+        context,
+        RealisticHumanModel(context.getPart(Minecraft_envClient.MODEL_CUBE_LAYER)),
+        0.5f,
+    ) {
 //    override fun getTexture(entity: RealisticHuman?): Identifier = Identifier.of("minecraft", "textures/entity/blaze.png")
 
     override fun getTexture(entity: RealisticHuman?): Identifier =

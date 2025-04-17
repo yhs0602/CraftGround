@@ -59,7 +59,6 @@ class RealisticHumanModel(
 
         println("Rendered $count vertices")
 
-
 //        ImmutableList.of(this.base).forEach { modelRenderer ->
 //            modelRenderer.render(matrices, vertices, light, overlay, color)
 //        }
