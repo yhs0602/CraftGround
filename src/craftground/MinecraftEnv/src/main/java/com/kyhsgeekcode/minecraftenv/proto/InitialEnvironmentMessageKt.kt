@@ -1029,6 +1029,23 @@ public object InitialEnvironmentMessageKt {
     public fun clearRequiresDepthConversion() {
       _builder.clearRequiresDepthConversion()
     }
+
+    /**
+     * `string resourceZipPath = 32;`
+     */
+    public var resourceZipPath: kotlin.String
+      @JvmName("getResourceZipPath")
+      get() = _builder.resourceZipPath
+      @JvmName("setResourceZipPath")
+      set(value) {
+        _builder.resourceZipPath = value
+      }
+    /**
+     * `string resourceZipPath = 32;`
+     */
+    public fun clearResourceZipPath() {
+      _builder.clearResourceZipPath()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

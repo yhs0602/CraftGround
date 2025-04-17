@@ -841,6 +841,18 @@ public final class InitialEnvironment {
      * @return The requiresDepthConversion.
      */
     boolean getRequiresDepthConversion();
+
+    /**
+     * <code>string resourceZipPath = 32;</code>
+     * @return The resourceZipPath.
+     */
+    java.lang.String getResourceZipPath();
+    /**
+     * <code>string resourceZipPath = 32;</code>
+     * @return The bytes for resourceZipPath.
+     */
+    com.google.protobuf.ByteString
+        getResourceZipPathBytes();
   }
   /**
    * Protobuf type {@code InitialEnvironmentMessage}
@@ -883,6 +895,7 @@ public final class InitialEnvironment {
       structurePaths_ =
           com.google.protobuf.LazyStringArrayList.emptyList();
       levelDisplayNameToPlay_ = "";
+      resourceZipPath_ = "";
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
@@ -1583,6 +1596,45 @@ public final class InitialEnvironment {
       return requiresDepthConversion_;
     }
 
+    public static final int RESOURCEZIPPATH_FIELD_NUMBER = 32;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object resourceZipPath_ = "";
+    /**
+     * <code>string resourceZipPath = 32;</code>
+     * @return The resourceZipPath.
+     */
+    @java.lang.Override
+    public java.lang.String getResourceZipPath() {
+      java.lang.Object ref = resourceZipPath_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        resourceZipPath_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string resourceZipPath = 32;</code>
+     * @return The bytes for resourceZipPath.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getResourceZipPathBytes() {
+      java.lang.Object ref = resourceZipPath_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        resourceZipPath_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -1694,6 +1746,9 @@ public final class InitialEnvironment {
       }
       if (requiresDepthConversion_ != false) {
         output.writeBool(31, requiresDepthConversion_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(resourceZipPath_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 32, resourceZipPath_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1859,6 +1914,9 @@ public final class InitialEnvironment {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(31, requiresDepthConversion_);
       }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(resourceZipPath_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(32, resourceZipPath_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -1935,6 +1993,8 @@ public final class InitialEnvironment {
           != other.getRequiresDepth()) return false;
       if (getRequiresDepthConversion()
           != other.getRequiresDepthConversion()) return false;
+      if (!getResourceZipPath()
+          .equals(other.getResourceZipPath())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -2034,6 +2094,8 @@ public final class InitialEnvironment {
       hash = (37 * hash) + REQUIRESDEPTHCONVERSION_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getRequiresDepthConversion());
+      hash = (37 * hash) + RESOURCEZIPPATH_FIELD_NUMBER;
+      hash = (53 * hash) + getResourceZipPath().hashCode();
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -2202,6 +2264,7 @@ public final class InitialEnvironment {
         pythonPid_ = 0;
         requiresDepth_ = false;
         requiresDepthConversion_ = false;
+        resourceZipPath_ = "";
         return this;
       }
 
@@ -2334,6 +2397,9 @@ public final class InitialEnvironment {
         }
         if (((from_bitField0_ & 0x40000000) != 0)) {
           result.requiresDepthConversion_ = requiresDepthConversion_;
+        }
+        if (((from_bitField0_ & 0x80000000) != 0)) {
+          result.resourceZipPath_ = resourceZipPath_;
         }
       }
 
@@ -2497,6 +2563,11 @@ public final class InitialEnvironment {
         }
         if (other.getRequiresDepthConversion() != false) {
           setRequiresDepthConversion(other.getRequiresDepthConversion());
+        }
+        if (!other.getResourceZipPath().isEmpty()) {
+          resourceZipPath_ = other.resourceZipPath_;
+          bitField0_ |= 0x80000000;
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
@@ -2696,6 +2767,11 @@ public final class InitialEnvironment {
                 bitField0_ |= 0x40000000;
                 break;
               } // case 248
+              case 258: {
+                resourceZipPath_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x80000000;
+                break;
+              } // case 258
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -4586,6 +4662,78 @@ public final class InitialEnvironment {
         return this;
       }
 
+      private java.lang.Object resourceZipPath_ = "";
+      /**
+       * <code>string resourceZipPath = 32;</code>
+       * @return The resourceZipPath.
+       */
+      public java.lang.String getResourceZipPath() {
+        java.lang.Object ref = resourceZipPath_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          resourceZipPath_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string resourceZipPath = 32;</code>
+       * @return The bytes for resourceZipPath.
+       */
+      public com.google.protobuf.ByteString
+          getResourceZipPathBytes() {
+        java.lang.Object ref = resourceZipPath_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          resourceZipPath_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string resourceZipPath = 32;</code>
+       * @param value The resourceZipPath to set.
+       * @return This builder for chaining.
+       */
+      public Builder setResourceZipPath(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        resourceZipPath_ = value;
+        bitField0_ |= 0x80000000;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string resourceZipPath = 32;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearResourceZipPath() {
+        resourceZipPath_ = getDefaultInstance().getResourceZipPath();
+        bitField0_ = (bitField0_ & ~0x80000000);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string resourceZipPath = 32;</code>
+       * @param value The bytes for resourceZipPath to set.
+       * @return This builder for chaining.
+       */
+      public Builder setResourceZipPathBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        resourceZipPath_ = value;
+        bitField0_ |= 0x80000000;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:InitialEnvironmentMessage)
     }
 
@@ -4651,7 +4799,7 @@ public final class InitialEnvironment {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\037proto/initial_environment.proto\"\260\006\n\031In" +
+      "\n\037proto/initial_environment.proto\"\311\006\n\031In" +
       "itialEnvironmentMessage\022\022\n\nimageSizeX\030\001 " +
       "\001(\005\022\022\n\nimageSizeY\030\002 \001(\005\022\033\n\010gamemode\030\003 \001(" +
       "\0162\t.GameMode\022\037\n\ndifficulty\030\004 \001(\0162\013.Diffi" +
@@ -4672,13 +4820,14 @@ public final class InitialEnvironment {
       "(\002\022\031\n\021requiresBiomeInfo\030\033 \001(\010\022\031\n\021require" +
       "sHeightmap\030\034 \001(\010\022\022\n\npython_pid\030\035 \001(\005\022\025\n\r" +
       "requiresDepth\030\036 \001(\010\022\037\n\027requiresDepthConv" +
-      "ersion\030\037 \001(\010*4\n\010GameMode\022\014\n\010SURVIVAL\020\000\022\014" +
-      "\n\010HARDCORE\020\001\022\014\n\010CREATIVE\020\002*:\n\nDifficulty" +
-      "\022\014\n\010PEACEFUL\020\000\022\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004" +
-      "HARD\020\003*Z\n\tWorldType\022\013\n\007DEFAULT\020\000\022\r\n\tSUPE" +
-      "RFLAT\020\001\022\020\n\014LARGE_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003" +
-      "\022\020\n\014SINGLE_BIOME\020\004B%\n#com.kyhsgeekcode.m" +
-      "inecraftenv.protob\006proto3"
+      "ersion\030\037 \001(\010\022\027\n\017resourceZipPath\030  \001(\t*4\n" +
+      "\010GameMode\022\014\n\010SURVIVAL\020\000\022\014\n\010HARDCORE\020\001\022\014\n" +
+      "\010CREATIVE\020\002*:\n\nDifficulty\022\014\n\010PEACEFUL\020\000\022" +
+      "\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004HARD\020\003*Z\n\tWorld" +
+      "Type\022\013\n\007DEFAULT\020\000\022\r\n\tSUPERFLAT\020\001\022\020\n\014LARG" +
+      "E_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003\022\020\n\014SINGLE_BIOM" +
+      "E\020\004B%\n#com.kyhsgeekcode.minecraftenv.pro" +
+      "tob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -4689,7 +4838,7 @@ public final class InitialEnvironment {
     internal_static_InitialEnvironmentMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_InitialEnvironmentMessage_descriptor,
-        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", });
+        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", "ResourceZipPath", });
     descriptor.resolveAllFeaturesImmutable();
   }
 
