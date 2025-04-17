@@ -20,7 +20,7 @@ keywords = ["minecraft", "reinforcement learning", "environment"]
 license = {file = "LICENSE"}
 name = "craftground"
 readme = "README.md"
-version = "2.6.8"
+version = "2.6.9"
 
 dependencies = [
   "gymnasium",
