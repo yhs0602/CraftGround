@@ -18,10 +18,15 @@ import com.kyhsgeekcode.minecraftenv.proto.observationSpaceMessage
 import com.mojang.blaze3d.platform.GlConst
 import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.block.v1.FabricBlock
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.item.v1.FabricItem
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
+import net.fabricmc.fabric.impl.registry.sync.FabricRegistryInit
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC
 import net.minecraft.client.gui.screen.DeathScreen
@@ -31,6 +36,8 @@ import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.SpawnGroup
 import net.minecraft.entity.mob.PathAwareEntity
+import net.minecraft.item.BlockItem
+import net.minecraft.item.Item
 import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
@@ -172,7 +179,12 @@ class MinecraftEnv :
         }
         skipSync = true
         csvLogger.log("Hello Fabric world!")
+
+        // Mod specific new features
+        // Entity Registration
         FabricDefaultAttributeRegistry.register(REALISTIC_HUMAN, PathAwareEntity.createMobAttributes())
+        // Slipperiness Adjustment
+        Blocks.BLUE_ICE.slipperiness = 1.09f
 
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
