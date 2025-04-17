@@ -552,7 +552,8 @@ class EnvironmentInitializer(
             // copy
             println("Copying resource zip file: $sourcePath to $targetZipPath")
             sourcePath.copyTo(targetZipPath, true)
-            MinecraftClient.getInstance().reloadResources()
+            val future = MinecraftClient.getInstance().reloadResources()
+            future.join()
         } ?: run {
             println("Resource zip path not found; server: $minecraftServer")
         }
