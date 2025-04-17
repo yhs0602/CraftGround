@@ -23,11 +23,13 @@ import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.option.NarratorMode
 import net.minecraft.client.tutorial.TutorialStep
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.integrated.IntegratedServerLoader
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.WorldSavePath
 import net.minecraft.world.GameMode
 import org.lwjgl.glfw.GLFW
 import java.nio.file.Files
+import java.util.concurrent.CompletableFuture
 import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 
@@ -53,10 +55,20 @@ class EnvironmentInitializer(
 
     private var initializedClient = false
     private var finishedEnteringWorld = false
+    private var shouldReloadResourcePack = false
+    private var reloadResourcePackFuture: CompletableFuture<Void>? = null
 
     fun onClientTick(client: MinecraftClient) {
         if (finishedEnteringWorld && initializedClient) {
             return
+        }
+        if (shouldReloadResourcePack) {
+// //            reloadResourcePackFuture = client.reloadResources()
+//            val loader = client.serverResourcePackProvider
+//            loader.initWorldPack()
+//            loader.getPackLoadFuture(IntegratedServerLoader.WORLD_PACK_ID)
+//            loader.addResourcePack(IntegratedServerLoader.WORLD_PACK_ID, path)
+            shouldReloadResourcePack = false
         }
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
         disableNarrator(client)
@@ -497,7 +509,7 @@ class EnvironmentInitializer(
                 val content = builder.toString()
                 content.contains("Initialization Done")
             } != null
-        initWorldFinished = (initWorldFinished || hasInitFinishMessage)
+        initWorldFinished = (initWorldFinished || hasInitFinishMessage) && reloadResourcePackFuture?.isDone != false
 //        println("has init finish message: $hasInitFinishMessage, has run init world: $hasRunInitWorld, init world finished: $initWorldFinished")
         // TODO: Do not clear the chat, and delete only the message related to the initialization.
         // Do not clear the chat related to the advancements
@@ -552,6 +564,12 @@ class EnvironmentInitializer(
             // copy
             println("Copying resource zip file: $sourcePath to $targetZipPath")
             sourcePath.copyTo(targetZipPath, true)
+            println("Reloading resources")
+            val loader = MinecraftClient.getInstance().serverResourcePackProvider
+            loader.initWorldPack()
+            loader.getPackLoadFuture(IntegratedServerLoader.WORLD_PACK_ID)
+            loader.addResourcePack(IntegratedServerLoader.WORLD_PACK_ID, targetZipPath)
+//            shouldReloadResourcePack = true
         } ?: run {
             println("Resource zip path not found; server: $minecraftServer")
         }
