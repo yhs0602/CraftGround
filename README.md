@@ -134,3 +134,7 @@ This project includes code from the Fabric Carpet project, licensed under the MI
 
 ## Development / Customization
 For detailed development and customization instructions, see [Develop](docs/develop.md).
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=yhs0602/CraftGround&type=Date)](https://www.star-history.com/#yhs0602/CraftGround&Date)
