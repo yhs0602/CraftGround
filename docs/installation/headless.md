@@ -17,6 +17,12 @@ ps aux | grep -E 'weston|sway'
 ```
 If nothing is printed, proceed with the below steps.
 ### Installing VirtualGL
+VirtualGL requires libegl1-mesa. You can install it using the below command.
+
+```shell
+sudo apt install libegl1-mesa
+```
+Then install VirtualGL using the below command.
 ```shell
 wget https://sourceforge.net/projects/virtualgl/files/3.1/virtualgl_3.1_amd64.deb/download
 mv download vgl3.1.deb
