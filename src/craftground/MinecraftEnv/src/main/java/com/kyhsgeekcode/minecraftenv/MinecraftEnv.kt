@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC
 import net.minecraft.client.gui.screen.DeathScreen
@@ -172,7 +173,12 @@ class MinecraftEnv :
         }
         skipSync = true
         csvLogger.log("Hello Fabric world!")
+
+        // Mod specific new features
+        // Entity Registration
         FabricDefaultAttributeRegistry.register(REALISTIC_HUMAN, PathAwareEntity.createMobAttributes())
+        // Slipperiness Adjustment
+        Blocks.BLUE_ICE.slipperiness = 1.09f
 
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
