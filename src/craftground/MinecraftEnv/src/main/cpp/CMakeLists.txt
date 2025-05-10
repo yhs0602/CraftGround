@@ -13,8 +13,9 @@ include(FetchContent)
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
-    GIT_TAG bf71a834948186f4097caa076cd2663c69a10e1e #refs/tags/1.0.1
+    GIT_TAG 2d4c4b4dd31fde06cfffad7915c2b3006402322f
 )
+
 FetchContent_MakeAvailable(glm)
 
 set(CRAFGROUND_NATIVE_DEBUG $ENV{CRAFGROUND_NATIVE_DEBUG})
