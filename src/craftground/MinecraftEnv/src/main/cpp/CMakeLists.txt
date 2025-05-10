@@ -15,13 +15,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/g-truc/glm.git
     GIT_TAG bf71a834948186f4097caa076cd2663c69a10e1e #refs/tags/1.0.1
 )
-
-set(FETCHCONTENT_SOURCE_DIR_GLM "${CMAKE_BINARY_DIR}/_deps/glm-src")
-set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
-
-set(glm_POPULATED FALSE)
-set(CMAKE_ARGS "-DCMAKE_POLICY_VERSION_MINIMUM=3.5")
-
 FetchContent_MakeAvailable(glm)
 
 set(CRAFGROUND_NATIVE_DEBUG $ENV{CRAFGROUND_NATIVE_DEBUG})
