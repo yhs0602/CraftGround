@@ -52,6 +52,7 @@ class ObservationConverter:
         logger: CsvLogger,
         is_binocular: bool = False,
         render_action: bool = False,
+        render_mode: Optional[str] = None,
     ) -> None:
         self.output_type = output_type
         self.internal_type = ObservationTensorType.NONE
@@ -64,6 +65,7 @@ class ObservationConverter:
         self.is_binocular = is_binocular
         self.render_alternating_eyes_counter = 0
         self.render_action = render_action
+        self.render_mode = render_mode
 
         if output_type == ScreenEncodingMode.ZEROCOPY:
             try:
