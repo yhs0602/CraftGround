@@ -9,6 +9,7 @@ To run Minecraft environments on a headless server with GPU acceleration, you ne
 
 ## Installing VirtualGL
 VirtualGL is incompatible with Wayland, so you need to check before installing it. If you are using a Wayland session, you need to switch to an X11 session.
+
 ### Check if you are using wayland session
 ```shell
 echo $WAYLAND_DISPLAY
@@ -21,12 +22,12 @@ VirtualGL requires libegl1-mesa. You can install it using the below command.
 
 ```shell
 sudo apt install libegl1-mesa
+sudo apt install libxtst6
 ```
-Then install VirtualGL using the below command.
+Then install VirtualGL using the command below.
 ```shell
-wget https://sourceforge.net/projects/virtualgl/files/3.1/virtualgl_3.1_amd64.deb/download
-mv download vgl3.1.deb
-sudo dpkg -i vgl3.1.deb
+wget https://github.com/VirtualGL/virtualgl/releases/download/3.1.3/virtualgl_3.1.3_amd64.deb
+sudo dpkg -i virtualgl_3.1.3_amd64.deb
 ```
 
 ### Configuring VirtualGL
