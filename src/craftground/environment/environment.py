@@ -143,6 +143,7 @@ class CraftGroundEnvironment(gym.Env):
             self.logger,
             self.initial_env.eye_distance > 0,
             self.render_action,
+            self.render_mode,
         )
 
         weakref.finalize(self, self.close)

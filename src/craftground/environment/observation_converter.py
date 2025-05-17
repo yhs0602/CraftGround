@@ -52,6 +52,8 @@ class ObservationConverter:
         logger: CsvLogger,
         is_binocular: bool = False,
         render_action: bool = False,
+        render_mode: Optional[str] = None,
+        render_alternating_eyes: bool = False,
     ) -> None:
         self.output_type = output_type
         self.internal_type = ObservationTensorType.NONE
@@ -64,7 +66,8 @@ class ObservationConverter:
         self.is_binocular = is_binocular
         self.render_alternating_eyes_counter = 0
         self.render_action = render_action
-
+        self.render_mode = render_mode
+        self.render_alternating_eyes = render_alternating_eyes
         if output_type == ScreenEncodingMode.ZEROCOPY:
             try:
                 from .craftground_native import initialize_from_mach_port  # type: ignore

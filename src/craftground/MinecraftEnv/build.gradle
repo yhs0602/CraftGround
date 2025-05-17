@@ -51,26 +51,28 @@ tasks.register('configureCppProject', Exec) {
     def vcpkgRoot = findVcpkgRoot()
     def vcpkgToolchainFile = vcpkgRoot ? "${vcpkgRoot}/scripts/buildsystems/vcpkg.cmake" : null
     project.logger.lifecycle('Use conda: ' + useConda + ', vcpkg root: ' + vcpkgRoot)
+
+    def cmakeArgs = ['cmake', '-DCMAKE_POLICY_VERSION_MINIMUM=3.5']
+
     if (os.isWindows() && vcpkgToolchainFile && file(vcpkgToolchainFile).exists()) {
         project.logger.lifecycle('Using vcpkg toolchain file: ' + vcpkgToolchainFile)
-        if (useConda) {
-            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
-        } else {
-            commandLine 'cmake', '-DCMAKE_TOOLCHAIN_FILE=' + vcpkgToolchainFile, 'src/main/cpp'
-        } 
+        cmakeArgs += "-DCMAKE_TOOLCHAIN_FILE=${vcpkgToolchainFile}"
     } else {
         project.logger.lifecycle('Using default cmake, not using vcpkg')
-        if (useConda) {
-            commandLine 'cmake', '-DCMAKE_PREFIX_PATH=$CONDA_PREFIX', 'src/main/cpp'
-        } else {
-            commandLine 'cmake', 'src/main/cpp'
-        }
     }
-    
+
+    if (useConda) {
+        cmakeArgs += "-DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+    }
+
+    cmakeArgs += 'src/main/cpp'
+    commandLine cmakeArgs
+
     inputs.dir("src/main/cpp")
     outputs.files("MakeFile", "CMakeCache.txt", "cmake_install.cmake")
     outputs.dir("CMakeFiles")
 }
+
 
 tasks.register('compileCpp', Exec) {
     commandLine 'cmake', '--build', '.',  '--config', 'Release', '--parallel', '8'
