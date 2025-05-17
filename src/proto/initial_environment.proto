@@ -55,4 +55,6 @@ message InitialEnvironmentMessage {
   bool requiresDepth = 30;
   bool requiresDepthConversion = 31;
   string resourceZipPath = 32;
+  repeated string blockCollisionKeys = 33;
+  repeated string entityCollisionKeys = 34;
 }

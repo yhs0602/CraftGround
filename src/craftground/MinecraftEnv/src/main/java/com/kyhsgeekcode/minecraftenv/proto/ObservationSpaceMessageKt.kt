@@ -1385,7 +1385,151 @@ public object ObservationSpaceMessageKt {
     @kotlin.jvm.JvmName("clearDepth")
     public fun com.google.protobuf.kotlin.DslList<kotlin.Float, DepthProxy>.clear() {
       _builder.clearDepth()
-    }}
+    }
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    public class BlockCollisionsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * `repeated .BlockCollisionInfo block_collisions = 39;`
+     */
+     public val blockCollisions: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, BlockCollisionsProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.blockCollisionsList
+      )
+    /**
+     * `repeated .BlockCollisionInfo block_collisions = 39;`
+     * @param value The blockCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addBlockCollisions")
+    public fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, BlockCollisionsProxy>.add(value: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo) {
+      _builder.addBlockCollisions(value)
+    }
+    /**
+     * `repeated .BlockCollisionInfo block_collisions = 39;`
+     * @param value The blockCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignBlockCollisions")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, BlockCollisionsProxy>.plusAssign(value: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo) {
+      add(value)
+    }
+    /**
+     * `repeated .BlockCollisionInfo block_collisions = 39;`
+     * @param values The blockCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllBlockCollisions")
+    public fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, BlockCollisionsProxy>.addAll(values: kotlin.collections.Iterable<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo>) {
+      _builder.addAllBlockCollisions(values)
+    }
+    /**
+     * `repeated .BlockCollisionInfo block_collisions = 39;`
+     * @param values The blockCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllBlockCollisions")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, BlockCollisionsProxy>.plusAssign(values: kotlin.collections.Iterable<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo>) {
+      addAll(values)
+    }
+    /**
+     * `repeated .BlockCollisionInfo block_collisions = 39;`
+     * @param index The index to set the value at.
+     * @param value The blockCollisions to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setBlockCollisions")
+    public operator fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, BlockCollisionsProxy>.set(index: kotlin.Int, value: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo) {
+      _builder.setBlockCollisions(index, value)
+    }
+    /**
+     * `repeated .BlockCollisionInfo block_collisions = 39;`
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearBlockCollisions")
+    public fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, BlockCollisionsProxy>.clear() {
+      _builder.clearBlockCollisions()
+    }
+
+
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    public class EntityCollisionsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * `repeated .EntityCollisionInfo entity_collisions = 40;`
+     */
+     public val entityCollisions: com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, EntityCollisionsProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.entityCollisionsList
+      )
+    /**
+     * `repeated .EntityCollisionInfo entity_collisions = 40;`
+     * @param value The entityCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addEntityCollisions")
+    public fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, EntityCollisionsProxy>.add(value: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo) {
+      _builder.addEntityCollisions(value)
+    }
+    /**
+     * `repeated .EntityCollisionInfo entity_collisions = 40;`
+     * @param value The entityCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignEntityCollisions")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, EntityCollisionsProxy>.plusAssign(value: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo) {
+      add(value)
+    }
+    /**
+     * `repeated .EntityCollisionInfo entity_collisions = 40;`
+     * @param values The entityCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllEntityCollisions")
+    public fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, EntityCollisionsProxy>.addAll(values: kotlin.collections.Iterable<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo>) {
+      _builder.addAllEntityCollisions(values)
+    }
+    /**
+     * `repeated .EntityCollisionInfo entity_collisions = 40;`
+     * @param values The entityCollisions to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllEntityCollisions")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, EntityCollisionsProxy>.plusAssign(values: kotlin.collections.Iterable<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo>) {
+      addAll(values)
+    }
+    /**
+     * `repeated .EntityCollisionInfo entity_collisions = 40;`
+     * @param index The index to set the value at.
+     * @param value The entityCollisions to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setEntityCollisions")
+    public operator fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, EntityCollisionsProxy>.set(index: kotlin.Int, value: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo) {
+      _builder.setEntityCollisions(index, value)
+    }
+    /**
+     * `repeated .EntityCollisionInfo entity_collisions = 40;`
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearEntityCollisions")
+    public fun com.google.protobuf.kotlin.DslList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, EntityCollisionsProxy>.clear() {
+      _builder.clearEntityCollisions()
+    }
+
+  }
 }
 @kotlin.jvm.JvmSynthetic
 public inline fun com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessage.copy(block: `com.kyhsgeekcode.minecraftenv.proto`.ObservationSpaceMessageKt.Dsl.() -> kotlin.Unit): com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessage =

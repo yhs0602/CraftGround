@@ -1046,7 +1046,147 @@ public object InitialEnvironmentMessageKt {
     public fun clearResourceZipPath() {
       _builder.clearResourceZipPath()
     }
-  }
+
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    public class BlockCollisionKeysProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * `repeated string blockCollisionKeys = 33;`
+     * @return A list containing the blockCollisionKeys.
+     */
+    public val blockCollisionKeys: com.google.protobuf.kotlin.DslList<kotlin.String, BlockCollisionKeysProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.blockCollisionKeysList
+      )
+    /**
+     * `repeated string blockCollisionKeys = 33;`
+     * @param value The blockCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addBlockCollisionKeys")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.String, BlockCollisionKeysProxy>.add(value: kotlin.String) {
+      _builder.addBlockCollisionKeys(value)
+    }
+    /**
+     * `repeated string blockCollisionKeys = 33;`
+     * @param value The blockCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignBlockCollisionKeys")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, BlockCollisionKeysProxy>.plusAssign(value: kotlin.String) {
+      add(value)
+    }
+    /**
+     * `repeated string blockCollisionKeys = 33;`
+     * @param values The blockCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllBlockCollisionKeys")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.String, BlockCollisionKeysProxy>.addAll(values: kotlin.collections.Iterable<kotlin.String>) {
+      _builder.addAllBlockCollisionKeys(values)
+    }
+    /**
+     * `repeated string blockCollisionKeys = 33;`
+     * @param values The blockCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllBlockCollisionKeys")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, BlockCollisionKeysProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.String>) {
+      addAll(values)
+    }
+    /**
+     * `repeated string blockCollisionKeys = 33;`
+     * @param index The index to set the value at.
+     * @param value The blockCollisionKeys to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setBlockCollisionKeys")
+    public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, BlockCollisionKeysProxy>.set(index: kotlin.Int, value: kotlin.String) {
+      _builder.setBlockCollisionKeys(index, value)
+    }/**
+     * `repeated string blockCollisionKeys = 33;`
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearBlockCollisionKeys")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.String, BlockCollisionKeysProxy>.clear() {
+      _builder.clearBlockCollisionKeys()
+    }
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    public class EntityCollisionKeysProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * `repeated string entityCollisionKeys = 34;`
+     * @return A list containing the entityCollisionKeys.
+     */
+    public val entityCollisionKeys: com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>
+      @kotlin.jvm.JvmSynthetic
+      get() = com.google.protobuf.kotlin.DslList(
+        _builder.entityCollisionKeysList
+      )
+    /**
+     * `repeated string entityCollisionKeys = 34;`
+     * @param value The entityCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addEntityCollisionKeys")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>.add(value: kotlin.String) {
+      _builder.addEntityCollisionKeys(value)
+    }
+    /**
+     * `repeated string entityCollisionKeys = 34;`
+     * @param value The entityCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignEntityCollisionKeys")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>.plusAssign(value: kotlin.String) {
+      add(value)
+    }
+    /**
+     * `repeated string entityCollisionKeys = 34;`
+     * @param values The entityCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("addAllEntityCollisionKeys")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>.addAll(values: kotlin.collections.Iterable<kotlin.String>) {
+      _builder.addAllEntityCollisionKeys(values)
+    }
+    /**
+     * `repeated string entityCollisionKeys = 34;`
+     * @param values The entityCollisionKeys to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("plusAssignAllEntityCollisionKeys")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.String>) {
+      addAll(values)
+    }
+    /**
+     * `repeated string entityCollisionKeys = 34;`
+     * @param index The index to set the value at.
+     * @param value The entityCollisionKeys to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("setEntityCollisionKeys")
+    public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>.set(index: kotlin.Int, value: kotlin.String) {
+      _builder.setEntityCollisionKeys(index, value)
+    }/**
+     * `repeated string entityCollisionKeys = 34;`
+     */
+    @kotlin.jvm.JvmSynthetic
+    @kotlin.jvm.JvmName("clearEntityCollisionKeys")
+    public fun com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>.clear() {
+      _builder.clearEntityCollisionKeys()
+    }}
 }
 @kotlin.jvm.JvmSynthetic
 public inline fun com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage.copy(block: `com.kyhsgeekcode.minecraftenv.proto`.InitialEnvironmentMessageKt.Dsl.() -> kotlin.Unit): com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage =

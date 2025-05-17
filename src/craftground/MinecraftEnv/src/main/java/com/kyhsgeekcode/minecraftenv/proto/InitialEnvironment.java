@@ -853,6 +853,56 @@ public final class InitialEnvironment {
      */
     com.google.protobuf.ByteString
         getResourceZipPathBytes();
+
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @return A list containing the blockCollisionKeys.
+     */
+    java.util.List<java.lang.String>
+        getBlockCollisionKeysList();
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @return The count of blockCollisionKeys.
+     */
+    int getBlockCollisionKeysCount();
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @param index The index of the element to return.
+     * @return The blockCollisionKeys at the given index.
+     */
+    java.lang.String getBlockCollisionKeys(int index);
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the blockCollisionKeys at the given index.
+     */
+    com.google.protobuf.ByteString
+        getBlockCollisionKeysBytes(int index);
+
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @return A list containing the entityCollisionKeys.
+     */
+    java.util.List<java.lang.String>
+        getEntityCollisionKeysList();
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @return The count of entityCollisionKeys.
+     */
+    int getEntityCollisionKeysCount();
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @param index The index of the element to return.
+     * @return The entityCollisionKeys at the given index.
+     */
+    java.lang.String getEntityCollisionKeys(int index);
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the entityCollisionKeys at the given index.
+     */
+    com.google.protobuf.ByteString
+        getEntityCollisionKeysBytes(int index);
   }
   /**
    * Protobuf type {@code InitialEnvironmentMessage}
@@ -896,6 +946,10 @@ public final class InitialEnvironment {
           com.google.protobuf.LazyStringArrayList.emptyList();
       levelDisplayNameToPlay_ = "";
       resourceZipPath_ = "";
+      blockCollisionKeys_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+      entityCollisionKeys_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
@@ -1635,6 +1689,80 @@ public final class InitialEnvironment {
       }
     }
 
+    public static final int BLOCKCOLLISIONKEYS_FIELD_NUMBER = 33;
+    @SuppressWarnings("serial")
+    private com.google.protobuf.LazyStringArrayList blockCollisionKeys_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @return A list containing the blockCollisionKeys.
+     */
+    public com.google.protobuf.ProtocolStringList
+        getBlockCollisionKeysList() {
+      return blockCollisionKeys_;
+    }
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @return The count of blockCollisionKeys.
+     */
+    public int getBlockCollisionKeysCount() {
+      return blockCollisionKeys_.size();
+    }
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @param index The index of the element to return.
+     * @return The blockCollisionKeys at the given index.
+     */
+    public java.lang.String getBlockCollisionKeys(int index) {
+      return blockCollisionKeys_.get(index);
+    }
+    /**
+     * <code>repeated string blockCollisionKeys = 33;</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the blockCollisionKeys at the given index.
+     */
+    public com.google.protobuf.ByteString
+        getBlockCollisionKeysBytes(int index) {
+      return blockCollisionKeys_.getByteString(index);
+    }
+
+    public static final int ENTITYCOLLISIONKEYS_FIELD_NUMBER = 34;
+    @SuppressWarnings("serial")
+    private com.google.protobuf.LazyStringArrayList entityCollisionKeys_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @return A list containing the entityCollisionKeys.
+     */
+    public com.google.protobuf.ProtocolStringList
+        getEntityCollisionKeysList() {
+      return entityCollisionKeys_;
+    }
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @return The count of entityCollisionKeys.
+     */
+    public int getEntityCollisionKeysCount() {
+      return entityCollisionKeys_.size();
+    }
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @param index The index of the element to return.
+     * @return The entityCollisionKeys at the given index.
+     */
+    public java.lang.String getEntityCollisionKeys(int index) {
+      return entityCollisionKeys_.get(index);
+    }
+    /**
+     * <code>repeated string entityCollisionKeys = 34;</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the entityCollisionKeys at the given index.
+     */
+    public com.google.protobuf.ByteString
+        getEntityCollisionKeysBytes(int index) {
+      return entityCollisionKeys_.getByteString(index);
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -1749,6 +1877,12 @@ public final class InitialEnvironment {
       }
       if (!com.google.protobuf.GeneratedMessage.isStringEmpty(resourceZipPath_)) {
         com.google.protobuf.GeneratedMessage.writeString(output, 32, resourceZipPath_);
+      }
+      for (int i = 0; i < blockCollisionKeys_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 33, blockCollisionKeys_.getRaw(i));
+      }
+      for (int i = 0; i < entityCollisionKeys_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 34, entityCollisionKeys_.getRaw(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1917,6 +2051,22 @@ public final class InitialEnvironment {
       if (!com.google.protobuf.GeneratedMessage.isStringEmpty(resourceZipPath_)) {
         size += com.google.protobuf.GeneratedMessage.computeStringSize(32, resourceZipPath_);
       }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < blockCollisionKeys_.size(); i++) {
+          dataSize += computeStringSizeNoTag(blockCollisionKeys_.getRaw(i));
+        }
+        size += dataSize;
+        size += 2 * getBlockCollisionKeysList().size();
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < entityCollisionKeys_.size(); i++) {
+          dataSize += computeStringSizeNoTag(entityCollisionKeys_.getRaw(i));
+        }
+        size += dataSize;
+        size += 2 * getEntityCollisionKeysList().size();
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -1995,6 +2145,10 @@ public final class InitialEnvironment {
           != other.getRequiresDepthConversion()) return false;
       if (!getResourceZipPath()
           .equals(other.getResourceZipPath())) return false;
+      if (!getBlockCollisionKeysList()
+          .equals(other.getBlockCollisionKeysList())) return false;
+      if (!getEntityCollisionKeysList()
+          .equals(other.getEntityCollisionKeysList())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -2096,6 +2250,14 @@ public final class InitialEnvironment {
           getRequiresDepthConversion());
       hash = (37 * hash) + RESOURCEZIPPATH_FIELD_NUMBER;
       hash = (53 * hash) + getResourceZipPath().hashCode();
+      if (getBlockCollisionKeysCount() > 0) {
+        hash = (37 * hash) + BLOCKCOLLISIONKEYS_FIELD_NUMBER;
+        hash = (53 * hash) + getBlockCollisionKeysList().hashCode();
+      }
+      if (getEntityCollisionKeysCount() > 0) {
+        hash = (37 * hash) + ENTITYCOLLISIONKEYS_FIELD_NUMBER;
+        hash = (53 * hash) + getEntityCollisionKeysList().hashCode();
+      }
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -2227,6 +2389,7 @@ public final class InitialEnvironment {
       public Builder clear() {
         super.clear();
         bitField0_ = 0;
+        bitField1_ = 0;
         imageSizeX_ = 0;
         imageSizeY_ = 0;
         gamemode_ = 0;
@@ -2265,6 +2428,10 @@ public final class InitialEnvironment {
         requiresDepth_ = false;
         requiresDepthConversion_ = false;
         resourceZipPath_ = "";
+        blockCollisionKeys_ =
+            com.google.protobuf.LazyStringArrayList.emptyList();
+        entityCollisionKeys_ =
+            com.google.protobuf.LazyStringArrayList.emptyList();
         return this;
       }
 
@@ -2292,6 +2459,7 @@ public final class InitialEnvironment {
       public com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage buildPartial() {
         com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage result = new com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage(this);
         if (bitField0_ != 0) { buildPartial0(result); }
+        if (bitField1_ != 0) { buildPartial1(result); }
         onBuilt();
         return result;
       }
@@ -2400,6 +2568,18 @@ public final class InitialEnvironment {
         }
         if (((from_bitField0_ & 0x80000000) != 0)) {
           result.resourceZipPath_ = resourceZipPath_;
+        }
+      }
+
+      private void buildPartial1(com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage result) {
+        int from_bitField1_ = bitField1_;
+        if (((from_bitField1_ & 0x00000001) != 0)) {
+          blockCollisionKeys_.makeImmutable();
+          result.blockCollisionKeys_ = blockCollisionKeys_;
+        }
+        if (((from_bitField1_ & 0x00000002) != 0)) {
+          entityCollisionKeys_.makeImmutable();
+          result.entityCollisionKeys_ = entityCollisionKeys_;
         }
       }
 
@@ -2567,6 +2747,26 @@ public final class InitialEnvironment {
         if (!other.getResourceZipPath().isEmpty()) {
           resourceZipPath_ = other.resourceZipPath_;
           bitField0_ |= 0x80000000;
+          onChanged();
+        }
+        if (!other.blockCollisionKeys_.isEmpty()) {
+          if (blockCollisionKeys_.isEmpty()) {
+            blockCollisionKeys_ = other.blockCollisionKeys_;
+            bitField1_ |= 0x00000001;
+          } else {
+            ensureBlockCollisionKeysIsMutable();
+            blockCollisionKeys_.addAll(other.blockCollisionKeys_);
+          }
+          onChanged();
+        }
+        if (!other.entityCollisionKeys_.isEmpty()) {
+          if (entityCollisionKeys_.isEmpty()) {
+            entityCollisionKeys_ = other.entityCollisionKeys_;
+            bitField1_ |= 0x00000002;
+          } else {
+            ensureEntityCollisionKeysIsMutable();
+            entityCollisionKeys_.addAll(other.entityCollisionKeys_);
+          }
           onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
@@ -2772,6 +2972,18 @@ public final class InitialEnvironment {
                 bitField0_ |= 0x80000000;
                 break;
               } // case 258
+              case 266: {
+                java.lang.String s = input.readStringRequireUtf8();
+                ensureBlockCollisionKeysIsMutable();
+                blockCollisionKeys_.add(s);
+                break;
+              } // case 266
+              case 274: {
+                java.lang.String s = input.readStringRequireUtf8();
+                ensureEntityCollisionKeysIsMutable();
+                entityCollisionKeys_.add(s);
+                break;
+              } // case 274
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -2788,6 +3000,7 @@ public final class InitialEnvironment {
         return this;
       }
       private int bitField0_;
+      private int bitField1_;
 
       private int imageSizeX_ ;
       /**
@@ -4734,6 +4947,228 @@ public final class InitialEnvironment {
         return this;
       }
 
+      private com.google.protobuf.LazyStringArrayList blockCollisionKeys_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+      private void ensureBlockCollisionKeysIsMutable() {
+        if (!blockCollisionKeys_.isModifiable()) {
+          blockCollisionKeys_ = new com.google.protobuf.LazyStringArrayList(blockCollisionKeys_);
+        }
+        bitField1_ |= 0x00000001;
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @return A list containing the blockCollisionKeys.
+       */
+      public com.google.protobuf.ProtocolStringList
+          getBlockCollisionKeysList() {
+        blockCollisionKeys_.makeImmutable();
+        return blockCollisionKeys_;
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @return The count of blockCollisionKeys.
+       */
+      public int getBlockCollisionKeysCount() {
+        return blockCollisionKeys_.size();
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @param index The index of the element to return.
+       * @return The blockCollisionKeys at the given index.
+       */
+      public java.lang.String getBlockCollisionKeys(int index) {
+        return blockCollisionKeys_.get(index);
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the blockCollisionKeys at the given index.
+       */
+      public com.google.protobuf.ByteString
+          getBlockCollisionKeysBytes(int index) {
+        return blockCollisionKeys_.getByteString(index);
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @param index The index to set the value at.
+       * @param value The blockCollisionKeys to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBlockCollisionKeys(
+          int index, java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        ensureBlockCollisionKeysIsMutable();
+        blockCollisionKeys_.set(index, value);
+        bitField1_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @param value The blockCollisionKeys to add.
+       * @return This builder for chaining.
+       */
+      public Builder addBlockCollisionKeys(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        ensureBlockCollisionKeysIsMutable();
+        blockCollisionKeys_.add(value);
+        bitField1_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @param values The blockCollisionKeys to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllBlockCollisionKeys(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureBlockCollisionKeysIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, blockCollisionKeys_);
+        bitField1_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearBlockCollisionKeys() {
+        blockCollisionKeys_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+        bitField1_ = (bitField1_ & ~0x00000001);;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string blockCollisionKeys = 33;</code>
+       * @param value The bytes of the blockCollisionKeys to add.
+       * @return This builder for chaining.
+       */
+      public Builder addBlockCollisionKeysBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        ensureBlockCollisionKeysIsMutable();
+        blockCollisionKeys_.add(value);
+        bitField1_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringArrayList entityCollisionKeys_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+      private void ensureEntityCollisionKeysIsMutable() {
+        if (!entityCollisionKeys_.isModifiable()) {
+          entityCollisionKeys_ = new com.google.protobuf.LazyStringArrayList(entityCollisionKeys_);
+        }
+        bitField1_ |= 0x00000002;
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @return A list containing the entityCollisionKeys.
+       */
+      public com.google.protobuf.ProtocolStringList
+          getEntityCollisionKeysList() {
+        entityCollisionKeys_.makeImmutable();
+        return entityCollisionKeys_;
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @return The count of entityCollisionKeys.
+       */
+      public int getEntityCollisionKeysCount() {
+        return entityCollisionKeys_.size();
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @param index The index of the element to return.
+       * @return The entityCollisionKeys at the given index.
+       */
+      public java.lang.String getEntityCollisionKeys(int index) {
+        return entityCollisionKeys_.get(index);
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the entityCollisionKeys at the given index.
+       */
+      public com.google.protobuf.ByteString
+          getEntityCollisionKeysBytes(int index) {
+        return entityCollisionKeys_.getByteString(index);
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @param index The index to set the value at.
+       * @param value The entityCollisionKeys to set.
+       * @return This builder for chaining.
+       */
+      public Builder setEntityCollisionKeys(
+          int index, java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        ensureEntityCollisionKeysIsMutable();
+        entityCollisionKeys_.set(index, value);
+        bitField1_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @param value The entityCollisionKeys to add.
+       * @return This builder for chaining.
+       */
+      public Builder addEntityCollisionKeys(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        ensureEntityCollisionKeysIsMutable();
+        entityCollisionKeys_.add(value);
+        bitField1_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @param values The entityCollisionKeys to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllEntityCollisionKeys(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureEntityCollisionKeysIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, entityCollisionKeys_);
+        bitField1_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearEntityCollisionKeys() {
+        entityCollisionKeys_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+        bitField1_ = (bitField1_ & ~0x00000002);;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string entityCollisionKeys = 34;</code>
+       * @param value The bytes of the entityCollisionKeys to add.
+       * @return This builder for chaining.
+       */
+      public Builder addEntityCollisionKeysBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        ensureEntityCollisionKeysIsMutable();
+        entityCollisionKeys_.add(value);
+        bitField1_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:InitialEnvironmentMessage)
     }
 
@@ -4799,7 +5234,7 @@ public final class InitialEnvironment {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\037proto/initial_environment.proto\"\311\006\n\031In" +
+      "\n\037proto/initial_environment.proto\"\202\007\n\031In" +
       "itialEnvironmentMessage\022\022\n\nimageSizeX\030\001 " +
       "\001(\005\022\022\n\nimageSizeY\030\002 \001(\005\022\033\n\010gamemode\030\003 \001(" +
       "\0162\t.GameMode\022\037\n\ndifficulty\030\004 \001(\0162\013.Diffi" +
@@ -4820,14 +5255,15 @@ public final class InitialEnvironment {
       "(\002\022\031\n\021requiresBiomeInfo\030\033 \001(\010\022\031\n\021require" +
       "sHeightmap\030\034 \001(\010\022\022\n\npython_pid\030\035 \001(\005\022\025\n\r" +
       "requiresDepth\030\036 \001(\010\022\037\n\027requiresDepthConv" +
-      "ersion\030\037 \001(\010\022\027\n\017resourceZipPath\030  \001(\t*4\n" +
-      "\010GameMode\022\014\n\010SURVIVAL\020\000\022\014\n\010HARDCORE\020\001\022\014\n" +
-      "\010CREATIVE\020\002*:\n\nDifficulty\022\014\n\010PEACEFUL\020\000\022" +
-      "\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004HARD\020\003*Z\n\tWorld" +
-      "Type\022\013\n\007DEFAULT\020\000\022\r\n\tSUPERFLAT\020\001\022\020\n\014LARG" +
-      "E_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003\022\020\n\014SINGLE_BIOM" +
-      "E\020\004B%\n#com.kyhsgeekcode.minecraftenv.pro" +
-      "tob\006proto3"
+      "ersion\030\037 \001(\010\022\027\n\017resourceZipPath\030  \001(\t\022\032\n" +
+      "\022blockCollisionKeys\030! \003(\t\022\033\n\023entityColli" +
+      "sionKeys\030\" \003(\t*4\n\010GameMode\022\014\n\010SURVIVAL\020\000" +
+      "\022\014\n\010HARDCORE\020\001\022\014\n\010CREATIVE\020\002*:\n\nDifficul" +
+      "ty\022\014\n\010PEACEFUL\020\000\022\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010" +
+      "\n\004HARD\020\003*Z\n\tWorldType\022\013\n\007DEFAULT\020\000\022\r\n\tSU" +
+      "PERFLAT\020\001\022\020\n\014LARGE_BIOMES\020\002\022\r\n\tAMPLIFIED" +
+      "\020\003\022\020\n\014SINGLE_BIOME\020\004B%\n#com.kyhsgeekcode" +
+      ".minecraftenv.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -4838,7 +5274,7 @@ public final class InitialEnvironment {
     internal_static_InitialEnvironmentMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_InitialEnvironmentMessage_descriptor,
-        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", "ResourceZipPath", });
+        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", "ResourceZipPath", "BlockCollisionKeys", "EntityCollisionKeys", });
     descriptor.resolveAllFeaturesImmutable();
   }
 

@@ -20,9 +20,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
-import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
 import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.MinecraftClient.IS_SYSTEM_MAC
 import net.minecraft.client.gui.screen.DeathScreen
@@ -31,7 +29,6 @@ import net.minecraft.client.render.BackgroundRenderer
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.SpawnGroup
-import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
@@ -185,6 +182,15 @@ class MinecraftEnv :
         FramebufferCapturer.shouldCaptureDepth = initialEnvironment.requiresDepth
         FramebufferCapturer.requiresDepthConversion = initialEnvironment.requiresDepthConversion
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
+
+        // Check the collision info dict and override collision dynamically
+//        Blocks.BLUE_ICE.defaultState.onEntityCollision()
+        for (blockCollisionKey in initialEnvironment.blockCollisionKeysList) {
+            CollisionListener.blockCollisionInfoSet.add(blockCollisionKey)
+        }
+        for (entityCollisionKey in initialEnvironment.entityCollisionKeysList) {
+            CollisionListener.entityCollisionInfoSet.add(entityCollisionKey)
+        }
 
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
         resetPhase = ResetPhase.WAIT_INIT_ENDS
@@ -822,6 +828,14 @@ class MinecraftEnv :
                                 ?.asIterable()
                                 ?: emptyList(),
                         )
+                    }
+                    if (initialEnvironment.blockCollisionKeysCount > 0) {
+                        blockCollisions.addAll(CollisionListener.blockCollisionInfo)
+                        CollisionListener.blockCollisionInfo.clear()
+                    }
+                    if (initialEnvironment.entityCollisionKeysCount > 0) {
+                        entityCollisions.addAll(CollisionListener.entityCollisionInfo)
+                        CollisionListener.entityCollisionInfo.clear()
                     }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {

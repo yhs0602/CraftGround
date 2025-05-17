@@ -8892,6 +8892,1464 @@ public final class ObservationSpace {
 
   }
 
+  public interface BlockCollisionInfoOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:BlockCollisionInfo)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>int32 x = 1;</code>
+     * @return The x.
+     */
+    int getX();
+
+    /**
+     * <code>int32 y = 2;</code>
+     * @return The y.
+     */
+    int getY();
+
+    /**
+     * <code>int32 z = 3;</code>
+     * @return The z.
+     */
+    int getZ();
+
+    /**
+     * <code>string block_name = 4;</code>
+     * @return The blockName.
+     */
+    java.lang.String getBlockName();
+    /**
+     * <code>string block_name = 4;</code>
+     * @return The bytes for blockName.
+     */
+    com.google.protobuf.ByteString
+        getBlockNameBytes();
+  }
+  /**
+   * Protobuf type {@code BlockCollisionInfo}
+   */
+  public static final class BlockCollisionInfo extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:BlockCollisionInfo)
+      BlockCollisionInfoOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 29,
+        /* patch= */ 2,
+        /* suffix= */ "",
+        BlockCollisionInfo.class.getName());
+    }
+    // Use BlockCollisionInfo.newBuilder() to construct.
+    private BlockCollisionInfo(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private BlockCollisionInfo() {
+      blockName_ = "";
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_BlockCollisionInfo_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_BlockCollisionInfo_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder.class);
+    }
+
+    public static final int X_FIELD_NUMBER = 1;
+    private int x_ = 0;
+    /**
+     * <code>int32 x = 1;</code>
+     * @return The x.
+     */
+    @java.lang.Override
+    public int getX() {
+      return x_;
+    }
+
+    public static final int Y_FIELD_NUMBER = 2;
+    private int y_ = 0;
+    /**
+     * <code>int32 y = 2;</code>
+     * @return The y.
+     */
+    @java.lang.Override
+    public int getY() {
+      return y_;
+    }
+
+    public static final int Z_FIELD_NUMBER = 3;
+    private int z_ = 0;
+    /**
+     * <code>int32 z = 3;</code>
+     * @return The z.
+     */
+    @java.lang.Override
+    public int getZ() {
+      return z_;
+    }
+
+    public static final int BLOCK_NAME_FIELD_NUMBER = 4;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object blockName_ = "";
+    /**
+     * <code>string block_name = 4;</code>
+     * @return The blockName.
+     */
+    @java.lang.Override
+    public java.lang.String getBlockName() {
+      java.lang.Object ref = blockName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        blockName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string block_name = 4;</code>
+     * @return The bytes for blockName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getBlockNameBytes() {
+      java.lang.Object ref = blockName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        blockName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (x_ != 0) {
+        output.writeInt32(1, x_);
+      }
+      if (y_ != 0) {
+        output.writeInt32(2, y_);
+      }
+      if (z_ != 0) {
+        output.writeInt32(3, z_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(blockName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 4, blockName_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (x_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, x_);
+      }
+      if (y_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, y_);
+      }
+      if (z_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, z_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(blockName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(4, blockName_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo)) {
+        return super.equals(obj);
+      }
+      com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo other = (com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo) obj;
+
+      if (getX()
+          != other.getX()) return false;
+      if (getY()
+          != other.getY()) return false;
+      if (getZ()
+          != other.getZ()) return false;
+      if (!getBlockName()
+          .equals(other.getBlockName())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + X_FIELD_NUMBER;
+      hash = (53 * hash) + getX();
+      hash = (37 * hash) + Y_FIELD_NUMBER;
+      hash = (53 * hash) + getY();
+      hash = (37 * hash) + Z_FIELD_NUMBER;
+      hash = (53 * hash) + getZ();
+      hash = (37 * hash) + BLOCK_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getBlockName().hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code BlockCollisionInfo}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:BlockCollisionInfo)
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_BlockCollisionInfo_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_BlockCollisionInfo_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder.class);
+      }
+
+      // Construct using com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        x_ = 0;
+        y_ = 0;
+        z_ = 0;
+        blockName_ = "";
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_BlockCollisionInfo_descriptor;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo getDefaultInstanceForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo build() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo buildPartial() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo result = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.x_ = x_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.y_ = y_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.z_ = z_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.blockName_ = blockName_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo) {
+          return mergeFrom((com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo other) {
+        if (other == com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.getDefaultInstance()) return this;
+        if (other.getX() != 0) {
+          setX(other.getX());
+        }
+        if (other.getY() != 0) {
+          setY(other.getY());
+        }
+        if (other.getZ() != 0) {
+          setZ(other.getZ());
+        }
+        if (!other.getBlockName().isEmpty()) {
+          blockName_ = other.blockName_;
+          bitField0_ |= 0x00000008;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 8: {
+                x_ = input.readInt32();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 8
+              case 16: {
+                y_ = input.readInt32();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              case 24: {
+                z_ = input.readInt32();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 24
+              case 34: {
+                blockName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 34
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private int x_ ;
+      /**
+       * <code>int32 x = 1;</code>
+       * @return The x.
+       */
+      @java.lang.Override
+      public int getX() {
+        return x_;
+      }
+      /**
+       * <code>int32 x = 1;</code>
+       * @param value The x to set.
+       * @return This builder for chaining.
+       */
+      public Builder setX(int value) {
+
+        x_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 x = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearX() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        x_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int y_ ;
+      /**
+       * <code>int32 y = 2;</code>
+       * @return The y.
+       */
+      @java.lang.Override
+      public int getY() {
+        return y_;
+      }
+      /**
+       * <code>int32 y = 2;</code>
+       * @param value The y to set.
+       * @return This builder for chaining.
+       */
+      public Builder setY(int value) {
+
+        y_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 y = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearY() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        y_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int z_ ;
+      /**
+       * <code>int32 z = 3;</code>
+       * @return The z.
+       */
+      @java.lang.Override
+      public int getZ() {
+        return z_;
+      }
+      /**
+       * <code>int32 z = 3;</code>
+       * @param value The z to set.
+       * @return This builder for chaining.
+       */
+      public Builder setZ(int value) {
+
+        z_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 z = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearZ() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        z_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object blockName_ = "";
+      /**
+       * <code>string block_name = 4;</code>
+       * @return The blockName.
+       */
+      public java.lang.String getBlockName() {
+        java.lang.Object ref = blockName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          blockName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string block_name = 4;</code>
+       * @return The bytes for blockName.
+       */
+      public com.google.protobuf.ByteString
+          getBlockNameBytes() {
+        java.lang.Object ref = blockName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          blockName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string block_name = 4;</code>
+       * @param value The blockName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBlockName(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        blockName_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string block_name = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearBlockName() {
+        blockName_ = getDefaultInstance().getBlockName();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string block_name = 4;</code>
+       * @param value The bytes for blockName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBlockNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        blockName_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:BlockCollisionInfo)
+    }
+
+    // @@protoc_insertion_point(class_scope:BlockCollisionInfo)
+    private static final com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo();
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<BlockCollisionInfo>
+        PARSER = new com.google.protobuf.AbstractParser<BlockCollisionInfo>() {
+      @java.lang.Override
+      public BlockCollisionInfo parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<BlockCollisionInfo> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<BlockCollisionInfo> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface EntityCollisionInfoOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:EntityCollisionInfo)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>float x = 1;</code>
+     * @return The x.
+     */
+    float getX();
+
+    /**
+     * <code>float y = 2;</code>
+     * @return The y.
+     */
+    float getY();
+
+    /**
+     * <code>float z = 3;</code>
+     * @return The z.
+     */
+    float getZ();
+
+    /**
+     * <code>string entity_name = 4;</code>
+     * @return The entityName.
+     */
+    java.lang.String getEntityName();
+    /**
+     * <code>string entity_name = 4;</code>
+     * @return The bytes for entityName.
+     */
+    com.google.protobuf.ByteString
+        getEntityNameBytes();
+  }
+  /**
+   * Protobuf type {@code EntityCollisionInfo}
+   */
+  public static final class EntityCollisionInfo extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:EntityCollisionInfo)
+      EntityCollisionInfoOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 29,
+        /* patch= */ 2,
+        /* suffix= */ "",
+        EntityCollisionInfo.class.getName());
+    }
+    // Use EntityCollisionInfo.newBuilder() to construct.
+    private EntityCollisionInfo(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private EntityCollisionInfo() {
+      entityName_ = "";
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_EntityCollisionInfo_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_EntityCollisionInfo_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder.class);
+    }
+
+    public static final int X_FIELD_NUMBER = 1;
+    private float x_ = 0F;
+    /**
+     * <code>float x = 1;</code>
+     * @return The x.
+     */
+    @java.lang.Override
+    public float getX() {
+      return x_;
+    }
+
+    public static final int Y_FIELD_NUMBER = 2;
+    private float y_ = 0F;
+    /**
+     * <code>float y = 2;</code>
+     * @return The y.
+     */
+    @java.lang.Override
+    public float getY() {
+      return y_;
+    }
+
+    public static final int Z_FIELD_NUMBER = 3;
+    private float z_ = 0F;
+    /**
+     * <code>float z = 3;</code>
+     * @return The z.
+     */
+    @java.lang.Override
+    public float getZ() {
+      return z_;
+    }
+
+    public static final int ENTITY_NAME_FIELD_NUMBER = 4;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object entityName_ = "";
+    /**
+     * <code>string entity_name = 4;</code>
+     * @return The entityName.
+     */
+    @java.lang.Override
+    public java.lang.String getEntityName() {
+      java.lang.Object ref = entityName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        entityName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string entity_name = 4;</code>
+     * @return The bytes for entityName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getEntityNameBytes() {
+      java.lang.Object ref = entityName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        entityName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (java.lang.Float.floatToRawIntBits(x_) != 0) {
+        output.writeFloat(1, x_);
+      }
+      if (java.lang.Float.floatToRawIntBits(y_) != 0) {
+        output.writeFloat(2, y_);
+      }
+      if (java.lang.Float.floatToRawIntBits(z_) != 0) {
+        output.writeFloat(3, z_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(entityName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 4, entityName_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (java.lang.Float.floatToRawIntBits(x_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(1, x_);
+      }
+      if (java.lang.Float.floatToRawIntBits(y_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(2, y_);
+      }
+      if (java.lang.Float.floatToRawIntBits(z_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(3, z_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(entityName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(4, entityName_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo)) {
+        return super.equals(obj);
+      }
+      com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo other = (com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo) obj;
+
+      if (java.lang.Float.floatToIntBits(getX())
+          != java.lang.Float.floatToIntBits(
+              other.getX())) return false;
+      if (java.lang.Float.floatToIntBits(getY())
+          != java.lang.Float.floatToIntBits(
+              other.getY())) return false;
+      if (java.lang.Float.floatToIntBits(getZ())
+          != java.lang.Float.floatToIntBits(
+              other.getZ())) return false;
+      if (!getEntityName()
+          .equals(other.getEntityName())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + X_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getX());
+      hash = (37 * hash) + Y_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getY());
+      hash = (37 * hash) + Z_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getZ());
+      hash = (37 * hash) + ENTITY_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getEntityName().hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code EntityCollisionInfo}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:EntityCollisionInfo)
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_EntityCollisionInfo_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_EntityCollisionInfo_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder.class);
+      }
+
+      // Construct using com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        x_ = 0F;
+        y_ = 0F;
+        z_ = 0F;
+        entityName_ = "";
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_EntityCollisionInfo_descriptor;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo getDefaultInstanceForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo build() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo buildPartial() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo result = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.x_ = x_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.y_ = y_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.z_ = z_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.entityName_ = entityName_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo) {
+          return mergeFrom((com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo other) {
+        if (other == com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.getDefaultInstance()) return this;
+        if (other.getX() != 0F) {
+          setX(other.getX());
+        }
+        if (other.getY() != 0F) {
+          setY(other.getY());
+        }
+        if (other.getZ() != 0F) {
+          setZ(other.getZ());
+        }
+        if (!other.getEntityName().isEmpty()) {
+          entityName_ = other.entityName_;
+          bitField0_ |= 0x00000008;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 13: {
+                x_ = input.readFloat();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 13
+              case 21: {
+                y_ = input.readFloat();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 21
+              case 29: {
+                z_ = input.readFloat();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 29
+              case 34: {
+                entityName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 34
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private float x_ ;
+      /**
+       * <code>float x = 1;</code>
+       * @return The x.
+       */
+      @java.lang.Override
+      public float getX() {
+        return x_;
+      }
+      /**
+       * <code>float x = 1;</code>
+       * @param value The x to set.
+       * @return This builder for chaining.
+       */
+      public Builder setX(float value) {
+
+        x_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>float x = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearX() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        x_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      private float y_ ;
+      /**
+       * <code>float y = 2;</code>
+       * @return The y.
+       */
+      @java.lang.Override
+      public float getY() {
+        return y_;
+      }
+      /**
+       * <code>float y = 2;</code>
+       * @param value The y to set.
+       * @return This builder for chaining.
+       */
+      public Builder setY(float value) {
+
+        y_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>float y = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearY() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        y_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      private float z_ ;
+      /**
+       * <code>float z = 3;</code>
+       * @return The z.
+       */
+      @java.lang.Override
+      public float getZ() {
+        return z_;
+      }
+      /**
+       * <code>float z = 3;</code>
+       * @param value The z to set.
+       * @return This builder for chaining.
+       */
+      public Builder setZ(float value) {
+
+        z_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>float z = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearZ() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        z_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object entityName_ = "";
+      /**
+       * <code>string entity_name = 4;</code>
+       * @return The entityName.
+       */
+      public java.lang.String getEntityName() {
+        java.lang.Object ref = entityName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          entityName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string entity_name = 4;</code>
+       * @return The bytes for entityName.
+       */
+      public com.google.protobuf.ByteString
+          getEntityNameBytes() {
+        java.lang.Object ref = entityName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          entityName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string entity_name = 4;</code>
+       * @param value The entityName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setEntityName(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        entityName_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string entity_name = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearEntityName() {
+        entityName_ = getDefaultInstance().getEntityName();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string entity_name = 4;</code>
+       * @param value The bytes for entityName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setEntityNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        entityName_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:EntityCollisionInfo)
+    }
+
+    // @@protoc_insertion_point(class_scope:EntityCollisionInfo)
+    private static final com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo();
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<EntityCollisionInfo>
+        PARSER = new com.google.protobuf.AbstractParser<EntityCollisionInfo>() {
+      @java.lang.Override
+      public EntityCollisionInfo parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<EntityCollisionInfo> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<EntityCollisionInfo> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface ObservationSpaceMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:ObservationSpaceMessage)
       com.google.protobuf.MessageOrBuilder {
@@ -9428,6 +10886,54 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
      * @return The depth at the given index.
      */
     float getDepth(int index);
+
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo> 
+        getBlockCollisionsList();
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo getBlockCollisions(int index);
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    int getBlockCollisionsCount();
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder> 
+        getBlockCollisionsOrBuilderList();
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder getBlockCollisionsOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo> 
+        getEntityCollisionsList();
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo getEntityCollisions(int index);
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    int getEntityCollisionsCount();
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder> 
+        getEntityCollisionsOrBuilderList();
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder getEntityCollisionsOrBuilder(
+        int index);
   }
   /**
    * Protobuf type {@code ObservationSpaceMessage}
@@ -9464,6 +10970,8 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       heightInfo_ = java.util.Collections.emptyList();
       ipcHandle_ = com.google.protobuf.ByteString.EMPTY;
       depth_ = emptyFloatList();
+      blockCollisions_ = java.util.Collections.emptyList();
+      entityCollisions_ = java.util.Collections.emptyList();
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
@@ -10519,6 +12027,88 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     }
     private int depthMemoizedSerializedSize = -1;
 
+    public static final int BLOCK_COLLISIONS_FIELD_NUMBER = 39;
+    @SuppressWarnings("serial")
+    private java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo> blockCollisions_;
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    @java.lang.Override
+    public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo> getBlockCollisionsList() {
+      return blockCollisions_;
+    }
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder> 
+        getBlockCollisionsOrBuilderList() {
+      return blockCollisions_;
+    }
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    @java.lang.Override
+    public int getBlockCollisionsCount() {
+      return blockCollisions_.size();
+    }
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo getBlockCollisions(int index) {
+      return blockCollisions_.get(index);
+    }
+    /**
+     * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder getBlockCollisionsOrBuilder(
+        int index) {
+      return blockCollisions_.get(index);
+    }
+
+    public static final int ENTITY_COLLISIONS_FIELD_NUMBER = 40;
+    @SuppressWarnings("serial")
+    private java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo> entityCollisions_;
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    @java.lang.Override
+    public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo> getEntityCollisionsList() {
+      return entityCollisions_;
+    }
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder> 
+        getEntityCollisionsOrBuilderList() {
+      return entityCollisions_;
+    }
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    @java.lang.Override
+    public int getEntityCollisionsCount() {
+      return entityCollisions_.size();
+    }
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo getEntityCollisions(int index) {
+      return entityCollisions_.get(index);
+    }
+    /**
+     * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder getEntityCollisionsOrBuilder(
+        int index) {
+      return entityCollisions_.get(index);
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -10663,6 +12253,12 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       }
       for (int i = 0; i < depth_.size(); i++) {
         output.writeFloatNoTag(depth_.getFloat(i));
+      }
+      for (int i = 0; i < blockCollisions_.size(); i++) {
+        output.writeMessage(39, blockCollisions_.get(i));
+      }
+      for (int i = 0; i < entityCollisions_.size(); i++) {
+        output.writeMessage(40, entityCollisions_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -10855,6 +12451,14 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         }
         depthMemoizedSerializedSize = dataSize;
       }
+      for (int i = 0; i < blockCollisions_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(39, blockCollisions_.get(i));
+      }
+      for (int i = 0; i < entityCollisions_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(40, entityCollisions_.get(i));
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -10960,6 +12564,10 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           .equals(other.getIpcHandle())) return false;
       if (!getDepthList()
           .equals(other.getDepthList())) return false;
+      if (!getBlockCollisionsList()
+          .equals(other.getBlockCollisionsList())) return false;
+      if (!getEntityCollisionsList()
+          .equals(other.getEntityCollisionsList())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -11094,6 +12702,14 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       if (getDepthCount() > 0) {
         hash = (37 * hash) + DEPTH_FIELD_NUMBER;
         hash = (53 * hash) + getDepthList().hashCode();
+      }
+      if (getBlockCollisionsCount() > 0) {
+        hash = (37 * hash) + BLOCK_COLLISIONS_FIELD_NUMBER;
+        hash = (53 * hash) + getBlockCollisionsList().hashCode();
+      }
+      if (getEntityCollisionsCount() > 0) {
+        hash = (37 * hash) + ENTITY_COLLISIONS_FIELD_NUMBER;
+        hash = (53 * hash) + getEntityCollisionsList().hashCode();
       }
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
@@ -11269,6 +12885,8 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           getBiomeInfoFieldBuilder();
           getNearbyBiomesFieldBuilder();
           getHeightInfoFieldBuilder();
+          getBlockCollisionsFieldBuilder();
+          getEntityCollisionsFieldBuilder();
         }
       }
       @java.lang.Override
@@ -11370,6 +12988,20 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         isTouchingWater_ = false;
         ipcHandle_ = com.google.protobuf.ByteString.EMPTY;
         depth_ = emptyFloatList();
+        if (blockCollisionsBuilder_ == null) {
+          blockCollisions_ = java.util.Collections.emptyList();
+        } else {
+          blockCollisions_ = null;
+          blockCollisionsBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000040);
+        if (entityCollisionsBuilder_ == null) {
+          entityCollisions_ = java.util.Collections.emptyList();
+        } else {
+          entityCollisions_ = null;
+          entityCollisionsBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000080);
         return this;
       }
 
@@ -11475,6 +13107,24 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           result.heightInfo_ = heightInfo_;
         } else {
           result.heightInfo_ = heightInfoBuilder_.build();
+        }
+        if (blockCollisionsBuilder_ == null) {
+          if (((bitField1_ & 0x00000040) != 0)) {
+            blockCollisions_ = java.util.Collections.unmodifiableList(blockCollisions_);
+            bitField1_ = (bitField1_ & ~0x00000040);
+          }
+          result.blockCollisions_ = blockCollisions_;
+        } else {
+          result.blockCollisions_ = blockCollisionsBuilder_.build();
+        }
+        if (entityCollisionsBuilder_ == null) {
+          if (((bitField1_ & 0x00000080) != 0)) {
+            entityCollisions_ = java.util.Collections.unmodifiableList(entityCollisions_);
+            bitField1_ = (bitField1_ & ~0x00000080);
+          }
+          result.entityCollisions_ = entityCollisions_;
+        } else {
+          result.entityCollisions_ = entityCollisionsBuilder_.build();
         }
       }
 
@@ -11908,6 +13558,58 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           }
           onChanged();
         }
+        if (blockCollisionsBuilder_ == null) {
+          if (!other.blockCollisions_.isEmpty()) {
+            if (blockCollisions_.isEmpty()) {
+              blockCollisions_ = other.blockCollisions_;
+              bitField1_ = (bitField1_ & ~0x00000040);
+            } else {
+              ensureBlockCollisionsIsMutable();
+              blockCollisions_.addAll(other.blockCollisions_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.blockCollisions_.isEmpty()) {
+            if (blockCollisionsBuilder_.isEmpty()) {
+              blockCollisionsBuilder_.dispose();
+              blockCollisionsBuilder_ = null;
+              blockCollisions_ = other.blockCollisions_;
+              bitField1_ = (bitField1_ & ~0x00000040);
+              blockCollisionsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getBlockCollisionsFieldBuilder() : null;
+            } else {
+              blockCollisionsBuilder_.addAllMessages(other.blockCollisions_);
+            }
+          }
+        }
+        if (entityCollisionsBuilder_ == null) {
+          if (!other.entityCollisions_.isEmpty()) {
+            if (entityCollisions_.isEmpty()) {
+              entityCollisions_ = other.entityCollisions_;
+              bitField1_ = (bitField1_ & ~0x00000080);
+            } else {
+              ensureEntityCollisionsIsMutable();
+              entityCollisions_.addAll(other.entityCollisions_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.entityCollisions_.isEmpty()) {
+            if (entityCollisionsBuilder_.isEmpty()) {
+              entityCollisionsBuilder_.dispose();
+              entityCollisionsBuilder_ = null;
+              entityCollisions_ = other.entityCollisions_;
+              bitField1_ = (bitField1_ & ~0x00000080);
+              entityCollisionsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getEntityCollisionsFieldBuilder() : null;
+            } else {
+              entityCollisionsBuilder_.addAllMessages(other.entityCollisions_);
+            }
+          }
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
@@ -12220,6 +13922,32 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
                 input.popLimit(limit);
                 break;
               } // case 306
+              case 314: {
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo m =
+                    input.readMessage(
+                        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.parser(),
+                        extensionRegistry);
+                if (blockCollisionsBuilder_ == null) {
+                  ensureBlockCollisionsIsMutable();
+                  blockCollisions_.add(m);
+                } else {
+                  blockCollisionsBuilder_.addMessage(m);
+                }
+                break;
+              } // case 314
+              case 322: {
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo m =
+                    input.readMessage(
+                        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.parser(),
+                        extensionRegistry);
+                if (entityCollisionsBuilder_ == null) {
+                  ensureEntityCollisionsIsMutable();
+                  entityCollisions_.add(m);
+                } else {
+                  entityCollisionsBuilder_.addMessage(m);
+                }
+                break;
+              } // case 322
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -15868,6 +17596,486 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         return this;
       }
 
+      private java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo> blockCollisions_ =
+        java.util.Collections.emptyList();
+      private void ensureBlockCollisionsIsMutable() {
+        if (!((bitField1_ & 0x00000040) != 0)) {
+          blockCollisions_ = new java.util.ArrayList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo>(blockCollisions_);
+          bitField1_ |= 0x00000040;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder> blockCollisionsBuilder_;
+
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo> getBlockCollisionsList() {
+        if (blockCollisionsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(blockCollisions_);
+        } else {
+          return blockCollisionsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public int getBlockCollisionsCount() {
+        if (blockCollisionsBuilder_ == null) {
+          return blockCollisions_.size();
+        } else {
+          return blockCollisionsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo getBlockCollisions(int index) {
+        if (blockCollisionsBuilder_ == null) {
+          return blockCollisions_.get(index);
+        } else {
+          return blockCollisionsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder setBlockCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo value) {
+        if (blockCollisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureBlockCollisionsIsMutable();
+          blockCollisions_.set(index, value);
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder setBlockCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder builderForValue) {
+        if (blockCollisionsBuilder_ == null) {
+          ensureBlockCollisionsIsMutable();
+          blockCollisions_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder addBlockCollisions(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo value) {
+        if (blockCollisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureBlockCollisionsIsMutable();
+          blockCollisions_.add(value);
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder addBlockCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo value) {
+        if (blockCollisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureBlockCollisionsIsMutable();
+          blockCollisions_.add(index, value);
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder addBlockCollisions(
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder builderForValue) {
+        if (blockCollisionsBuilder_ == null) {
+          ensureBlockCollisionsIsMutable();
+          blockCollisions_.add(builderForValue.build());
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder addBlockCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder builderForValue) {
+        if (blockCollisionsBuilder_ == null) {
+          ensureBlockCollisionsIsMutable();
+          blockCollisions_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder addAllBlockCollisions(
+          java.lang.Iterable<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo> values) {
+        if (blockCollisionsBuilder_ == null) {
+          ensureBlockCollisionsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, blockCollisions_);
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder clearBlockCollisions() {
+        if (blockCollisionsBuilder_ == null) {
+          blockCollisions_ = java.util.Collections.emptyList();
+          bitField1_ = (bitField1_ & ~0x00000040);
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public Builder removeBlockCollisions(int index) {
+        if (blockCollisionsBuilder_ == null) {
+          ensureBlockCollisionsIsMutable();
+          blockCollisions_.remove(index);
+          onChanged();
+        } else {
+          blockCollisionsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder getBlockCollisionsBuilder(
+          int index) {
+        return getBlockCollisionsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder getBlockCollisionsOrBuilder(
+          int index) {
+        if (blockCollisionsBuilder_ == null) {
+          return blockCollisions_.get(index);  } else {
+          return blockCollisionsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder> 
+           getBlockCollisionsOrBuilderList() {
+        if (blockCollisionsBuilder_ != null) {
+          return blockCollisionsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(blockCollisions_);
+        }
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder addBlockCollisionsBuilder() {
+        return getBlockCollisionsFieldBuilder().addBuilder(
+            com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder addBlockCollisionsBuilder(
+          int index) {
+        return getBlockCollisionsFieldBuilder().addBuilder(
+            index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .BlockCollisionInfo block_collisions = 39;</code>
+       */
+      public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder> 
+           getBlockCollisionsBuilderList() {
+        return getBlockCollisionsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder> 
+          getBlockCollisionsFieldBuilder() {
+        if (blockCollisionsBuilder_ == null) {
+          blockCollisionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfoOrBuilder>(
+                  blockCollisions_,
+                  ((bitField1_ & 0x00000040) != 0),
+                  getParentForChildren(),
+                  isClean());
+          blockCollisions_ = null;
+        }
+        return blockCollisionsBuilder_;
+      }
+
+      private java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo> entityCollisions_ =
+        java.util.Collections.emptyList();
+      private void ensureEntityCollisionsIsMutable() {
+        if (!((bitField1_ & 0x00000080) != 0)) {
+          entityCollisions_ = new java.util.ArrayList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo>(entityCollisions_);
+          bitField1_ |= 0x00000080;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder> entityCollisionsBuilder_;
+
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo> getEntityCollisionsList() {
+        if (entityCollisionsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(entityCollisions_);
+        } else {
+          return entityCollisionsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public int getEntityCollisionsCount() {
+        if (entityCollisionsBuilder_ == null) {
+          return entityCollisions_.size();
+        } else {
+          return entityCollisionsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo getEntityCollisions(int index) {
+        if (entityCollisionsBuilder_ == null) {
+          return entityCollisions_.get(index);
+        } else {
+          return entityCollisionsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder setEntityCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo value) {
+        if (entityCollisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureEntityCollisionsIsMutable();
+          entityCollisions_.set(index, value);
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder setEntityCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder builderForValue) {
+        if (entityCollisionsBuilder_ == null) {
+          ensureEntityCollisionsIsMutable();
+          entityCollisions_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder addEntityCollisions(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo value) {
+        if (entityCollisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureEntityCollisionsIsMutable();
+          entityCollisions_.add(value);
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder addEntityCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo value) {
+        if (entityCollisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureEntityCollisionsIsMutable();
+          entityCollisions_.add(index, value);
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder addEntityCollisions(
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder builderForValue) {
+        if (entityCollisionsBuilder_ == null) {
+          ensureEntityCollisionsIsMutable();
+          entityCollisions_.add(builderForValue.build());
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder addEntityCollisions(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder builderForValue) {
+        if (entityCollisionsBuilder_ == null) {
+          ensureEntityCollisionsIsMutable();
+          entityCollisions_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder addAllEntityCollisions(
+          java.lang.Iterable<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo> values) {
+        if (entityCollisionsBuilder_ == null) {
+          ensureEntityCollisionsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, entityCollisions_);
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder clearEntityCollisions() {
+        if (entityCollisionsBuilder_ == null) {
+          entityCollisions_ = java.util.Collections.emptyList();
+          bitField1_ = (bitField1_ & ~0x00000080);
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public Builder removeEntityCollisions(int index) {
+        if (entityCollisionsBuilder_ == null) {
+          ensureEntityCollisionsIsMutable();
+          entityCollisions_.remove(index);
+          onChanged();
+        } else {
+          entityCollisionsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder getEntityCollisionsBuilder(
+          int index) {
+        return getEntityCollisionsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder getEntityCollisionsOrBuilder(
+          int index) {
+        if (entityCollisionsBuilder_ == null) {
+          return entityCollisions_.get(index);  } else {
+          return entityCollisionsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder> 
+           getEntityCollisionsOrBuilderList() {
+        if (entityCollisionsBuilder_ != null) {
+          return entityCollisionsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(entityCollisions_);
+        }
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder addEntityCollisionsBuilder() {
+        return getEntityCollisionsFieldBuilder().addBuilder(
+            com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder addEntityCollisionsBuilder(
+          int index) {
+        return getEntityCollisionsFieldBuilder().addBuilder(
+            index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .EntityCollisionInfo entity_collisions = 40;</code>
+       */
+      public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder> 
+           getEntityCollisionsBuilderList() {
+        return getEntityCollisionsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder> 
+          getEntityCollisionsFieldBuilder() {
+        if (entityCollisionsBuilder_ == null) {
+          entityCollisionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder>(
+                  entityCollisions_,
+                  ((bitField1_ & 0x00000080) != 0),
+                  getParentForChildren(),
+                  isClean());
+          entityCollisions_ = null;
+        }
+        return entityCollisionsBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:ObservationSpaceMessage)
     }
 
@@ -15975,6 +18183,16 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_HeightInfo_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_BlockCollisionInfo_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_BlockCollisionInfo_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_EntityCollisionInfo_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_EntityCollisionInfo_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ObservationSpaceMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -16033,44 +18251,50 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       "r_z\030\004 \001(\005\"B\n\013NearbyBiome\022\022\n\nbiome_name\030\001" +
       " \001(\t\022\t\n\001x\030\002 \001(\005\022\t\n\001y\030\003 \001(\005\022\t\n\001z\030\004 \001(\005\"F\n" +
       "\nHeightInfo\022\t\n\001x\030\001 \001(\005\022\t\n\001z\030\002 \001(\005\022\016\n\006hei" +
-      "ght\030\003 \001(\005\022\022\n\nblock_name\030\004 \001(\t\"\206\013\n\027Observ" +
-      "ationSpaceMessage\022\r\n\005image\030\001 \001(\014\022\t\n\001x\030\002 " +
-      "\001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003yaw\030\005 \001(\001\022\r" +
-      "\n\005pitch\030\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022\n\nfood_le" +
-      "vel\030\010 \001(\001\022\030\n\020saturation_level\030\t \001(\001\022\017\n\007i" +
-      "s_dead\030\n \001(\010\022\035\n\tinventory\030\013 \003(\0132\n.ItemSt" +
-      "ack\022\"\n\016raycast_result\030\014 \001(\0132\n.HitResult\022" +
-      "$\n\017sound_subtitles\030\r \003(\0132\013.SoundEntry\022%\n" +
-      "\016status_effects\030\016 \003(\0132\r.StatusEffect\022I\n\021" +
-      "killed_statistics\030\017 \003(\0132..ObservationSpa" +
-      "ceMessage.KilledStatisticsEntry\022G\n\020mined" +
-      "_statistics\030\020 \003(\0132-.ObservationSpaceMess" +
-      "age.MinedStatisticsEntry\022E\n\017misc_statist" +
-      "ics\030\021 \003(\0132,.ObservationSpaceMessage.Misc" +
-      "StatisticsEntry\022%\n\020visible_entities\030\022 \003(" +
-      "\0132\013.EntityInfo\022O\n\024surrounding_entities\030\023" +
-      " \003(\01321.ObservationSpaceMessage.Surroundi" +
-      "ngEntitiesEntry\022\025\n\rbobber_thrown\030\024 \001(\010\022\022" +
-      "\n\nexperience\030\025 \001(\005\022\022\n\nworld_time\030\026 \001(\003\022\032" +
-      "\n\022last_death_message\030\027 \001(\t\022\017\n\007image_2\030\030 " +
-      "\001(\014\022&\n\022surrounding_blocks\030\031 \003(\0132\n.BlockI" +
-      "nfo\022\024\n\014eye_in_block\030\032 \001(\010\022\023\n\013suffocating" +
-      "\030\033 \001(\010\022\'\n\rchat_messages\030\034 \003(\0132\020.ChatMess" +
-      "ageInfo\022\036\n\nbiome_info\030\035 \001(\0132\n.BiomeInfo\022" +
-      "#\n\rnearby_biomes\030\036 \003(\0132\014.NearbyBiome\022\032\n\022" +
-      "submerged_in_water\030\037 \001(\010\022\022\n\nis_in_lava\030 " +
-      " \001(\010\022\031\n\021submerged_in_lava\030! \001(\010\022 \n\013heigh" +
-      "t_info\030\" \003(\0132\013.HeightInfo\022\024\n\014is_on_groun" +
-      "d\030# \001(\010\022\031\n\021is_touching_water\030$ \001(\010\022\022\n\nip" +
-      "c_handle\030% \001(\014\022\021\n\005depth\030& \003(\002B\002\020\001\0327\n\025Kil" +
-      "ledStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value" +
-      "\030\002 \001(\005:\0028\001\0326\n\024MinedStatisticsEntry\022\013\n\003ke" +
-      "y\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n\023MiscStatis" +
-      "ticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028" +
-      "\001\032S\n\030SurroundingEntitiesEntry\022\013\n\003key\030\001 \001" +
-      "(\005\022&\n\005value\030\002 \001(\0132\027.EntitiesWithinDistan" +
-      "ce:\0028\001B%\n#com.kyhsgeekcode.minecraftenv." +
-      "protob\006proto3"
+      "ght\030\003 \001(\005\022\022\n\nblock_name\030\004 \001(\t\"I\n\022BlockCo" +
+      "llisionInfo\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\022\t\n\001z\030\003" +
+      " \001(\005\022\022\n\nblock_name\030\004 \001(\t\"K\n\023EntityCollis" +
+      "ionInfo\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002" +
+      "\022\023\n\013entity_name\030\004 \001(\t\"\346\013\n\027ObservationSpa" +
+      "ceMessage\022\r\n\005image\030\001 \001(\014\022\t\n\001x\030\002 \001(\001\022\t\n\001y" +
+      "\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003yaw\030\005 \001(\001\022\r\n\005pitch\030" +
+      "\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022\n\nfood_level\030\010 \001(" +
+      "\001\022\030\n\020saturation_level\030\t \001(\001\022\017\n\007is_dead\030\n" +
+      " \001(\010\022\035\n\tinventory\030\013 \003(\0132\n.ItemStack\022\"\n\016r" +
+      "aycast_result\030\014 \001(\0132\n.HitResult\022$\n\017sound" +
+      "_subtitles\030\r \003(\0132\013.SoundEntry\022%\n\016status_" +
+      "effects\030\016 \003(\0132\r.StatusEffect\022I\n\021killed_s" +
+      "tatistics\030\017 \003(\0132..ObservationSpaceMessag" +
+      "e.KilledStatisticsEntry\022G\n\020mined_statist" +
+      "ics\030\020 \003(\0132-.ObservationSpaceMessage.Mine" +
+      "dStatisticsEntry\022E\n\017misc_statistics\030\021 \003(" +
+      "\0132,.ObservationSpaceMessage.MiscStatisti" +
+      "csEntry\022%\n\020visible_entities\030\022 \003(\0132\013.Enti" +
+      "tyInfo\022O\n\024surrounding_entities\030\023 \003(\01321.O" +
+      "bservationSpaceMessage.SurroundingEntiti" +
+      "esEntry\022\025\n\rbobber_thrown\030\024 \001(\010\022\022\n\nexperi" +
+      "ence\030\025 \001(\005\022\022\n\nworld_time\030\026 \001(\003\022\032\n\022last_d" +
+      "eath_message\030\027 \001(\t\022\017\n\007image_2\030\030 \001(\014\022&\n\022s" +
+      "urrounding_blocks\030\031 \003(\0132\n.BlockInfo\022\024\n\014e" +
+      "ye_in_block\030\032 \001(\010\022\023\n\013suffocating\030\033 \001(\010\022\'" +
+      "\n\rchat_messages\030\034 \003(\0132\020.ChatMessageInfo\022" +
+      "\036\n\nbiome_info\030\035 \001(\0132\n.BiomeInfo\022#\n\rnearb" +
+      "y_biomes\030\036 \003(\0132\014.NearbyBiome\022\032\n\022submerge" +
+      "d_in_water\030\037 \001(\010\022\022\n\nis_in_lava\030  \001(\010\022\031\n\021" +
+      "submerged_in_lava\030! \001(\010\022 \n\013height_info\030\"" +
+      " \003(\0132\013.HeightInfo\022\024\n\014is_on_ground\030# \001(\010\022" +
+      "\031\n\021is_touching_water\030$ \001(\010\022\022\n\nipc_handle" +
+      "\030% \001(\014\022\021\n\005depth\030& \003(\002B\002\020\001\022-\n\020block_colli" +
+      "sions\030\' \003(\0132\023.BlockCollisionInfo\022/\n\021enti" +
+      "ty_collisions\030( \003(\0132\024.EntityCollisionInf" +
+      "o\0327\n\025KilledStatisticsEntry\022\013\n\003key\030\001 \001(\t\022" +
+      "\r\n\005value\030\002 \001(\005:\0028\001\0326\n\024MinedStatisticsEnt" +
+      "ry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n\023Mi" +
+      "scStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030" +
+      "\002 \001(\005:\0028\001\032S\n\030SurroundingEntitiesEntry\022\013\n" +
+      "\003key\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027.EntitiesWith" +
+      "inDistance:\0028\001B%\n#com.kyhsgeekcode.minec" +
+      "raftenv.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -16142,12 +18366,24 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_HeightInfo_descriptor,
         new java.lang.String[] { "X", "Z", "Height", "BlockName", });
-    internal_static_ObservationSpaceMessage_descriptor =
+    internal_static_BlockCollisionInfo_descriptor =
       getDescriptor().getMessageTypes().get(11);
+    internal_static_BlockCollisionInfo_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_BlockCollisionInfo_descriptor,
+        new java.lang.String[] { "X", "Y", "Z", "BlockName", });
+    internal_static_EntityCollisionInfo_descriptor =
+      getDescriptor().getMessageTypes().get(12);
+    internal_static_EntityCollisionInfo_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_EntityCollisionInfo_descriptor,
+        new java.lang.String[] { "X", "Y", "Z", "EntityName", });
+    internal_static_ObservationSpaceMessage_descriptor =
+      getDescriptor().getMessageTypes().get(13);
     internal_static_ObservationSpaceMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_ObservationSpaceMessage_descriptor,
-        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", });
+        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", "BlockCollisions", "EntityCollisions", });
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_descriptor =
       internal_static_ObservationSpaceMessage_descriptor.getNestedTypes().get(0);
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_fieldAccessorTable = new

@@ -84,6 +84,20 @@ message HeightInfo {
   string block_name = 4;
 }
 
+message BlockCollisionInfo {
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+  string block_name = 4;
+}
+
+message EntityCollisionInfo {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  string entity_name = 4;
+}
+
 message ObservationSpaceMessage {
   bytes image = 1;
   double x = 2;
@@ -123,4 +137,6 @@ message ObservationSpaceMessage {
   bool is_touching_water = 36;
   bytes ipc_handle = 37;
   repeated float depth = 38 [packed=true];
+  repeated BlockCollisionInfo block_collisions = 39;
+  repeated EntityCollisionInfo entity_collisions = 40;
 }

@@ -69,6 +69,8 @@ class InitialEnvironmentConfig:
         requires_depth=False,
         requires_depth_conversion=True,
         resource_zip_path="",
+        block_collision_keys=None,
+        entity_collision_keys=None,
         **kwargs,
     ):
         self.imageSizeX = image_width
@@ -103,6 +105,8 @@ class InitialEnvironmentConfig:
         self.requires_depth = requires_depth
         self.requires_depth_conversion = requires_depth_conversion
         self.resource_zip_path = resource_zip_path
+        self.block_collision_keys = block_collision_keys or []
+        self.entity_collision_keys = entity_collision_keys or []
         # Check for unknown kwargs
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
@@ -212,4 +216,6 @@ class InitialEnvironmentConfig:
         initial_env.requiresDepth = self.requires_depth
         initial_env.requiresDepthConversion = self.requires_depth_conversion
         initial_env.resourceZipPath = self.resource_zip_path
+        initial_env.blockCollisionKeys.extend(self.block_collision_keys)
+        initial_env.entityCollisionKeys.extend(self.entity_collision_keys)
         return initial_env
