@@ -176,9 +176,9 @@ class MinecraftEnv :
 
         // Mod specific new features
         // Entity Registration
-        FabricDefaultAttributeRegistry.register(REALISTIC_HUMAN, PathAwareEntity.createMobAttributes())
+//        FabricDefaultAttributeRegistry.register(REALISTIC_HUMAN, PathAwareEntity.createMobAttributes())
         // Slipperiness Adjustment
-        Blocks.BLUE_ICE.slipperiness = 1.09f
+//        Blocks.BLUE_ICE.slipperiness = 1.09f
 
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/readInitialEnvironment")
         initialEnvironment = messageIO.readInitialEnvironment()
