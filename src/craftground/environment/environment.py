@@ -58,6 +58,7 @@ class CraftGroundEnvironment(gym.Env):
         use_terminate: bool = False,
         cleanup_world: bool = True,  # removes the world when the environment is closed
         use_vglrun: bool = False,  # use vglrun to run the server (headless 3d acceleration)
+        no_threaded_optimizations: bool = True,
         track_native_memory: bool = False,
         ld_preload: Optional[str] = None,
         native_debug: bool = False,
@@ -78,6 +79,7 @@ class CraftGroundEnvironment(gym.Env):
         self.use_terminate = use_terminate
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
+        self.no_threaded_optimizations = no_threaded_optimizations
         self.native_debug = native_debug
         self.track_native_memory = track_native_memory
         self.ld_preload = ld_preload
@@ -255,6 +257,8 @@ class CraftGroundEnvironment(gym.Env):
             cmd = f"./gradlew runClient -w --no-daemon"  #  --args="--width {self.initial_env.imageSizeX} --height {self.initial_env.imageSizeY}"'
         if self.use_vglrun:
             cmd = f"vglrun {cmd}"
+            if self.no_threaded_optimizations:  # __GL_THREADED_OPTIMIZATIONS=0
+                cmd = f"__GL_THREADED_OPTIMIZATIONS=0 {cmd}"
         if self.ld_preload:
             my_env["LD_PRELOAD"] = self.ld_preload
         if self.profile_jni:

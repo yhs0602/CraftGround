@@ -24,6 +24,7 @@ def make(
     verbose_jvm=False,
     verbose_gradle=False,
     profile_jni=False,
+    no_threaded_optimizations=True,
 ) -> CraftGroundEnvironment:
     if not initial_env_config:
         initial_env_config = InitialEnvironmentConfig()
@@ -38,6 +39,7 @@ def make(
         use_terminate=use_terminate,
         cleanup_world=cleanup_world,
         use_vglrun=use_vglrun,
+        no_threaded_optimizations=no_threaded_optimizations,
         track_native_memory=track_native_memory,
         ld_preload=ld_preload,
         native_debug=native_debug,
