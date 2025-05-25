@@ -43,6 +43,10 @@ The `InitialEnvironmentConfig` class defines the configuration parameters for in
 | `requires_heightmap`           | `bool`               | `False`                  | Whether to include the world's heightmap.                                                                                                                                  |
 | `requires_depth`               | `bool`               | `False`                  | Whether to include depth information.                                                                                                                                      |
 | `requires_depth_conversion`    | `bool`               | `True`                   | If `True`, depth values are transformed into real-world distances and normalized. The conversion uses a near plane of `0.05` and a far plane set to `4.0 * view distance`. |
+| `resource_zip_path`            | `str`                | `""`                     | Path to a resource pack zip file.                                                                                                                                          |
+| `block_collision_keys`         | `List[str]`          | `None`                   | Keys for block collision detection.                                                                                                                                        |
+| `entity_collision_keys`        | `List[str]`          | `None`                   | Keys for entity collision detection.                                                                                                                                       |
+
 
 ### **GameMode Enum**
 Defines the available game modes.
@@ -120,3 +124,6 @@ Defines the initial state of the environment.
 | `python_pid`                                  | `int32`               | Process ID of the controlling Python script.    |
 | `requiresDepth`                               | `bool`                | Whether depth information is required.          |
 | `requiresDepthConversion`                     | `bool`                | Whether depth data requires conversion.         |
+| `resourceZipPath`                             | `str`                 | Path to a resource pack zip file.               |
+| `blockCollisionKeys`                          | `List[str]`           | Keys for block collision detection.             |
+| `entityCollisionKeys`                         | `List[str]`           | Keys for entity collision detection.            |

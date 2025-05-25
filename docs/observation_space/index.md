@@ -63,6 +63,8 @@ The main observation structure, containing all relevant environment information.
 | `is_touching_water`    | `bool`                               | Whether the agent is in contact with water.                 |
 | `ipc_handle`           | `bytes`                              | Handle for inter-process communication.                     |
 | `depth`                | `repeated float [packed=true]`       | Depth buffer information.                                   |
+| `block_collisions`     | `repeated BlockCollisionInfo`        | List of block collisions detected by the agent.             |
+| `entity_collisions`    | `repeated EntityCollisionInfo`       | List of entity collisions detected by the agent.            |
 
 ---
 
@@ -185,4 +187,18 @@ Represents height information at a specific location.
 | `x, z`       | `int32`  | Coordinates of the location.      |
 | `height`     | `int32`  | Height value at this position.    |
 | `block_name` | `string` | Name of the block at this height. |
+
+## BlockCollisionInfo
+Represents a block collision detected by the agent.
+| Field        | Type     | Description                                  |
+| ------------ | -------- | -------------------------------------------- |
+| `x, y, z`    | `int32`  | Coordinates of the block collision.          |
+| `block_name` | `string` | Name of the block involved in the collision. |
+
+## EntityCollisionInfo
+Represents an entity collision detected by the agent.
+| Field         | Type     | Description                                   |
+| ------------- | -------- | --------------------------------------------- |
+| `x, y, z`     | `float`  | Coordinates of the entity collision.          |
+| `entity_name` | `string` | Name of the entity involved in the collision. |
 
