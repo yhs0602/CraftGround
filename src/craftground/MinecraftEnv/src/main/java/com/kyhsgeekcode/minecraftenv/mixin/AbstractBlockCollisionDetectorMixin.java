@@ -23,7 +23,7 @@ public abstract class AbstractBlockCollisionDetectorMixin {
     // to add custom collision detection logic
     @Inject(method = "onEntityCollision", at = @At("HEAD"))
     public void onEntityCollision(World world, BlockPos pos, Entity entity, CallbackInfo ci) {
-        System.out.println("onEntityCollision at " + pos + " with entity " + entity);
+//        System.out.println("onEntityCollision at " + pos + " with entity " + entity);
         if (!entity.isPlayer())
             return;
 
