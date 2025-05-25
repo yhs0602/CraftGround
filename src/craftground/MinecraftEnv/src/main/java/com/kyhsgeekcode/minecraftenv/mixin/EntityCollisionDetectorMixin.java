@@ -27,6 +27,7 @@ public abstract class EntityCollisionDetectorMixin {
 
     @Inject(method = "onPlayerCollision", at = @At("HEAD"))
     public void onPlayerCollision(PlayerEntity player, CallbackInfo ci) {
+        System.out.println("EntityCollisionDetectorMixin.onPlayerCollision called for " + getType().getTranslationKey());
         // Get the player's position
         String translationKey = getType().getTranslationKey();
         if (CollisionListener.Companion.getEntityCollisionInfoSet().contains(translationKey)) {
