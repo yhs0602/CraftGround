@@ -139,4 +139,7 @@ message ObservationSpaceMessage {
   repeated float depth = 38 [packed=true];
   repeated BlockCollisionInfo block_collisions = 39;
   repeated EntityCollisionInfo entity_collisions = 40;
+  double velocity_x = 41;
+  double velocity_y = 42;
+  double velocity_z = 43;
 }

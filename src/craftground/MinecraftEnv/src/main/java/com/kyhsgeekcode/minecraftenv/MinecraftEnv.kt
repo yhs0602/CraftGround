@@ -837,6 +837,11 @@ class MinecraftEnv :
                         entityCollisions.addAll(CollisionListener.entityCollisionInfo)
                         CollisionListener.entityCollisionInfo.clear()
                     }
+
+                    val playerVelocity = player.velocity
+                    velocityX = playerVelocity.x
+                    velocityY = playerVelocity.y
+                    velocityZ = playerVelocity.z
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
                 //                csvLogger.log("Sent observation; $ioPhase")

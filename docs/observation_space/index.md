@@ -65,6 +65,10 @@ The main observation structure, containing all relevant environment information.
 | `depth`                | `repeated float [packed=true]`       | Depth buffer information.                                   |
 | `block_collisions`     | `repeated BlockCollisionInfo`        | List of block collisions detected by the agent.             |
 | `entity_collisions`    | `repeated EntityCollisionInfo`       | List of entity collisions detected by the agent.            |
+| `velocity_x`           | `double`                             | Agent's velocity in the X direction.                        |
+| `velocity_y`           | `double`                             | Agent's velocity in the Y direction.                        |
+| `velocity_z`           | `double`                             | Agent's velocity in the Z direction.                        |
+
 
 ---
 

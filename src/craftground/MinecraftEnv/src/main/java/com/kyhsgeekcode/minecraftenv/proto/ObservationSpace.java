@@ -10934,6 +10934,24 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
      */
     com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfoOrBuilder getEntityCollisionsOrBuilder(
         int index);
+
+    /**
+     * <code>double velocity_x = 41;</code>
+     * @return The velocityX.
+     */
+    double getVelocityX();
+
+    /**
+     * <code>double velocity_y = 42;</code>
+     * @return The velocityY.
+     */
+    double getVelocityY();
+
+    /**
+     * <code>double velocity_z = 43;</code>
+     * @return The velocityZ.
+     */
+    double getVelocityZ();
   }
   /**
    * Protobuf type {@code ObservationSpaceMessage}
@@ -12109,6 +12127,39 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       return entityCollisions_.get(index);
     }
 
+    public static final int VELOCITY_X_FIELD_NUMBER = 41;
+    private double velocityX_ = 0D;
+    /**
+     * <code>double velocity_x = 41;</code>
+     * @return The velocityX.
+     */
+    @java.lang.Override
+    public double getVelocityX() {
+      return velocityX_;
+    }
+
+    public static final int VELOCITY_Y_FIELD_NUMBER = 42;
+    private double velocityY_ = 0D;
+    /**
+     * <code>double velocity_y = 42;</code>
+     * @return The velocityY.
+     */
+    @java.lang.Override
+    public double getVelocityY() {
+      return velocityY_;
+    }
+
+    public static final int VELOCITY_Z_FIELD_NUMBER = 43;
+    private double velocityZ_ = 0D;
+    /**
+     * <code>double velocity_z = 43;</code>
+     * @return The velocityZ.
+     */
+    @java.lang.Override
+    public double getVelocityZ() {
+      return velocityZ_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -12259,6 +12310,15 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       }
       for (int i = 0; i < entityCollisions_.size(); i++) {
         output.writeMessage(40, entityCollisions_.get(i));
+      }
+      if (java.lang.Double.doubleToRawLongBits(velocityX_) != 0) {
+        output.writeDouble(41, velocityX_);
+      }
+      if (java.lang.Double.doubleToRawLongBits(velocityY_) != 0) {
+        output.writeDouble(42, velocityY_);
+      }
+      if (java.lang.Double.doubleToRawLongBits(velocityZ_) != 0) {
+        output.writeDouble(43, velocityZ_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -12459,6 +12519,18 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(40, entityCollisions_.get(i));
       }
+      if (java.lang.Double.doubleToRawLongBits(velocityX_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(41, velocityX_);
+      }
+      if (java.lang.Double.doubleToRawLongBits(velocityY_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(42, velocityY_);
+      }
+      if (java.lang.Double.doubleToRawLongBits(velocityZ_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(43, velocityZ_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -12568,6 +12640,15 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           .equals(other.getBlockCollisionsList())) return false;
       if (!getEntityCollisionsList()
           .equals(other.getEntityCollisionsList())) return false;
+      if (java.lang.Double.doubleToLongBits(getVelocityX())
+          != java.lang.Double.doubleToLongBits(
+              other.getVelocityX())) return false;
+      if (java.lang.Double.doubleToLongBits(getVelocityY())
+          != java.lang.Double.doubleToLongBits(
+              other.getVelocityY())) return false;
+      if (java.lang.Double.doubleToLongBits(getVelocityZ())
+          != java.lang.Double.doubleToLongBits(
+              other.getVelocityZ())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -12711,6 +12792,15 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         hash = (37 * hash) + ENTITY_COLLISIONS_FIELD_NUMBER;
         hash = (53 * hash) + getEntityCollisionsList().hashCode();
       }
+      hash = (37 * hash) + VELOCITY_X_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          java.lang.Double.doubleToLongBits(getVelocityX()));
+      hash = (37 * hash) + VELOCITY_Y_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          java.lang.Double.doubleToLongBits(getVelocityY()));
+      hash = (37 * hash) + VELOCITY_Z_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          java.lang.Double.doubleToLongBits(getVelocityZ()));
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -13002,6 +13092,9 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           entityCollisionsBuilder_.clear();
         }
         bitField1_ = (bitField1_ & ~0x00000080);
+        velocityX_ = 0D;
+        velocityY_ = 0D;
+        velocityZ_ = 0D;
         return this;
       }
 
@@ -13235,6 +13328,15 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         if (((from_bitField1_ & 0x00000020) != 0)) {
           depth_.makeImmutable();
           result.depth_ = depth_;
+        }
+        if (((from_bitField1_ & 0x00000100) != 0)) {
+          result.velocityX_ = velocityX_;
+        }
+        if (((from_bitField1_ & 0x00000200) != 0)) {
+          result.velocityY_ = velocityY_;
+        }
+        if (((from_bitField1_ & 0x00000400) != 0)) {
+          result.velocityZ_ = velocityZ_;
         }
       }
 
@@ -13610,6 +13712,15 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
             }
           }
         }
+        if (other.getVelocityX() != 0D) {
+          setVelocityX(other.getVelocityX());
+        }
+        if (other.getVelocityY() != 0D) {
+          setVelocityY(other.getVelocityY());
+        }
+        if (other.getVelocityZ() != 0D) {
+          setVelocityZ(other.getVelocityZ());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
@@ -13948,6 +14059,21 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
                 }
                 break;
               } // case 322
+              case 329: {
+                velocityX_ = input.readDouble();
+                bitField1_ |= 0x00000100;
+                break;
+              } // case 329
+              case 337: {
+                velocityY_ = input.readDouble();
+                bitField1_ |= 0x00000200;
+                break;
+              } // case 337
+              case 345: {
+                velocityZ_ = input.readDouble();
+                bitField1_ |= 0x00000400;
+                break;
+              } // case 345
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -18076,6 +18202,102 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         return entityCollisionsBuilder_;
       }
 
+      private double velocityX_ ;
+      /**
+       * <code>double velocity_x = 41;</code>
+       * @return The velocityX.
+       */
+      @java.lang.Override
+      public double getVelocityX() {
+        return velocityX_;
+      }
+      /**
+       * <code>double velocity_x = 41;</code>
+       * @param value The velocityX to set.
+       * @return This builder for chaining.
+       */
+      public Builder setVelocityX(double value) {
+
+        velocityX_ = value;
+        bitField1_ |= 0x00000100;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>double velocity_x = 41;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearVelocityX() {
+        bitField1_ = (bitField1_ & ~0x00000100);
+        velocityX_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private double velocityY_ ;
+      /**
+       * <code>double velocity_y = 42;</code>
+       * @return The velocityY.
+       */
+      @java.lang.Override
+      public double getVelocityY() {
+        return velocityY_;
+      }
+      /**
+       * <code>double velocity_y = 42;</code>
+       * @param value The velocityY to set.
+       * @return This builder for chaining.
+       */
+      public Builder setVelocityY(double value) {
+
+        velocityY_ = value;
+        bitField1_ |= 0x00000200;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>double velocity_y = 42;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearVelocityY() {
+        bitField1_ = (bitField1_ & ~0x00000200);
+        velocityY_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private double velocityZ_ ;
+      /**
+       * <code>double velocity_z = 43;</code>
+       * @return The velocityZ.
+       */
+      @java.lang.Override
+      public double getVelocityZ() {
+        return velocityZ_;
+      }
+      /**
+       * <code>double velocity_z = 43;</code>
+       * @param value The velocityZ to set.
+       * @return This builder for chaining.
+       */
+      public Builder setVelocityZ(double value) {
+
+        velocityZ_ = value;
+        bitField1_ |= 0x00000400;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>double velocity_z = 43;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearVelocityZ() {
+        bitField1_ = (bitField1_ & ~0x00000400);
+        velocityZ_ = 0D;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:ObservationSpaceMessage)
     }
 
@@ -18255,7 +18477,7 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       "llisionInfo\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\022\t\n\001z\030\003" +
       " \001(\005\022\022\n\nblock_name\030\004 \001(\t\"K\n\023EntityCollis" +
       "ionInfo\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002" +
-      "\022\023\n\013entity_name\030\004 \001(\t\"\346\013\n\027ObservationSpa" +
+      "\022\023\n\013entity_name\030\004 \001(\t\"\242\014\n\027ObservationSpa" +
       "ceMessage\022\r\n\005image\030\001 \001(\014\022\t\n\001x\030\002 \001(\001\022\t\n\001y" +
       "\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003yaw\030\005 \001(\001\022\r\n\005pitch\030" +
       "\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022\n\nfood_level\030\010 \001(" +
@@ -18287,14 +18509,16 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       "\030% \001(\014\022\021\n\005depth\030& \003(\002B\002\020\001\022-\n\020block_colli" +
       "sions\030\' \003(\0132\023.BlockCollisionInfo\022/\n\021enti" +
       "ty_collisions\030( \003(\0132\024.EntityCollisionInf" +
-      "o\0327\n\025KilledStatisticsEntry\022\013\n\003key\030\001 \001(\t\022" +
-      "\r\n\005value\030\002 \001(\005:\0028\001\0326\n\024MinedStatisticsEnt" +
-      "ry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n\023Mi" +
-      "scStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030" +
-      "\002 \001(\005:\0028\001\032S\n\030SurroundingEntitiesEntry\022\013\n" +
-      "\003key\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027.EntitiesWith" +
-      "inDistance:\0028\001B%\n#com.kyhsgeekcode.minec" +
-      "raftenv.protob\006proto3"
+      "o\022\022\n\nvelocity_x\030) \001(\001\022\022\n\nvelocity_y\030* \001(" +
+      "\001\022\022\n\nvelocity_z\030+ \001(\001\0327\n\025KilledStatistic" +
+      "sEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0326" +
+      "\n\024MinedStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005v" +
+      "alue\030\002 \001(\005:\0028\001\0325\n\023MiscStatisticsEntry\022\013\n" +
+      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\032S\n\030Surroun" +
+      "dingEntitiesEntry\022\013\n\003key\030\001 \001(\005\022&\n\005value\030" +
+      "\002 \001(\0132\027.EntitiesWithinDistance:\0028\001B%\n#co" +
+      "m.kyhsgeekcode.minecraftenv.protob\006proto" +
+      "3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -18383,7 +18607,7 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     internal_static_ObservationSpaceMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_ObservationSpaceMessage_descriptor,
-        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", "BlockCollisions", "EntityCollisions", });
+        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", "BlockCollisions", "EntityCollisions", "VelocityX", "VelocityY", "VelocityZ", });
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_descriptor =
       internal_static_ObservationSpaceMessage_descriptor.getNestedTypes().get(0);
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_fieldAccessorTable = new

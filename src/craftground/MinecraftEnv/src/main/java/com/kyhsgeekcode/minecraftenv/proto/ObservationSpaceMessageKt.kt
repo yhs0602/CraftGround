@@ -1529,6 +1529,57 @@ public object ObservationSpaceMessageKt {
       _builder.clearEntityCollisions()
     }
 
+
+    /**
+     * `double velocity_x = 41;`
+     */
+    public var velocityX: kotlin.Double
+      @JvmName("getVelocityX")
+      get() = _builder.velocityX
+      @JvmName("setVelocityX")
+      set(value) {
+        _builder.velocityX = value
+      }
+    /**
+     * `double velocity_x = 41;`
+     */
+    public fun clearVelocityX() {
+      _builder.clearVelocityX()
+    }
+
+    /**
+     * `double velocity_y = 42;`
+     */
+    public var velocityY: kotlin.Double
+      @JvmName("getVelocityY")
+      get() = _builder.velocityY
+      @JvmName("setVelocityY")
+      set(value) {
+        _builder.velocityY = value
+      }
+    /**
+     * `double velocity_y = 42;`
+     */
+    public fun clearVelocityY() {
+      _builder.clearVelocityY()
+    }
+
+    /**
+     * `double velocity_z = 43;`
+     */
+    public var velocityZ: kotlin.Double
+      @JvmName("getVelocityZ")
+      get() = _builder.velocityZ
+      @JvmName("setVelocityZ")
+      set(value) {
+        _builder.velocityZ = value
+      }
+    /**
+     * `double velocity_z = 43;`
+     */
+    public fun clearVelocityZ() {
+      _builder.clearVelocityZ()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

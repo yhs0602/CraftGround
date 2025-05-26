@@ -201,6 +201,15 @@ def declare_observation_space(image_width: int, image_height: int) -> gym.spaces
                         shape=(image_height, image_width, 3),
                         dtype=np.uint8,
                     ),
+                    "velocity_x": spaces.Box(
+                        low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
+                    ),
+                    "velocity_y": spaces.Box(
+                        low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
+                    ),
+                    "velocity_z": spaces.Box(
+                        low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
+                    ),
                 }
             ),
         }
