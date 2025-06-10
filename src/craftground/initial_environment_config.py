@@ -71,6 +71,7 @@ class InitialEnvironmentConfig:
         resource_zip_path="",
         block_collision_keys=None,
         entity_collision_keys=None,
+        map_dir_path="",
         **kwargs,
     ):
         self.imageSizeX = image_width
@@ -107,6 +108,7 @@ class InitialEnvironmentConfig:
         self.resource_zip_path = resource_zip_path
         self.block_collision_keys = block_collision_keys or []
         self.entity_collision_keys = entity_collision_keys or []
+        self.map_dir_path = map_dir_path
         # Check for unknown kwargs
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
@@ -218,4 +220,5 @@ class InitialEnvironmentConfig:
         initial_env.resourceZipPath = self.resource_zip_path
         initial_env.blockCollisionKeys.extend(self.block_collision_keys)
         initial_env.entityCollisionKeys.extend(self.entity_collision_keys)
+        initial_env.map_dir_path = self.map_dir_path
         return initial_env

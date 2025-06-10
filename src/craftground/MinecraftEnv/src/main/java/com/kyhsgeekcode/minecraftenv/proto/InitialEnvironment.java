@@ -903,6 +903,18 @@ public final class InitialEnvironment {
      */
     com.google.protobuf.ByteString
         getEntityCollisionKeysBytes(int index);
+
+    /**
+     * <code>string map_dir_path = 35;</code>
+     * @return The mapDirPath.
+     */
+    java.lang.String getMapDirPath();
+    /**
+     * <code>string map_dir_path = 35;</code>
+     * @return The bytes for mapDirPath.
+     */
+    com.google.protobuf.ByteString
+        getMapDirPathBytes();
   }
   /**
    * Protobuf type {@code InitialEnvironmentMessage}
@@ -950,6 +962,7 @@ public final class InitialEnvironment {
           com.google.protobuf.LazyStringArrayList.emptyList();
       entityCollisionKeys_ =
           com.google.protobuf.LazyStringArrayList.emptyList();
+      mapDirPath_ = "";
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
@@ -1763,6 +1776,45 @@ public final class InitialEnvironment {
       return entityCollisionKeys_.getByteString(index);
     }
 
+    public static final int MAP_DIR_PATH_FIELD_NUMBER = 35;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object mapDirPath_ = "";
+    /**
+     * <code>string map_dir_path = 35;</code>
+     * @return The mapDirPath.
+     */
+    @java.lang.Override
+    public java.lang.String getMapDirPath() {
+      java.lang.Object ref = mapDirPath_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        mapDirPath_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string map_dir_path = 35;</code>
+     * @return The bytes for mapDirPath.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getMapDirPathBytes() {
+      java.lang.Object ref = mapDirPath_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        mapDirPath_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -1883,6 +1935,9 @@ public final class InitialEnvironment {
       }
       for (int i = 0; i < entityCollisionKeys_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 34, entityCollisionKeys_.getRaw(i));
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(mapDirPath_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 35, mapDirPath_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2067,6 +2122,9 @@ public final class InitialEnvironment {
         size += dataSize;
         size += 2 * getEntityCollisionKeysList().size();
       }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(mapDirPath_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(35, mapDirPath_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -2149,6 +2207,8 @@ public final class InitialEnvironment {
           .equals(other.getBlockCollisionKeysList())) return false;
       if (!getEntityCollisionKeysList()
           .equals(other.getEntityCollisionKeysList())) return false;
+      if (!getMapDirPath()
+          .equals(other.getMapDirPath())) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -2258,6 +2318,8 @@ public final class InitialEnvironment {
         hash = (37 * hash) + ENTITYCOLLISIONKEYS_FIELD_NUMBER;
         hash = (53 * hash) + getEntityCollisionKeysList().hashCode();
       }
+      hash = (37 * hash) + MAP_DIR_PATH_FIELD_NUMBER;
+      hash = (53 * hash) + getMapDirPath().hashCode();
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -2432,6 +2494,7 @@ public final class InitialEnvironment {
             com.google.protobuf.LazyStringArrayList.emptyList();
         entityCollisionKeys_ =
             com.google.protobuf.LazyStringArrayList.emptyList();
+        mapDirPath_ = "";
         return this;
       }
 
@@ -2580,6 +2643,9 @@ public final class InitialEnvironment {
         if (((from_bitField1_ & 0x00000002) != 0)) {
           entityCollisionKeys_.makeImmutable();
           result.entityCollisionKeys_ = entityCollisionKeys_;
+        }
+        if (((from_bitField1_ & 0x00000004) != 0)) {
+          result.mapDirPath_ = mapDirPath_;
         }
       }
 
@@ -2767,6 +2833,11 @@ public final class InitialEnvironment {
             ensureEntityCollisionKeysIsMutable();
             entityCollisionKeys_.addAll(other.entityCollisionKeys_);
           }
+          onChanged();
+        }
+        if (!other.getMapDirPath().isEmpty()) {
+          mapDirPath_ = other.mapDirPath_;
+          bitField1_ |= 0x00000004;
           onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
@@ -2984,6 +3055,11 @@ public final class InitialEnvironment {
                 entityCollisionKeys_.add(s);
                 break;
               } // case 274
+              case 282: {
+                mapDirPath_ = input.readStringRequireUtf8();
+                bitField1_ |= 0x00000004;
+                break;
+              } // case 282
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -5169,6 +5245,78 @@ public final class InitialEnvironment {
         return this;
       }
 
+      private java.lang.Object mapDirPath_ = "";
+      /**
+       * <code>string map_dir_path = 35;</code>
+       * @return The mapDirPath.
+       */
+      public java.lang.String getMapDirPath() {
+        java.lang.Object ref = mapDirPath_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          mapDirPath_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string map_dir_path = 35;</code>
+       * @return The bytes for mapDirPath.
+       */
+      public com.google.protobuf.ByteString
+          getMapDirPathBytes() {
+        java.lang.Object ref = mapDirPath_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          mapDirPath_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string map_dir_path = 35;</code>
+       * @param value The mapDirPath to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMapDirPath(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        mapDirPath_ = value;
+        bitField1_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string map_dir_path = 35;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMapDirPath() {
+        mapDirPath_ = getDefaultInstance().getMapDirPath();
+        bitField1_ = (bitField1_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string map_dir_path = 35;</code>
+       * @param value The bytes for mapDirPath to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMapDirPathBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        mapDirPath_ = value;
+        bitField1_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:InitialEnvironmentMessage)
     }
 
@@ -5234,7 +5382,7 @@ public final class InitialEnvironment {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\037proto/initial_environment.proto\"\202\007\n\031In" +
+      "\n\037proto/initial_environment.proto\"\230\007\n\031In" +
       "itialEnvironmentMessage\022\022\n\nimageSizeX\030\001 " +
       "\001(\005\022\022\n\nimageSizeY\030\002 \001(\005\022\033\n\010gamemode\030\003 \001(" +
       "\0162\t.GameMode\022\037\n\ndifficulty\030\004 \001(\0162\013.Diffi" +
@@ -5257,13 +5405,14 @@ public final class InitialEnvironment {
       "requiresDepth\030\036 \001(\010\022\037\n\027requiresDepthConv" +
       "ersion\030\037 \001(\010\022\027\n\017resourceZipPath\030  \001(\t\022\032\n" +
       "\022blockCollisionKeys\030! \003(\t\022\033\n\023entityColli" +
-      "sionKeys\030\" \003(\t*4\n\010GameMode\022\014\n\010SURVIVAL\020\000" +
-      "\022\014\n\010HARDCORE\020\001\022\014\n\010CREATIVE\020\002*:\n\nDifficul" +
-      "ty\022\014\n\010PEACEFUL\020\000\022\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010" +
-      "\n\004HARD\020\003*Z\n\tWorldType\022\013\n\007DEFAULT\020\000\022\r\n\tSU" +
-      "PERFLAT\020\001\022\020\n\014LARGE_BIOMES\020\002\022\r\n\tAMPLIFIED" +
-      "\020\003\022\020\n\014SINGLE_BIOME\020\004B%\n#com.kyhsgeekcode" +
-      ".minecraftenv.protob\006proto3"
+      "sionKeys\030\" \003(\t\022\024\n\014map_dir_path\030# \001(\t*4\n\010" +
+      "GameMode\022\014\n\010SURVIVAL\020\000\022\014\n\010HARDCORE\020\001\022\014\n\010" +
+      "CREATIVE\020\002*:\n\nDifficulty\022\014\n\010PEACEFUL\020\000\022\010" +
+      "\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004HARD\020\003*Z\n\tWorldT" +
+      "ype\022\013\n\007DEFAULT\020\000\022\r\n\tSUPERFLAT\020\001\022\020\n\014LARGE" +
+      "_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003\022\020\n\014SINGLE_BIOME" +
+      "\020\004B%\n#com.kyhsgeekcode.minecraftenv.prot" +
+      "ob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -5274,7 +5423,7 @@ public final class InitialEnvironment {
     internal_static_InitialEnvironmentMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_InitialEnvironmentMessage_descriptor,
-        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", "ResourceZipPath", "BlockCollisionKeys", "EntityCollisionKeys", });
+        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", "ResourceZipPath", "BlockCollisionKeys", "EntityCollisionKeys", "MapDirPath", });
     descriptor.resolveAllFeaturesImmutable();
   }
 

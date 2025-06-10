@@ -57,4 +57,5 @@ message InitialEnvironmentMessage {
   string resourceZipPath = 32;
   repeated string blockCollisionKeys = 33;
   repeated string entityCollisionKeys = 34;
+  string map_dir_path = 35;
 }

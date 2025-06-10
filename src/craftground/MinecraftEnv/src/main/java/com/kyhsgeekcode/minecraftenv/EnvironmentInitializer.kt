@@ -573,6 +573,31 @@ class EnvironmentInitializer(
         } ?: run {
             println("Resource zip path not found; server: $minecraftServer")
         }
+
+        minecraftServer?.getSavePath(WorldSavePath.ROOT)?.let { rootPath ->
+            val dataPath = rootPath.resolve("data")
+            println("Copying resource zip file to: $dataPath")
+            val mapSrcPath = Path(initialEnvironment.mapDirPath)
+            if (!Files.exists(mapSrcPath)) {
+                println("Map directory path not found: $mapSrcPath")
+                return@let
+            }
+            // copy all the contents in the src map directory to the target
+            println("Copying map directory: $mapSrcPath to $dataPath")
+            mapSrcPath.toFile().listFiles()?.forEach { file ->
+                if (file.isDirectory) {
+                    return@forEach
+                } else {
+                    val targetPath = dataPath.resolve(file.name)
+                    file.copyTo(targetPath.toFile(), true)
+                    println("Copied file: ${file.name} to $targetPath")
+                }
+            }
+            println("Copied all files from $mapSrcPath to $dataPath")
+        } ?: run {
+            println("Root path not found; server: $minecraftServer")
+        }
+
         // NOTE: should be called only once when initial environment is set
         val myCommandExecutor = { player: ClientPlayerEntity, c: String ->
             commandExecutor.runCommand(player, c)

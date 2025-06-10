@@ -1186,7 +1186,24 @@ public object InitialEnvironmentMessageKt {
     @kotlin.jvm.JvmName("clearEntityCollisionKeys")
     public fun com.google.protobuf.kotlin.DslList<kotlin.String, EntityCollisionKeysProxy>.clear() {
       _builder.clearEntityCollisionKeys()
-    }}
+    }
+    /**
+     * `string map_dir_path = 35;`
+     */
+    public var mapDirPath: kotlin.String
+      @JvmName("getMapDirPath")
+      get() = _builder.mapDirPath
+      @JvmName("setMapDirPath")
+      set(value) {
+        _builder.mapDirPath = value
+      }
+    /**
+     * `string map_dir_path = 35;`
+     */
+    public fun clearMapDirPath() {
+      _builder.clearMapDirPath()
+    }
+  }
 }
 @kotlin.jvm.JvmSynthetic
 public inline fun com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage.copy(block: `com.kyhsgeekcode.minecraftenv.proto`.InitialEnvironmentMessageKt.Dsl.() -> kotlin.Unit): com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage =
