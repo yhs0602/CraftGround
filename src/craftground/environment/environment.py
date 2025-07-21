@@ -15,6 +15,8 @@ from gymnasium.core import ActType, RenderFrame
 from ..proto.observation_space_pb2 import ObservationSpaceMessage
 
 from .action_space import (
+    ActionSpaceV1,
+    ActionSpaceV2,
     ActionSpaceVersion,
     action_v2_dict_to_message,
     declare_action_space,
@@ -69,7 +71,9 @@ class CraftGroundEnvironment(gym.Env):
         profile_jni: bool = False,
     ):
         self.action_space_version = action_space_version
-        self.action_space = declare_action_space(action_space_version)
+        self.action_space: Union[ActionSpaceV1, ActionSpaceV2] = declare_action_space(
+            action_space_version
+        )
         self.observation_space = declare_observation_space(
             initial_env.imageSizeX, initial_env.imageSizeY
         )
