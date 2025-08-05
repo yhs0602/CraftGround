@@ -42,8 +42,8 @@ class BimodalWrapper(gym.Wrapper):
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         obs, reward, terminated, truncated, info = self.env.step(action)
-        rgb = info["pov"]
-        obs_info = info["obs"]
+        rgb = info["rgb"]
+        obs_info = info["full"]
         sound_subtitles = obs_info.sound_subtitles
         sound_vector = self.encode_sound(
             sound_subtitles, obs_info.x, obs_info.y, obs_info.z, obs_info.yaw
