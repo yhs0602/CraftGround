@@ -4,7 +4,6 @@ import gymnasium as gym
 import math
 import numpy as np
 from gymnasium.core import WrapperActType, WrapperObsType
-from gymnasium.vector.utils import spaces
 
 
 # Sound wrapper
@@ -22,12 +21,12 @@ class BimodalWrapper(gym.Wrapper):
         self.sound_list = sound_list
         self.sound_coord_dim = sound_coord_dim
         super().__init__(self.env)
-        self.observation_space = spaces.Dict(
+        self.observation_space = gym.spaces.Dict(
             {
                 "vision": gym.spaces.Box(
                     low=0,
                     high=255,
-                    shape=(3, x_dim, y_dim),
+                    shape=(y_dim, x_dim, 3),
                     dtype=np.uint8,
                 ),
                 "sound": gym.spaces.Box(
@@ -43,7 +42,7 @@ class BimodalWrapper(gym.Wrapper):
         self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
         obs, reward, terminated, truncated, info = self.env.step(action)
-        rgb = info["rgb"]
+        rgb = info["pov"]
         obs_info = info["obs"]
         sound_subtitles = obs_info.sound_subtitles
         sound_vector = self.encode_sound(
@@ -67,8 +66,8 @@ class BimodalWrapper(gym.Wrapper):
         options: Optional[dict[str, Any]] = None,
     ):
         obs, info = self.env.reset(seed=seed, options=options)
-        rgb = info["rgb"]
-        obs_info = info["obs"]
+        rgb = info["pov"]
+        obs_info = info["full"]
         sound_subtitles = obs_info.sound_subtitles
         sound_vector = self.encode_sound(
             sound_subtitles, obs_info.x, obs_info.y, obs_info.z, obs_info.yaw
