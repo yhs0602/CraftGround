@@ -4,6 +4,7 @@ import shutil
 import signal
 import subprocess
 from enum import Enum
+import sys
 import threading
 from typing import Tuple, Optional, TypedDict, Union, List, Any, Dict
 import weakref
@@ -266,14 +267,21 @@ class CraftGroundEnvironment(gym.Env):
         self.logger.log(f"Starting server with command: {cmd}")
 
         # Launch the server
-        self.process = subprocess.Popen(
-            cmd,
+        kwargs = dict(
             cwd=self.env_path,
             shell=True,
             stdout=subprocess.DEVNULL if not self.verbose_gradle else None,
             env=my_env,
-            preexec_fn=os.setsid,  # To kill the process and its children properly
         )
+
+        if hasattr(os, "setsid"):
+            # Linux / Unix
+            kwargs["preexec_fn"] = os.setsid
+        elif sys.platform == "win32":
+            # Windows
+            kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+
+        self.process = subprocess.Popen(cmd, **kwargs)
         self.server_event = threading.Event()
         threading.Thread(
             target=self.monitor_process,
