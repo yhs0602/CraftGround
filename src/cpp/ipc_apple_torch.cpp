@@ -55,7 +55,7 @@ PyObject *torchTensorFromDLPack(DLManagedTensor *dlMTensor) {
     // we have called _lazy_init here
     // maybe_initialize_device(atensor.device()); : No need to call this
     // function in metal
-    return THPVariable_Wrap(atensor);
+    return py::cast(atensor).release().ptr();
 }
 
 #endif
