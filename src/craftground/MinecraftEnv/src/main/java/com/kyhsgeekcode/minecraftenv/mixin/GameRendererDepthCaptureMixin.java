@@ -33,6 +33,7 @@ public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMi
         if (FramebufferCapturer.INSTANCE.getShouldCaptureDepth()) {
             MinecraftClient client = MinecraftClient.getInstance();
             Window window = client.getWindow();
+            org.lwjgl.opengl.GL.createCapabilities();
             int textureWidth = window.getFramebufferWidth();
             int textureHeight = window.getFramebufferHeight();
             int fbo = client.getFramebuffer().fbo;
