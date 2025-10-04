@@ -392,26 +392,70 @@ class CraftGroundEnvironment(gym.Env):
 
     def terminate(self):
         self.server_event = None
-        self.ipc.destroy()
-        pid = self.process.pid if self.process else None
-        # wait for the pid to exit
         try:
-            if pid:
-                pgrp = os.getpgid(pid)
-                os.killpg(pgrp, signal.SIGKILL)
-                self.logger.log(f"Sent SIGKILL to process group {pgrp}(pid {pid})")
-                _, exit_status = os.waitpid(pid, 0)
-                self.logger.log(
-                    f"Terminated the java process with exit status {exit_status}"
-                )
+            self.ipc.destroy()
+        except Exception:
+            pass
+
+        p = self.process
+        if not p:
+            self.logger.log("No process to terminate")
+            return
+
+        pid = p.pid
+        try:
+            if hasattr(os, "getpgid"):
+                # Unix: Process group kill
+                try:
+                    pgrp = os.getpgid(pid)
+                    os.killpg(pgrp, signal.SIGTERM)
+                    self.logger.log(f"Sent SIGTERM to process group {pgrp}(pid {pid})")
+                except Exception as e:
+                    self.logger.log(f"SIGTERM failed: {e}")
+
+                try:
+                    p.wait(timeout=10)
+                except Exception:
+                    self.logger.log("Wait timeout; sending SIGKILL")
+                    try:
+                        os.killpg(pgrp, signal.SIGKILL)
+                    except Exception as e:
+                        self.logger.log(f"SIGKILL failed: {e}")
             else:
-                self.logger.log("No process to terminate")
-        except ChildProcessError:
-            self.logger.log("Child process already terminated")
-        except PermissionError:
-            self.logger.log("Permission denied to terminate the child process")
-        self.process = None
-        self.logger.log("Terminated the java process")
+                # Windows
+                try:
+                    # Popen with CREATE_NEW_PROCESS_GROUP uses CTRL_BREAK_EVENT
+                    p.send_signal(signal.CTRL_BREAK_EVENT)
+                    self.logger.log(f"Sent CTRL_BREAK_EVENT to pid {pid}")
+                except Exception as e:
+                    self.logger.log(
+                        f"CTRL_BREAK_EVENT failed: {e}; calling terminate()"
+                    )
+                    try:
+                        p.terminate()
+                    except Exception as e2:
+                        self.logger.log(f"terminate() failed: {e2}")
+
+                try:
+                    p.wait(timeout=10)
+                except Exception:
+                    self.logger.log("Wait timeout; calling kill()")
+                    try:
+                        p.kill()
+                    except Exception as e:
+                        self.logger.log(f"kill() failed: {e}")
+        except Exception as e:
+            self.logger.log(f"Terminate error: {e}")
+            try:
+                if sys.platform == "win32":
+                    p.kill()
+                else:
+                    os.kill(pid, signal.SIGKILL)
+            except Exception:
+                pass
+        finally:
+            self.process = None
+            self.logger.log("Terminated the java process")
 
     @staticmethod
     def get_env_base_path() -> str:
