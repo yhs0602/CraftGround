@@ -262,7 +262,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
     jfloat far
 ) {
     // 1. Check if GL context is initialized
-    const GLubyte* ver = glGetString(GL_VERSION);
+    const GLubyte *ver = glGetString(GL_VERSION);
     if (!ver) {
         fprintf(stderr, "No current GL context in captureDepthImpl!\n");
         return nullptr;
@@ -273,7 +273,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
         fprintf(stderr, "GL loader not initialized!\n");
         return nullptr;
     }
-    
+
     if (requiresDepthConversion) {
         if (!initializedDepth) {
             initDepthResources(textureWidth, textureHeight);

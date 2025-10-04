@@ -2,6 +2,7 @@ package com.kyhsgeekcode.minecraftenv.mixin;
 
 import com.kyhsgeekcode.minecraftenv.FramebufferCapturer;
 import com.kyhsgeekcode.minecraftenv.GameRendererDepthCaptureMixinGetterInterface;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.Window;
@@ -35,6 +36,10 @@ public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMi
             int textureWidth = window.getFramebufferWidth();
             int textureHeight = window.getFramebufferHeight();
             int fbo = client.getFramebuffer().fbo;
+
+            if (!RenderSystem.isOnRenderThread()) {
+                throw new IllegalStateException("Call on render thread");
+            }
 
             lastDepthBuffer = FramebufferCapturer.INSTANCE.captureDepthImpl(
                     fbo,
