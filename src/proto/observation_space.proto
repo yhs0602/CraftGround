@@ -25,6 +25,7 @@ message EntityInfo {
   double yaw = 6;
   double pitch = 7;
   double health = 8;
+  bool in_love = 9;
 }
 
 message HitResult {

@@ -1612,6 +1612,12 @@ public final class ObservationSpace {
      * @return The health.
      */
     double getHealth();
+
+    /**
+     * <code>bool in_love = 9;</code>
+     * @return The inLove.
+     */
+    boolean getInLove();
   }
   /**
    * Protobuf type {@code EntityInfo}
@@ -1796,6 +1802,17 @@ public final class ObservationSpace {
       return health_;
     }
 
+    public static final int IN_LOVE_FIELD_NUMBER = 9;
+    private boolean inLove_ = false;
+    /**
+     * <code>bool in_love = 9;</code>
+     * @return The inLove.
+     */
+    @java.lang.Override
+    public boolean getInLove() {
+      return inLove_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -1833,6 +1850,9 @@ public final class ObservationSpace {
       }
       if (java.lang.Double.doubleToRawLongBits(health_) != 0) {
         output.writeDouble(8, health_);
+      }
+      if (inLove_ != false) {
+        output.writeBool(9, inLove_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1873,6 +1893,10 @@ public final class ObservationSpace {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(8, health_);
       }
+      if (inLove_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(9, inLove_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -1910,6 +1934,8 @@ public final class ObservationSpace {
       if (java.lang.Double.doubleToLongBits(getHealth())
           != java.lang.Double.doubleToLongBits(
               other.getHealth())) return false;
+      if (getInLove()
+          != other.getInLove()) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -1943,6 +1969,9 @@ public final class ObservationSpace {
       hash = (37 * hash) + HEALTH_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           java.lang.Double.doubleToLongBits(getHealth()));
+      hash = (37 * hash) + IN_LOVE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getInLove());
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -2082,6 +2111,7 @@ public final class ObservationSpace {
         yaw_ = 0D;
         pitch_ = 0D;
         health_ = 0D;
+        inLove_ = false;
         return this;
       }
 
@@ -2139,6 +2169,9 @@ public final class ObservationSpace {
         if (((from_bitField0_ & 0x00000080) != 0)) {
           result.health_ = health_;
         }
+        if (((from_bitField0_ & 0x00000100) != 0)) {
+          result.inLove_ = inLove_;
+        }
       }
 
       @java.lang.Override
@@ -2180,6 +2213,9 @@ public final class ObservationSpace {
         }
         if (other.getHealth() != 0D) {
           setHealth(other.getHealth());
+        }
+        if (other.getInLove() != false) {
+          setInLove(other.getInLove());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
@@ -2247,6 +2283,11 @@ public final class ObservationSpace {
                 bitField0_ |= 0x00000080;
                 break;
               } // case 65
+              case 72: {
+                inLove_ = input.readBool();
+                bitField0_ |= 0x00000100;
+                break;
+              } // case 72
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -2596,6 +2637,38 @@ public final class ObservationSpace {
       public Builder clearHealth() {
         bitField0_ = (bitField0_ & ~0x00000080);
         health_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private boolean inLove_ ;
+      /**
+       * <code>bool in_love = 9;</code>
+       * @return The inLove.
+       */
+      @java.lang.Override
+      public boolean getInLove() {
+        return inLove_;
+      }
+      /**
+       * <code>bool in_love = 9;</code>
+       * @param value The inLove to set.
+       * @return This builder for chaining.
+       */
+      public Builder setInLove(boolean value) {
+
+        inLove_ = value;
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool in_love = 9;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearInLove() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        inLove_ = false;
         onChanged();
         return this;
       }
@@ -18453,72 +18526,72 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       "\002 \001(\t\022\r\n\005count\030\003 \001(\005\022\022\n\ndurability\030\004 \001(\005" +
       "\022\026\n\016max_durability\030\005 \001(\005\"E\n\tBlockInfo\022\t\n" +
       "\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\022\t\n\001z\030\003 \001(\005\022\027\n\017transl" +
-      "ation_key\030\004 \001(\t\"\207\001\n\nEntityInfo\022\023\n\013unique" +
+      "ation_key\030\004 \001(\t\"\230\001\n\nEntityInfo\022\023\n\013unique" +
       "_name\030\001 \001(\t\022\027\n\017translation_key\030\002 \001(\t\022\t\n\001" +
       "x\030\003 \001(\001\022\t\n\001y\030\004 \001(\001\022\t\n\001z\030\005 \001(\001\022\013\n\003yaw\030\006 \001" +
-      "(\001\022\r\n\005pitch\030\007 \001(\001\022\016\n\006health\030\010 \001(\001\"\231\001\n\tHi" +
-      "tResult\022\035\n\004type\030\001 \001(\0162\017.HitResult.Type\022 " +
-      "\n\014target_block\030\002 \001(\0132\n.BlockInfo\022\"\n\rtarg" +
-      "et_entity\030\003 \001(\0132\013.EntityInfo\"\'\n\004Type\022\010\n\004" +
-      "MISS\020\000\022\t\n\005BLOCK\020\001\022\n\n\006ENTITY\020\002\"L\n\014StatusE" +
-      "ffect\022\027\n\017translation_key\030\001 \001(\t\022\020\n\010durati" +
-      "on\030\002 \001(\005\022\021\n\tamplifier\030\003 \001(\005\"Q\n\nSoundEntr" +
-      "y\022\025\n\rtranslate_key\030\001 \001(\t\022\013\n\003age\030\002 \001(\003\022\t\n" +
-      "\001x\030\003 \001(\001\022\t\n\001y\030\004 \001(\001\022\t\n\001z\030\005 \001(\001\"7\n\026Entiti" +
-      "esWithinDistance\022\035\n\010entities\030\001 \003(\0132\013.Ent" +
-      "ityInfo\"I\n\017ChatMessageInfo\022\022\n\nadded_time" +
-      "\030\001 \001(\003\022\017\n\007message\030\002 \001(\t\022\021\n\tindicator\030\003 \001" +
-      "(\t\"U\n\tBiomeInfo\022\022\n\nbiome_name\030\001 \001(\t\022\020\n\010c" +
-      "enter_x\030\002 \001(\005\022\020\n\010center_y\030\003 \001(\005\022\020\n\010cente" +
-      "r_z\030\004 \001(\005\"B\n\013NearbyBiome\022\022\n\nbiome_name\030\001" +
-      " \001(\t\022\t\n\001x\030\002 \001(\005\022\t\n\001y\030\003 \001(\005\022\t\n\001z\030\004 \001(\005\"F\n" +
-      "\nHeightInfo\022\t\n\001x\030\001 \001(\005\022\t\n\001z\030\002 \001(\005\022\016\n\006hei" +
-      "ght\030\003 \001(\005\022\022\n\nblock_name\030\004 \001(\t\"I\n\022BlockCo" +
-      "llisionInfo\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\022\t\n\001z\030\003" +
-      " \001(\005\022\022\n\nblock_name\030\004 \001(\t\"K\n\023EntityCollis" +
-      "ionInfo\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002" +
-      "\022\023\n\013entity_name\030\004 \001(\t\"\242\014\n\027ObservationSpa" +
-      "ceMessage\022\r\n\005image\030\001 \001(\014\022\t\n\001x\030\002 \001(\001\022\t\n\001y" +
-      "\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003yaw\030\005 \001(\001\022\r\n\005pitch\030" +
-      "\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022\n\nfood_level\030\010 \001(" +
-      "\001\022\030\n\020saturation_level\030\t \001(\001\022\017\n\007is_dead\030\n" +
-      " \001(\010\022\035\n\tinventory\030\013 \003(\0132\n.ItemStack\022\"\n\016r" +
-      "aycast_result\030\014 \001(\0132\n.HitResult\022$\n\017sound" +
-      "_subtitles\030\r \003(\0132\013.SoundEntry\022%\n\016status_" +
-      "effects\030\016 \003(\0132\r.StatusEffect\022I\n\021killed_s" +
-      "tatistics\030\017 \003(\0132..ObservationSpaceMessag" +
-      "e.KilledStatisticsEntry\022G\n\020mined_statist" +
-      "ics\030\020 \003(\0132-.ObservationSpaceMessage.Mine" +
-      "dStatisticsEntry\022E\n\017misc_statistics\030\021 \003(" +
-      "\0132,.ObservationSpaceMessage.MiscStatisti" +
-      "csEntry\022%\n\020visible_entities\030\022 \003(\0132\013.Enti" +
-      "tyInfo\022O\n\024surrounding_entities\030\023 \003(\01321.O" +
-      "bservationSpaceMessage.SurroundingEntiti" +
-      "esEntry\022\025\n\rbobber_thrown\030\024 \001(\010\022\022\n\nexperi" +
-      "ence\030\025 \001(\005\022\022\n\nworld_time\030\026 \001(\003\022\032\n\022last_d" +
-      "eath_message\030\027 \001(\t\022\017\n\007image_2\030\030 \001(\014\022&\n\022s" +
-      "urrounding_blocks\030\031 \003(\0132\n.BlockInfo\022\024\n\014e" +
-      "ye_in_block\030\032 \001(\010\022\023\n\013suffocating\030\033 \001(\010\022\'" +
-      "\n\rchat_messages\030\034 \003(\0132\020.ChatMessageInfo\022" +
-      "\036\n\nbiome_info\030\035 \001(\0132\n.BiomeInfo\022#\n\rnearb" +
-      "y_biomes\030\036 \003(\0132\014.NearbyBiome\022\032\n\022submerge" +
-      "d_in_water\030\037 \001(\010\022\022\n\nis_in_lava\030  \001(\010\022\031\n\021" +
-      "submerged_in_lava\030! \001(\010\022 \n\013height_info\030\"" +
-      " \003(\0132\013.HeightInfo\022\024\n\014is_on_ground\030# \001(\010\022" +
-      "\031\n\021is_touching_water\030$ \001(\010\022\022\n\nipc_handle" +
-      "\030% \001(\014\022\021\n\005depth\030& \003(\002B\002\020\001\022-\n\020block_colli" +
-      "sions\030\' \003(\0132\023.BlockCollisionInfo\022/\n\021enti" +
-      "ty_collisions\030( \003(\0132\024.EntityCollisionInf" +
-      "o\022\022\n\nvelocity_x\030) \001(\001\022\022\n\nvelocity_y\030* \001(" +
-      "\001\022\022\n\nvelocity_z\030+ \001(\001\0327\n\025KilledStatistic" +
-      "sEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0326" +
-      "\n\024MinedStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005v" +
-      "alue\030\002 \001(\005:\0028\001\0325\n\023MiscStatisticsEntry\022\013\n" +
-      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\032S\n\030Surroun" +
-      "dingEntitiesEntry\022\013\n\003key\030\001 \001(\005\022&\n\005value\030" +
-      "\002 \001(\0132\027.EntitiesWithinDistance:\0028\001B%\n#co" +
-      "m.kyhsgeekcode.minecraftenv.protob\006proto" +
-      "3"
+      "(\001\022\r\n\005pitch\030\007 \001(\001\022\016\n\006health\030\010 \001(\001\022\017\n\007in_" +
+      "love\030\t \001(\010\"\231\001\n\tHitResult\022\035\n\004type\030\001 \001(\0162\017" +
+      ".HitResult.Type\022 \n\014target_block\030\002 \001(\0132\n." +
+      "BlockInfo\022\"\n\rtarget_entity\030\003 \001(\0132\013.Entit" +
+      "yInfo\"\'\n\004Type\022\010\n\004MISS\020\000\022\t\n\005BLOCK\020\001\022\n\n\006EN" +
+      "TITY\020\002\"L\n\014StatusEffect\022\027\n\017translation_ke" +
+      "y\030\001 \001(\t\022\020\n\010duration\030\002 \001(\005\022\021\n\tamplifier\030\003" +
+      " \001(\005\"Q\n\nSoundEntry\022\025\n\rtranslate_key\030\001 \001(" +
+      "\t\022\013\n\003age\030\002 \001(\003\022\t\n\001x\030\003 \001(\001\022\t\n\001y\030\004 \001(\001\022\t\n\001" +
+      "z\030\005 \001(\001\"7\n\026EntitiesWithinDistance\022\035\n\010ent" +
+      "ities\030\001 \003(\0132\013.EntityInfo\"I\n\017ChatMessageI" +
+      "nfo\022\022\n\nadded_time\030\001 \001(\003\022\017\n\007message\030\002 \001(\t" +
+      "\022\021\n\tindicator\030\003 \001(\t\"U\n\tBiomeInfo\022\022\n\nbiom" +
+      "e_name\030\001 \001(\t\022\020\n\010center_x\030\002 \001(\005\022\020\n\010center" +
+      "_y\030\003 \001(\005\022\020\n\010center_z\030\004 \001(\005\"B\n\013NearbyBiom" +
+      "e\022\022\n\nbiome_name\030\001 \001(\t\022\t\n\001x\030\002 \001(\005\022\t\n\001y\030\003 " +
+      "\001(\005\022\t\n\001z\030\004 \001(\005\"F\n\nHeightInfo\022\t\n\001x\030\001 \001(\005\022" +
+      "\t\n\001z\030\002 \001(\005\022\016\n\006height\030\003 \001(\005\022\022\n\nblock_name" +
+      "\030\004 \001(\t\"I\n\022BlockCollisionInfo\022\t\n\001x\030\001 \001(\005\022" +
+      "\t\n\001y\030\002 \001(\005\022\t\n\001z\030\003 \001(\005\022\022\n\nblock_name\030\004 \001(" +
+      "\t\"K\n\023EntityCollisionInfo\022\t\n\001x\030\001 \001(\002\022\t\n\001y" +
+      "\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\022\023\n\013entity_name\030\004 \001(\t\"\242" +
+      "\014\n\027ObservationSpaceMessage\022\r\n\005image\030\001 \001(" +
+      "\014\022\t\n\001x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003ya" +
+      "w\030\005 \001(\001\022\r\n\005pitch\030\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022" +
+      "\n\nfood_level\030\010 \001(\001\022\030\n\020saturation_level\030\t" +
+      " \001(\001\022\017\n\007is_dead\030\n \001(\010\022\035\n\tinventory\030\013 \003(\013" +
+      "2\n.ItemStack\022\"\n\016raycast_result\030\014 \001(\0132\n.H" +
+      "itResult\022$\n\017sound_subtitles\030\r \003(\0132\013.Soun" +
+      "dEntry\022%\n\016status_effects\030\016 \003(\0132\r.StatusE" +
+      "ffect\022I\n\021killed_statistics\030\017 \003(\0132..Obser" +
+      "vationSpaceMessage.KilledStatisticsEntry" +
+      "\022G\n\020mined_statistics\030\020 \003(\0132-.Observation" +
+      "SpaceMessage.MinedStatisticsEntry\022E\n\017mis" +
+      "c_statistics\030\021 \003(\0132,.ObservationSpaceMes" +
+      "sage.MiscStatisticsEntry\022%\n\020visible_enti" +
+      "ties\030\022 \003(\0132\013.EntityInfo\022O\n\024surrounding_e" +
+      "ntities\030\023 \003(\01321.ObservationSpaceMessage." +
+      "SurroundingEntitiesEntry\022\025\n\rbobber_throw" +
+      "n\030\024 \001(\010\022\022\n\nexperience\030\025 \001(\005\022\022\n\nworld_tim" +
+      "e\030\026 \001(\003\022\032\n\022last_death_message\030\027 \001(\t\022\017\n\007i" +
+      "mage_2\030\030 \001(\014\022&\n\022surrounding_blocks\030\031 \003(\013" +
+      "2\n.BlockInfo\022\024\n\014eye_in_block\030\032 \001(\010\022\023\n\013su" +
+      "ffocating\030\033 \001(\010\022\'\n\rchat_messages\030\034 \003(\0132\020" +
+      ".ChatMessageInfo\022\036\n\nbiome_info\030\035 \001(\0132\n.B" +
+      "iomeInfo\022#\n\rnearby_biomes\030\036 \003(\0132\014.Nearby" +
+      "Biome\022\032\n\022submerged_in_water\030\037 \001(\010\022\022\n\nis_" +
+      "in_lava\030  \001(\010\022\031\n\021submerged_in_lava\030! \001(\010" +
+      "\022 \n\013height_info\030\" \003(\0132\013.HeightInfo\022\024\n\014is" +
+      "_on_ground\030# \001(\010\022\031\n\021is_touching_water\030$ " +
+      "\001(\010\022\022\n\nipc_handle\030% \001(\014\022\021\n\005depth\030& \003(\002B\002" +
+      "\020\001\022-\n\020block_collisions\030\' \003(\0132\023.BlockColl" +
+      "isionInfo\022/\n\021entity_collisions\030( \003(\0132\024.E" +
+      "ntityCollisionInfo\022\022\n\nvelocity_x\030) \001(\001\022\022" +
+      "\n\nvelocity_y\030* \001(\001\022\022\n\nvelocity_z\030+ \001(\001\0327" +
+      "\n\025KilledStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005" +
+      "value\030\002 \001(\005:\0028\001\0326\n\024MinedStatisticsEntry\022" +
+      "\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n\023MiscS" +
+      "tatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
+      "(\005:\0028\001\032S\n\030SurroundingEntitiesEntry\022\013\n\003ke" +
+      "y\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027.EntitiesWithinD" +
+      "istance:\0028\001B%\n#com.kyhsgeekcode.minecraf" +
+      "tenv.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -18541,7 +18614,7 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     internal_static_EntityInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_EntityInfo_descriptor,
-        new java.lang.String[] { "UniqueName", "TranslationKey", "X", "Y", "Z", "Yaw", "Pitch", "Health", });
+        new java.lang.String[] { "UniqueName", "TranslationKey", "X", "Y", "Z", "Yaw", "Pitch", "Health", "InLove", });
     internal_static_HitResult_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_HitResult_fieldAccessorTable = new

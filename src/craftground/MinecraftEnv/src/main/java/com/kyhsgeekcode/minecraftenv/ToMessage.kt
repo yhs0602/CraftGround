@@ -9,6 +9,7 @@ import net.minecraft.block.Block
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.effect.StatusEffectInstance
+import net.minecraft.entity.passive.AnimalEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.hit.BlockHitResult
@@ -27,6 +28,7 @@ fun Entity.toMessage() =
         yaw = this@toMessage.yaw.toDouble()
         pitch = this@toMessage.pitch.toDouble()
         health = (this@toMessage as? LivingEntity)?.health?.toDouble() ?: 0.0
+        inLove = (this@toMessage as? AnimalEntity)?.isInLove ?: false
     }
 
 fun StatusEffectInstance.toMessage() =

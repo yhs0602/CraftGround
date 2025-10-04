@@ -163,6 +163,23 @@ public object EntityInfoKt {
     public fun clearHealth() {
       _builder.clearHealth()
     }
+
+    /**
+     * `bool in_love = 9;`
+     */
+    public var inLove: kotlin.Boolean
+      @JvmName("getInLove")
+      get() = _builder.inLove
+      @JvmName("setInLove")
+      set(value) {
+        _builder.inLove = value
+      }
+    /**
+     * `bool in_love = 9;`
+     */
+    public fun clearInLove() {
+      _builder.clearInLove()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

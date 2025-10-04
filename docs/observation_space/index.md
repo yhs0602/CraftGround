@@ -98,13 +98,14 @@ Represents a block in the world.
 ## **EntityInfo**
 Represents an entity (mobs, players, etc.) in the world.
 
-| Field             | Type     | Description                            |
-| ----------------- | -------- | -------------------------------------- |
-| `unique_name`     | `string` | Unique entity identifier.              |
-| `translation_key` | `string` | Entity's display name translation key. |
-| `x, y, z`         | `double` | Entity's coordinates.                  |
-| `yaw, pitch`      | `double` | Entity's rotation.                     |
-| `health`          | `double` | Entity's health points.                |
+| Field             | Type     | Description                                                 |
+| ----------------- | -------- | ----------------------------------------------------------- |
+| `unique_name`     | `string` | Unique entity identifier.                                   |
+| `translation_key` | `string` | Entity's display name translation key.                      |
+| `x, y, z`         | `double` | Entity's coordinates.                                       |
+| `yaw, pitch`      | `double` | Entity's rotation.                                          |
+| `health`          | `double` | Entity's health points.                                     |
+| `in_love`         | `bool`   | Whether the animal entity is in "love" mode (for breeding). |
 
 ---
 

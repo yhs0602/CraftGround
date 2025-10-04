@@ -33,7 +33,7 @@ class BlockInfo(_message.Message):
     def __init__(self, x: _Optional[int] = ..., y: _Optional[int] = ..., z: _Optional[int] = ..., translation_key: _Optional[str] = ...) -> None: ...
 
 class EntityInfo(_message.Message):
-    __slots__ = ("unique_name", "translation_key", "x", "y", "z", "yaw", "pitch", "health")
+    __slots__ = ("unique_name", "translation_key", "x", "y", "z", "yaw", "pitch", "health", "in_love")
     UNIQUE_NAME_FIELD_NUMBER: _ClassVar[int]
     TRANSLATION_KEY_FIELD_NUMBER: _ClassVar[int]
     X_FIELD_NUMBER: _ClassVar[int]
@@ -42,6 +42,7 @@ class EntityInfo(_message.Message):
     YAW_FIELD_NUMBER: _ClassVar[int]
     PITCH_FIELD_NUMBER: _ClassVar[int]
     HEALTH_FIELD_NUMBER: _ClassVar[int]
+    IN_LOVE_FIELD_NUMBER: _ClassVar[int]
     unique_name: str
     translation_key: str
     x: float
@@ -50,7 +51,8 @@ class EntityInfo(_message.Message):
     yaw: float
     pitch: float
     health: float
-    def __init__(self, unique_name: _Optional[str] = ..., translation_key: _Optional[str] = ..., x: _Optional[float] = ..., y: _Optional[float] = ..., z: _Optional[float] = ..., yaw: _Optional[float] = ..., pitch: _Optional[float] = ..., health: _Optional[float] = ...) -> None: ...
+    in_love: bool
+    def __init__(self, unique_name: _Optional[str] = ..., translation_key: _Optional[str] = ..., x: _Optional[float] = ..., y: _Optional[float] = ..., z: _Optional[float] = ..., yaw: _Optional[float] = ..., pitch: _Optional[float] = ..., health: _Optional[float] = ..., in_love: bool = ...) -> None: ...
 
 class HitResult(_message.Message):
     __slots__ = ("type", "target_block", "target_entity")
