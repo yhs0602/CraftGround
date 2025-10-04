@@ -31,25 +31,27 @@ public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMi
             CallbackInfo ci
     ) {
         if (FramebufferCapturer.INSTANCE.getShouldCaptureDepth()) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            Window window = client.getWindow();
-            org.lwjgl.opengl.GL.createCapabilities();
-            int textureWidth = window.getFramebufferWidth();
-            int textureHeight = window.getFramebufferHeight();
-            int fbo = client.getFramebuffer().fbo;
+            RenderSystem.recordRenderCall(() -> {
+                MinecraftClient client = MinecraftClient.getInstance();
+                Window window = client.getWindow();
+                org.lwjgl.opengl.GL.createCapabilities();
+                int textureWidth = window.getFramebufferWidth();
+                int textureHeight = window.getFramebufferHeight();
+                int fbo = client.getFramebuffer().fbo;
 
-            if (!RenderSystem.isOnRenderThread()) {
-                throw new IllegalStateException("Call on render thread");
-            }
+                if (!RenderSystem.isOnRenderThread()) {
+                    throw new IllegalStateException("Call on render thread");
+                }
 
-            lastDepthBuffer = FramebufferCapturer.INSTANCE.captureDepthImpl(
-                    fbo,
-                    textureWidth,
-                    textureHeight,
-                    FramebufferCapturer.INSTANCE.getRequiresDepthConversion(),
-                    0.05f,
-                    client.options.getViewDistance().getValue() * 4.0f
-            );
+                lastDepthBuffer = FramebufferCapturer.INSTANCE.captureDepthImpl(
+                        fbo,
+                        textureWidth,
+                        textureHeight,
+                        FramebufferCapturer.INSTANCE.getRequiresDepthConversion(),
+                        0.05f,
+                        client.options.getViewDistance().getValue() * 4.0f
+                );
+            });
         }
     }
 
