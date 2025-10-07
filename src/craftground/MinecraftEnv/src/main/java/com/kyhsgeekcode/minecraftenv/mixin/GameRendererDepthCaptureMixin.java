@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static com.kyhsgeekcode.minecraftenv.PrintWithTimeKt.printWithTime;
+
 
 @Mixin(net.minecraft.client.render.GameRenderer.class)
 public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMixinGetterInterface {
@@ -32,12 +34,12 @@ public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMi
     ) {
         if (FramebufferCapturer.INSTANCE.getShouldCaptureDepth()) {
             RenderSystem.recordRenderCall(() -> {
-                if (FramebufferCapturer.checkGLEW()) {
-            printWithTime("GLEW initialized")
-        } else {
-            printWithTime("GLEW not initialized")
-            throw RuntimeException("GLEW not initialized")
-        }
+                if (FramebufferCapturer.INSTANCE.checkGLEW()) {
+                    printWithTime("GLEW initialized");
+                } else {
+                    printWithTime("GLEW not initialized");
+                    throw new RuntimeException("GLEW not initialized");
+                }
                 MinecraftClient client = MinecraftClient.getInstance();
                 Window window = client.getWindow();
                 org.lwjgl.opengl.GL.createCapabilities();
