@@ -32,6 +32,12 @@ public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMi
     ) {
         if (FramebufferCapturer.INSTANCE.getShouldCaptureDepth()) {
             RenderSystem.recordRenderCall(() -> {
+                if (FramebufferCapturer.checkGLEW()) {
+            printWithTime("GLEW initialized")
+        } else {
+            printWithTime("GLEW not initialized")
+            throw RuntimeException("GLEW not initialized")
+        }
                 MinecraftClient client = MinecraftClient.getInstance();
                 Window window = client.getWindow();
                 org.lwjgl.opengl.GL.createCapabilities();
