@@ -483,7 +483,7 @@ class MinecraftEnv :
 
     private fun sendObservation(
         messageIO: MessageIO,
-        world: World,
+        world: ClientWorld,
     ) {
         printWithTime("send Observation")
         csvLogger.log("send Observation")
@@ -886,7 +886,7 @@ class MinecraftEnv :
                                     maxDistance
                                 )
                                 
-                                lidarResultBuilder.rays.add(
+                                lidarResultBuilder.raysList.add(
                                     lidarRay {
                                         distance = raycastResult.distance
                                         hitType = raycastResult.hitType
