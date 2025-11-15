@@ -852,41 +852,37 @@ class MinecraftEnv :
                         val maxDistance = lidarConfig.maxDistance.toDouble()
                         val verticalRays = lidarConfig.verticalRays
                         val verticalFov = lidarConfig.verticalFov
-                        
-                        val lidarResultBuilder = lidarResult {
-                            this.horizontalRays = horizontalRays
-                            this.verticalRays = verticalRays
-                            this.maxDistance = maxDistance.toFloat()
-                        }
 
                         // Calculate vertical angles
-                        val verticalAngles = if (verticalRays == 1) {
-                            listOf(lidarConfig.verticalAngle)
-                        } else {
-                            val halfFov = verticalFov / 2.0f
-                            (0 until verticalRays).map { i ->
-                                lidarConfig.verticalAngle - halfFov + (i * verticalFov / (verticalRays - 1))
+                        val verticalAngles =
+                            if (verticalRays == 1) {
+                                listOf(lidarConfig.verticalAngle)
+                            } else {
+                                val halfFov = verticalFov / 2.0f
+                                (0 until verticalRays).map { i ->
+                                    lidarConfig.verticalAngle - halfFov + (i * verticalFov / (verticalRays - 1))
+                                }
                             }
-                        }
-
+                        val resultRays = mutableListOf<ObservationSpace.LidarRay>()
                         for (verticalAngle in verticalAngles) {
                             for (i in 0 until horizontalRays) {
                                 val horizontalAngle = (i.toFloat() * 360.0f / horizontalRays)
-                                
+
                                 // Calculate ray direction based on player's yaw and pitch
                                 val yaw = player.yaw + horizontalAngle
                                 val pitch = player.pitch + verticalAngle
-                                
+
                                 // Perform raycast with calculated direction
-                                val raycastResult = performDirectionalRaycast(
-                                    player,
-                                    world,
-                                    yaw.toDouble(),
-                                    pitch.toDouble(),
-                                    maxDistance
-                                )
-                                
-                                lidarResultBuilder.raysList.add(
+                                val raycastResult =
+                                    performDirectionalRaycast(
+                                        player,
+                                        world,
+                                        yaw.toDouble(),
+                                        pitch.toDouble(),
+                                        maxDistance,
+                                    )
+
+                                resultRays.add(
                                     lidarRay {
                                         distance = raycastResult.distance
                                         hitType = raycastResult.hitType
@@ -894,12 +890,17 @@ class MinecraftEnv :
                                         entityName = raycastResult.entityName
                                         angleHorizontal = horizontalAngle
                                         angleVertical = verticalAngle
-                                    }
+                                    },
                                 )
                             }
                         }
-                        
-                        lidarResult = lidarResultBuilder
+                        lidarResult =
+                            lidarResult {
+                                this.horizontalRays = horizontalRays
+                                this.verticalRays = verticalRays
+                                this.maxDistance = maxDistance.toFloat()
+                                this.rays.addAll(resultRays)
+                            }
                     }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {
@@ -997,7 +998,7 @@ data class LidarRayResult(
     val distance: Float,
     val hitType: Int,
     val blockName: String,
-    val entityName: String
+    val entityName: String,
 )
 
 fun performDirectionalRaycast(
@@ -1005,54 +1006,58 @@ fun performDirectionalRaycast(
     world: ClientWorld,
     yaw: Double,
     pitch: Double,
-    maxDistance: Double
+    maxDistance: Double,
 ): LidarRayResult {
     // Calculate ray direction from yaw and pitch
     val yawRad = Math.toRadians(yaw.toDouble())
     val pitchRad = Math.toRadians(pitch.toDouble())
-    
+
     val xDir = -Math.sin(yawRad) * Math.cos(pitchRad)
     val yDir = -Math.sin(pitchRad)
     val zDir = Math.cos(yawRad) * Math.cos(pitchRad)
-    
+
     val direction = Vec3d(xDir, yDir, zDir)
     val start = player.getCameraPosVec(1.0f)
     val end = start.add(direction.multiply(maxDistance))
-    
+
     // Perform raycast
-    val blockHitResult = world.raycast(
-        net.minecraft.world.RaycastContext(
+    val blockHitResult =
+        world.raycast(
+            net.minecraft.world.RaycastContext(
+                start,
+                end,
+                net.minecraft.world.RaycastContext.ShapeType.OUTLINE,
+                net.minecraft.world.RaycastContext.FluidHandling.NONE,
+                player,
+            ),
+        )
+
+    // Check for entity hits
+    val entityHitResult =
+        net.minecraft.entity.projectile.ProjectileUtil.raycast(
+            player,
             start,
             end,
-            net.minecraft.world.RaycastContext.ShapeType.OUTLINE,
-            net.minecraft.world.RaycastContext.FluidHandling.NONE,
-            player
+            player.boundingBox.stretch(direction.multiply(maxDistance)).expand(1.0),
+            { entity -> !entity.isSpectator && entity.canHit() },
+            maxDistance * maxDistance,
         )
-    )
-    
-    // Check for entity hits
-    val entityHitResult = net.minecraft.entity.projectile.ProjectileUtil.raycast(
-        player,
-        start,
-        end,
-        player.boundingBox.stretch(direction.multiply(maxDistance)).expand(1.0),
-        { entity -> !entity.isSpectator && entity.canHit() },
-        maxDistance * maxDistance
-    )
-    
+
     // Determine which hit is closer
-    val blockDistance = if (blockHitResult.type == net.minecraft.util.hit.HitResult.Type.BLOCK) {
-        start.distanceTo(blockHitResult.pos)
-    } else {
-        maxDistance
-    }
-    
-    val entityDistance = if (entityHitResult != null) {
-        start.distanceTo(entityHitResult.pos)
-    } else {
-        maxDistance
-    }
-    
+    val blockDistance =
+        if (blockHitResult.type == net.minecraft.util.hit.HitResult.Type.BLOCK) {
+            start.distanceTo(blockHitResult.pos)
+        } else {
+            maxDistance
+        }
+
+    val entityDistance =
+        if (entityHitResult != null) {
+            start.distanceTo(entityHitResult.pos)
+        } else {
+            maxDistance
+        }
+
     return when {
         entityDistance < blockDistance -> {
             // Entity hit
@@ -1061,7 +1066,7 @@ fun performDirectionalRaycast(
                 distance = entityDistance.toFloat(),
                 hitType = 2, // ENTITY
                 blockName = "",
-                entityName = entity.type.translationKey
+                entityName = entity.type.translationKey,
             )
         }
         blockDistance < maxDistance -> {
@@ -1072,7 +1077,7 @@ fun performDirectionalRaycast(
                 distance = blockDistance.toFloat(),
                 hitType = 1, // BLOCK
                 blockName = block.translationKey,
-                entityName = ""
+                entityName = "",
             )
         }
         else -> {
@@ -1081,7 +1086,7 @@ fun performDirectionalRaycast(
                 distance = maxDistance.toFloat(),
                 hitType = 0, // MISS
                 blockName = "",
-                entityName = ""
+                entityName = "",
             )
         }
     }
