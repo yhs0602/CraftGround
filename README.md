@@ -5,7 +5,7 @@
 [![Gradle Build](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml)
 <!-- [![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/yhs0602/8497c0c395a8d6b18d1e81f05ff57dba/raw/craftground__heads_main.json)]() -->
 ![Static Badge](https://img.shields.io/badge/Minecraft-1.21.0-green)
-![Static Badge](https://img.shields.io/badge/CraftGround-2.6.10-blue)
+![Static Badge](https://img.shields.io/badge/CraftGround-2.6.15-blue)
 
 <img src="docs/craftground.webp" alt="CraftGround_Logo" width="50%"/>
 

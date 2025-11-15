@@ -35,6 +35,24 @@ class DaylightMode(Enum):
     FREEZED = 3
 
 
+class LidarConfig:
+    """Configuration for Lidar observation"""
+
+    def __init__(
+        self,
+        horizontal_rays: int = 32,
+        max_distance: float = 100.0,
+        vertical_angle: float = 0.0,
+        vertical_rays: int = 1,
+        vertical_fov: float = 30.0,
+    ):
+        self.horizontal_rays = horizontal_rays
+        self.max_distance = max_distance
+        self.vertical_angle = vertical_angle
+        self.vertical_rays = vertical_rays
+        self.vertical_fov = vertical_fov
+
+
 class InitialEnvironmentConfig:
     def __init__(
         self,
@@ -72,6 +90,7 @@ class InitialEnvironmentConfig:
         block_collision_keys=None,
         entity_collision_keys=None,
         map_dir_path="",
+        lidar_config: Optional[LidarConfig] = None,
         **kwargs,
     ):
         self.imageSizeX = image_width
@@ -109,6 +128,7 @@ class InitialEnvironmentConfig:
         self.block_collision_keys = block_collision_keys or []
         self.entity_collision_keys = entity_collision_keys or []
         self.map_dir_path = map_dir_path
+        self.lidar_config = lidar_config
         # Check for unknown kwargs
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
@@ -221,4 +241,10 @@ class InitialEnvironmentConfig:
         initial_env.blockCollisionKeys.extend(self.block_collision_keys)
         initial_env.entityCollisionKeys.extend(self.entity_collision_keys)
         initial_env.map_dir_path = self.map_dir_path
+        if self.lidar_config:
+            initial_env.lidar_config.horizontal_rays = self.lidar_config.horizontal_rays
+            initial_env.lidar_config.max_distance = self.lidar_config.max_distance
+            initial_env.lidar_config.vertical_angle = self.lidar_config.vertical_angle
+            initial_env.lidar_config.vertical_rays = self.lidar_config.vertical_rays
+            initial_env.lidar_config.vertical_fov = self.lidar_config.vertical_fov
         return initial_env

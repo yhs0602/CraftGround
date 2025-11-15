@@ -22,6 +22,14 @@ enum WorldType {
   SINGLE_BIOME = 4;
 }
 
+message LidarConfig {
+  int32 horizontal_rays = 1;  // Number of rays in the horizontal plane (e.g., 32 for 32 rays around 360 degrees)
+  float max_distance = 2;      // Maximum raycast distance in blocks (e.g., 100.0)
+  float vertical_angle = 3;    // Vertical angle offset from horizontal plane in degrees (0.0 = horizontal)
+  int32 vertical_rays = 4;     // Number of vertical ray layers (default 1 for single horizontal plane)
+  float vertical_fov = 5;      // Vertical field of view in degrees (e.g., 30.0 for +/- 15 degrees)
+}
+
 message InitialEnvironmentMessage {
   int32 imageSizeX = 1;  // Required. The width of the image.
   int32 imageSizeY = 2;  // Required. The height of the image.
@@ -58,4 +66,5 @@ message InitialEnvironmentMessage {
   repeated string blockCollisionKeys = 33;
   repeated string entityCollisionKeys = 34;
   string map_dir_path = 35;
+  LidarConfig lidar_config = 36;  // Lidar configuration, if not set, Lidar is disabled
 }

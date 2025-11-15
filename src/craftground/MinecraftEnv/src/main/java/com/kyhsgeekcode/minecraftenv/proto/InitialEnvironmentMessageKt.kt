@@ -1203,9 +1203,51 @@ public object InitialEnvironmentMessageKt {
     public fun clearMapDirPath() {
       _builder.clearMapDirPath()
     }
+
+    /**
+     * ```
+     * Lidar configuration, if not set, Lidar is disabled
+     * ```
+     *
+     * `.LidarConfig lidar_config = 36;`
+     */
+    public var lidarConfig: com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.LidarConfig
+      @JvmName("getLidarConfig")
+      get() = _builder.lidarConfig
+      @JvmName("setLidarConfig")
+      set(value) {
+        _builder.lidarConfig = value
+      }
+    /**
+     * ```
+     * Lidar configuration, if not set, Lidar is disabled
+     * ```
+     *
+     * `.LidarConfig lidar_config = 36;`
+     */
+    public fun clearLidarConfig() {
+      _builder.clearLidarConfig()
+    }
+    /**
+     * ```
+     * Lidar configuration, if not set, Lidar is disabled
+     * ```
+     *
+     * `.LidarConfig lidar_config = 36;`
+     * @return Whether the lidarConfig field is set.
+     */
+    public fun hasLidarConfig(): kotlin.Boolean {
+      return _builder.hasLidarConfig()
+    }
+
+    public val InitialEnvironmentMessageKt.Dsl.lidarConfigOrNull: com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.LidarConfig?
+      get() = _builder.lidarConfigOrNull
   }
 }
 @kotlin.jvm.JvmSynthetic
 public inline fun com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage.copy(block: `com.kyhsgeekcode.minecraftenv.proto`.InitialEnvironmentMessageKt.Dsl.() -> kotlin.Unit): com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage =
   `com.kyhsgeekcode.minecraftenv.proto`.InitialEnvironmentMessageKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+
+public val com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessageOrBuilder.lidarConfigOrNull: com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.LidarConfig?
+  get() = if (hasLidarConfig()) getLidarConfig() else null
 

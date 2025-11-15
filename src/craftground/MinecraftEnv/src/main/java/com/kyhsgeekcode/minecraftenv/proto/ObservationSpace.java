@@ -10423,6 +10423,2240 @@ public final class ObservationSpace {
 
   }
 
+  public interface LidarRayOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:LidarRay)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * Distance to hit (or max_distance if no hit)
+     * </pre>
+     *
+     * <code>float distance = 1;</code>
+     * @return The distance.
+     */
+    float getDistance();
+
+    /**
+     * <pre>
+     * 0 = MISS, 1 = BLOCK, 2 = ENTITY
+     * </pre>
+     *
+     * <code>int32 hit_type = 2;</code>
+     * @return The hitType.
+     */
+    int getHitType();
+
+    /**
+     * <pre>
+     * Block translation key if hit_type == BLOCK
+     * </pre>
+     *
+     * <code>string block_name = 3;</code>
+     * @return The blockName.
+     */
+    java.lang.String getBlockName();
+    /**
+     * <pre>
+     * Block translation key if hit_type == BLOCK
+     * </pre>
+     *
+     * <code>string block_name = 3;</code>
+     * @return The bytes for blockName.
+     */
+    com.google.protobuf.ByteString
+        getBlockNameBytes();
+
+    /**
+     * <pre>
+     * Entity translation key if hit_type == ENTITY
+     * </pre>
+     *
+     * <code>string entity_name = 4;</code>
+     * @return The entityName.
+     */
+    java.lang.String getEntityName();
+    /**
+     * <pre>
+     * Entity translation key if hit_type == ENTITY
+     * </pre>
+     *
+     * <code>string entity_name = 4;</code>
+     * @return The bytes for entityName.
+     */
+    com.google.protobuf.ByteString
+        getEntityNameBytes();
+
+    /**
+     * <pre>
+     * Horizontal angle of this ray in degrees
+     * </pre>
+     *
+     * <code>float angle_horizontal = 5;</code>
+     * @return The angleHorizontal.
+     */
+    float getAngleHorizontal();
+
+    /**
+     * <pre>
+     * Vertical angle of this ray in degrees
+     * </pre>
+     *
+     * <code>float angle_vertical = 6;</code>
+     * @return The angleVertical.
+     */
+    float getAngleVertical();
+  }
+  /**
+   * Protobuf type {@code LidarRay}
+   */
+  public static final class LidarRay extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:LidarRay)
+      LidarRayOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 29,
+        /* patch= */ 2,
+        /* suffix= */ "",
+        LidarRay.class.getName());
+    }
+    // Use LidarRay.newBuilder() to construct.
+    private LidarRay(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private LidarRay() {
+      blockName_ = "";
+      entityName_ = "";
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarRay_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarRay_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder.class);
+    }
+
+    public static final int DISTANCE_FIELD_NUMBER = 1;
+    private float distance_ = 0F;
+    /**
+     * <pre>
+     * Distance to hit (or max_distance if no hit)
+     * </pre>
+     *
+     * <code>float distance = 1;</code>
+     * @return The distance.
+     */
+    @java.lang.Override
+    public float getDistance() {
+      return distance_;
+    }
+
+    public static final int HIT_TYPE_FIELD_NUMBER = 2;
+    private int hitType_ = 0;
+    /**
+     * <pre>
+     * 0 = MISS, 1 = BLOCK, 2 = ENTITY
+     * </pre>
+     *
+     * <code>int32 hit_type = 2;</code>
+     * @return The hitType.
+     */
+    @java.lang.Override
+    public int getHitType() {
+      return hitType_;
+    }
+
+    public static final int BLOCK_NAME_FIELD_NUMBER = 3;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object blockName_ = "";
+    /**
+     * <pre>
+     * Block translation key if hit_type == BLOCK
+     * </pre>
+     *
+     * <code>string block_name = 3;</code>
+     * @return The blockName.
+     */
+    @java.lang.Override
+    public java.lang.String getBlockName() {
+      java.lang.Object ref = blockName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        blockName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * Block translation key if hit_type == BLOCK
+     * </pre>
+     *
+     * <code>string block_name = 3;</code>
+     * @return The bytes for blockName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getBlockNameBytes() {
+      java.lang.Object ref = blockName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        blockName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int ENTITY_NAME_FIELD_NUMBER = 4;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object entityName_ = "";
+    /**
+     * <pre>
+     * Entity translation key if hit_type == ENTITY
+     * </pre>
+     *
+     * <code>string entity_name = 4;</code>
+     * @return The entityName.
+     */
+    @java.lang.Override
+    public java.lang.String getEntityName() {
+      java.lang.Object ref = entityName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        entityName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * Entity translation key if hit_type == ENTITY
+     * </pre>
+     *
+     * <code>string entity_name = 4;</code>
+     * @return The bytes for entityName.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getEntityNameBytes() {
+      java.lang.Object ref = entityName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        entityName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int ANGLE_HORIZONTAL_FIELD_NUMBER = 5;
+    private float angleHorizontal_ = 0F;
+    /**
+     * <pre>
+     * Horizontal angle of this ray in degrees
+     * </pre>
+     *
+     * <code>float angle_horizontal = 5;</code>
+     * @return The angleHorizontal.
+     */
+    @java.lang.Override
+    public float getAngleHorizontal() {
+      return angleHorizontal_;
+    }
+
+    public static final int ANGLE_VERTICAL_FIELD_NUMBER = 6;
+    private float angleVertical_ = 0F;
+    /**
+     * <pre>
+     * Vertical angle of this ray in degrees
+     * </pre>
+     *
+     * <code>float angle_vertical = 6;</code>
+     * @return The angleVertical.
+     */
+    @java.lang.Override
+    public float getAngleVertical() {
+      return angleVertical_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (java.lang.Float.floatToRawIntBits(distance_) != 0) {
+        output.writeFloat(1, distance_);
+      }
+      if (hitType_ != 0) {
+        output.writeInt32(2, hitType_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(blockName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, blockName_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(entityName_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 4, entityName_);
+      }
+      if (java.lang.Float.floatToRawIntBits(angleHorizontal_) != 0) {
+        output.writeFloat(5, angleHorizontal_);
+      }
+      if (java.lang.Float.floatToRawIntBits(angleVertical_) != 0) {
+        output.writeFloat(6, angleVertical_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (java.lang.Float.floatToRawIntBits(distance_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(1, distance_);
+      }
+      if (hitType_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, hitType_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(blockName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(3, blockName_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(entityName_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(4, entityName_);
+      }
+      if (java.lang.Float.floatToRawIntBits(angleHorizontal_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(5, angleHorizontal_);
+      }
+      if (java.lang.Float.floatToRawIntBits(angleVertical_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(6, angleVertical_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay)) {
+        return super.equals(obj);
+      }
+      com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay other = (com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay) obj;
+
+      if (java.lang.Float.floatToIntBits(getDistance())
+          != java.lang.Float.floatToIntBits(
+              other.getDistance())) return false;
+      if (getHitType()
+          != other.getHitType()) return false;
+      if (!getBlockName()
+          .equals(other.getBlockName())) return false;
+      if (!getEntityName()
+          .equals(other.getEntityName())) return false;
+      if (java.lang.Float.floatToIntBits(getAngleHorizontal())
+          != java.lang.Float.floatToIntBits(
+              other.getAngleHorizontal())) return false;
+      if (java.lang.Float.floatToIntBits(getAngleVertical())
+          != java.lang.Float.floatToIntBits(
+              other.getAngleVertical())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + DISTANCE_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getDistance());
+      hash = (37 * hash) + HIT_TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + getHitType();
+      hash = (37 * hash) + BLOCK_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getBlockName().hashCode();
+      hash = (37 * hash) + ENTITY_NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getEntityName().hashCode();
+      hash = (37 * hash) + ANGLE_HORIZONTAL_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getAngleHorizontal());
+      hash = (37 * hash) + ANGLE_VERTICAL_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getAngleVertical());
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code LidarRay}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:LidarRay)
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarRay_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarRay_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder.class);
+      }
+
+      // Construct using com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        distance_ = 0F;
+        hitType_ = 0;
+        blockName_ = "";
+        entityName_ = "";
+        angleHorizontal_ = 0F;
+        angleVertical_ = 0F;
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarRay_descriptor;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay getDefaultInstanceForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay build() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay buildPartial() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay result = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.distance_ = distance_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.hitType_ = hitType_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.blockName_ = blockName_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.entityName_ = entityName_;
+        }
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          result.angleHorizontal_ = angleHorizontal_;
+        }
+        if (((from_bitField0_ & 0x00000020) != 0)) {
+          result.angleVertical_ = angleVertical_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay) {
+          return mergeFrom((com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay other) {
+        if (other == com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.getDefaultInstance()) return this;
+        if (other.getDistance() != 0F) {
+          setDistance(other.getDistance());
+        }
+        if (other.getHitType() != 0) {
+          setHitType(other.getHitType());
+        }
+        if (!other.getBlockName().isEmpty()) {
+          blockName_ = other.blockName_;
+          bitField0_ |= 0x00000004;
+          onChanged();
+        }
+        if (!other.getEntityName().isEmpty()) {
+          entityName_ = other.entityName_;
+          bitField0_ |= 0x00000008;
+          onChanged();
+        }
+        if (other.getAngleHorizontal() != 0F) {
+          setAngleHorizontal(other.getAngleHorizontal());
+        }
+        if (other.getAngleVertical() != 0F) {
+          setAngleVertical(other.getAngleVertical());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 13: {
+                distance_ = input.readFloat();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 13
+              case 16: {
+                hitType_ = input.readInt32();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              case 26: {
+                blockName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+              case 34: {
+                entityName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 34
+              case 45: {
+                angleHorizontal_ = input.readFloat();
+                bitField0_ |= 0x00000010;
+                break;
+              } // case 45
+              case 53: {
+                angleVertical_ = input.readFloat();
+                bitField0_ |= 0x00000020;
+                break;
+              } // case 53
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private float distance_ ;
+      /**
+       * <pre>
+       * Distance to hit (or max_distance if no hit)
+       * </pre>
+       *
+       * <code>float distance = 1;</code>
+       * @return The distance.
+       */
+      @java.lang.Override
+      public float getDistance() {
+        return distance_;
+      }
+      /**
+       * <pre>
+       * Distance to hit (or max_distance if no hit)
+       * </pre>
+       *
+       * <code>float distance = 1;</code>
+       * @param value The distance to set.
+       * @return This builder for chaining.
+       */
+      public Builder setDistance(float value) {
+
+        distance_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Distance to hit (or max_distance if no hit)
+       * </pre>
+       *
+       * <code>float distance = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearDistance() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        distance_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      private int hitType_ ;
+      /**
+       * <pre>
+       * 0 = MISS, 1 = BLOCK, 2 = ENTITY
+       * </pre>
+       *
+       * <code>int32 hit_type = 2;</code>
+       * @return The hitType.
+       */
+      @java.lang.Override
+      public int getHitType() {
+        return hitType_;
+      }
+      /**
+       * <pre>
+       * 0 = MISS, 1 = BLOCK, 2 = ENTITY
+       * </pre>
+       *
+       * <code>int32 hit_type = 2;</code>
+       * @param value The hitType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHitType(int value) {
+
+        hitType_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 0 = MISS, 1 = BLOCK, 2 = ENTITY
+       * </pre>
+       *
+       * <code>int32 hit_type = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearHitType() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        hitType_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object blockName_ = "";
+      /**
+       * <pre>
+       * Block translation key if hit_type == BLOCK
+       * </pre>
+       *
+       * <code>string block_name = 3;</code>
+       * @return The blockName.
+       */
+      public java.lang.String getBlockName() {
+        java.lang.Object ref = blockName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          blockName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * Block translation key if hit_type == BLOCK
+       * </pre>
+       *
+       * <code>string block_name = 3;</code>
+       * @return The bytes for blockName.
+       */
+      public com.google.protobuf.ByteString
+          getBlockNameBytes() {
+        java.lang.Object ref = blockName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          blockName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * Block translation key if hit_type == BLOCK
+       * </pre>
+       *
+       * <code>string block_name = 3;</code>
+       * @param value The blockName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBlockName(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        blockName_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Block translation key if hit_type == BLOCK
+       * </pre>
+       *
+       * <code>string block_name = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearBlockName() {
+        blockName_ = getDefaultInstance().getBlockName();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Block translation key if hit_type == BLOCK
+       * </pre>
+       *
+       * <code>string block_name = 3;</code>
+       * @param value The bytes for blockName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBlockNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        blockName_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object entityName_ = "";
+      /**
+       * <pre>
+       * Entity translation key if hit_type == ENTITY
+       * </pre>
+       *
+       * <code>string entity_name = 4;</code>
+       * @return The entityName.
+       */
+      public java.lang.String getEntityName() {
+        java.lang.Object ref = entityName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          entityName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * Entity translation key if hit_type == ENTITY
+       * </pre>
+       *
+       * <code>string entity_name = 4;</code>
+       * @return The bytes for entityName.
+       */
+      public com.google.protobuf.ByteString
+          getEntityNameBytes() {
+        java.lang.Object ref = entityName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          entityName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * Entity translation key if hit_type == ENTITY
+       * </pre>
+       *
+       * <code>string entity_name = 4;</code>
+       * @param value The entityName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setEntityName(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        entityName_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Entity translation key if hit_type == ENTITY
+       * </pre>
+       *
+       * <code>string entity_name = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearEntityName() {
+        entityName_ = getDefaultInstance().getEntityName();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Entity translation key if hit_type == ENTITY
+       * </pre>
+       *
+       * <code>string entity_name = 4;</code>
+       * @param value The bytes for entityName to set.
+       * @return This builder for chaining.
+       */
+      public Builder setEntityNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        entityName_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+
+      private float angleHorizontal_ ;
+      /**
+       * <pre>
+       * Horizontal angle of this ray in degrees
+       * </pre>
+       *
+       * <code>float angle_horizontal = 5;</code>
+       * @return The angleHorizontal.
+       */
+      @java.lang.Override
+      public float getAngleHorizontal() {
+        return angleHorizontal_;
+      }
+      /**
+       * <pre>
+       * Horizontal angle of this ray in degrees
+       * </pre>
+       *
+       * <code>float angle_horizontal = 5;</code>
+       * @param value The angleHorizontal to set.
+       * @return This builder for chaining.
+       */
+      public Builder setAngleHorizontal(float value) {
+
+        angleHorizontal_ = value;
+        bitField0_ |= 0x00000010;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Horizontal angle of this ray in degrees
+       * </pre>
+       *
+       * <code>float angle_horizontal = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearAngleHorizontal() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        angleHorizontal_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      private float angleVertical_ ;
+      /**
+       * <pre>
+       * Vertical angle of this ray in degrees
+       * </pre>
+       *
+       * <code>float angle_vertical = 6;</code>
+       * @return The angleVertical.
+       */
+      @java.lang.Override
+      public float getAngleVertical() {
+        return angleVertical_;
+      }
+      /**
+       * <pre>
+       * Vertical angle of this ray in degrees
+       * </pre>
+       *
+       * <code>float angle_vertical = 6;</code>
+       * @param value The angleVertical to set.
+       * @return This builder for chaining.
+       */
+      public Builder setAngleVertical(float value) {
+
+        angleVertical_ = value;
+        bitField0_ |= 0x00000020;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Vertical angle of this ray in degrees
+       * </pre>
+       *
+       * <code>float angle_vertical = 6;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearAngleVertical() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        angleVertical_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:LidarRay)
+    }
+
+    // @@protoc_insertion_point(class_scope:LidarRay)
+    private static final com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay();
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<LidarRay>
+        PARSER = new com.google.protobuf.AbstractParser<LidarRay>() {
+      @java.lang.Override
+      public LidarRay parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<LidarRay> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<LidarRay> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface LidarResultOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:LidarResult)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay> 
+        getRaysList();
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay getRays(int index);
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    int getRaysCount();
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder> 
+        getRaysOrBuilderList();
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder getRaysOrBuilder(
+        int index);
+
+    /**
+     * <pre>
+     * Number of horizontal rays
+     * </pre>
+     *
+     * <code>int32 horizontal_rays = 2;</code>
+     * @return The horizontalRays.
+     */
+    int getHorizontalRays();
+
+    /**
+     * <pre>
+     * Number of vertical rays
+     * </pre>
+     *
+     * <code>int32 vertical_rays = 3;</code>
+     * @return The verticalRays.
+     */
+    int getVerticalRays();
+
+    /**
+     * <pre>
+     * Maximum distance used
+     * </pre>
+     *
+     * <code>float max_distance = 4;</code>
+     * @return The maxDistance.
+     */
+    float getMaxDistance();
+  }
+  /**
+   * Protobuf type {@code LidarResult}
+   */
+  public static final class LidarResult extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:LidarResult)
+      LidarResultOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 29,
+        /* patch= */ 2,
+        /* suffix= */ "",
+        LidarResult.class.getName());
+    }
+    // Use LidarResult.newBuilder() to construct.
+    private LidarResult(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private LidarResult() {
+      rays_ = java.util.Collections.emptyList();
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarResult_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarResult_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.Builder.class);
+    }
+
+    public static final int RAYS_FIELD_NUMBER = 1;
+    @SuppressWarnings("serial")
+    private java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay> rays_;
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    @java.lang.Override
+    public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay> getRaysList() {
+      return rays_;
+    }
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    @java.lang.Override
+    public java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder> 
+        getRaysOrBuilderList() {
+      return rays_;
+    }
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    @java.lang.Override
+    public int getRaysCount() {
+      return rays_.size();
+    }
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay getRays(int index) {
+      return rays_.get(index);
+    }
+    /**
+     * <pre>
+     * All raycast results
+     * </pre>
+     *
+     * <code>repeated .LidarRay rays = 1;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder getRaysOrBuilder(
+        int index) {
+      return rays_.get(index);
+    }
+
+    public static final int HORIZONTAL_RAYS_FIELD_NUMBER = 2;
+    private int horizontalRays_ = 0;
+    /**
+     * <pre>
+     * Number of horizontal rays
+     * </pre>
+     *
+     * <code>int32 horizontal_rays = 2;</code>
+     * @return The horizontalRays.
+     */
+    @java.lang.Override
+    public int getHorizontalRays() {
+      return horizontalRays_;
+    }
+
+    public static final int VERTICAL_RAYS_FIELD_NUMBER = 3;
+    private int verticalRays_ = 0;
+    /**
+     * <pre>
+     * Number of vertical rays
+     * </pre>
+     *
+     * <code>int32 vertical_rays = 3;</code>
+     * @return The verticalRays.
+     */
+    @java.lang.Override
+    public int getVerticalRays() {
+      return verticalRays_;
+    }
+
+    public static final int MAX_DISTANCE_FIELD_NUMBER = 4;
+    private float maxDistance_ = 0F;
+    /**
+     * <pre>
+     * Maximum distance used
+     * </pre>
+     *
+     * <code>float max_distance = 4;</code>
+     * @return The maxDistance.
+     */
+    @java.lang.Override
+    public float getMaxDistance() {
+      return maxDistance_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < rays_.size(); i++) {
+        output.writeMessage(1, rays_.get(i));
+      }
+      if (horizontalRays_ != 0) {
+        output.writeInt32(2, horizontalRays_);
+      }
+      if (verticalRays_ != 0) {
+        output.writeInt32(3, verticalRays_);
+      }
+      if (java.lang.Float.floatToRawIntBits(maxDistance_) != 0) {
+        output.writeFloat(4, maxDistance_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < rays_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, rays_.get(i));
+      }
+      if (horizontalRays_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, horizontalRays_);
+      }
+      if (verticalRays_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, verticalRays_);
+      }
+      if (java.lang.Float.floatToRawIntBits(maxDistance_) != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(4, maxDistance_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult)) {
+        return super.equals(obj);
+      }
+      com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult other = (com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult) obj;
+
+      if (!getRaysList()
+          .equals(other.getRaysList())) return false;
+      if (getHorizontalRays()
+          != other.getHorizontalRays()) return false;
+      if (getVerticalRays()
+          != other.getVerticalRays()) return false;
+      if (java.lang.Float.floatToIntBits(getMaxDistance())
+          != java.lang.Float.floatToIntBits(
+              other.getMaxDistance())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (getRaysCount() > 0) {
+        hash = (37 * hash) + RAYS_FIELD_NUMBER;
+        hash = (53 * hash) + getRaysList().hashCode();
+      }
+      hash = (37 * hash) + HORIZONTAL_RAYS_FIELD_NUMBER;
+      hash = (53 * hash) + getHorizontalRays();
+      hash = (37 * hash) + VERTICAL_RAYS_FIELD_NUMBER;
+      hash = (53 * hash) + getVerticalRays();
+      hash = (37 * hash) + MAX_DISTANCE_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getMaxDistance());
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code LidarResult}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:LidarResult)
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarResult_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarResult_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.Builder.class);
+      }
+
+      // Construct using com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        if (raysBuilder_ == null) {
+          rays_ = java.util.Collections.emptyList();
+        } else {
+          rays_ = null;
+          raysBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        horizontalRays_ = 0;
+        verticalRays_ = 0;
+        maxDistance_ = 0F;
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_LidarResult_descriptor;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult getDefaultInstanceForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult build() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult buildPartial() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult result = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult(this);
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult result) {
+        if (raysBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) != 0)) {
+            rays_ = java.util.Collections.unmodifiableList(rays_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.rays_ = rays_;
+        } else {
+          result.rays_ = raysBuilder_.build();
+        }
+      }
+
+      private void buildPartial0(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.horizontalRays_ = horizontalRays_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.verticalRays_ = verticalRays_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.maxDistance_ = maxDistance_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult) {
+          return mergeFrom((com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult other) {
+        if (other == com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance()) return this;
+        if (raysBuilder_ == null) {
+          if (!other.rays_.isEmpty()) {
+            if (rays_.isEmpty()) {
+              rays_ = other.rays_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureRaysIsMutable();
+              rays_.addAll(other.rays_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.rays_.isEmpty()) {
+            if (raysBuilder_.isEmpty()) {
+              raysBuilder_.dispose();
+              raysBuilder_ = null;
+              rays_ = other.rays_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              raysBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getRaysFieldBuilder() : null;
+            } else {
+              raysBuilder_.addAllMessages(other.rays_);
+            }
+          }
+        }
+        if (other.getHorizontalRays() != 0) {
+          setHorizontalRays(other.getHorizontalRays());
+        }
+        if (other.getVerticalRays() != 0) {
+          setVerticalRays(other.getVerticalRays());
+        }
+        if (other.getMaxDistance() != 0F) {
+          setMaxDistance(other.getMaxDistance());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay m =
+                    input.readMessage(
+                        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.parser(),
+                        extensionRegistry);
+                if (raysBuilder_ == null) {
+                  ensureRaysIsMutable();
+                  rays_.add(m);
+                } else {
+                  raysBuilder_.addMessage(m);
+                }
+                break;
+              } // case 10
+              case 16: {
+                horizontalRays_ = input.readInt32();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              case 24: {
+                verticalRays_ = input.readInt32();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 24
+              case 37: {
+                maxDistance_ = input.readFloat();
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 37
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay> rays_ =
+        java.util.Collections.emptyList();
+      private void ensureRaysIsMutable() {
+        if (!((bitField0_ & 0x00000001) != 0)) {
+          rays_ = new java.util.ArrayList<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay>(rays_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder> raysBuilder_;
+
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay> getRaysList() {
+        if (raysBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(rays_);
+        } else {
+          return raysBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public int getRaysCount() {
+        if (raysBuilder_ == null) {
+          return rays_.size();
+        } else {
+          return raysBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay getRays(int index) {
+        if (raysBuilder_ == null) {
+          return rays_.get(index);
+        } else {
+          return raysBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder setRays(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay value) {
+        if (raysBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRaysIsMutable();
+          rays_.set(index, value);
+          onChanged();
+        } else {
+          raysBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder setRays(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder builderForValue) {
+        if (raysBuilder_ == null) {
+          ensureRaysIsMutable();
+          rays_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          raysBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder addRays(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay value) {
+        if (raysBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRaysIsMutable();
+          rays_.add(value);
+          onChanged();
+        } else {
+          raysBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder addRays(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay value) {
+        if (raysBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRaysIsMutable();
+          rays_.add(index, value);
+          onChanged();
+        } else {
+          raysBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder addRays(
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder builderForValue) {
+        if (raysBuilder_ == null) {
+          ensureRaysIsMutable();
+          rays_.add(builderForValue.build());
+          onChanged();
+        } else {
+          raysBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder addRays(
+          int index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder builderForValue) {
+        if (raysBuilder_ == null) {
+          ensureRaysIsMutable();
+          rays_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          raysBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder addAllRays(
+          java.lang.Iterable<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay> values) {
+        if (raysBuilder_ == null) {
+          ensureRaysIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, rays_);
+          onChanged();
+        } else {
+          raysBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder clearRays() {
+        if (raysBuilder_ == null) {
+          rays_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          raysBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public Builder removeRays(int index) {
+        if (raysBuilder_ == null) {
+          ensureRaysIsMutable();
+          rays_.remove(index);
+          onChanged();
+        } else {
+          raysBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder getRaysBuilder(
+          int index) {
+        return getRaysFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder getRaysOrBuilder(
+          int index) {
+        if (raysBuilder_ == null) {
+          return rays_.get(index);  } else {
+          return raysBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public java.util.List<? extends com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder> 
+           getRaysOrBuilderList() {
+        if (raysBuilder_ != null) {
+          return raysBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(rays_);
+        }
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder addRaysBuilder() {
+        return getRaysFieldBuilder().addBuilder(
+            com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder addRaysBuilder(
+          int index) {
+        return getRaysFieldBuilder().addBuilder(
+            index, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * All raycast results
+       * </pre>
+       *
+       * <code>repeated .LidarRay rays = 1;</code>
+       */
+      public java.util.List<com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder> 
+           getRaysBuilderList() {
+        return getRaysFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder> 
+          getRaysFieldBuilder() {
+        if (raysBuilder_ == null) {
+          raysBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRay.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarRayOrBuilder>(
+                  rays_,
+                  ((bitField0_ & 0x00000001) != 0),
+                  getParentForChildren(),
+                  isClean());
+          rays_ = null;
+        }
+        return raysBuilder_;
+      }
+
+      private int horizontalRays_ ;
+      /**
+       * <pre>
+       * Number of horizontal rays
+       * </pre>
+       *
+       * <code>int32 horizontal_rays = 2;</code>
+       * @return The horizontalRays.
+       */
+      @java.lang.Override
+      public int getHorizontalRays() {
+        return horizontalRays_;
+      }
+      /**
+       * <pre>
+       * Number of horizontal rays
+       * </pre>
+       *
+       * <code>int32 horizontal_rays = 2;</code>
+       * @param value The horizontalRays to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHorizontalRays(int value) {
+
+        horizontalRays_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Number of horizontal rays
+       * </pre>
+       *
+       * <code>int32 horizontal_rays = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearHorizontalRays() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        horizontalRays_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int verticalRays_ ;
+      /**
+       * <pre>
+       * Number of vertical rays
+       * </pre>
+       *
+       * <code>int32 vertical_rays = 3;</code>
+       * @return The verticalRays.
+       */
+      @java.lang.Override
+      public int getVerticalRays() {
+        return verticalRays_;
+      }
+      /**
+       * <pre>
+       * Number of vertical rays
+       * </pre>
+       *
+       * <code>int32 vertical_rays = 3;</code>
+       * @param value The verticalRays to set.
+       * @return This builder for chaining.
+       */
+      public Builder setVerticalRays(int value) {
+
+        verticalRays_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Number of vertical rays
+       * </pre>
+       *
+       * <code>int32 vertical_rays = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearVerticalRays() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        verticalRays_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private float maxDistance_ ;
+      /**
+       * <pre>
+       * Maximum distance used
+       * </pre>
+       *
+       * <code>float max_distance = 4;</code>
+       * @return The maxDistance.
+       */
+      @java.lang.Override
+      public float getMaxDistance() {
+        return maxDistance_;
+      }
+      /**
+       * <pre>
+       * Maximum distance used
+       * </pre>
+       *
+       * <code>float max_distance = 4;</code>
+       * @param value The maxDistance to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMaxDistance(float value) {
+
+        maxDistance_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Maximum distance used
+       * </pre>
+       *
+       * <code>float max_distance = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMaxDistance() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        maxDistance_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:LidarResult)
+    }
+
+    // @@protoc_insertion_point(class_scope:LidarResult)
+    private static final com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult();
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<LidarResult>
+        PARSER = new com.google.protobuf.AbstractParser<LidarResult>() {
+      @java.lang.Override
+      public LidarResult parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<LidarResult> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<LidarResult> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface ObservationSpaceMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:ObservationSpaceMessage)
       com.google.protobuf.MessageOrBuilder {
@@ -11025,6 +13259,33 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
      * @return The velocityZ.
      */
     double getVelocityZ();
+
+    /**
+     * <pre>
+     * Lidar scan result if lidar is enabled
+     * </pre>
+     *
+     * <code>.LidarResult lidar_result = 44;</code>
+     * @return Whether the lidarResult field is set.
+     */
+    boolean hasLidarResult();
+    /**
+     * <pre>
+     * Lidar scan result if lidar is enabled
+     * </pre>
+     *
+     * <code>.LidarResult lidar_result = 44;</code>
+     * @return The lidarResult.
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult getLidarResult();
+    /**
+     * <pre>
+     * Lidar scan result if lidar is enabled
+     * </pre>
+     *
+     * <code>.LidarResult lidar_result = 44;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder getLidarResultOrBuilder();
   }
   /**
    * Protobuf type {@code ObservationSpaceMessage}
@@ -12233,6 +14494,44 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       return velocityZ_;
     }
 
+    public static final int LIDAR_RESULT_FIELD_NUMBER = 44;
+    private com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult lidarResult_;
+    /**
+     * <pre>
+     * Lidar scan result if lidar is enabled
+     * </pre>
+     *
+     * <code>.LidarResult lidar_result = 44;</code>
+     * @return Whether the lidarResult field is set.
+     */
+    @java.lang.Override
+    public boolean hasLidarResult() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <pre>
+     * Lidar scan result if lidar is enabled
+     * </pre>
+     *
+     * <code>.LidarResult lidar_result = 44;</code>
+     * @return The lidarResult.
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult getLidarResult() {
+      return lidarResult_ == null ? com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance() : lidarResult_;
+    }
+    /**
+     * <pre>
+     * Lidar scan result if lidar is enabled
+     * </pre>
+     *
+     * <code>.LidarResult lidar_result = 44;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder getLidarResultOrBuilder() {
+      return lidarResult_ == null ? com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance() : lidarResult_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -12392,6 +14691,9 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       }
       if (java.lang.Double.doubleToRawLongBits(velocityZ_) != 0) {
         output.writeDouble(43, velocityZ_);
+      }
+      if (((bitField0_ & 0x00000004) != 0)) {
+        output.writeMessage(44, getLidarResult());
       }
       getUnknownFields().writeTo(output);
     }
@@ -12604,6 +14906,10 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(43, velocityZ_);
       }
+      if (((bitField0_ & 0x00000004) != 0)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(44, getLidarResult());
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -12722,6 +15028,11 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       if (java.lang.Double.doubleToLongBits(getVelocityZ())
           != java.lang.Double.doubleToLongBits(
               other.getVelocityZ())) return false;
+      if (hasLidarResult() != other.hasLidarResult()) return false;
+      if (hasLidarResult()) {
+        if (!getLidarResult()
+            .equals(other.getLidarResult())) return false;
+      }
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -12874,6 +15185,10 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       hash = (37 * hash) + VELOCITY_Z_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           java.lang.Double.doubleToLongBits(getVelocityZ()));
+      if (hasLidarResult()) {
+        hash = (37 * hash) + LIDAR_RESULT_FIELD_NUMBER;
+        hash = (53 * hash) + getLidarResult().hashCode();
+      }
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -13050,6 +15365,7 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           getHeightInfoFieldBuilder();
           getBlockCollisionsFieldBuilder();
           getEntityCollisionsFieldBuilder();
+          getLidarResultFieldBuilder();
         }
       }
       @java.lang.Override
@@ -13168,6 +15484,11 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         velocityX_ = 0D;
         velocityY_ = 0D;
         velocityZ_ = 0D;
+        lidarResult_ = null;
+        if (lidarResultBuilder_ != null) {
+          lidarResultBuilder_.dispose();
+          lidarResultBuilder_ = null;
+        }
         return this;
       }
 
@@ -13411,6 +15732,14 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         if (((from_bitField1_ & 0x00000400) != 0)) {
           result.velocityZ_ = velocityZ_;
         }
+        int to_bitField0_ = 0;
+        if (((from_bitField1_ & 0x00000800) != 0)) {
+          result.lidarResult_ = lidarResultBuilder_ == null
+              ? lidarResult_
+              : lidarResultBuilder_.build();
+          to_bitField0_ |= 0x00000004;
+        }
+        result.bitField0_ |= to_bitField0_;
       }
 
       @java.lang.Override
@@ -13794,6 +16123,9 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         if (other.getVelocityZ() != 0D) {
           setVelocityZ(other.getVelocityZ());
         }
+        if (other.hasLidarResult()) {
+          mergeLidarResult(other.getLidarResult());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
@@ -14147,6 +16479,13 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
                 bitField1_ |= 0x00000400;
                 break;
               } // case 345
+              case 354: {
+                input.readMessage(
+                    getLidarResultFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                bitField1_ |= 0x00000800;
+                break;
+              } // case 354
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -18371,6 +20710,163 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         return this;
       }
 
+      private com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult lidarResult_;
+      private com.google.protobuf.SingleFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder> lidarResultBuilder_;
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       * @return Whether the lidarResult field is set.
+       */
+      public boolean hasLidarResult() {
+        return ((bitField1_ & 0x00000800) != 0);
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       * @return The lidarResult.
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult getLidarResult() {
+        if (lidarResultBuilder_ == null) {
+          return lidarResult_ == null ? com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance() : lidarResult_;
+        } else {
+          return lidarResultBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       */
+      public Builder setLidarResult(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult value) {
+        if (lidarResultBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          lidarResult_ = value;
+        } else {
+          lidarResultBuilder_.setMessage(value);
+        }
+        bitField1_ |= 0x00000800;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       */
+      public Builder setLidarResult(
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.Builder builderForValue) {
+        if (lidarResultBuilder_ == null) {
+          lidarResult_ = builderForValue.build();
+        } else {
+          lidarResultBuilder_.setMessage(builderForValue.build());
+        }
+        bitField1_ |= 0x00000800;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       */
+      public Builder mergeLidarResult(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult value) {
+        if (lidarResultBuilder_ == null) {
+          if (((bitField1_ & 0x00000800) != 0) &&
+            lidarResult_ != null &&
+            lidarResult_ != com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance()) {
+            getLidarResultBuilder().mergeFrom(value);
+          } else {
+            lidarResult_ = value;
+          }
+        } else {
+          lidarResultBuilder_.mergeFrom(value);
+        }
+        if (lidarResult_ != null) {
+          bitField1_ |= 0x00000800;
+          onChanged();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       */
+      public Builder clearLidarResult() {
+        bitField1_ = (bitField1_ & ~0x00000800);
+        lidarResult_ = null;
+        if (lidarResultBuilder_ != null) {
+          lidarResultBuilder_.dispose();
+          lidarResultBuilder_ = null;
+        }
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.Builder getLidarResultBuilder() {
+        bitField1_ |= 0x00000800;
+        onChanged();
+        return getLidarResultFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder getLidarResultOrBuilder() {
+        if (lidarResultBuilder_ != null) {
+          return lidarResultBuilder_.getMessageOrBuilder();
+        } else {
+          return lidarResult_ == null ?
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance() : lidarResult_;
+        }
+      }
+      /**
+       * <pre>
+       * Lidar scan result if lidar is enabled
+       * </pre>
+       *
+       * <code>.LidarResult lidar_result = 44;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder> 
+          getLidarResultFieldBuilder() {
+        if (lidarResultBuilder_ == null) {
+          lidarResultBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder>(
+                  getLidarResult(),
+                  getParentForChildren(),
+                  isClean());
+          lidarResult_ = null;
+        }
+        return lidarResultBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:ObservationSpaceMessage)
     }
 
@@ -18488,6 +20984,16 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_EntityCollisionInfo_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_LidarRay_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_LidarRay_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_LidarResult_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_LidarResult_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ObservationSpaceMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -18550,48 +21056,55 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       "\030\004 \001(\t\"I\n\022BlockCollisionInfo\022\t\n\001x\030\001 \001(\005\022" +
       "\t\n\001y\030\002 \001(\005\022\t\n\001z\030\003 \001(\005\022\022\n\nblock_name\030\004 \001(" +
       "\t\"K\n\023EntityCollisionInfo\022\t\n\001x\030\001 \001(\002\022\t\n\001y" +
-      "\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\022\023\n\013entity_name\030\004 \001(\t\"\242" +
-      "\014\n\027ObservationSpaceMessage\022\r\n\005image\030\001 \001(" +
-      "\014\022\t\n\001x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003ya" +
-      "w\030\005 \001(\001\022\r\n\005pitch\030\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022" +
-      "\n\nfood_level\030\010 \001(\001\022\030\n\020saturation_level\030\t" +
-      " \001(\001\022\017\n\007is_dead\030\n \001(\010\022\035\n\tinventory\030\013 \003(\013" +
-      "2\n.ItemStack\022\"\n\016raycast_result\030\014 \001(\0132\n.H" +
-      "itResult\022$\n\017sound_subtitles\030\r \003(\0132\013.Soun" +
-      "dEntry\022%\n\016status_effects\030\016 \003(\0132\r.StatusE" +
-      "ffect\022I\n\021killed_statistics\030\017 \003(\0132..Obser" +
-      "vationSpaceMessage.KilledStatisticsEntry" +
-      "\022G\n\020mined_statistics\030\020 \003(\0132-.Observation" +
-      "SpaceMessage.MinedStatisticsEntry\022E\n\017mis" +
-      "c_statistics\030\021 \003(\0132,.ObservationSpaceMes" +
-      "sage.MiscStatisticsEntry\022%\n\020visible_enti" +
-      "ties\030\022 \003(\0132\013.EntityInfo\022O\n\024surrounding_e" +
-      "ntities\030\023 \003(\01321.ObservationSpaceMessage." +
-      "SurroundingEntitiesEntry\022\025\n\rbobber_throw" +
-      "n\030\024 \001(\010\022\022\n\nexperience\030\025 \001(\005\022\022\n\nworld_tim" +
-      "e\030\026 \001(\003\022\032\n\022last_death_message\030\027 \001(\t\022\017\n\007i" +
-      "mage_2\030\030 \001(\014\022&\n\022surrounding_blocks\030\031 \003(\013" +
-      "2\n.BlockInfo\022\024\n\014eye_in_block\030\032 \001(\010\022\023\n\013su" +
-      "ffocating\030\033 \001(\010\022\'\n\rchat_messages\030\034 \003(\0132\020" +
-      ".ChatMessageInfo\022\036\n\nbiome_info\030\035 \001(\0132\n.B" +
-      "iomeInfo\022#\n\rnearby_biomes\030\036 \003(\0132\014.Nearby" +
-      "Biome\022\032\n\022submerged_in_water\030\037 \001(\010\022\022\n\nis_" +
-      "in_lava\030  \001(\010\022\031\n\021submerged_in_lava\030! \001(\010" +
-      "\022 \n\013height_info\030\" \003(\0132\013.HeightInfo\022\024\n\014is" +
-      "_on_ground\030# \001(\010\022\031\n\021is_touching_water\030$ " +
-      "\001(\010\022\022\n\nipc_handle\030% \001(\014\022\021\n\005depth\030& \003(\002B\002" +
-      "\020\001\022-\n\020block_collisions\030\' \003(\0132\023.BlockColl" +
-      "isionInfo\022/\n\021entity_collisions\030( \003(\0132\024.E" +
-      "ntityCollisionInfo\022\022\n\nvelocity_x\030) \001(\001\022\022" +
-      "\n\nvelocity_y\030* \001(\001\022\022\n\nvelocity_z\030+ \001(\001\0327" +
-      "\n\025KilledStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005" +
-      "value\030\002 \001(\005:\0028\001\0326\n\024MinedStatisticsEntry\022" +
-      "\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n\023MiscS" +
-      "tatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
-      "(\005:\0028\001\032S\n\030SurroundingEntitiesEntry\022\013\n\003ke" +
-      "y\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027.EntitiesWithinD" +
-      "istance:\0028\001B%\n#com.kyhsgeekcode.minecraf" +
-      "tenv.protob\006proto3"
+      "\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\022\023\n\013entity_name\030\004 \001(\t\"\211" +
+      "\001\n\010LidarRay\022\020\n\010distance\030\001 \001(\002\022\020\n\010hit_typ" +
+      "e\030\002 \001(\005\022\022\n\nblock_name\030\003 \001(\t\022\023\n\013entity_na" +
+      "me\030\004 \001(\t\022\030\n\020angle_horizontal\030\005 \001(\002\022\026\n\016an" +
+      "gle_vertical\030\006 \001(\002\"l\n\013LidarResult\022\027\n\004ray" +
+      "s\030\001 \003(\0132\t.LidarRay\022\027\n\017horizontal_rays\030\002 " +
+      "\001(\005\022\025\n\rvertical_rays\030\003 \001(\005\022\024\n\014max_distan" +
+      "ce\030\004 \001(\002\"\306\014\n\027ObservationSpaceMessage\022\r\n\005" +
+      "image\030\001 \001(\014\022\t\n\001x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004" +
+      " \001(\001\022\013\n\003yaw\030\005 \001(\001\022\r\n\005pitch\030\006 \001(\001\022\016\n\006heal" +
+      "th\030\007 \001(\001\022\022\n\nfood_level\030\010 \001(\001\022\030\n\020saturati" +
+      "on_level\030\t \001(\001\022\017\n\007is_dead\030\n \001(\010\022\035\n\tinven" +
+      "tory\030\013 \003(\0132\n.ItemStack\022\"\n\016raycast_result" +
+      "\030\014 \001(\0132\n.HitResult\022$\n\017sound_subtitles\030\r " +
+      "\003(\0132\013.SoundEntry\022%\n\016status_effects\030\016 \003(\013" +
+      "2\r.StatusEffect\022I\n\021killed_statistics\030\017 \003" +
+      "(\0132..ObservationSpaceMessage.KilledStati" +
+      "sticsEntry\022G\n\020mined_statistics\030\020 \003(\0132-.O" +
+      "bservationSpaceMessage.MinedStatisticsEn" +
+      "try\022E\n\017misc_statistics\030\021 \003(\0132,.Observati" +
+      "onSpaceMessage.MiscStatisticsEntry\022%\n\020vi" +
+      "sible_entities\030\022 \003(\0132\013.EntityInfo\022O\n\024sur" +
+      "rounding_entities\030\023 \003(\01321.ObservationSpa" +
+      "ceMessage.SurroundingEntitiesEntry\022\025\n\rbo" +
+      "bber_thrown\030\024 \001(\010\022\022\n\nexperience\030\025 \001(\005\022\022\n" +
+      "\nworld_time\030\026 \001(\003\022\032\n\022last_death_message\030" +
+      "\027 \001(\t\022\017\n\007image_2\030\030 \001(\014\022&\n\022surrounding_bl" +
+      "ocks\030\031 \003(\0132\n.BlockInfo\022\024\n\014eye_in_block\030\032" +
+      " \001(\010\022\023\n\013suffocating\030\033 \001(\010\022\'\n\rchat_messag" +
+      "es\030\034 \003(\0132\020.ChatMessageInfo\022\036\n\nbiome_info" +
+      "\030\035 \001(\0132\n.BiomeInfo\022#\n\rnearby_biomes\030\036 \003(" +
+      "\0132\014.NearbyBiome\022\032\n\022submerged_in_water\030\037 " +
+      "\001(\010\022\022\n\nis_in_lava\030  \001(\010\022\031\n\021submerged_in_" +
+      "lava\030! \001(\010\022 \n\013height_info\030\" \003(\0132\013.Height" +
+      "Info\022\024\n\014is_on_ground\030# \001(\010\022\031\n\021is_touchin" +
+      "g_water\030$ \001(\010\022\022\n\nipc_handle\030% \001(\014\022\021\n\005dep" +
+      "th\030& \003(\002B\002\020\001\022-\n\020block_collisions\030\' \003(\0132\023" +
+      ".BlockCollisionInfo\022/\n\021entity_collisions" +
+      "\030( \003(\0132\024.EntityCollisionInfo\022\022\n\nvelocity" +
+      "_x\030) \001(\001\022\022\n\nvelocity_y\030* \001(\001\022\022\n\nvelocity" +
+      "_z\030+ \001(\001\022\"\n\014lidar_result\030, \001(\0132\014.LidarRe" +
+      "sult\0327\n\025KilledStatisticsEntry\022\013\n\003key\030\001 \001" +
+      "(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0326\n\024MinedStatistics" +
+      "Entry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n" +
+      "\023MiscStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005val" +
+      "ue\030\002 \001(\005:\0028\001\032S\n\030SurroundingEntitiesEntry" +
+      "\022\013\n\003key\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027.EntitiesW" +
+      "ithinDistance:\0028\001B%\n#com.kyhsgeekcode.mi" +
+      "necraftenv.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -18675,12 +21188,24 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_EntityCollisionInfo_descriptor,
         new java.lang.String[] { "X", "Y", "Z", "EntityName", });
-    internal_static_ObservationSpaceMessage_descriptor =
+    internal_static_LidarRay_descriptor =
       getDescriptor().getMessageTypes().get(13);
+    internal_static_LidarRay_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_LidarRay_descriptor,
+        new java.lang.String[] { "Distance", "HitType", "BlockName", "EntityName", "AngleHorizontal", "AngleVertical", });
+    internal_static_LidarResult_descriptor =
+      getDescriptor().getMessageTypes().get(14);
+    internal_static_LidarResult_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_LidarResult_descriptor,
+        new java.lang.String[] { "Rays", "HorizontalRays", "VerticalRays", "MaxDistance", });
+    internal_static_ObservationSpaceMessage_descriptor =
+      getDescriptor().getMessageTypes().get(15);
     internal_static_ObservationSpaceMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_ObservationSpaceMessage_descriptor,
-        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", "BlockCollisions", "EntityCollisions", "VelocityX", "VelocityY", "VelocityZ", });
+        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", "BlockCollisions", "EntityCollisions", "VelocityX", "VelocityY", "VelocityZ", "LidarResult", });
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_descriptor =
       internal_static_ObservationSpaceMessage_descriptor.getNestedTypes().get(0);
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_fieldAccessorTable = new

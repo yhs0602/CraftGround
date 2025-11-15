@@ -99,6 +99,22 @@ message EntityCollisionInfo {
   string entity_name = 4;
 }
 
+message LidarRay {
+  float distance = 1;        // Distance to hit (or max_distance if no hit)
+  int32 hit_type = 2;        // 0 = MISS, 1 = BLOCK, 2 = ENTITY
+  string block_name = 3;     // Block translation key if hit_type == BLOCK
+  string entity_name = 4;    // Entity translation key if hit_type == ENTITY
+  float angle_horizontal = 5; // Horizontal angle of this ray in degrees
+  float angle_vertical = 6;   // Vertical angle of this ray in degrees
+}
+
+message LidarResult {
+  repeated LidarRay rays = 1;  // All raycast results
+  int32 horizontal_rays = 2;   // Number of horizontal rays
+  int32 vertical_rays = 3;     // Number of vertical rays
+  float max_distance = 4;      // Maximum distance used
+}
+
 message ObservationSpaceMessage {
   bytes image = 1;
   double x = 2;
@@ -143,4 +159,5 @@ message ObservationSpaceMessage {
   double velocity_x = 41;
   double velocity_y = 42;
   double velocity_z = 43;
+  LidarResult lidar_result = 44;  // Lidar scan result if lidar is enabled
 }

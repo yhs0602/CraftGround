@@ -1580,6 +1580,45 @@ public object ObservationSpaceMessageKt {
     public fun clearVelocityZ() {
       _builder.clearVelocityZ()
     }
+
+    /**
+     * ```
+     * Lidar scan result if lidar is enabled
+     * ```
+     *
+     * `.LidarResult lidar_result = 44;`
+     */
+    public var lidarResult: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult
+      @JvmName("getLidarResult")
+      get() = _builder.lidarResult
+      @JvmName("setLidarResult")
+      set(value) {
+        _builder.lidarResult = value
+      }
+    /**
+     * ```
+     * Lidar scan result if lidar is enabled
+     * ```
+     *
+     * `.LidarResult lidar_result = 44;`
+     */
+    public fun clearLidarResult() {
+      _builder.clearLidarResult()
+    }
+    /**
+     * ```
+     * Lidar scan result if lidar is enabled
+     * ```
+     *
+     * `.LidarResult lidar_result = 44;`
+     * @return Whether the lidarResult field is set.
+     */
+    public fun hasLidarResult(): kotlin.Boolean {
+      return _builder.hasLidarResult()
+    }
+
+    public val ObservationSpaceMessageKt.Dsl.lidarResultOrNull: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult?
+      get() = _builder.lidarResultOrNull
   }
 }
 @kotlin.jvm.JvmSynthetic
@@ -1591,4 +1630,7 @@ public val com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpace
 
 public val com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessageOrBuilder.biomeInfoOrNull: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BiomeInfo?
   get() = if (hasBiomeInfo()) getBiomeInfo() else null
+
+public val com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessageOrBuilder.lidarResultOrNull: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult?
+  get() = if (hasLidarResult()) getLidarResult() else null
 

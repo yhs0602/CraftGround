@@ -210,6 +210,52 @@ def declare_observation_space(image_width: int, image_height: int) -> gym.spaces
                     "velocity_z": spaces.Box(
                         low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64
                     ),
+                    "lidar_result": spaces.Dict(
+                        {
+                            "rays": spaces.Sequence(
+                                spaces.Dict(
+                                    {
+                                        "distance": spaces.Box(
+                                            low=0.0,
+                                            high=np.inf,
+                                            shape=(1,),
+                                            dtype=np.float32,
+                                        ),
+                                        "hit_type": spaces.Discrete(
+                                            3
+                                        ),  # 0=MISS, 1=BLOCK, 2=ENTITY
+                                        "block_name": spaces.Text(
+                                            min_length=0, max_length=200
+                                        ),
+                                        "entity_name": spaces.Text(
+                                            min_length=0, max_length=200
+                                        ),
+                                        "angle_horizontal": spaces.Box(
+                                            low=0.0,
+                                            high=360.0,
+                                            shape=(1,),
+                                            dtype=np.float32,
+                                        ),
+                                        "angle_vertical": spaces.Box(
+                                            low=-90.0,
+                                            high=90.0,
+                                            shape=(1,),
+                                            dtype=np.float32,
+                                        ),
+                                    }
+                                )
+                            ),
+                            "horizontal_rays": spaces.Box(
+                                low=0, high=np.inf, shape=(1,), dtype=np.int32
+                            ),
+                            "vertical_rays": spaces.Box(
+                                low=0, high=np.inf, shape=(1,), dtype=np.int32
+                            ),
+                            "max_distance": spaces.Box(
+                                low=0.0, high=np.inf, shape=(1,), dtype=np.float32
+                            ),
+                        }
+                    ),
                 }
             ),
         }
