@@ -29,10 +29,6 @@ fun Entity.toMessage() =
         pitch = this@toMessage.pitch.toDouble()
         health = (this@toMessage as? LivingEntity)?.health?.toDouble() ?: 0.0
         inLove = (this@toMessage as? AnimalEntity)?.isInLove ?: false
-        println("entity=${this@toMessage.javaClass.name}")
-        println("is LivingEntity = ${this@toMessage is LivingEntity}")
-        println("is AnimalEntity = ${this@toMessage is AnimalEntity}")
-        println("isInLove (method call) = ${(this@toMessage as? AnimalEntity)?.isInLove}")
     }
 
 fun StatusEffectInstance.toMessage() =
