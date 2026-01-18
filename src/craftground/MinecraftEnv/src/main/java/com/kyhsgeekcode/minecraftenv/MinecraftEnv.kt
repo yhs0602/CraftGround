@@ -13,6 +13,7 @@ import com.kyhsgeekcode.minecraftenv.proto.chatMessageInfo
 import com.kyhsgeekcode.minecraftenv.proto.entitiesWithinDistance
 import com.kyhsgeekcode.minecraftenv.proto.heightInfo
 import com.kyhsgeekcode.minecraftenv.proto.hitResult
+import com.kyhsgeekcode.minecraftenv.proto.audioWaveform
 import com.kyhsgeekcode.minecraftenv.proto.lidarRay
 import com.kyhsgeekcode.minecraftenv.proto.lidarResult
 import com.kyhsgeekcode.minecraftenv.proto.nearbyBiome
@@ -901,6 +902,19 @@ class MinecraftEnv :
                                 this.maxDistance = maxDistance.toFloat()
                                 this.rays.addAll(resultRays)
                             }
+                    }
+                    
+                    // Add audio waveform if loopback capture is enabled
+                    if (AudioLoopbackCapturer.isEnabled()) {
+                        AudioLoopbackCapturer.renderSamples()
+                        audioWaveform = audioWaveform {
+                            pcmData = AudioLoopbackCapturer.getWaveformData()
+                            sampleRate = AudioLoopbackCapturer.getSampleRate()
+                            channels = AudioLoopbackCapturer.getChannels()
+                            bitsPerSample = AudioLoopbackCapturer.getBitsPerSample()
+                            numSamples = AudioLoopbackCapturer.getSamplesPerRender()
+                            timestampTicks = world.time
+                        }
                     }
                 }
             if (ioPhase == IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION) {

@@ -29,7 +29,8 @@
     "TickSpeedMixin",
     "WindowOffScreenMixin",
     "WindowSizeAccessor",
-    "WorldRendererCallEntityRenderMixin"
+    "WorldRendererCallEntityRenderMixin",
+    "SoundEngineMixin"
   ],
   "server": [],
   "injectors": {
