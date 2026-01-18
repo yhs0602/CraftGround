@@ -22,6 +22,7 @@
     "GameRendererDepthCaptureMixin",
     "GammaMixin",
     "InputUtilMixin",
+    "LidarRayVisualizationMixin",
     "MouseXYAccessor",
     "RenderLayerTrianglesMixin",
     "RenderSystemPollEventsInvoker",

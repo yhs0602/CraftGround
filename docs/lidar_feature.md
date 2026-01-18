@@ -21,7 +21,8 @@ lidar_config = LidarConfig(
     max_distance=100.0,      # Maximum raycast distance in blocks
     vertical_angle=0.0,      # Vertical angle offset in degrees (0.0 = horizontal)
     vertical_rays=1,         # Number of vertical layers (1 = single horizontal plane)
-    vertical_fov=30.0        # Vertical field of view in degrees (used when vertical_rays > 1)
+    vertical_fov=30.0,       # Vertical field of view in degrees (used when vertical_rays > 1)
+    visualize_rays=False     # If True, render rays on screen for debugging
 )
 ```
 
@@ -52,6 +53,12 @@ lidar_config = LidarConfig(
   - Only used when vertical_rays > 1
   - Distributes vertical rays across this FOV range
   - Example: 30.0 = rays from -15° to +15° from center
+
+- **visualize_rays**: Enable ray visualization on screen (default: False)
+  - When True, renders all rays in the game view
+  - Colors indicate hit type: Green = Block, Red = Entity, Gray = Miss
+  - ⚠️ **Not supported in zerocopy mode** - will throw a RuntimeException
+  - Useful for debugging and understanding Lidar behavior
 
 ## Usage
 
@@ -103,6 +110,28 @@ lidar_config = LidarConfig(
     vertical_rays=1
 )
 ```
+
+### Ray Visualization for Debugging
+
+```python
+# Enable ray visualization to see rays rendered in-game
+# Note: Not supported with screen_encoding_mode=ZEROCOPY
+lidar_config = LidarConfig(
+    horizontal_rays=32,
+    max_distance=50.0,
+    visualize_rays=True  # Render rays on screen
+)
+
+initial_env = craftground.InitialEnvironmentConfig(
+    lidar_config=lidar_config,
+    screen_encoding_mode=craftground.ScreenEncodingMode.RAW  # Required for visualize_rays
+)
+```
+
+Ray colors:
+- 🟢 **Green**: Block hit
+- 🔴 **Red**: Entity hit  
+- ⚪ **Gray**: No hit (ray reached max_distance)
 
 ## Observation Structure
 

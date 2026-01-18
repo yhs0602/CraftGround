@@ -45,12 +45,14 @@ class LidarConfig:
         vertical_angle: float = 0.0,
         vertical_rays: int = 1,
         vertical_fov: float = 30.0,
+        visualize_rays: bool = False,
     ):
         self.horizontal_rays = horizontal_rays
         self.max_distance = max_distance
         self.vertical_angle = vertical_angle
         self.vertical_rays = vertical_rays
         self.vertical_fov = vertical_fov
+        self.visualize_rays = visualize_rays
 
 
 class InitialEnvironmentConfig:
@@ -247,4 +249,5 @@ class InitialEnvironmentConfig:
             initial_env.lidar_config.vertical_angle = self.lidar_config.vertical_angle
             initial_env.lidar_config.vertical_rays = self.lidar_config.vertical_rays
             initial_env.lidar_config.vertical_fov = self.lidar_config.vertical_fov
+            initial_env.lidar_config.visualize_rays = self.lidar_config.visualize_rays
         return initial_env

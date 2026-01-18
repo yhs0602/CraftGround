@@ -28,6 +28,7 @@ message LidarConfig {
   float vertical_angle = 3;    // Vertical angle offset from horizontal plane in degrees (0.0 = horizontal)
   int32 vertical_rays = 4;     // Number of vertical ray layers (default 1 for single horizontal plane)
   float vertical_fov = 5;      // Vertical field of view in degrees (e.g., 30.0 for +/- 15 degrees)
+  bool visualize_rays = 6;     // If true, render rays on screen (not supported in zerocopy mode)
 }
 
 message InitialEnvironmentMessage {

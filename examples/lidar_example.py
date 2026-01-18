@@ -16,12 +16,14 @@ from craftground import LidarConfig
 # - vertical_angle: Vertical angle offset (0.0 = horizontal plane)
 # - vertical_rays: Number of vertical layers (1 = single horizontal plane)
 # - vertical_fov: Vertical field of view when using multiple vertical rays
+# - visualize_rays: If True, draw rays on screen (not supported in zerocopy mode)
 lidar_config = LidarConfig(
     horizontal_rays=32,  # 32 rays around 360 degrees (11.25° between each ray)
     max_distance=100.0,  # Raycast up to 100 blocks
     vertical_angle=0.0,  # Horizontal plane
     vertical_rays=1,  # Single horizontal layer
     vertical_fov=30.0,  # Not used when vertical_rays=1
+    visualize_rays=False,  # Set to True to see rays rendered in-game
 )
 
 # For a multi-layer Lidar (like a real Velodyne), use:

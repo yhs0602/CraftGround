@@ -185,6 +185,17 @@ class MinecraftEnv :
         FramebufferCapturer.requiresDepthConversion = initialEnvironment.requiresDepthConversion
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
 
+        // Check for visualize_rays with zerocopy mode (not supported)
+        if (initialEnvironment.hasLidarConfig() && initialEnvironment.lidarConfig.visualizeRays) {
+            if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+                throw RuntimeException(
+                    "visualize_rays is not supported in zerocopy mode. " +
+                        "Please use RAW or PNG screen_encoding_mode instead.",
+                )
+            }
+            LidarRayVisualizer.enable()
+        }
+
         // Check the collision info dict and override collision dynamically
 //        Blocks.BLUE_ICE.defaultState.onEntityCollision()
         for (blockCollisionKey in initialEnvironment.blockCollisionKeysList) {
@@ -852,6 +863,7 @@ class MinecraftEnv :
                         val maxDistance = lidarConfig.maxDistance.toDouble()
                         val verticalRays = lidarConfig.verticalRays
                         val verticalFov = lidarConfig.verticalFov
+                        val visualizeRays = lidarConfig.visualizeRays
 
                         // Calculate vertical angles
                         val verticalAngles =
@@ -864,6 +876,9 @@ class MinecraftEnv :
                                 }
                             }
                         val resultRays = mutableListOf<ObservationSpace.LidarRay>()
+                        val visualRays = mutableListOf<LidarRayVisualizer.VisualRay>()
+                        val cameraPos = player.getCameraPosVec(1.0f)
+
                         for (verticalAngle in verticalAngles) {
                             for (i in 0 until horizontalRays) {
                                 val horizontalAngle = (i.toFloat() * 360.0f / horizontalRays)
@@ -892,8 +907,32 @@ class MinecraftEnv :
                                         angleVertical = verticalAngle
                                     },
                                 )
+
+                                // Store ray for visualization if enabled
+                                if (visualizeRays) {
+                                    val yawRad = Math.toRadians(yaw.toDouble())
+                                    val pitchRad = Math.toRadians(pitch.toDouble())
+                                    val xDir = -Math.sin(yawRad) * Math.cos(pitchRad)
+                                    val yDir = -Math.sin(pitchRad)
+                                    val zDir = Math.cos(yawRad) * Math.cos(pitchRad)
+                                    val direction = Vec3d(xDir, yDir, zDir)
+                                    val endPoint = cameraPos.add(direction.multiply(raycastResult.distance.toDouble()))
+                                    visualRays.add(
+                                        LidarRayVisualizer.VisualRay(
+                                            start = cameraPos,
+                                            end = endPoint,
+                                            hitType = raycastResult.hitType,
+                                        ),
+                                    )
+                                }
                             }
                         }
+
+                        // Update LidarRayVisualizer with new rays
+                        if (visualizeRays) {
+                            LidarRayVisualizer.updateRays(visualRays)
+                        }
+
                         lidarResult =
                             lidarResult {
                                 this.horizontalRays = horizontalRays
