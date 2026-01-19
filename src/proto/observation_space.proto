@@ -115,6 +115,16 @@ message LidarResult {
   float max_distance = 4;      // Maximum distance used
 }
 
+// Audio waveform data captured via OpenAL SOFT_loopback extension
+message AudioWaveform {
+  bytes pcm_data = 1;          // Raw PCM audio data (16-bit signed, little-endian)
+  int32 sample_rate = 2;       // Sample rate in Hz (e.g., 44100)
+  int32 channels = 3;          // Number of channels (1=mono, 2=stereo)
+  int32 bits_per_sample = 4;   // Bits per sample (typically 16)
+  int32 num_samples = 5;       // Number of samples per channel in this buffer
+  int64 timestamp_ticks = 6;   // Game tick when this audio was captured
+}
+
 message ObservationSpaceMessage {
   bytes image = 1;
   double x = 2;
@@ -160,4 +170,5 @@ message ObservationSpaceMessage {
   double velocity_y = 42;
   double velocity_z = 43;
   LidarResult lidar_result = 44;  // Lidar scan result if lidar is enabled
+  AudioWaveform audio_waveform = 45;  // Raw audio waveform if audio loopback is enabled
 }

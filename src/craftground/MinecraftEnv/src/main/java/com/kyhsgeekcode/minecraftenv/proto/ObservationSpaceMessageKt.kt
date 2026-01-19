@@ -1619,6 +1619,45 @@ public object ObservationSpaceMessageKt {
 
     public val ObservationSpaceMessageKt.Dsl.lidarResultOrNull: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult?
       get() = _builder.lidarResultOrNull
+
+    /**
+     * ```
+     * Raw audio waveform if audio loopback is enabled
+     * ```
+     *
+     * `.AudioWaveform audio_waveform = 45;`
+     */
+    public var audioWaveform: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform
+      @JvmName("getAudioWaveform")
+      get() = _builder.audioWaveform
+      @JvmName("setAudioWaveform")
+      set(value) {
+        _builder.audioWaveform = value
+      }
+    /**
+     * ```
+     * Raw audio waveform if audio loopback is enabled
+     * ```
+     *
+     * `.AudioWaveform audio_waveform = 45;`
+     */
+    public fun clearAudioWaveform() {
+      _builder.clearAudioWaveform()
+    }
+    /**
+     * ```
+     * Raw audio waveform if audio loopback is enabled
+     * ```
+     *
+     * `.AudioWaveform audio_waveform = 45;`
+     * @return Whether the audioWaveform field is set.
+     */
+    public fun hasAudioWaveform(): kotlin.Boolean {
+      return _builder.hasAudioWaveform()
+    }
+
+    public val ObservationSpaceMessageKt.Dsl.audioWaveformOrNull: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform?
+      get() = _builder.audioWaveformOrNull
   }
 }
 @kotlin.jvm.JvmSynthetic
@@ -1633,4 +1672,7 @@ public val com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpace
 
 public val com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessageOrBuilder.lidarResultOrNull: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult?
   get() = if (hasLidarResult()) getLidarResult() else null
+
+public val com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessageOrBuilder.audioWaveformOrNull: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform?
+  get() = if (hasAudioWaveform()) getAudioWaveform() else null
 

@@ -299,3 +299,6 @@ dejavu-fonts-ttf-2.37
 .pdm-python
 .DS_Store
 *.dylib
+
+# Minecraft decompiled sources (for reference only)
+src/craftground/MinecraftEnv/minecraft_sources/

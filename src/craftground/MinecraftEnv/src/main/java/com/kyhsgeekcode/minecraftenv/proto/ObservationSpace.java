@@ -12657,6 +12657,930 @@ public final class ObservationSpace {
 
   }
 
+  public interface AudioWaveformOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:AudioWaveform)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * Raw PCM audio data (16-bit signed, little-endian)
+     * </pre>
+     *
+     * <code>bytes pcm_data = 1;</code>
+     * @return The pcmData.
+     */
+    com.google.protobuf.ByteString getPcmData();
+
+    /**
+     * <pre>
+     * Sample rate in Hz (e.g., 44100)
+     * </pre>
+     *
+     * <code>int32 sample_rate = 2;</code>
+     * @return The sampleRate.
+     */
+    int getSampleRate();
+
+    /**
+     * <pre>
+     * Number of channels (1=mono, 2=stereo)
+     * </pre>
+     *
+     * <code>int32 channels = 3;</code>
+     * @return The channels.
+     */
+    int getChannels();
+
+    /**
+     * <pre>
+     * Bits per sample (typically 16)
+     * </pre>
+     *
+     * <code>int32 bits_per_sample = 4;</code>
+     * @return The bitsPerSample.
+     */
+    int getBitsPerSample();
+
+    /**
+     * <pre>
+     * Number of samples per channel in this buffer
+     * </pre>
+     *
+     * <code>int32 num_samples = 5;</code>
+     * @return The numSamples.
+     */
+    int getNumSamples();
+
+    /**
+     * <pre>
+     * Game tick when this audio was captured
+     * </pre>
+     *
+     * <code>int64 timestamp_ticks = 6;</code>
+     * @return The timestampTicks.
+     */
+    long getTimestampTicks();
+  }
+  /**
+   * <pre>
+   * Audio waveform data captured via OpenAL SOFT_loopback extension
+   * </pre>
+   *
+   * Protobuf type {@code AudioWaveform}
+   */
+  public static final class AudioWaveform extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:AudioWaveform)
+      AudioWaveformOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 29,
+        /* patch= */ 2,
+        /* suffix= */ "",
+        AudioWaveform.class.getName());
+    }
+    // Use AudioWaveform.newBuilder() to construct.
+    private AudioWaveform(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private AudioWaveform() {
+      pcmData_ = com.google.protobuf.ByteString.EMPTY;
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_AudioWaveform_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_AudioWaveform_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.Builder.class);
+    }
+
+    public static final int PCM_DATA_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString pcmData_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <pre>
+     * Raw PCM audio data (16-bit signed, little-endian)
+     * </pre>
+     *
+     * <code>bytes pcm_data = 1;</code>
+     * @return The pcmData.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString getPcmData() {
+      return pcmData_;
+    }
+
+    public static final int SAMPLE_RATE_FIELD_NUMBER = 2;
+    private int sampleRate_ = 0;
+    /**
+     * <pre>
+     * Sample rate in Hz (e.g., 44100)
+     * </pre>
+     *
+     * <code>int32 sample_rate = 2;</code>
+     * @return The sampleRate.
+     */
+    @java.lang.Override
+    public int getSampleRate() {
+      return sampleRate_;
+    }
+
+    public static final int CHANNELS_FIELD_NUMBER = 3;
+    private int channels_ = 0;
+    /**
+     * <pre>
+     * Number of channels (1=mono, 2=stereo)
+     * </pre>
+     *
+     * <code>int32 channels = 3;</code>
+     * @return The channels.
+     */
+    @java.lang.Override
+    public int getChannels() {
+      return channels_;
+    }
+
+    public static final int BITS_PER_SAMPLE_FIELD_NUMBER = 4;
+    private int bitsPerSample_ = 0;
+    /**
+     * <pre>
+     * Bits per sample (typically 16)
+     * </pre>
+     *
+     * <code>int32 bits_per_sample = 4;</code>
+     * @return The bitsPerSample.
+     */
+    @java.lang.Override
+    public int getBitsPerSample() {
+      return bitsPerSample_;
+    }
+
+    public static final int NUM_SAMPLES_FIELD_NUMBER = 5;
+    private int numSamples_ = 0;
+    /**
+     * <pre>
+     * Number of samples per channel in this buffer
+     * </pre>
+     *
+     * <code>int32 num_samples = 5;</code>
+     * @return The numSamples.
+     */
+    @java.lang.Override
+    public int getNumSamples() {
+      return numSamples_;
+    }
+
+    public static final int TIMESTAMP_TICKS_FIELD_NUMBER = 6;
+    private long timestampTicks_ = 0L;
+    /**
+     * <pre>
+     * Game tick when this audio was captured
+     * </pre>
+     *
+     * <code>int64 timestamp_ticks = 6;</code>
+     * @return The timestampTicks.
+     */
+    @java.lang.Override
+    public long getTimestampTicks() {
+      return timestampTicks_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!pcmData_.isEmpty()) {
+        output.writeBytes(1, pcmData_);
+      }
+      if (sampleRate_ != 0) {
+        output.writeInt32(2, sampleRate_);
+      }
+      if (channels_ != 0) {
+        output.writeInt32(3, channels_);
+      }
+      if (bitsPerSample_ != 0) {
+        output.writeInt32(4, bitsPerSample_);
+      }
+      if (numSamples_ != 0) {
+        output.writeInt32(5, numSamples_);
+      }
+      if (timestampTicks_ != 0L) {
+        output.writeInt64(6, timestampTicks_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!pcmData_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, pcmData_);
+      }
+      if (sampleRate_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, sampleRate_);
+      }
+      if (channels_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, channels_);
+      }
+      if (bitsPerSample_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(4, bitsPerSample_);
+      }
+      if (numSamples_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, numSamples_);
+      }
+      if (timestampTicks_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(6, timestampTicks_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform)) {
+        return super.equals(obj);
+      }
+      com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform other = (com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform) obj;
+
+      if (!getPcmData()
+          .equals(other.getPcmData())) return false;
+      if (getSampleRate()
+          != other.getSampleRate()) return false;
+      if (getChannels()
+          != other.getChannels()) return false;
+      if (getBitsPerSample()
+          != other.getBitsPerSample()) return false;
+      if (getNumSamples()
+          != other.getNumSamples()) return false;
+      if (getTimestampTicks()
+          != other.getTimestampTicks()) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + PCM_DATA_FIELD_NUMBER;
+      hash = (53 * hash) + getPcmData().hashCode();
+      hash = (37 * hash) + SAMPLE_RATE_FIELD_NUMBER;
+      hash = (53 * hash) + getSampleRate();
+      hash = (37 * hash) + CHANNELS_FIELD_NUMBER;
+      hash = (53 * hash) + getChannels();
+      hash = (37 * hash) + BITS_PER_SAMPLE_FIELD_NUMBER;
+      hash = (53 * hash) + getBitsPerSample();
+      hash = (37 * hash) + NUM_SAMPLES_FIELD_NUMBER;
+      hash = (53 * hash) + getNumSamples();
+      hash = (37 * hash) + TIMESTAMP_TICKS_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTimestampTicks());
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * Audio waveform data captured via OpenAL SOFT_loopback extension
+     * </pre>
+     *
+     * Protobuf type {@code AudioWaveform}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:AudioWaveform)
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveformOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_AudioWaveform_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_AudioWaveform_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.class, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.Builder.class);
+      }
+
+      // Construct using com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        pcmData_ = com.google.protobuf.ByteString.EMPTY;
+        sampleRate_ = 0;
+        channels_ = 0;
+        bitsPerSample_ = 0;
+        numSamples_ = 0;
+        timestampTicks_ = 0L;
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.internal_static_AudioWaveform_descriptor;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform getDefaultInstanceForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform build() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform buildPartial() {
+        com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform result = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.pcmData_ = pcmData_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.sampleRate_ = sampleRate_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.channels_ = channels_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.bitsPerSample_ = bitsPerSample_;
+        }
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          result.numSamples_ = numSamples_;
+        }
+        if (((from_bitField0_ & 0x00000020) != 0)) {
+          result.timestampTicks_ = timestampTicks_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform) {
+          return mergeFrom((com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform other) {
+        if (other == com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.getDefaultInstance()) return this;
+        if (other.getPcmData() != com.google.protobuf.ByteString.EMPTY) {
+          setPcmData(other.getPcmData());
+        }
+        if (other.getSampleRate() != 0) {
+          setSampleRate(other.getSampleRate());
+        }
+        if (other.getChannels() != 0) {
+          setChannels(other.getChannels());
+        }
+        if (other.getBitsPerSample() != 0) {
+          setBitsPerSample(other.getBitsPerSample());
+        }
+        if (other.getNumSamples() != 0) {
+          setNumSamples(other.getNumSamples());
+        }
+        if (other.getTimestampTicks() != 0L) {
+          setTimestampTicks(other.getTimestampTicks());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                pcmData_ = input.readBytes();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              case 16: {
+                sampleRate_ = input.readInt32();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              case 24: {
+                channels_ = input.readInt32();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 24
+              case 32: {
+                bitsPerSample_ = input.readInt32();
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 32
+              case 40: {
+                numSamples_ = input.readInt32();
+                bitField0_ |= 0x00000010;
+                break;
+              } // case 40
+              case 48: {
+                timestampTicks_ = input.readInt64();
+                bitField0_ |= 0x00000020;
+                break;
+              } // case 48
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.ByteString pcmData_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <pre>
+       * Raw PCM audio data (16-bit signed, little-endian)
+       * </pre>
+       *
+       * <code>bytes pcm_data = 1;</code>
+       * @return The pcmData.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString getPcmData() {
+        return pcmData_;
+      }
+      /**
+       * <pre>
+       * Raw PCM audio data (16-bit signed, little-endian)
+       * </pre>
+       *
+       * <code>bytes pcm_data = 1;</code>
+       * @param value The pcmData to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPcmData(com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        pcmData_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Raw PCM audio data (16-bit signed, little-endian)
+       * </pre>
+       *
+       * <code>bytes pcm_data = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPcmData() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        pcmData_ = getDefaultInstance().getPcmData();
+        onChanged();
+        return this;
+      }
+
+      private int sampleRate_ ;
+      /**
+       * <pre>
+       * Sample rate in Hz (e.g., 44100)
+       * </pre>
+       *
+       * <code>int32 sample_rate = 2;</code>
+       * @return The sampleRate.
+       */
+      @java.lang.Override
+      public int getSampleRate() {
+        return sampleRate_;
+      }
+      /**
+       * <pre>
+       * Sample rate in Hz (e.g., 44100)
+       * </pre>
+       *
+       * <code>int32 sample_rate = 2;</code>
+       * @param value The sampleRate to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSampleRate(int value) {
+
+        sampleRate_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Sample rate in Hz (e.g., 44100)
+       * </pre>
+       *
+       * <code>int32 sample_rate = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearSampleRate() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        sampleRate_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int channels_ ;
+      /**
+       * <pre>
+       * Number of channels (1=mono, 2=stereo)
+       * </pre>
+       *
+       * <code>int32 channels = 3;</code>
+       * @return The channels.
+       */
+      @java.lang.Override
+      public int getChannels() {
+        return channels_;
+      }
+      /**
+       * <pre>
+       * Number of channels (1=mono, 2=stereo)
+       * </pre>
+       *
+       * <code>int32 channels = 3;</code>
+       * @param value The channels to set.
+       * @return This builder for chaining.
+       */
+      public Builder setChannels(int value) {
+
+        channels_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Number of channels (1=mono, 2=stereo)
+       * </pre>
+       *
+       * <code>int32 channels = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearChannels() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        channels_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int bitsPerSample_ ;
+      /**
+       * <pre>
+       * Bits per sample (typically 16)
+       * </pre>
+       *
+       * <code>int32 bits_per_sample = 4;</code>
+       * @return The bitsPerSample.
+       */
+      @java.lang.Override
+      public int getBitsPerSample() {
+        return bitsPerSample_;
+      }
+      /**
+       * <pre>
+       * Bits per sample (typically 16)
+       * </pre>
+       *
+       * <code>int32 bits_per_sample = 4;</code>
+       * @param value The bitsPerSample to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBitsPerSample(int value) {
+
+        bitsPerSample_ = value;
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Bits per sample (typically 16)
+       * </pre>
+       *
+       * <code>int32 bits_per_sample = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearBitsPerSample() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        bitsPerSample_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int numSamples_ ;
+      /**
+       * <pre>
+       * Number of samples per channel in this buffer
+       * </pre>
+       *
+       * <code>int32 num_samples = 5;</code>
+       * @return The numSamples.
+       */
+      @java.lang.Override
+      public int getNumSamples() {
+        return numSamples_;
+      }
+      /**
+       * <pre>
+       * Number of samples per channel in this buffer
+       * </pre>
+       *
+       * <code>int32 num_samples = 5;</code>
+       * @param value The numSamples to set.
+       * @return This builder for chaining.
+       */
+      public Builder setNumSamples(int value) {
+
+        numSamples_ = value;
+        bitField0_ |= 0x00000010;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Number of samples per channel in this buffer
+       * </pre>
+       *
+       * <code>int32 num_samples = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearNumSamples() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        numSamples_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long timestampTicks_ ;
+      /**
+       * <pre>
+       * Game tick when this audio was captured
+       * </pre>
+       *
+       * <code>int64 timestamp_ticks = 6;</code>
+       * @return The timestampTicks.
+       */
+      @java.lang.Override
+      public long getTimestampTicks() {
+        return timestampTicks_;
+      }
+      /**
+       * <pre>
+       * Game tick when this audio was captured
+       * </pre>
+       *
+       * <code>int64 timestamp_ticks = 6;</code>
+       * @param value The timestampTicks to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTimestampTicks(long value) {
+
+        timestampTicks_ = value;
+        bitField0_ |= 0x00000020;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Game tick when this audio was captured
+       * </pre>
+       *
+       * <code>int64 timestamp_ticks = 6;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTimestampTicks() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        timestampTicks_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:AudioWaveform)
+    }
+
+    // @@protoc_insertion_point(class_scope:AudioWaveform)
+    private static final com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform();
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<AudioWaveform>
+        PARSER = new com.google.protobuf.AbstractParser<AudioWaveform>() {
+      @java.lang.Override
+      public AudioWaveform parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<AudioWaveform> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<AudioWaveform> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface ObservationSpaceMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:ObservationSpaceMessage)
       com.google.protobuf.MessageOrBuilder {
@@ -13286,6 +14210,33 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
      * <code>.LidarResult lidar_result = 44;</code>
      */
     com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResultOrBuilder getLidarResultOrBuilder();
+
+    /**
+     * <pre>
+     * Raw audio waveform if audio loopback is enabled
+     * </pre>
+     *
+     * <code>.AudioWaveform audio_waveform = 45;</code>
+     * @return Whether the audioWaveform field is set.
+     */
+    boolean hasAudioWaveform();
+    /**
+     * <pre>
+     * Raw audio waveform if audio loopback is enabled
+     * </pre>
+     *
+     * <code>.AudioWaveform audio_waveform = 45;</code>
+     * @return The audioWaveform.
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform getAudioWaveform();
+    /**
+     * <pre>
+     * Raw audio waveform if audio loopback is enabled
+     * </pre>
+     *
+     * <code>.AudioWaveform audio_waveform = 45;</code>
+     */
+    com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveformOrBuilder getAudioWaveformOrBuilder();
   }
   /**
    * Protobuf type {@code ObservationSpaceMessage}
@@ -14532,6 +15483,44 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       return lidarResult_ == null ? com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.LidarResult.getDefaultInstance() : lidarResult_;
     }
 
+    public static final int AUDIO_WAVEFORM_FIELD_NUMBER = 45;
+    private com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform audioWaveform_;
+    /**
+     * <pre>
+     * Raw audio waveform if audio loopback is enabled
+     * </pre>
+     *
+     * <code>.AudioWaveform audio_waveform = 45;</code>
+     * @return Whether the audioWaveform field is set.
+     */
+    @java.lang.Override
+    public boolean hasAudioWaveform() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <pre>
+     * Raw audio waveform if audio loopback is enabled
+     * </pre>
+     *
+     * <code>.AudioWaveform audio_waveform = 45;</code>
+     * @return The audioWaveform.
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform getAudioWaveform() {
+      return audioWaveform_ == null ? com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.getDefaultInstance() : audioWaveform_;
+    }
+    /**
+     * <pre>
+     * Raw audio waveform if audio loopback is enabled
+     * </pre>
+     *
+     * <code>.AudioWaveform audio_waveform = 45;</code>
+     */
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveformOrBuilder getAudioWaveformOrBuilder() {
+      return audioWaveform_ == null ? com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.getDefaultInstance() : audioWaveform_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -14694,6 +15683,9 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       }
       if (((bitField0_ & 0x00000004) != 0)) {
         output.writeMessage(44, getLidarResult());
+      }
+      if (((bitField0_ & 0x00000008) != 0)) {
+        output.writeMessage(45, getAudioWaveform());
       }
       getUnknownFields().writeTo(output);
     }
@@ -14910,6 +15902,10 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(44, getLidarResult());
       }
+      if (((bitField0_ & 0x00000008) != 0)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(45, getAudioWaveform());
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -15032,6 +16028,11 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       if (hasLidarResult()) {
         if (!getLidarResult()
             .equals(other.getLidarResult())) return false;
+      }
+      if (hasAudioWaveform() != other.hasAudioWaveform()) return false;
+      if (hasAudioWaveform()) {
+        if (!getAudioWaveform()
+            .equals(other.getAudioWaveform())) return false;
       }
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
@@ -15188,6 +16189,10 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       if (hasLidarResult()) {
         hash = (37 * hash) + LIDAR_RESULT_FIELD_NUMBER;
         hash = (53 * hash) + getLidarResult().hashCode();
+      }
+      if (hasAudioWaveform()) {
+        hash = (37 * hash) + AUDIO_WAVEFORM_FIELD_NUMBER;
+        hash = (53 * hash) + getAudioWaveform().hashCode();
       }
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
@@ -15366,6 +16371,7 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
           getBlockCollisionsFieldBuilder();
           getEntityCollisionsFieldBuilder();
           getLidarResultFieldBuilder();
+          getAudioWaveformFieldBuilder();
         }
       }
       @java.lang.Override
@@ -15488,6 +16494,11 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         if (lidarResultBuilder_ != null) {
           lidarResultBuilder_.dispose();
           lidarResultBuilder_ = null;
+        }
+        audioWaveform_ = null;
+        if (audioWaveformBuilder_ != null) {
+          audioWaveformBuilder_.dispose();
+          audioWaveformBuilder_ = null;
         }
         return this;
       }
@@ -15738,6 +16749,12 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
               ? lidarResult_
               : lidarResultBuilder_.build();
           to_bitField0_ |= 0x00000004;
+        }
+        if (((from_bitField1_ & 0x00001000) != 0)) {
+          result.audioWaveform_ = audioWaveformBuilder_ == null
+              ? audioWaveform_
+              : audioWaveformBuilder_.build();
+          to_bitField0_ |= 0x00000008;
         }
         result.bitField0_ |= to_bitField0_;
       }
@@ -16126,6 +17143,9 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         if (other.hasLidarResult()) {
           mergeLidarResult(other.getLidarResult());
         }
+        if (other.hasAudioWaveform()) {
+          mergeAudioWaveform(other.getAudioWaveform());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
@@ -16486,6 +17506,13 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
                 bitField1_ |= 0x00000800;
                 break;
               } // case 354
+              case 362: {
+                input.readMessage(
+                    getAudioWaveformFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                bitField1_ |= 0x00001000;
+                break;
+              } // case 362
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -20867,6 +21894,163 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
         return lidarResultBuilder_;
       }
 
+      private com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform audioWaveform_;
+      private com.google.protobuf.SingleFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveformOrBuilder> audioWaveformBuilder_;
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       * @return Whether the audioWaveform field is set.
+       */
+      public boolean hasAudioWaveform() {
+        return ((bitField1_ & 0x00001000) != 0);
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       * @return The audioWaveform.
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform getAudioWaveform() {
+        if (audioWaveformBuilder_ == null) {
+          return audioWaveform_ == null ? com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.getDefaultInstance() : audioWaveform_;
+        } else {
+          return audioWaveformBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       */
+      public Builder setAudioWaveform(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform value) {
+        if (audioWaveformBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          audioWaveform_ = value;
+        } else {
+          audioWaveformBuilder_.setMessage(value);
+        }
+        bitField1_ |= 0x00001000;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       */
+      public Builder setAudioWaveform(
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.Builder builderForValue) {
+        if (audioWaveformBuilder_ == null) {
+          audioWaveform_ = builderForValue.build();
+        } else {
+          audioWaveformBuilder_.setMessage(builderForValue.build());
+        }
+        bitField1_ |= 0x00001000;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       */
+      public Builder mergeAudioWaveform(com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform value) {
+        if (audioWaveformBuilder_ == null) {
+          if (((bitField1_ & 0x00001000) != 0) &&
+            audioWaveform_ != null &&
+            audioWaveform_ != com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.getDefaultInstance()) {
+            getAudioWaveformBuilder().mergeFrom(value);
+          } else {
+            audioWaveform_ = value;
+          }
+        } else {
+          audioWaveformBuilder_.mergeFrom(value);
+        }
+        if (audioWaveform_ != null) {
+          bitField1_ |= 0x00001000;
+          onChanged();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       */
+      public Builder clearAudioWaveform() {
+        bitField1_ = (bitField1_ & ~0x00001000);
+        audioWaveform_ = null;
+        if (audioWaveformBuilder_ != null) {
+          audioWaveformBuilder_.dispose();
+          audioWaveformBuilder_ = null;
+        }
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.Builder getAudioWaveformBuilder() {
+        bitField1_ |= 0x00001000;
+        onChanged();
+        return getAudioWaveformFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       */
+      public com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveformOrBuilder getAudioWaveformOrBuilder() {
+        if (audioWaveformBuilder_ != null) {
+          return audioWaveformBuilder_.getMessageOrBuilder();
+        } else {
+          return audioWaveform_ == null ?
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.getDefaultInstance() : audioWaveform_;
+        }
+      }
+      /**
+       * <pre>
+       * Raw audio waveform if audio loopback is enabled
+       * </pre>
+       *
+       * <code>.AudioWaveform audio_waveform = 45;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveformOrBuilder> 
+          getAudioWaveformFieldBuilder() {
+        if (audioWaveformBuilder_ == null) {
+          audioWaveformBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveform.Builder, com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.AudioWaveformOrBuilder>(
+                  getAudioWaveform(),
+                  getParentForChildren(),
+                  isClean());
+          audioWaveform_ = null;
+        }
+        return audioWaveformBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:ObservationSpaceMessage)
     }
 
@@ -20994,6 +22178,11 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_LidarResult_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_AudioWaveform_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_AudioWaveform_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ObservationSpaceMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -21063,48 +22252,53 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       "gle_vertical\030\006 \001(\002\"l\n\013LidarResult\022\027\n\004ray" +
       "s\030\001 \003(\0132\t.LidarRay\022\027\n\017horizontal_rays\030\002 " +
       "\001(\005\022\025\n\rvertical_rays\030\003 \001(\005\022\024\n\014max_distan" +
-      "ce\030\004 \001(\002\"\306\014\n\027ObservationSpaceMessage\022\r\n\005" +
-      "image\030\001 \001(\014\022\t\n\001x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004" +
-      " \001(\001\022\013\n\003yaw\030\005 \001(\001\022\r\n\005pitch\030\006 \001(\001\022\016\n\006heal" +
-      "th\030\007 \001(\001\022\022\n\nfood_level\030\010 \001(\001\022\030\n\020saturati" +
-      "on_level\030\t \001(\001\022\017\n\007is_dead\030\n \001(\010\022\035\n\tinven" +
-      "tory\030\013 \003(\0132\n.ItemStack\022\"\n\016raycast_result" +
-      "\030\014 \001(\0132\n.HitResult\022$\n\017sound_subtitles\030\r " +
-      "\003(\0132\013.SoundEntry\022%\n\016status_effects\030\016 \003(\013" +
-      "2\r.StatusEffect\022I\n\021killed_statistics\030\017 \003" +
-      "(\0132..ObservationSpaceMessage.KilledStati" +
-      "sticsEntry\022G\n\020mined_statistics\030\020 \003(\0132-.O" +
-      "bservationSpaceMessage.MinedStatisticsEn" +
-      "try\022E\n\017misc_statistics\030\021 \003(\0132,.Observati" +
-      "onSpaceMessage.MiscStatisticsEntry\022%\n\020vi" +
-      "sible_entities\030\022 \003(\0132\013.EntityInfo\022O\n\024sur" +
-      "rounding_entities\030\023 \003(\01321.ObservationSpa" +
-      "ceMessage.SurroundingEntitiesEntry\022\025\n\rbo" +
-      "bber_thrown\030\024 \001(\010\022\022\n\nexperience\030\025 \001(\005\022\022\n" +
-      "\nworld_time\030\026 \001(\003\022\032\n\022last_death_message\030" +
-      "\027 \001(\t\022\017\n\007image_2\030\030 \001(\014\022&\n\022surrounding_bl" +
-      "ocks\030\031 \003(\0132\n.BlockInfo\022\024\n\014eye_in_block\030\032" +
-      " \001(\010\022\023\n\013suffocating\030\033 \001(\010\022\'\n\rchat_messag" +
-      "es\030\034 \003(\0132\020.ChatMessageInfo\022\036\n\nbiome_info" +
-      "\030\035 \001(\0132\n.BiomeInfo\022#\n\rnearby_biomes\030\036 \003(" +
-      "\0132\014.NearbyBiome\022\032\n\022submerged_in_water\030\037 " +
-      "\001(\010\022\022\n\nis_in_lava\030  \001(\010\022\031\n\021submerged_in_" +
-      "lava\030! \001(\010\022 \n\013height_info\030\" \003(\0132\013.Height" +
-      "Info\022\024\n\014is_on_ground\030# \001(\010\022\031\n\021is_touchin" +
-      "g_water\030$ \001(\010\022\022\n\nipc_handle\030% \001(\014\022\021\n\005dep" +
-      "th\030& \003(\002B\002\020\001\022-\n\020block_collisions\030\' \003(\0132\023" +
-      ".BlockCollisionInfo\022/\n\021entity_collisions" +
-      "\030( \003(\0132\024.EntityCollisionInfo\022\022\n\nvelocity" +
-      "_x\030) \001(\001\022\022\n\nvelocity_y\030* \001(\001\022\022\n\nvelocity" +
-      "_z\030+ \001(\001\022\"\n\014lidar_result\030, \001(\0132\014.LidarRe" +
-      "sult\0327\n\025KilledStatisticsEntry\022\013\n\003key\030\001 \001" +
-      "(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0326\n\024MinedStatistics" +
-      "Entry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n" +
-      "\023MiscStatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005val" +
-      "ue\030\002 \001(\005:\0028\001\032S\n\030SurroundingEntitiesEntry" +
-      "\022\013\n\003key\030\001 \001(\005\022&\n\005value\030\002 \001(\0132\027.EntitiesW" +
-      "ithinDistance:\0028\001B%\n#com.kyhsgeekcode.mi" +
-      "necraftenv.protob\006proto3"
+      "ce\030\004 \001(\002\"\217\001\n\rAudioWaveform\022\020\n\010pcm_data\030\001" +
+      " \001(\014\022\023\n\013sample_rate\030\002 \001(\005\022\020\n\010channels\030\003 " +
+      "\001(\005\022\027\n\017bits_per_sample\030\004 \001(\005\022\023\n\013num_samp" +
+      "les\030\005 \001(\005\022\027\n\017timestamp_ticks\030\006 \001(\003\"\356\014\n\027O" +
+      "bservationSpaceMessage\022\r\n\005image\030\001 \001(\014\022\t\n" +
+      "\001x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\013\n\003yaw\030\005 " +
+      "\001(\001\022\r\n\005pitch\030\006 \001(\001\022\016\n\006health\030\007 \001(\001\022\022\n\nfo" +
+      "od_level\030\010 \001(\001\022\030\n\020saturation_level\030\t \001(\001" +
+      "\022\017\n\007is_dead\030\n \001(\010\022\035\n\tinventory\030\013 \003(\0132\n.I" +
+      "temStack\022\"\n\016raycast_result\030\014 \001(\0132\n.HitRe" +
+      "sult\022$\n\017sound_subtitles\030\r \003(\0132\013.SoundEnt" +
+      "ry\022%\n\016status_effects\030\016 \003(\0132\r.StatusEffec" +
+      "t\022I\n\021killed_statistics\030\017 \003(\0132..Observati" +
+      "onSpaceMessage.KilledStatisticsEntry\022G\n\020" +
+      "mined_statistics\030\020 \003(\0132-.ObservationSpac" +
+      "eMessage.MinedStatisticsEntry\022E\n\017misc_st" +
+      "atistics\030\021 \003(\0132,.ObservationSpaceMessage" +
+      ".MiscStatisticsEntry\022%\n\020visible_entities" +
+      "\030\022 \003(\0132\013.EntityInfo\022O\n\024surrounding_entit" +
+      "ies\030\023 \003(\01321.ObservationSpaceMessage.Surr" +
+      "oundingEntitiesEntry\022\025\n\rbobber_thrown\030\024 " +
+      "\001(\010\022\022\n\nexperience\030\025 \001(\005\022\022\n\nworld_time\030\026 " +
+      "\001(\003\022\032\n\022last_death_message\030\027 \001(\t\022\017\n\007image" +
+      "_2\030\030 \001(\014\022&\n\022surrounding_blocks\030\031 \003(\0132\n.B" +
+      "lockInfo\022\024\n\014eye_in_block\030\032 \001(\010\022\023\n\013suffoc" +
+      "ating\030\033 \001(\010\022\'\n\rchat_messages\030\034 \003(\0132\020.Cha" +
+      "tMessageInfo\022\036\n\nbiome_info\030\035 \001(\0132\n.Biome" +
+      "Info\022#\n\rnearby_biomes\030\036 \003(\0132\014.NearbyBiom" +
+      "e\022\032\n\022submerged_in_water\030\037 \001(\010\022\022\n\nis_in_l" +
+      "ava\030  \001(\010\022\031\n\021submerged_in_lava\030! \001(\010\022 \n\013" +
+      "height_info\030\" \003(\0132\013.HeightInfo\022\024\n\014is_on_" +
+      "ground\030# \001(\010\022\031\n\021is_touching_water\030$ \001(\010\022" +
+      "\022\n\nipc_handle\030% \001(\014\022\021\n\005depth\030& \003(\002B\002\020\001\022-" +
+      "\n\020block_collisions\030\' \003(\0132\023.BlockCollisio" +
+      "nInfo\022/\n\021entity_collisions\030( \003(\0132\024.Entit" +
+      "yCollisionInfo\022\022\n\nvelocity_x\030) \001(\001\022\022\n\nve" +
+      "locity_y\030* \001(\001\022\022\n\nvelocity_z\030+ \001(\001\022\"\n\014li" +
+      "dar_result\030, \001(\0132\014.LidarResult\022&\n\016audio_" +
+      "waveform\030- \001(\0132\016.AudioWaveform\0327\n\025Killed" +
+      "StatisticsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 " +
+      "\001(\005:\0028\001\0326\n\024MinedStatisticsEntry\022\013\n\003key\030\001" +
+      " \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\0325\n\023MiscStatistic" +
+      "sEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\032S" +
+      "\n\030SurroundingEntitiesEntry\022\013\n\003key\030\001 \001(\005\022" +
+      "&\n\005value\030\002 \001(\0132\027.EntitiesWithinDistance:" +
+      "\0028\001B%\n#com.kyhsgeekcode.minecraftenv.pro" +
+      "tob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -21200,12 +22394,18 @@ com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntitiesWithinDistance defa
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_LidarResult_descriptor,
         new java.lang.String[] { "Rays", "HorizontalRays", "VerticalRays", "MaxDistance", });
-    internal_static_ObservationSpaceMessage_descriptor =
+    internal_static_AudioWaveform_descriptor =
       getDescriptor().getMessageTypes().get(15);
+    internal_static_AudioWaveform_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_AudioWaveform_descriptor,
+        new java.lang.String[] { "PcmData", "SampleRate", "Channels", "BitsPerSample", "NumSamples", "TimestampTicks", });
+    internal_static_ObservationSpaceMessage_descriptor =
+      getDescriptor().getMessageTypes().get(16);
     internal_static_ObservationSpaceMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_ObservationSpaceMessage_descriptor,
-        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", "BlockCollisions", "EntityCollisions", "VelocityX", "VelocityY", "VelocityZ", "LidarResult", });
+        new java.lang.String[] { "Image", "X", "Y", "Z", "Yaw", "Pitch", "Health", "FoodLevel", "SaturationLevel", "IsDead", "Inventory", "RaycastResult", "SoundSubtitles", "StatusEffects", "KilledStatistics", "MinedStatistics", "MiscStatistics", "VisibleEntities", "SurroundingEntities", "BobberThrown", "Experience", "WorldTime", "LastDeathMessage", "Image2", "SurroundingBlocks", "EyeInBlock", "Suffocating", "ChatMessages", "BiomeInfo", "NearbyBiomes", "SubmergedInWater", "IsInLava", "SubmergedInLava", "HeightInfo", "IsOnGround", "IsTouchingWater", "IpcHandle", "Depth", "BlockCollisions", "EntityCollisions", "VelocityX", "VelocityY", "VelocityZ", "LidarResult", "AudioWaveform", });
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_descriptor =
       internal_static_ObservationSpaceMessage_descriptor.getNestedTypes().get(0);
     internal_static_ObservationSpaceMessage_KilledStatisticsEntry_fieldAccessorTable = new

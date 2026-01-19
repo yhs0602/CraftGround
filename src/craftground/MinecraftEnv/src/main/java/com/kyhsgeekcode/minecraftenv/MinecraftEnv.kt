@@ -7,6 +7,7 @@ import com.kyhsgeekcode.minecraftenv.customentity.RealisticHuman
 import com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
 import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment
 import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace
+import com.kyhsgeekcode.minecraftenv.proto.audioWaveform
 import com.kyhsgeekcode.minecraftenv.proto.biomeInfo
 import com.kyhsgeekcode.minecraftenv.proto.blockInfo
 import com.kyhsgeekcode.minecraftenv.proto.chatMessageInfo
@@ -900,6 +901,20 @@ class MinecraftEnv :
                                 this.verticalRays = verticalRays
                                 this.maxDistance = maxDistance.toFloat()
                                 this.rays.addAll(resultRays)
+                            }
+                    }
+
+                    // Add audio waveform if loopback capture is enabled
+                    if (AudioLoopbackCapturer.isEnabled()) {
+                        AudioLoopbackCapturer.renderSamples()
+                        audioWaveform =
+                            audioWaveform {
+                                pcmData = AudioLoopbackCapturer.getWaveformData()
+                                sampleRate = AudioLoopbackCapturer.getSampleRate()
+                                channels = AudioLoopbackCapturer.getChannels()
+                                bitsPerSample = AudioLoopbackCapturer.getBitsPerSample()
+                                numSamples = AudioLoopbackCapturer.getSamplesPerRender()
+                                timestampTicks = world.time
                             }
                     }
                 }
