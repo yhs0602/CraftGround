@@ -200,8 +200,24 @@ class LidarResult(_message.Message):
     max_distance: float
     def __init__(self, rays: _Optional[_Iterable[_Union[LidarRay, _Mapping]]] = ..., horizontal_rays: _Optional[int] = ..., vertical_rays: _Optional[int] = ..., max_distance: _Optional[float] = ...) -> None: ...
 
+class AudioWaveform(_message.Message):
+    __slots__ = ("pcm_data", "sample_rate", "channels", "bits_per_sample", "num_samples", "timestamp_ticks")
+    PCM_DATA_FIELD_NUMBER: _ClassVar[int]
+    SAMPLE_RATE_FIELD_NUMBER: _ClassVar[int]
+    CHANNELS_FIELD_NUMBER: _ClassVar[int]
+    BITS_PER_SAMPLE_FIELD_NUMBER: _ClassVar[int]
+    NUM_SAMPLES_FIELD_NUMBER: _ClassVar[int]
+    TIMESTAMP_TICKS_FIELD_NUMBER: _ClassVar[int]
+    pcm_data: bytes
+    sample_rate: int
+    channels: int
+    bits_per_sample: int
+    num_samples: int
+    timestamp_ticks: int
+    def __init__(self, pcm_data: _Optional[bytes] = ..., sample_rate: _Optional[int] = ..., channels: _Optional[int] = ..., bits_per_sample: _Optional[int] = ..., num_samples: _Optional[int] = ..., timestamp_ticks: _Optional[int] = ...) -> None: ...
+
 class ObservationSpaceMessage(_message.Message):
-    __slots__ = ("image", "x", "y", "z", "yaw", "pitch", "health", "food_level", "saturation_level", "is_dead", "inventory", "raycast_result", "sound_subtitles", "status_effects", "killed_statistics", "mined_statistics", "misc_statistics", "visible_entities", "surrounding_entities", "bobber_thrown", "experience", "world_time", "last_death_message", "image_2", "surrounding_blocks", "eye_in_block", "suffocating", "chat_messages", "biome_info", "nearby_biomes", "submerged_in_water", "is_in_lava", "submerged_in_lava", "height_info", "is_on_ground", "is_touching_water", "ipc_handle", "depth", "block_collisions", "entity_collisions", "velocity_x", "velocity_y", "velocity_z", "lidar_result")
+    __slots__ = ("image", "x", "y", "z", "yaw", "pitch", "health", "food_level", "saturation_level", "is_dead", "inventory", "raycast_result", "sound_subtitles", "status_effects", "killed_statistics", "mined_statistics", "misc_statistics", "visible_entities", "surrounding_entities", "bobber_thrown", "experience", "world_time", "last_death_message", "image_2", "surrounding_blocks", "eye_in_block", "suffocating", "chat_messages", "biome_info", "nearby_biomes", "submerged_in_water", "is_in_lava", "submerged_in_lava", "height_info", "is_on_ground", "is_touching_water", "ipc_handle", "depth", "block_collisions", "entity_collisions", "velocity_x", "velocity_y", "velocity_z", "lidar_result", "audio_waveform")
     class KilledStatisticsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -274,6 +290,7 @@ class ObservationSpaceMessage(_message.Message):
     VELOCITY_Y_FIELD_NUMBER: _ClassVar[int]
     VELOCITY_Z_FIELD_NUMBER: _ClassVar[int]
     LIDAR_RESULT_FIELD_NUMBER: _ClassVar[int]
+    AUDIO_WAVEFORM_FIELD_NUMBER: _ClassVar[int]
     image: bytes
     x: float
     y: float
@@ -318,4 +335,5 @@ class ObservationSpaceMessage(_message.Message):
     velocity_y: float
     velocity_z: float
     lidar_result: LidarResult
-    def __init__(self, image: _Optional[bytes] = ..., x: _Optional[float] = ..., y: _Optional[float] = ..., z: _Optional[float] = ..., yaw: _Optional[float] = ..., pitch: _Optional[float] = ..., health: _Optional[float] = ..., food_level: _Optional[float] = ..., saturation_level: _Optional[float] = ..., is_dead: bool = ..., inventory: _Optional[_Iterable[_Union[ItemStack, _Mapping]]] = ..., raycast_result: _Optional[_Union[HitResult, _Mapping]] = ..., sound_subtitles: _Optional[_Iterable[_Union[SoundEntry, _Mapping]]] = ..., status_effects: _Optional[_Iterable[_Union[StatusEffect, _Mapping]]] = ..., killed_statistics: _Optional[_Mapping[str, int]] = ..., mined_statistics: _Optional[_Mapping[str, int]] = ..., misc_statistics: _Optional[_Mapping[str, int]] = ..., visible_entities: _Optional[_Iterable[_Union[EntityInfo, _Mapping]]] = ..., surrounding_entities: _Optional[_Mapping[int, EntitiesWithinDistance]] = ..., bobber_thrown: bool = ..., experience: _Optional[int] = ..., world_time: _Optional[int] = ..., last_death_message: _Optional[str] = ..., image_2: _Optional[bytes] = ..., surrounding_blocks: _Optional[_Iterable[_Union[BlockInfo, _Mapping]]] = ..., eye_in_block: bool = ..., suffocating: bool = ..., chat_messages: _Optional[_Iterable[_Union[ChatMessageInfo, _Mapping]]] = ..., biome_info: _Optional[_Union[BiomeInfo, _Mapping]] = ..., nearby_biomes: _Optional[_Iterable[_Union[NearbyBiome, _Mapping]]] = ..., submerged_in_water: bool = ..., is_in_lava: bool = ..., submerged_in_lava: bool = ..., height_info: _Optional[_Iterable[_Union[HeightInfo, _Mapping]]] = ..., is_on_ground: bool = ..., is_touching_water: bool = ..., ipc_handle: _Optional[bytes] = ..., depth: _Optional[_Iterable[float]] = ..., block_collisions: _Optional[_Iterable[_Union[BlockCollisionInfo, _Mapping]]] = ..., entity_collisions: _Optional[_Iterable[_Union[EntityCollisionInfo, _Mapping]]] = ..., velocity_x: _Optional[float] = ..., velocity_y: _Optional[float] = ..., velocity_z: _Optional[float] = ..., lidar_result: _Optional[_Union[LidarResult, _Mapping]] = ...) -> None: ...
+    audio_waveform: AudioWaveform
+    def __init__(self, image: _Optional[bytes] = ..., x: _Optional[float] = ..., y: _Optional[float] = ..., z: _Optional[float] = ..., yaw: _Optional[float] = ..., pitch: _Optional[float] = ..., health: _Optional[float] = ..., food_level: _Optional[float] = ..., saturation_level: _Optional[float] = ..., is_dead: bool = ..., inventory: _Optional[_Iterable[_Union[ItemStack, _Mapping]]] = ..., raycast_result: _Optional[_Union[HitResult, _Mapping]] = ..., sound_subtitles: _Optional[_Iterable[_Union[SoundEntry, _Mapping]]] = ..., status_effects: _Optional[_Iterable[_Union[StatusEffect, _Mapping]]] = ..., killed_statistics: _Optional[_Mapping[str, int]] = ..., mined_statistics: _Optional[_Mapping[str, int]] = ..., misc_statistics: _Optional[_Mapping[str, int]] = ..., visible_entities: _Optional[_Iterable[_Union[EntityInfo, _Mapping]]] = ..., surrounding_entities: _Optional[_Mapping[int, EntitiesWithinDistance]] = ..., bobber_thrown: bool = ..., experience: _Optional[int] = ..., world_time: _Optional[int] = ..., last_death_message: _Optional[str] = ..., image_2: _Optional[bytes] = ..., surrounding_blocks: _Optional[_Iterable[_Union[BlockInfo, _Mapping]]] = ..., eye_in_block: bool = ..., suffocating: bool = ..., chat_messages: _Optional[_Iterable[_Union[ChatMessageInfo, _Mapping]]] = ..., biome_info: _Optional[_Union[BiomeInfo, _Mapping]] = ..., nearby_biomes: _Optional[_Iterable[_Union[NearbyBiome, _Mapping]]] = ..., submerged_in_water: bool = ..., is_in_lava: bool = ..., submerged_in_lava: bool = ..., height_info: _Optional[_Iterable[_Union[HeightInfo, _Mapping]]] = ..., is_on_ground: bool = ..., is_touching_water: bool = ..., ipc_handle: _Optional[bytes] = ..., depth: _Optional[_Iterable[float]] = ..., block_collisions: _Optional[_Iterable[_Union[BlockCollisionInfo, _Mapping]]] = ..., entity_collisions: _Optional[_Iterable[_Union[EntityCollisionInfo, _Mapping]]] = ..., velocity_x: _Optional[float] = ..., velocity_y: _Optional[float] = ..., velocity_z: _Optional[float] = ..., lidar_result: _Optional[_Union[LidarResult, _Mapping]] = ..., audio_waveform: _Optional[_Union[AudioWaveform, _Mapping]] = ...) -> None: ...
