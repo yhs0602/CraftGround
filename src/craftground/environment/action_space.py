@@ -68,33 +68,47 @@ def translate_action_to_v2(action: ActType) -> Dict[str, Union[bool, float]]:
 def action_v2_dict_to_message(
     action_v2: Dict[str, Union[bool, float]]
 ) -> ActionSpaceMessageV2:
+    """Convert action dictionary to protocol buffer message.
+
+    Args:
+        action_v2: Dictionary containing action values
+
+    Returns:
+        ActionSpaceMessageV2 protocol buffer message
+    """
     action_space = ActionSpaceMessageV2()
-    action_space.attack = action_v2["attack"]
-    action_space.back = action_v2["back"]
-    action_space.forward = action_v2["forward"]
-    action_space.jump = action_v2["jump"]
-    action_space.left = action_v2["left"]
-    action_space.right = action_v2["right"]
-    action_space.sneak = action_v2["sneak"]
-    action_space.sprint = action_v2["sprint"]
-    action_space.use = action_v2["use"]
-    action_space.drop = action_v2["drop"]
-    action_space.inventory = action_v2["inventory"]
-    action_space.hotbar_1 = action_v2["hotbar.1"]
-    action_space.hotbar_2 = action_v2["hotbar.2"]
-    action_space.hotbar_3 = action_v2["hotbar.3"]
-    action_space.hotbar_4 = action_v2["hotbar.4"]
-    action_space.hotbar_5 = action_v2["hotbar.5"]
-    action_space.hotbar_6 = action_v2["hotbar.6"]
-    action_space.hotbar_7 = action_v2["hotbar.7"]
-    action_space.hotbar_8 = action_v2["hotbar.8"]
-    action_space.hotbar_9 = action_v2["hotbar.9"]
+
+    # Boolean actions
+    boolean_actions = [
+        "attack",
+        "back",
+        "forward",
+        "jump",
+        "left",
+        "right",
+        "sneak",
+        "sprint",
+        "use",
+        "drop",
+        "inventory",
+    ]
+    for action_name in boolean_actions:
+        setattr(action_space, action_name, action_v2.get(action_name, False))
+
+    # Hotbar actions (1-9)
+    for i in range(1, 10):
+        hotbar_key = f"hotbar.{i}"
+        hotbar_attr = f"hotbar_{i}"
+        setattr(action_space, hotbar_attr, action_v2.get(hotbar_key, False))
+
+    # Camera actions
     if "camera_pitch" in action_v2:
         action_space.camera_pitch = action_v2["camera_pitch"]
         action_space.camera_yaw = action_v2["camera_yaw"]
     elif "camera" in action_v2:
         action_space.camera_pitch = action_v2["camera"][0]
         action_space.camera_yaw = action_v2["camera"][1]
+
     return action_space
 
 

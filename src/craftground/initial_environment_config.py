@@ -1,8 +1,9 @@
-# import pdb
 from enum import Enum
 import os
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
+from .constants import MAX_IMAGE_SIZE, MIN_IMAGE_SIZE
+from .exceptions import InvalidImageSizeError
 from .proto import initial_environment_pb2
 from .screen_encoding_modes import ScreenEncodingMode
 
@@ -129,9 +130,31 @@ class InitialEnvironmentConfig:
         self.entity_collision_keys = entity_collision_keys or []
         self.map_dir_path = map_dir_path
         self.lidar_config = lidar_config
+
+        # Validate configuration
+        self._validate()
+
         # Check for unknown kwargs
         if kwargs:
             print(f"Unexpected Kwargs: {kwargs}")
+
+    def _validate(self):
+        """Validate configuration parameters.
+
+        Raises:
+            InvalidImageSizeError: If image dimensions are invalid
+        """
+        if self.imageSizeX < MIN_IMAGE_SIZE or self.imageSizeX > MAX_IMAGE_SIZE:
+            raise InvalidImageSizeError(
+                f"Image width must be between {MIN_IMAGE_SIZE} and {MAX_IMAGE_SIZE}, "
+                f"got {self.imageSizeX}"
+            )
+
+        if self.imageSizeY < MIN_IMAGE_SIZE or self.imageSizeY > MAX_IMAGE_SIZE:
+            raise InvalidImageSizeError(
+                f"Image height must be between {MIN_IMAGE_SIZE} and {MAX_IMAGE_SIZE}, "
+                f"got {self.imageSizeY}"
+            )
 
     def add_initial_mobs(self, mobs: List[str]):
         self.initialExtraCommands.extend([f"summon {mob}" for mob in mobs])

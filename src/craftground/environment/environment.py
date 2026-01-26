@@ -3,18 +3,22 @@ import re
 import shutil
 import signal
 import subprocess
-from enum import Enum
 import sys
 import threading
-from typing import Tuple, Optional, TypedDict, Union, List, Any, Dict
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, TypedDict, Union
 import weakref
 
 import gymnasium as gym
 import numpy as np
+import torch
 from gymnasium.core import ActType, RenderFrame
 
+from ..constants import PROCESS_TERMINATION_TIMEOUT
+from ..csv_logger import CsvLogger, LogBackend
+from ..exceptions import ProcessTerminationError
+from ..initial_environment_config import InitialEnvironmentConfig
 from ..proto.observation_space_pb2 import ObservationSpaceMessage
-
 from .action_space import (
     ActionSpaceVersion,
     action_v2_dict_to_message,
@@ -24,10 +28,6 @@ from .action_space import (
 from .observation_converter import ObservationConverter
 from .observation_space import declare_observation_space
 from .socket_ipc import SocketIPC
-
-from ..csv_logger import CsvLogger, LogBackend
-from ..initial_environment_config import InitialEnvironmentConfig
-import torch
 
 
 class ObservationTensorType(Enum):
@@ -157,6 +157,17 @@ class CraftGroundEnvironment(gym.Env):
         seed: Optional[int] = None,
         options: Optional[dict] = None,
     ) -> Tuple[TypedObservation, TypedObservation]:
+        """Reset the environment to an initial state.
+
+        Args:
+            seed: Optional random seed for environment initialization
+            options: Optional dictionary containing:
+                - fast_reset: If True, use fast reset (default: True)
+                - extra_commands: List of additional commands to execute on reset
+
+        Returns:
+            Tuple of (observation, info) where both are the same TypedObservation
+        """
         if options is None:
             options = {}
         fast_reset = options.get("fast_reset", True)
@@ -172,6 +183,19 @@ class CraftGroundEnvironment(gym.Env):
     def convert_observation_v2(
         self, res: ObservationSpaceMessage
     ) -> Dict[str, Union[np.ndarray, "torch.Tensor", ObservationSpaceMessage]]:
+        """Convert observation space message to dictionary format.
+
+        Args:
+            res: Protocol buffer observation space message
+
+        Returns:
+            Dictionary containing:
+            - 'full': Original ObservationSpaceMessage
+            - 'pov': First viewpoint RGB image (numpy array or torch.Tensor)
+            - 'rgb': Same as 'pov' (for backward compatibility)
+            - 'pov_2': Second viewpoint RGB image (if binocular vision enabled)
+            - 'rgb_2': Same as 'pov_2' (for backward compatibility)
+        """
         with self.logger.profile("convert_observation"):
             rgb_1, rgb_2 = self.observation_converter.convert(res)
 
@@ -334,6 +358,19 @@ class CraftGroundEnvironment(gym.Env):
         bool,
         TypedObservation,
     ]:
+        """Run one timestep of the environment's dynamics.
+
+        Args:
+            action: Action to take in the environment
+
+        Returns:
+            Tuple containing:
+            - observation: Current observation
+            - reward: Reward from the action (always 0, to be implemented by user)
+            - done: Whether the episode has ended (always False)
+            - truncated: Whether the episode was truncated (always False)
+            - info: Additional information (same as observation)
+        """
         # send the action
         self.last_action = action
         with self.logger.profile("send_action_and_commands"):
@@ -391,11 +428,18 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.extend(commands)
 
     def terminate(self):
+        """Terminate the Java process safely.
+
+        Raises:
+            ProcessTerminationError: If process termination fails
+        """
         self.server_event = None
+
+        # Clean up IPC connection
         try:
             self.ipc.destroy()
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.log(f"IPC destroy failed: {e}")
 
         p = self.process
         if not p:
@@ -403,59 +447,96 @@ class CraftGroundEnvironment(gym.Env):
             return
 
         pid = p.pid
+
         try:
             if hasattr(os, "getpgid"):
                 # Unix: Process group kill
-                try:
-                    pgrp = os.getpgid(pid)
-                    os.killpg(pgrp, signal.SIGTERM)
-                    self.logger.log(f"Sent SIGTERM to process group {pgrp}(pid {pid})")
-                except Exception as e:
-                    self.logger.log(f"SIGTERM failed: {e}")
-
-                try:
-                    p.wait(timeout=10)
-                except Exception:
-                    self.logger.log("Wait timeout; sending SIGKILL")
-                    try:
-                        os.killpg(pgrp, signal.SIGKILL)
-                    except Exception as e:
-                        self.logger.log(f"SIGKILL failed: {e}")
+                self._terminate_unix(p, pid)
             else:
                 # Windows
-                try:
-                    # Popen with CREATE_NEW_PROCESS_GROUP uses CTRL_BREAK_EVENT
-                    p.send_signal(signal.CTRL_BREAK_EVENT)
-                    self.logger.log(f"Sent CTRL_BREAK_EVENT to pid {pid}")
-                except Exception as e:
-                    self.logger.log(
-                        f"CTRL_BREAK_EVENT failed: {e}; calling terminate()"
-                    )
-                    try:
-                        p.terminate()
-                    except Exception as e2:
-                        self.logger.log(f"terminate() failed: {e2}")
-
-                try:
-                    p.wait(timeout=10)
-                except Exception:
-                    self.logger.log("Wait timeout; calling kill()")
-                    try:
-                        p.kill()
-                    except Exception as e:
-                        self.logger.log(f"kill() failed: {e}")
+                self._terminate_windows(p, pid)
+        except ProcessTerminationError:
+            # Force kill as last resort
+            self._force_kill(p, pid)
         except Exception as e:
             self.logger.log(f"Terminate error: {e}")
-            try:
-                if sys.platform == "win32":
-                    p.kill()
-                else:
-                    os.kill(pid, signal.SIGKILL)
-            except Exception:
-                pass
+            self._force_kill(p, pid)
         finally:
             self.process = None
             self.logger.log("Terminated the java process")
+
+    def _terminate_unix(self, p: subprocess.Popen, pid: int):
+        """Terminate process on Unix systems.
+
+        Args:
+            p: Process object
+            pid: Process ID
+
+        Raises:
+            ProcessTerminationError: If termination fails
+        """
+        try:
+            pgrp = os.getpgid(pid)
+            os.killpg(pgrp, signal.SIGTERM)
+            self.logger.log(f"Sent SIGTERM to process group {pgrp}(pid {pid})")
+        except (OSError, ProcessLookupError) as e:
+            raise ProcessTerminationError(f"SIGTERM failed: {e}") from e
+
+        try:
+            p.wait(timeout=PROCESS_TERMINATION_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            self.logger.log("Wait timeout; sending SIGKILL")
+            try:
+                pgrp = os.getpgid(pid)
+                os.killpg(pgrp, signal.SIGKILL)
+            except (OSError, ProcessLookupError) as e:
+                raise ProcessTerminationError(f"SIGKILL failed: {e}") from e
+
+    def _terminate_windows(self, p: subprocess.Popen, pid: int):
+        """Terminate process on Windows systems.
+
+        Args:
+            p: Process object
+            pid: Process ID
+
+        Raises:
+            ProcessTerminationError: If termination fails
+        """
+        try:
+            # Popen with CREATE_NEW_PROCESS_GROUP uses CTRL_BREAK_EVENT
+            p.send_signal(signal.CTRL_BREAK_EVENT)
+            self.logger.log(f"Sent CTRL_BREAK_EVENT to pid {pid}")
+        except (OSError, ProcessLookupError) as e:
+            self.logger.log(f"CTRL_BREAK_EVENT failed: {e}; calling terminate()")
+            try:
+                p.terminate()
+            except Exception as e2:
+                raise ProcessTerminationError(f"terminate() failed: {e2}") from e2
+
+        try:
+            p.wait(timeout=PROCESS_TERMINATION_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            self.logger.log("Wait timeout; calling kill()")
+            try:
+                p.kill()
+            except Exception as e:
+                raise ProcessTerminationError(f"kill() failed: {e}") from e
+
+    def _force_kill(self, p: subprocess.Popen, pid: int):
+        """Force kill process as last resort.
+
+        Args:
+            p: Process object
+            pid: Process ID
+        """
+        try:
+            if sys.platform == "win32":
+                p.kill()
+            else:
+                os.kill(pid, signal.SIGKILL)
+            self.logger.log(f"Force killed process {pid}")
+        except (OSError, ProcessLookupError) as e:
+            self.logger.log(f"Force kill failed: {e}")
 
     @staticmethod
     def get_env_base_path() -> str:
