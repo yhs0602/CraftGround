@@ -125,3 +125,4 @@ compile_commands.json
 _deps/
 bin/
 .kotlin/
+minecraft_sources

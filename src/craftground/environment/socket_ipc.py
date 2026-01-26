@@ -6,14 +6,26 @@ import time
 from typing import Dict, List, Optional, Union
 
 import psutil
+import socket
+
 from craftground.buffered_socket import BufferedSocket
+from craftground.constants import (
+    CONNECTION_TIMEOUT,
+    MAX_CONNECTION_RETRIES,
+    MAX_PORT,
+    MIN_PORT,
+)
 from craftground.csv_logger import CsvLogger
 from craftground.environment.action_space import action_v2_dict_to_message, no_op_v2
 from craftground.environment.ipc_interface import IPCInterface
+from craftground.exceptions import (
+    ConnectionTimeoutError,
+    InvalidPortError,
+    PortInUseError,
+)
 from craftground.proto.action_space_pb2 import ActionSpaceMessageV2
 from craftground.proto.initial_environment_pb2 import InitialEnvironmentMessage
 from craftground.proto.observation_space_pb2 import ObservationSpaceMessage
-import socket
 
 
 class SocketIPC(IPCInterface):
@@ -32,6 +44,27 @@ class SocketIPC(IPCInterface):
         self.initial_environment = initial_environment
 
     def check_port(self, port: int) -> int:
+        """Validate and check if port is available.
+
+        Args:
+            port: Port number to check
+
+        Returns:
+            Available port number
+
+        Raises:
+            InvalidPortError: If port is outside valid range
+            PortInUseError: If port is in use and find_free_port is False
+        """
+        # Validate port range
+        if not isinstance(port, int):
+            raise TypeError(f"Port must be an integer, got {type(port)}")
+
+        if port < MIN_PORT or port > MAX_PORT:
+            raise InvalidPortError(
+                f"Port must be between {MIN_PORT} and {MAX_PORT}, got {port}"
+            )
+
         if os.name == "nt":
             while True:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -41,8 +74,12 @@ class SocketIPC(IPCInterface):
                                 f"[Warning]: Port {port} is already in use. Trying another port."
                             )
                             port += 1
+                            if port > MAX_PORT:
+                                raise PortInUseError(
+                                    f"Could not find available port starting from {port}"
+                                )
                         else:
-                            raise ConnectionError(
+                            raise PortInUseError(
                                 f"Port {port} is already in use. Please choose another port."
                             )
                     else:
@@ -54,13 +91,19 @@ class SocketIPC(IPCInterface):
                     print(
                         f"[Warning]: Socket file {socket_path} already exists. Trying another port."
                     )
-                    while os.path.exists(socket_path):
+                    while os.path.exists(socket_path) and port <= MAX_PORT:
                         port += 1
                         socket_path = f"/tmp/minecraftrl_{port}.sock"
+
+                    if port > MAX_PORT:
+                        raise PortInUseError(
+                            f"Could not find available port starting from {port}"
+                        )
+
                     print(f"Using port {socket_path}")
                     return port
                 else:
-                    raise FileExistsError(
+                    raise PortInUseError(
                         f"Socket file {socket_path} already exists. Please choose another port."
                     )
             else:
@@ -74,8 +117,13 @@ class SocketIPC(IPCInterface):
     def send_action(
         self, action: ActionSpaceMessageV2, commands: Optional[List[str]] = None
     ):
-        if not commands:
-            commands = []
+        """Send action and optional commands to the server.
+
+        Args:
+            action: Action message to send
+            commands: Optional list of commands to execute
+        """
+        commands = commands or []
 
         self.logger.log("Sending action and commands")
         action.commands.extend(commands)
@@ -158,8 +206,14 @@ class SocketIPC(IPCInterface):
         action_v2: Dict[str, Union[bool, float]],
         commands: List[str],
     ):
+        """Send action and commands (legacy method, use send_action instead).
+
+        Args:
+            action_v2: Action dictionary
+            commands: List of commands to execute
+        """
         self.logger.log("Sending action and commands")
-        action_space = self.action_v2_dict_to_message(action_v2)
+        action_space = action_v2_dict_to_message(action_v2)
 
         action_space.commands.extend(commands)
         v = action_space.SerializeToString()
@@ -167,7 +221,12 @@ class SocketIPC(IPCInterface):
         self.sock.sendall(v)
         self.logger.log("Sent action and commands")
 
-    def send_fastreset2(self, extra_commands: List[str] = None):
+    def send_fastreset2(self, extra_commands: Optional[List[str]] = None):
+        """Send fast reset command with optional extra commands.
+
+        Args:
+            extra_commands: Optional list of additional commands to execute
+        """
         extra_cmd_str = ""
         if extra_commands is not None:
             extra_cmd_str = ";".join(extra_commands)
@@ -186,22 +245,31 @@ class SocketIPC(IPCInterface):
         self.logger.log("Sent initial environment")
 
     def _connect_server(self, server_event: threading.Event):
-        wait_time = 1
-        next_output = 1  # 3 7 15 31 63 127 255  seconds passed
-        while not server_event.is_set():
+        """Connect to the Minecraft server.
+
+        Args:
+            server_event: Threading event that signals server startup
+
+        Raises:
+            ConnectionTimeoutError: If connection times out
+            RuntimeError: If server process fails to start
+        """
+        wait_time = 0
+        next_output = 1  # 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 seconds
+
+        while wait_time < MAX_CONNECTION_RETRIES and not server_event.is_set():
             try:
                 if os.name == "nt":
                     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     s.connect(("127.0.0.1", self.port))
-                    s.settimeout(30)
+                    s.settimeout(CONNECTION_TIMEOUT)
                     self.sock = s
                     return
                 else:
                     socket_path = f"/tmp/minecraftrl_{self.port}.sock"
                     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
                     s.connect(socket_path)
-                    # s.connect(("127.0.0.1", port))
-                    s.settimeout(30)
+                    s.settimeout(CONNECTION_TIMEOUT)
                     self.sock = s
                     return
             except (ConnectionRefusedError, FileNotFoundError):
@@ -210,8 +278,16 @@ class SocketIPC(IPCInterface):
                         f"Waiting for server on port {self.port}...",
                     )
                     next_output *= 2
-                    if next_output > 1024:
-                        raise Exception("Server not started within 1024 seconds")
+                    if next_output > MAX_CONNECTION_RETRIES:
+                        raise ConnectionTimeoutError(
+                            f"Server not started within {MAX_CONNECTION_RETRIES} seconds"
+                        )
                 wait_time += 1
                 time.sleep(1)
-        raise RuntimeError("Minecraft process failed to start")
+
+        if server_event.is_set():
+            raise RuntimeError("Minecraft process failed to start")
+        else:
+            raise ConnectionTimeoutError(
+                f"Connection timeout after {MAX_CONNECTION_RETRIES} retries"
+            )
