@@ -1,6 +1,10 @@
 #ifndef __IPC_APPLE_H__
 #define __IPC_APPLE_H__
 
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
+
 #define USE_CUSTOM_DL_PACK_TENSOR 1
 
 py::object

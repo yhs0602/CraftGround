@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string>
 
+#include <pybind11/pybind11.h>
+
 namespace py = pybind11;
 py::object
 initialize_from_mach_port(unsigned int machPort, int width, int height);
