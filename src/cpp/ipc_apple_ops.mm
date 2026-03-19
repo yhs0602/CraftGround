@@ -68,24 +68,26 @@ id<MTLComputePipelineState> getNormalizePipeline(id<MTLDevice> device) {
 
       MTLCompileOptions *options = [[MTLCompileOptions alloc] init];
       NSError *library_error = nil;
-      id<MTLLibrary> library =
-          [device newLibraryWithSource:source options:options error:&library_error];
+      id<MTLLibrary> library = [device newLibraryWithSource:source
+                                                    options:options
+                                                      error:&library_error];
       [options release];
       if (!library) {
           pipeline_error = [library_error retain];
           return;
       }
 
-      id<MTLFunction> function = [library newFunctionWithName:@"normalize_bgr_flip"];
+      id<MTLFunction> function =
+          [library newFunctionWithName:@"normalize_bgr_flip"];
       [library release];
       if (!function) {
           pipeline_error = [[NSError alloc]
               initWithDomain:@"craftground"
-                         code:1
-                     userInfo:@{
-                         NSLocalizedDescriptionKey :
-                             @"Failed to load normalize_bgr_flip kernel"
-                     }];
+                        code:1
+                    userInfo:@{
+                        NSLocalizedDescriptionKey :
+                            @"Failed to load normalize_bgr_flip kernel"
+                    }];
           return;
       }
 
@@ -117,7 +119,8 @@ at::Tensor normalizeAppleTensor(const at::Tensor &src) {
 
     auto *stream = at::mps::getCurrentMPSStream();
     id<MTLComputeCommandEncoder> encoder = stream->commandEncoder();
-    id<MTLComputePipelineState> pipeline = getNormalizePipeline(stream->device());
+    id<MTLComputePipelineState> pipeline =
+        getNormalizePipeline(stream->device());
     id<MTLBuffer> src_buffer = (id<MTLBuffer>)src.storage().data();
     id<MTLBuffer> dst_buffer = (id<MTLBuffer>)dst.storage().data();
 
@@ -139,7 +142,7 @@ at::Tensor normalizeAppleTensor(const at::Tensor &src) {
 
     NSUInteger thread_width = pipeline.threadExecutionWidth;
     NSUInteger thread_height = pipeline.maxTotalThreadsPerThreadgroup /
-        std::max<NSUInteger>(1, thread_width);
+                               std::max<NSUInteger>(1, thread_width);
     if (thread_height == 0) {
         thread_height = 1;
     }
@@ -152,7 +155,7 @@ at::Tensor normalizeAppleTensor(const at::Tensor &src) {
         1
     );
     [encoder dispatchThreads:threads_per_grid
-      threadsPerThreadgroup:threads_per_threadgroup];
+        threadsPerThreadgroup:threads_per_threadgroup];
 
     return dst;
 }
