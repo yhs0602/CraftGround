@@ -65,8 +65,7 @@ static void deleteDLManagedTensor(DLManagedTensor *self) {
     free(self);
 }
 
-static DLManagedTensor *
-createDLPackTensorMetal(
+static DLManagedTensor *createDLPackTensorMetal(
     id<MTLBuffer> mtlBuffer, size_t width, size_t height, size_t bytesPerRow
 ) {
     DLManagedTensor *tensor =
