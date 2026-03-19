@@ -72,7 +72,7 @@ set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp src/cpp/ipc_noboost.cpp src/cpp/print
 
 if(APPLE)
     # Add Apple-specific source files
-    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.mm src/cpp/ipc_apple_torch.cpp)
+    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.mm src/cpp/ipc_apple_ops.mm src/cpp/ipc_apple_torch.cpp)
 
     # Apple-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -fobjc-arc)

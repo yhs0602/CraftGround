@@ -68,6 +68,7 @@ class ObservationConverter:
         self.render_action = render_action
         self.render_mode = render_mode
         self.render_alternating_eyes = render_alternating_eyes
+        self._apple_normalize_tensor = None
         if output_type == ScreenEncodingMode.ZEROCOPY:
             try:
                 from .craftground_native import initialize_from_mach_port  # type: ignore
@@ -77,6 +78,11 @@ class ObservationConverter:
                     "To use zerocopy encoding mode, please install the craftground[cuda] package on linux or windows."
                     " If this error happens in macOS, please report it to the developers."
                 )
+            try:
+                from .craftground_native import normalize_apple_mtl_tensor  # type: ignore
+            except ImportError:
+                normalize_apple_mtl_tensor = None
+            self._apple_normalize_tensor = normalize_apple_mtl_tensor
         if output_type == ScreenEncodingMode.JAX:
             try:
                 import jax  # type: ignore
@@ -234,6 +240,8 @@ class ObservationConverter:
     def _normalize_apple_zerocopy_tensor(
         self, raw_tensor: "TorchArrayType"
     ) -> "TorchArrayType":
+        if self._apple_normalize_tensor is not None:
+            return self._apple_normalize_tensor(raw_tensor)
         return raw_tensor.clone()[:, :, [2, 1, 0]].flip(0)
 
     def _normalize_cuda_zerocopy_tensor(
@@ -242,7 +250,6 @@ class ObservationConverter:
         return raw_tensor.clone()[:, :, :3].flip(0)
 
     def initialize_zerocopy(self, ipc_handle: bytes):
-        import torch
         from .craftground_native import initialize_from_mach_port  # type: ignore
         from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
@@ -258,9 +265,6 @@ class ObservationConverter:
                 raise ValueError(f"Failed to initialize from mach port {mach_port}.")
             # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
             rgb_array_or_tensor = apple_dl_tensor
-            print(rgb_array_or_tensor.shape)
-            print(rgb_array_or_tensor.dtype)
-            print(rgb_array_or_tensor.device)
             self.last_observations[0] = rgb_array_or_tensor
             self.internal_type = ObservationTensorType.APPLE_TENSOR
         else:
@@ -274,10 +278,6 @@ class ObservationConverter:
             if not cuda_dl_tensor:
                 raise ValueError("Invalid DLPack capsule: None")
             rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(cuda_dl_tensor)
-            print(rgb_array_or_tensor.shape)
-            print(rgb_array_or_tensor.dtype)
-            print(rgb_array_or_tensor.device)
-            print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
             self.last_observations[0] = rgb_array_or_tensor
             self.internal_type = ObservationTensorType.CUDA_DLPACK
 
