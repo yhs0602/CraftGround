@@ -111,10 +111,12 @@ class ObservationConverter:
             if self.internal_type == ObservationTensorType.NONE:
                 self.initialize_zerocopy(observation.ipc_handle)
             if self.internal_type == ObservationTensorType.APPLE_TENSOR:
-                obs_1 = self.last_observations[0].clone()[:, :, [2, 1, 0]].flip(0)
+                obs_1 = self._normalize_apple_zerocopy_tensor(
+                    self.last_observations[0]
+                )
                 return (obs_1, None)
             elif self.internal_type == ObservationTensorType.CUDA_DLPACK:
-                obs_1 = self.last_observations[0].clone()[:, :, :3].flip(0)
+                obs_1 = self._normalize_cuda_zerocopy_tensor(self.last_observations[0])
                 return (obs_1, None)
             else:
                 raise ValueError(
@@ -229,6 +231,16 @@ class ObservationConverter:
             # arr = np.transpose(last_rgb_frame, (2, 1, 0))  # channels, width, height
         return rgb_array_or_tensor
 
+    def _normalize_apple_zerocopy_tensor(
+        self, raw_tensor: "TorchArrayType"
+    ) -> "TorchArrayType":
+        return raw_tensor.clone()[:, :, [2, 1, 0]].flip(0)
+
+    def _normalize_cuda_zerocopy_tensor(
+        self, raw_tensor: "TorchArrayType"
+    ) -> "TorchArrayType":
+        return raw_tensor.clone()[:, :, :3].flip(0)
+
     def initialize_zerocopy(self, ipc_handle: bytes):
         import torch
         from .craftground_native import initialize_from_mach_port  # type: ignore
@@ -250,8 +262,7 @@ class ObservationConverter:
             print(rgb_array_or_tensor.dtype)
             print(rgb_array_or_tensor.device)
             self.last_observations[0] = rgb_array_or_tensor
-            # drop alpha, flip y axis, and clone
-            self.observation_tensor_type = ObservationTensorType.APPLE_TENSOR
+            self.internal_type = ObservationTensorType.APPLE_TENSOR
         else:
             import torch.utils.dlpack
 
@@ -268,8 +279,7 @@ class ObservationConverter:
             print(rgb_array_or_tensor.device)
             print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
             self.last_observations[0] = rgb_array_or_tensor
-            # drop alpha, flip y axis, and clone
-            self.observation_tensor_type = ObservationTensorType.CUDA_DLPACK
+            self.internal_type = ObservationTensorType.CUDA_DLPACK
 
     def convert_jax_observation(self, ipc_handle: bytes) -> "JaxArrayType":
         import jax.numpy as jnp
@@ -295,7 +305,7 @@ class ObservationConverter:
             self.last_observations[0] = rgb_array_or_tensor
             # drop alpha, flip y axis, and clone
             rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(0)
-            self.observation_tensor_type = ObservationTensorType.JAX_NP
+            self.internal_type = ObservationTensorType.JAX_NP
             return rgb_array_or_tensor
         else:
             cuda_dlpack = mtl_tensor_from_cuda_mem_handle(
@@ -308,5 +318,5 @@ class ObservationConverter:
             jax_image = jnp.from_dlpack(cuda_dlpack)
             rgb_array_or_tensor = jax_image
             rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(0)
-            self.observation_tensor_type = ObservationTensorType.JAX_NP
+            self.internal_type = ObservationTensorType.JAX_NP
             return jax_image, None
