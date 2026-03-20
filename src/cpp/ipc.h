@@ -4,9 +4,12 @@
 #include <stdlib.h>
 #include <string>
 
+#include <pybind11/pybind11.h>
+
 namespace py = pybind11;
 py::object
 initialize_from_mach_port(unsigned int machPort, int width, int height);
+py::object normalize_apple_mtl_tensor(py::object tensor);
 py::capsule mtl_tensor_from_cuda_mem_handle(
     const char *cuda_ipc_handle, int width, int height
 );

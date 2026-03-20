@@ -10,6 +10,9 @@ py::object
 initialize_from_mach_port(unsigned int machPort, int width, int height) {
     return mtl_tensor_from_mach_port(machPort, width, height);
 }
+py::object normalize_apple_mtl_tensor(py::object tensor) {
+    return normalize_apple_mtl_tensor_impl(std::move(tensor));
+}
 py::capsule mtl_tensor_from_cuda_mem_handle(
     const char *cuda_ipc_handle, int width, int height
 ) {
@@ -22,6 +25,7 @@ py::object
 initialize_from_mach_port(unsigned int machPort, int width, int height) {
     return py::none();
 }
+py::object normalize_apple_mtl_tensor(py::object tensor) { return py::none(); }
 
 py::capsule mtl_tensor_from_cuda_mem_handle(
     const char *cuda_ipc_handle, int width, int height
@@ -51,6 +55,7 @@ py::object
 initialize_from_mach_port(unsigned int machPort, int width, int height) {
     return py::none();
 }
+py::object normalize_apple_mtl_tensor(py::object tensor) { return py::none(); }
 
 py::capsule mtl_tensor_from_cuda_mem_handle(
     const char *cuda_ipc_handle, int width, int height
@@ -100,6 +105,7 @@ void destroy_shared_memory(const char *memory_name, bool release_semaphores) {
 PYBIND11_MODULE(craftground_native, m) {
     m.doc() = "Craftground Native Module";
     m.def("initialize_from_mach_port", &initialize_from_mach_port);
+    m.def("normalize_apple_mtl_tensor", &normalize_apple_mtl_tensor);
     m.def("mtl_tensor_from_cuda_mem_handle", &mtl_tensor_from_cuda_mem_handle);
     m.def("initialize_shared_memory", &initialize_shared_memory);
     m.def("write_to_shared_memory", &write_to_shared_memory);

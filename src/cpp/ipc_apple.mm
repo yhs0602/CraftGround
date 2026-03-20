@@ -57,23 +57,30 @@ id<MTLTexture> createMetalTextureFromIOSurface(
 */
 
 static void deleteDLManagedTensor(DLManagedTensor *self) {
-    // CFRelease((__bridge CFTypeRef)self->dl_tensor.data);
+    if (self->dl_tensor.data) {
+        CFRelease((CFTypeRef)self->dl_tensor.data);
+    }
     free(self->dl_tensor.shape);
+    free(self->dl_tensor.strides);
     free(self);
 }
 
-static DLManagedTensor *
-createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
+static DLManagedTensor *createDLPackTensorMetal(
+    id<MTLBuffer> mtlBuffer, size_t width, size_t height, size_t bytesPerRow
+) {
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
 
     tensor->dl_tensor.data = (void *)CFBridgingRetain(mtlBuffer);
     tensor->dl_tensor.ndim = 3; // H x W x C
     tensor->dl_tensor.shape = (int64_t *)malloc(3 * sizeof(int64_t));
+    tensor->dl_tensor.strides = (int64_t *)malloc(3 * sizeof(int64_t));
     tensor->dl_tensor.shape[0] = height;
     tensor->dl_tensor.shape[1] = width;
-    tensor->dl_tensor.shape[2] = 4; // RGBA
-    tensor->dl_tensor.strides = NULL;
+    tensor->dl_tensor.shape[2] = 3; // BGR
+    tensor->dl_tensor.strides[0] = bytesPerRow;
+    tensor->dl_tensor.strides[1] = 4;
+    tensor->dl_tensor.strides[2] = 1;
     tensor->dl_tensor.byte_offset = 0;
 
     tensor->dl_tensor.dtype =
@@ -137,7 +144,8 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
         );
     }
 
-    DLManagedTensor *tensor = createDLPackTensorMetal(mtlBuffer, width, height);
+    DLManagedTensor *tensor =
+        createDLPackTensorMetal(mtlBuffer, width, height, bytesPerRow);
 
 #if USE_CUSTOM_DL_PACK_TENSOR
     return py::reinterpret_steal<py::object>(torchTensorFromDLPack(tensor));
