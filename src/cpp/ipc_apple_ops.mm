@@ -3,6 +3,7 @@
 #import <Metal/Metal.h>
 #include <pybind11/pybind11.h>
 #include <algorithm>
+#include <limits>
 
 namespace py = pybind11;
 
@@ -115,6 +116,14 @@ at::Tensor normalizeAppleTensor(const at::Tensor &src) {
     TORCH_CHECK(src.scalar_type() == at::kByte, "Expected a uint8 tensor");
     TORCH_CHECK(src.dim() == 3, "Expected an HWC tensor");
     TORCH_CHECK(src.size(2) == 3, "Expected a 3-channel BGR tensor");
+    TORCH_CHECK(
+        src.stride(2) == 1,
+        "Expected contiguous channel stride (stride(2) == 1)"
+    );
+    TORCH_CHECK(
+        src.stride(0) > 0 && src.stride(1) > 0,
+        "Expected positive row and pixel strides"
+    );
     TORCH_CHECK(src.storage().data(), "Expected backing MTLBuffer storage");
 
     at::Tensor dst = at::empty({src.size(0), src.size(1), 3}, src.options());
@@ -125,16 +134,26 @@ at::Tensor normalizeAppleTensor(const at::Tensor &src) {
         getNormalizePipeline(stream->device());
     id<MTLBuffer> src_buffer = (__bridge id<MTLBuffer>)src.storage().data();
     id<MTLBuffer> dst_buffer = (__bridge id<MTLBuffer>)dst.storage().data();
+    auto to_u32_checked = [](int64_t value, const char *name) -> uint32_t {
+        TORCH_CHECK(
+            value >= 0 &&
+                value <=
+                    static_cast<int64_t>(std::numeric_limits<uint32_t>::max()),
+            name,
+            " is out of uint32 range for Metal kernel params"
+        );
+        return static_cast<uint32_t>(value);
+    };
 
     NormalizeParams params{
-        static_cast<uint32_t>(src.size(1)),
-        static_cast<uint32_t>(src.size(0)),
-        static_cast<uint32_t>(src.stride(0)),
-        static_cast<uint32_t>(src.stride(1)),
-        static_cast<uint32_t>(src.storage_offset()),
-        static_cast<uint32_t>(dst.stride(0)),
-        static_cast<uint32_t>(dst.stride(1)),
-        static_cast<uint32_t>(dst.storage_offset()),
+        to_u32_checked(src.size(1), "width"),
+        to_u32_checked(src.size(0), "height"),
+        to_u32_checked(src.stride(0), "src_row_stride"),
+        to_u32_checked(src.stride(1), "src_pixel_stride"),
+        to_u32_checked(src.storage_offset(), "src_offset"),
+        to_u32_checked(dst.stride(0), "dst_row_stride"),
+        to_u32_checked(dst.stride(1), "dst_pixel_stride"),
+        to_u32_checked(dst.storage_offset(), "dst_offset"),
     };
 
     [encoder setComputePipelineState:pipeline];
