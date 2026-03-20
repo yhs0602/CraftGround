@@ -71,29 +71,31 @@ id<MTLComputePipelineState> getNormalizePipeline(id<MTLDevice> device) {
       id<MTLLibrary> library = [device newLibraryWithSource:source
                                                     options:options
                                                       error:&library_error];
-      [options release];
       if (!library) {
-          pipeline_error = [library_error retain];
+          pipeline_error = library_error;
           return;
       }
 
       id<MTLFunction> function =
           [library newFunctionWithName:@"normalize_bgr_flip"];
-      [library release];
       if (!function) {
-          pipeline_error = [[NSError alloc]
-              initWithDomain:@"craftground"
-                        code:1
-                    userInfo:@{
-                        NSLocalizedDescriptionKey :
-                            @"Failed to load normalize_bgr_flip kernel"
-                    }];
+          pipeline_error = [NSError
+              errorWithDomain:@"craftground"
+                         code:1
+                     userInfo:@{
+                         NSLocalizedDescriptionKey :
+                             @"Failed to load normalize_bgr_flip kernel"
+                     }];
           return;
       }
 
-      pipeline = [device newComputePipelineStateWithFunction:function
-                                                       error:&pipeline_error];
-      [function release];
+      NSError *compute_pipeline_error = nil;
+      pipeline =
+          [device newComputePipelineStateWithFunction:function
+                                                error:&compute_pipeline_error];
+      if (!pipeline) {
+          pipeline_error = compute_pipeline_error;
+      }
     });
 
     if (!pipeline) {
@@ -121,8 +123,8 @@ at::Tensor normalizeAppleTensor(const at::Tensor &src) {
     id<MTLComputeCommandEncoder> encoder = stream->commandEncoder();
     id<MTLComputePipelineState> pipeline =
         getNormalizePipeline(stream->device());
-    id<MTLBuffer> src_buffer = (id<MTLBuffer>)src.storage().data();
-    id<MTLBuffer> dst_buffer = (id<MTLBuffer>)dst.storage().data();
+    id<MTLBuffer> src_buffer = (__bridge id<MTLBuffer>)src.storage().data();
+    id<MTLBuffer> dst_buffer = (__bridge id<MTLBuffer>)dst.storage().data();
 
     NormalizeParams params{
         static_cast<uint32_t>(src.size(1)),
