@@ -45,7 +45,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.shape.VoxelShapes
-import net.minecraft.world.World
 import net.minecraft.world.biome.source.BiomeCoords
 import java.io.IOException
 import java.net.InetSocketAddress

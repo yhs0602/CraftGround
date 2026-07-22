@@ -60,8 +60,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          src/craftground/MinecraftEnv/_deps
-        key: ${{ runner.os }}-fetchcontent-gradle-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
+          minecraft/mc121/_deps
+        key: ${{ runner.os }}-fetchcontent-gradle-${{ hashFiles('minecraft/mc121/src/main/cpp/CMakeLists.txt') }}
         restore-keys: |
           ${{ runner.os }}-fetchcontent-gradle-
 

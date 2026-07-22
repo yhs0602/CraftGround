@@ -1,5 +1,5 @@
 If:
-  PathMatch: src/cpp/.*
+  PathMatch: shared/native-ipc/.*
 
 CompileFlags:
   CompilationDatabase: build
@@ -7,7 +7,7 @@ CompileFlags:
 ---
 
 If:
-  PathMatch: src/craftground/MinecraftEnv/src/main/cpp/.*
+  PathMatch: minecraft/mc121/src/main/cpp/.*
 
 CompileFlags:
-  CompilationDatabase: src/craftground/MinecraftEnv
+  CompilationDatabase: minecraft/mc121

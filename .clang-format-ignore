@@ -17,4 +17,4 @@ src/craftground.egg-info/*
 src/proto/*
 build/_deps/*
 ./build/_deps/*
-src/craftground/MinecraftEnv/_deps/*
+minecraft/mc121/_deps/*
