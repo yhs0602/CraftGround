@@ -23,19 +23,6 @@ target_include_directories(
     ${Python3_INCLUDE_DIRS}
 )
 
-if(APPLE)
-    set(CMAKE_PREFIX_PATH "/usr/local/libtorch")
-    find_package(Torch QUIET)
-    if(Torch_FOUND)
-        message(STATUS "Torch is available")
-        add_definitions(-DHAS_TORCH)
-    else()
-        message(STATUS "Torch is not available in APPLE")
-    endif()
-else()
-    message(STATUS "Torch is not available")
-endif()
-
 # Set up platform-specific logic
 set(
     LINK_LIBRARIES
@@ -55,14 +42,6 @@ if(UNIX)
             "-framework IOSurface"
             "-framework Foundation"
         )
-        if(Torch_FOUND)
-            set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/shared/native-ipc/libtorch)
-            # target_link_libraries(test_ipc PRIVATE
-            #     ${LIBTORCH_DIR}/libtorch_cpu_minimal.a
-            #     ${LIBTORCH_DIR}/libc10.a
-            # )
-            list(APPEND LINK_LIBRARIES "${TORCH_LIBRARIES}")
-        endif()
     else()
         # Ubuntu Linux
         message(STATUS "Detected Ubuntu Linux")

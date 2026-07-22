@@ -91,10 +91,6 @@ createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
     return tensor;
 }
 
-#if USE_CUSTOM_DL_PACK_TENSOR
-PyObject *torchTensorFromDLPack(DLManagedTensor *dlMTensor);
-#endif
-
 py::object
 mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
     IOSurfaceRef ioSurface = getIOSurfaceFromMachPort((mach_port_t)machPort);
@@ -139,9 +135,6 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
 
     DLManagedTensor *tensor = createDLPackTensorMetal(mtlBuffer, width, height);
 
-#if USE_CUSTOM_DL_PACK_TENSOR
-    return py::reinterpret_steal<py::object>(torchTensorFromDLPack(tensor));
-#else
     return py::reinterpret_steal<py::object>(PyCapsule_New(
         tensor,
         "dltensor",
@@ -151,5 +144,4 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
             tensor->deleter(tensor);
         }
     ));
-#endif
 }

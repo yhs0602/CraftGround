@@ -66,14 +66,6 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     
-    - name: install pytorch headers if macos # export CMAKE_PREFIX_PATH=$LIBTORCH
-      if: matrix.os == 'macos-latest'
-      run: |
-        curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip
-        unzip libtorch-macos-arm64-2.5.1.zip
-        export LIBTORCH=/usr/local/libtorch
-        sudo mv libtorch $LIBTORCH
-
     - name: Install build dependencies (OpenGL, GLEW)
       if: matrix.os == 'ubuntu-latest'
       run: |

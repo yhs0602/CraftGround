@@ -231,6 +231,7 @@ class ObservationConverter:
 
     def initialize_zerocopy(self, ipc_handle: bytes):
         import torch
+        import torch.utils.dlpack
         from .craftground_native import initialize_from_mach_port  # type: ignore
         from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
@@ -239,13 +240,12 @@ class ObservationConverter:
         if len(ipc_handle) == 4:
             mach_port = int.from_bytes(ipc_handle, byteorder="little", signed=False)
             print_with_time(f"{mach_port=}")
-            apple_dl_tensor = initialize_from_mach_port(
+            apple_dl_capsule = initialize_from_mach_port(
                 mach_port, self.image_width, self.image_height
             )
-            if apple_dl_tensor is None:
+            if apple_dl_capsule is None:
                 raise ValueError(f"Failed to initialize from mach port {mach_port}.")
-            # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
-            rgb_array_or_tensor = apple_dl_tensor
+            rgb_array_or_tensor = torch.utils.dlpack.from_dlpack(apple_dl_capsule)
             print(rgb_array_or_tensor.shape)
             print(rgb_array_or_tensor.dtype)
             print(rgb_array_or_tensor.device)
@@ -253,8 +253,6 @@ class ObservationConverter:
             # drop alpha, flip y axis, and clone
             self.observation_tensor_type = ObservationTensorType.APPLE_TENSOR
         else:
-            import torch.utils.dlpack
-
             cuda_dl_tensor = mtl_tensor_from_cuda_mem_handle(
                 ipc_handle,
                 self.image_width,
@@ -273,7 +271,7 @@ class ObservationConverter:
 
     def convert_jax_observation(self, ipc_handle: bytes) -> "JaxArrayType":
         import jax.numpy as jnp
-        from .craftground_native import mtl_dlpack_from_mach_port  # type: ignore
+        from .craftground_native import initialize_from_mach_port  # type: ignore
         from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
         if len(ipc_handle) == 0:
@@ -281,13 +279,12 @@ class ObservationConverter:
         if len(ipc_handle) == 4:
             mach_port = int.from_bytes(ipc_handle, byteorder="little", signed=False)
             print_with_time(f"{mach_port=}")
-            dlpack_capsule = mtl_dlpack_from_mach_port(
+            dlpack_capsule = initialize_from_mach_port(
                 mach_port, self.image_width, self.image_height
             )
             if not dlpack_capsule:
                 raise ValueError(f"Failed to initialize from mach port {ipc_handle}.")
             jax_image = jnp.from_dlpack(dlpack_capsule)
-            # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
             rgb_array_or_tensor = jax_image
             print(rgb_array_or_tensor.shape)
             print(rgb_array_or_tensor.dtype)
