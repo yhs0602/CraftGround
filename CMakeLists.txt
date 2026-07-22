@@ -68,11 +68,11 @@ else()
 endif()
 
 # Collect source files for the module
-set(CRAFTGROUND_PY_SOURCES src/cpp/ipc.cpp src/cpp/ipc_noboost.cpp src/cpp/print_hex.cpp)
+set(CRAFTGROUND_PY_SOURCES shared/native-ipc/ipc.cpp shared/native-ipc/ipc_noboost.cpp shared/native-ipc/print_hex.cpp)
 
 if(APPLE)
     # Add Apple-specific source files
-    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_apple.mm src/cpp/ipc_apple_torch.cpp)
+    list(APPEND CRAFTGROUND_PY_SOURCES shared/native-ipc/ipc_apple.mm shared/native-ipc/ipc_apple_torch.cpp)
 
     # Apple-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -fobjc-arc)
@@ -81,7 +81,7 @@ if(APPLE)
     endif()
 elseif(CUDAToolkit_FOUND)
     # Add CUDA-specific source files
-    list(APPEND CRAFTGROUND_PY_SOURCES src/cpp/ipc_cuda.cpp)
+    list(APPEND CRAFTGROUND_PY_SOURCES shared/native-ipc/ipc_cuda.cpp)
 
     # CUDA-specific compile options
     set(CRAFTGROUND_PY_COMPILE_OPTIONS -DHAS_CUDA)
@@ -139,7 +139,7 @@ if(WIN32)
 endif()
 
 
-target_include_directories(craftground_native PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
+target_include_directories(craftground_native PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/shared/native-ipc)
 
 target_compile_options(craftground_native PRIVATE ${CRAFTGROUND_PY_COMPILE_OPTIONS})
 
@@ -163,7 +163,7 @@ if(BUILD_TESTS)
     )
     if(APPLE)
         if(Torch_FOUND)
-            set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/src/cpp/libtorch)
+            set(LIBTORCH_DIR ${CMAKE_SOURCE_DIR}/shared/native-ipc/libtorch)
             message(STATUS "Torch is available in tests: ${TORCH_LIBRARIES}")
             target_include_directories(craftground PUBLIC "${TORCH_INCLUDE_DIRS}")
             target_compile_definitions(craftground PUBLIC HAS_TORCH)
@@ -195,7 +195,7 @@ if(BUILD_TESTS)
         target_link_libraries(craftground PRIVATE kernel32.lib user32.lib Synchronization.lib)
     endif()
     target_link_options(craftground PRIVATE "-Wl,--whole-archive" "-Wl,--no-whole-archive")
-    target_include_directories(craftground PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp)
+    target_include_directories(craftground PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/shared/native-ipc)
 
     target_compile_options(craftground PUBLIC ${CRAFTGROUND_PY_COMPILE_OPTIONS})
 

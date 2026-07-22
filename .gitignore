@@ -300,4 +300,4 @@ dejavu-fonts-ttf-2.37
 .DS_Store
 *.dylib
 CODE_REVIEW.md
-src/craftground/MinecraftEnv/minecraft_sources/
+minecraft/mc121/minecraft_sources/

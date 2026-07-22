@@ -68,9 +68,9 @@ extend-exclude = '''
 | build
 | dist
 | pybind11
-| src/cpp
+| shared/native-ipc
 | src/craftground/proto
-| src/craftground/MinecraftEnv
+| minecraft/mc121
 )/
 '''
 force-exclude = 'pybind11'
@@ -81,11 +81,11 @@ exclude = [
   ".git",
   "__pycache__",
   "venv",
-  "src/cpp",
+  "shared/native-ipc",
   "build",
   "dist",
   "pybind11",
-  "src/craftground/MinecraftEnv",
+  "minecraft/mc121",
   "src/craftground/proto",
 ]
 max-line-length = 120

@@ -1,5 +1,5 @@
 {
-    "C_Cpp.default.compileCommands": "${workspaceFolder}/src/MinecraftEnv/compile_commands.json",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/minecraft/mc121/compile_commands.json",
     "clangd.arguments": [
         "--background-index",
     ],

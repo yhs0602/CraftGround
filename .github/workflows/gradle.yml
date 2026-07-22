@@ -99,14 +99,14 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          src/craftground/MinecraftEnv/_deps
-        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('src/craftground/MinecraftEnv/src/main/cpp/CMakeLists.txt') }}
+          minecraft/mc121/_deps
+        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('minecraft/mc121/src/main/cpp/CMakeLists.txt') }}
         restore-keys: |
-          ${{ runner.os }}-fetchcontent-  
+          ${{ runner.os }}-fetchcontent-
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
-      working-directory: src/craftground/MinecraftEnv
+      working-directory: minecraft/mc121
       
   dependency-submission:
     runs-on: ubuntu-latest
@@ -126,4 +126,4 @@ jobs:
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
       with:
-        build-root-directory: src/craftground/MinecraftEnv
+        build-root-directory: minecraft/mc121

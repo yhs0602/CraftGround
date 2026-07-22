@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "gradle" # See documentation for possible values
-    directory: "/src/craftground/MinecraftEnv" # Location of package manifests
+    directory: "/minecraft/mc121" # Location of package manifests
     schedule:
       interval: "weekly"
       
