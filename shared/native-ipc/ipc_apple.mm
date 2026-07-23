@@ -59,11 +59,13 @@ id<MTLTexture> createMetalTextureFromIOSurface(
 static void deleteDLManagedTensor(DLManagedTensor *self) {
     // CFRelease((__bridge CFTypeRef)self->dl_tensor.data);
     free(self->dl_tensor.shape);
+    free(self->dl_tensor.strides);
     free(self);
 }
 
-static DLManagedTensor *
-createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
+static DLManagedTensor *createDLPackTensorMetal(
+    id<MTLBuffer> mtlBuffer, size_t width, size_t height, size_t bytesPerRow
+) {
     DLManagedTensor *tensor =
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
 
@@ -73,7 +75,14 @@ createDLPackTensorMetal(id<MTLBuffer> mtlBuffer, size_t width, size_t height) {
     tensor->dl_tensor.shape[0] = height;
     tensor->dl_tensor.shape[1] = width;
     tensor->dl_tensor.shape[2] = 4; // RGBA
-    tensor->dl_tensor.strides = NULL;
+    // IOSurface can pad each row beyond width * bytesPerElement for GPU
+    // alignment, so strides must be explicit -- NULL implies tight packing
+    // derived from shape alone, which silently mismatches the real memory
+    // layout whenever bytesPerRow != width * 4.
+    tensor->dl_tensor.strides = (int64_t *)malloc(3 * sizeof(int64_t));
+    tensor->dl_tensor.strides[0] = (int64_t)bytesPerRow; // dtype is 1 byte
+    tensor->dl_tensor.strides[1] = 4;
+    tensor->dl_tensor.strides[2] = 1;
     tensor->dl_tensor.byte_offset = 0;
 
     tensor->dl_tensor.dtype =
@@ -137,7 +146,8 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
         );
     }
 
-    DLManagedTensor *tensor = createDLPackTensorMetal(mtlBuffer, width, height);
+    DLManagedTensor *tensor =
+        createDLPackTensorMetal(mtlBuffer, width, height, bytesPerRow);
 
 #if USE_CUSTOM_DL_PACK_TENSOR
     return py::reinterpret_steal<py::object>(torchTensorFromDLPack(tensor));
@@ -146,9 +156,20 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
         tensor,
         "dltensor",
         [](PyObject *capsule) {
+            // If a DLPack consumer already renamed the capsule to
+            // "used_dltensor", ownership (and the deleter call) was
+            // transferred to it -- calling the deleter again here would be a
+            // double-free. PyCapsule_GetPointer fails on a name mismatch and
+            // returns NULL, so without this check `tensor` would be NULL and
+            // the deleter call below would segfault.
+            if (!PyCapsule_IsValid(capsule, "dltensor")) {
+                return;
+            }
             DLManagedTensor *tensor =
                 (DLManagedTensor *)PyCapsule_GetPointer(capsule, "dltensor");
-            tensor->deleter(tensor);
+            if (tensor) {
+                tensor->deleter(tensor);
+            }
         }
     ));
 #endif
