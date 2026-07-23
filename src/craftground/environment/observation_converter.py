@@ -70,8 +70,8 @@ class ObservationConverter:
         self.render_alternating_eyes = render_alternating_eyes
         if output_type == ScreenEncodingMode.ZEROCOPY:
             try:
-                from .craftground_native import initialize_from_mach_port  # type: ignore
-                from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
+                from ..craftground_native import initialize_from_mach_port  # type: ignore
+                from ..craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
             except ImportError:
                 raise ImportError(
                     "To use zerocopy encoding mode, please install the craftground[cuda] package on linux or windows."
@@ -231,8 +231,8 @@ class ObservationConverter:
 
     def initialize_zerocopy(self, ipc_handle: bytes):
         import torch
-        from .craftground_native import initialize_from_mach_port  # type: ignore
-        from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
+        from ..craftground_native import initialize_from_mach_port  # type: ignore
+        from ..craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
         if len(ipc_handle) == 0:
             raise ValueError("No ipc handle found.")
@@ -251,7 +251,7 @@ class ObservationConverter:
             print(rgb_array_or_tensor.device)
             self.last_observations[0] = rgb_array_or_tensor
             # drop alpha, flip y axis, and clone
-            self.observation_tensor_type = ObservationTensorType.APPLE_TENSOR
+            self.internal_type = ObservationTensorType.APPLE_TENSOR
         else:
             import torch.utils.dlpack
 
@@ -269,12 +269,12 @@ class ObservationConverter:
             print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
             self.last_observations[0] = rgb_array_or_tensor
             # drop alpha, flip y axis, and clone
-            self.observation_tensor_type = ObservationTensorType.CUDA_DLPACK
+            self.internal_type = ObservationTensorType.CUDA_DLPACK
 
     def convert_jax_observation(self, ipc_handle: bytes) -> "JaxArrayType":
         import jax.numpy as jnp
-        from .craftground_native import mtl_dlpack_from_mach_port  # type: ignore
-        from .craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
+        from ..craftground_native import mtl_dlpack_from_mach_port  # type: ignore
+        from ..craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
         if len(ipc_handle) == 0:
             raise ValueError("No ipc handle found.")
@@ -295,7 +295,7 @@ class ObservationConverter:
             self.last_observations[0] = rgb_array_or_tensor
             # drop alpha, flip y axis, and clone
             rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(0)
-            self.observation_tensor_type = ObservationTensorType.JAX_NP
+            self.internal_type = ObservationTensorType.JAX_NP
             return rgb_array_or_tensor
         else:
             cuda_dlpack = mtl_tensor_from_cuda_mem_handle(
@@ -308,5 +308,5 @@ class ObservationConverter:
             jax_image = jnp.from_dlpack(cuda_dlpack)
             rgb_array_or_tensor = jax_image
             rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(0)
-            self.observation_tensor_type = ObservationTensorType.JAX_NP
+            self.internal_type = ObservationTensorType.JAX_NP
             return jax_image, None
