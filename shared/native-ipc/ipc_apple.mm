@@ -57,7 +57,11 @@ id<MTLTexture> createMetalTextureFromIOSurface(
 */
 
 static void deleteDLManagedTensor(DLManagedTensor *self) {
-    // CFRelease((__bridge CFTypeRef)self->dl_tensor.data);
+    // Balances the CFBridgingRetain(mtlBuffer) in createDLPackTensorMetal;
+    // without this, every DLPack tensor leaked the retained MTLBuffer.
+    if (self->dl_tensor.data) {
+        CFRelease((__bridge CFTypeRef)self->dl_tensor.data);
+    }
     free(self->dl_tensor.shape);
     free(self->dl_tensor.strides);
     free(self);
