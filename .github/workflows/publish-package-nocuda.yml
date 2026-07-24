@@ -20,7 +20,10 @@ jobs:
         # macos-13 is an intel runner, macos-14 is apple silicon; macos-13/14 make corrupt zip.
         # macos-15 pinned explicitly (not macos-latest): macos-latest is migrating to macos-26,
         # whose Xcode/libc++ breaks the libtorch 2.5.1 build (is_arithmetic specialization error).
-        os: [ubuntu-latest, macos-15, windows-latest]
+        # ubuntu is intentionally excluded: publish-package-cuda-linux.yml already builds the
+        # only Linux x86_64 wheel (CUDA support is opt-in at runtime), so building it again here
+        # would produce a same-named wheel that collides with it during artifact merge/upload.
+        os: [macos-15, windows-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -65,7 +68,6 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* cp38-* cp313-macosx_* pp*
         CIBW_ARCHS_WINDOWS: "AMD64"
         CIBW_ARCHS_MACOS: "arm64"
-        CIBW_ARCHS_LINUX: "x86_64"
         CIBW_PROJECT_REQUIRES_PYTHON: "<=3.12"
         CIBW_BEFORE_ALL_MACOS: >
           curl -LO https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.5.1.zip &&
