@@ -60,7 +60,7 @@ jobs:
         CIBW_BEFORE_ALL: > # https://stackoverflow.com/a/77212119/8614565
           yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo &&
           yum clean all &&
-          yum -y install cuda-toolkit &&
+          yum -y install cuda-nvcc-12-4 cuda-cudart-devel-12-4 &&
           ls -al /usr/local &&
           export PATH=$PATH:/usr/local/cuda/bin &&
           nvcc --version
