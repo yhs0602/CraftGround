@@ -15,7 +15,9 @@
 		"GammaMixin",
 		"DeltaTrackerTimerAccessor",
 		"ClientTickPinMixin",
-		"InputConstantsMixin"
+		"InputConstantsMixin",
+		"LevelExtractorEntityListenerMixin",
+		"RenderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

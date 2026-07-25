@@ -205,7 +205,7 @@ class MinecraftEnv :
                 if (entityListener == null) {
                     entityListener =
                         EntityRenderListenerImpl(
-                            client.levelRenderer as AddListenerInterface,
+                            client.levelExtractor as AddListenerInterface,
                         )
                 }
                 if (deathMessageCollector == null) {
