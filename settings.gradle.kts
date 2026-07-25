@@ -3,3 +3,4 @@
 rootProject.name = "craftground-workspace"
 
 includeBuild("minecraft/mc121")
+includeBuild("minecraft/mc262")
