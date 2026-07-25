@@ -241,6 +241,17 @@ loom {
     accessWidenerPath = file("src/main/resources/minecraftenv.accesswidener")
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir '../../shared-java/src/main/java'
+        }
+        kotlin {
+            srcDir '../../shared-java/src/main/kotlin'
+        }
+    }
+}
+
 
 //protobuf {
 //    protoc {

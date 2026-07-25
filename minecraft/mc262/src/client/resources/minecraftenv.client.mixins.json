@@ -1,8 +1,17 @@
 {
 	"required": true,
-	"package": "com.kyhsgeekcode.minecraftenv.client.mixin",
+	"package": "com.kyhsgeekcode.minecraftenv.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": [],
+	"client": [
+		"ClientCommonNetworkHandlerClientAccessor",
+		"DisableRegionalComplianceMixin",
+		"ClientEntityRenderDispatcherAccessor",
+		"ClientIsWindowFocusedMixin",
+		"ClientPlayNetworkHandlerMixin",
+		"MouseXYAccessor",
+		"RenderSystemPollEventsInvoker",
+		"WindowSizeAccessor"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}

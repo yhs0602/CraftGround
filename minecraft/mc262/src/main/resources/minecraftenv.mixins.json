@@ -2,7 +2,9 @@
 	"required": true,
 	"package": "com.kyhsgeekcode.minecraftenv.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"mixins": [],
+	"mixins": [
+		"SaveWorldMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}
