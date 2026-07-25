@@ -102,6 +102,8 @@ $RECYCLE.BIN/
 
 .gradle
 build/
+dist/
+*.egg-info/
 
 # Ignore Gradle GUI config
 gradle-app.setting

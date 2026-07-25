@@ -25,9 +25,11 @@ jobs:
     uses: ./.github/workflows/publish-package-nocuda.yml
   build_sdist:
     uses: ./.github/workflows/publish-build-sdist.yml
+  build_runtime_packages:
+    uses: ./.github/workflows/publish-build-runtime-packages.yml
   upload_all:
     name: Upload if release
-    needs: [build_cuda_wheels_linux, build_cuda_wheels_windows, build_nocuda_wheels, build_sdist]
+    needs: [build_cuda_wheels_linux, build_cuda_wheels_windows, build_nocuda_wheels, build_sdist, build_runtime_packages]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     environment: pypi

@@ -30,9 +30,14 @@ dependencies = [
   "typing_extensions",
   "psutil",
   "torch",
+  "craftground-runtime-mc121",
 ]
 
 [project.optional-dependencies]
+mc262 = [
+  "craftground-runtime-mc262",
+]
+
 test = [
   "flake8",
   "pytest",
@@ -58,7 +63,7 @@ repair-wheel-command = "" # Disable repair wheel command on macOS
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
-sdist.exclude = ["docs", "figures", "paper", "poster", "/tools", ".github", ".idea", ".vscode"]
+sdist.exclude = ["docs", "figures", "paper", "poster", "/tools", ".github", ".idea", ".vscode", "minecraft/mc121", "minecraft/mc262"]
 
 [tool.black]
 extend-exclude = '''
