@@ -412,14 +412,25 @@ W1에 끼워 넣는다. W13은 독립적이라 언제 해도 무방하다.
   `deltaTickResidual` 세팅: `deltaTicks=1, lastMs=currentMs, deltaTickResidual=0`.
 - **검증**: `ticksToDo`가 항상 1인지, 벽시계 부하를 걸어도 2 이상/0이 안 나오는지.
 
-### W3. Texture 기반 capture abstraction
+### W3. Texture 기반 capture abstraction — RGB 경로 완료
 
-- Java: `mainRenderTarget().getColorTexture()` → `GlTexture` 캐스팅 → `glId()`.
-- JNI 시그니처를 `captureTexture(textureId, ...)`로 변경.
-- native: FBO 자체 소유 + 캐시 (텍스처 id 변경 시 재생성).
-- depth도 동일하게 `mainRenderTarget().getDepthTexture()` 기반으로.
-- `shared-native/gl-capture/`가 mc121과 공유되므로 **mc121 영향 범위 확인 필수**
-  (구 시그니처 유지 + 신규 추가 vs 양쪽 동시 전환 결정).
+- Java: `mainRenderTarget().colorTexture` → `GlTexture` 캐스팅 → `glId()`. (`MinecraftEnv.kt` sendObservation, 완료)
+- **mc121과 공유하지 않기로 결정** (mc121 영향 범위 확인 부담 제거). `captureFramebufferImpl`
+  RGB 경로는 `shared-native/gl-capture/`를 쓰지 않고 `minecraft/mc262/src/main/cpp/`에 로컬
+  포크(`framebuffer_capturer.cpp`, `rgb_capture.cpp`)를 두고, mc262 `CMakeLists.txt`가 이
+  두 파일만 로컬 것을 쓰도록 변경. mc121 쪽은 완전히 무변경.
+- 시그니처: `captureFramebufferImpl(textureId, textureWidth, textureHeight, targetSizeX,
+  targetSizeY, encodingMode, isExtensionAvailable, drawCursor, xPos, yPos)` — `frameBufferId`
+  파라미터 제거. native가 캡처용 FBO를 직접 소유/캐시하고, `glFramebufferTexture2D`로 주어진
+  컬러 텍스처를 attach 후 `glReadPixels` (텍스처 id가 바뀔 때만 재attach — 리사이즈 등).
+- 컴파일 검증: `clang++ -fsyntax-only`로 실제 헤더(jni.h, cross_gl.h, glm, png_util.h) 대상
+  문법 검증 완료(HAS_PNG on/off 둘 다). **CMake/JNI 툴체인이 이 샌드박스에서 깨져있어
+  실제 링크·런타임 검증은 못 함** — 다음에 정상 툴체인에서 `runClient`로 실제 프레임이
+  나오는지 (검은 화면/가비지가 아닌지) 확인 필요.
+- depth 경로(`captureDepthImpl`, `GameRendererDepthCaptureMixin`)는 이미 별도로 미포팅
+  상태(deferred, `docs/mixin-port-todo/`)라 이번엔 손대지 않음 — 여전히 mc121과 공유.
+- ZEROCOPY 경로(`captureFramebufferZerocopyImpl`/`initializeZerocopyImpl`)도 이미
+  no-op/placeholder 상태였고 이번 변경 범위 밖 — 여전히 mc121과 공유, frameBufferId 기반.
 
 ### W4. GL 백엔드 fail-fast (D2)
 

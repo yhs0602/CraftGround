@@ -7,11 +7,16 @@ import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL30
 
-// mc262 counterpart of mc121's FramebufferCapturer. The GL capture path (RAW/PNG/ZEROCOPY)
-// reuses the same native sources as mc121 (see shared-native/gl-capture/), compiled into this
-// project's own native-lib so it stays independent per Minecraft version. VULKAN is scaffolding
-// only for now: mc262's Vulkan renderer readback isn't implemented yet, so it fails loudly
-// instead of silently falling back to a slower path in this hot-loop call.
+// mc262 counterpart of mc121's FramebufferCapturer. Most of the native capture path is shared
+// with mc121 (see shared-native/gl-capture/), compiled into this project's own native-lib so it
+// stays independent per Minecraft version - except RAW/PNG capture (captureFramebufferImpl),
+// which is mc262-local (src/main/cpp/framebuffer_capturer.cpp + rgb_capture.cpp): 26.2 has no
+// FBO integer to hand over anymore (GpuTexture/RenderTarget replaced Framebuffer), so it's
+// texture-based instead, with the native side owning and caching its own capture FBO (see
+// docs/26_2_phase2_plan.md W3). VULKAN is scaffolding only for now: mc262's Vulkan renderer
+// readback isn't implemented yet, so it fails loudly instead of silently falling back to a
+// slower path in this hot-loop call. ZEROCOPY still uses the old mc121-era frameBufferId-based
+// native path and isn't wired up for 26.2 yet either (see initializeZeroCopy below).
 object FramebufferCapturer {
     init {
         System.loadLibrary("native-lib")
@@ -48,7 +53,6 @@ object FramebufferCapturer {
         } else {
             return captureFramebufferImpl(
                 textureId,
-                frameBufferId,
                 textureWidth,
                 textureHeight,
                 targetSizeX,
@@ -62,9 +66,9 @@ object FramebufferCapturer {
         }
     }
 
+    // Texture-based (no frameBufferId - see the header comment above).
     external fun captureFramebufferImpl(
         textureId: Int,
-        frameBufferId: Int,
         textureWidth: Int,
         textureHeight: Int,
         targetSizeX: Int,

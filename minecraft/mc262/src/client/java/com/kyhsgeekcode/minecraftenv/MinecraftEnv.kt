@@ -546,9 +546,8 @@ class MinecraftEnv :
                 imageByteString1 =
                     FramebufferCapturer.captureFramebuffer(
                         colorTextureId,
-                        // TODO(W3): no FBO int exists on 26.2's RenderTarget anymore; 0 is a
-                        // placeholder until the native capture path is rewritten to be
-                        // texture-based (native owning its own FBO, see phase2_plan.md §2.3).
+                        // frameBufferId: unused by the RAW/PNG path (texture-based on 26.2, see
+                        // W3); only the still-unported ZEROCOPY path would read this.
                         0,
                         mainRenderTarget.width,
                         mainRenderTarget.height,
