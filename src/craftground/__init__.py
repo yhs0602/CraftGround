@@ -2,6 +2,7 @@ from typing import Optional
 
 from .environment.action_space import ActionSpaceVersion
 from .environment.environment import CraftGroundEnvironment
+from .environment.runtime_packages import clear_native_build_cache
 from .initial_environment_config import InitialEnvironmentConfig, LidarConfig
 
 
@@ -9,6 +10,7 @@ def make(
     initial_env_config: Optional[InitialEnvironmentConfig] = None,
     verbose=False,
     env_path=None,
+    mc_version: str = "1.21",
     port=8000,
     use_shared_memory=False,
     action_space_version=ActionSpaceVersion.V1_MINEDOJO,
@@ -32,6 +34,7 @@ def make(
         initial_env_config,
         verbose=verbose,
         env_path=env_path,
+        mc_version=mc_version,
         port=port,
         action_space_version=action_space_version,
         render_action=render_action,
