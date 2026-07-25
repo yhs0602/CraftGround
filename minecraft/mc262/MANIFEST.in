@@ -1,0 +1,20 @@
+recursive-include . *
+prune build
+prune dist
+prune run
+prune _deps
+prune .gradle
+prune CMakeFiles
+prune craftground_runtime_mc262.egg-info
+exclude CMakeCache.txt
+exclude cmake_install.cmake
+exclude compile_commands.json
+exclude Makefile
+exclude pyproject.toml
+exclude MANIFEST.in
+exclude .gitignore
+global-exclude *.so
+global-exclude *.dylib
+global-exclude *.dll
+global-exclude __pycache__
+global-exclude *.py[co]

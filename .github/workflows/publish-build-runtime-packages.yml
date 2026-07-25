@@ -1,0 +1,36 @@
+name: Runtime packages
+
+on: [workflow_call]
+
+env:
+  FORCE_COLOR: 3
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-runtime-packages
+  cancel-in-progress: true
+
+jobs:
+  build_runtime_packages:
+    name: Build ${{ matrix.mc_dir }} runtime package
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mc_dir: [minecraft/mc121, minecraft/mc262]
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.9"
+
+    - name: Build sdist and wheel
+      run: pipx run build --outdir ${{ github.workspace }}/dist
+      working-directory: ${{ matrix.mc_dir }}
+
+    - name: Check metadata
+      run: pipx run twine check dist/*
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: cibw-runtime-${{ matrix.mc_dir == 'minecraft/mc121' && 'mc121' || 'mc262' }}
+        path: dist/*

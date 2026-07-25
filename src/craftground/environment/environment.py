@@ -23,6 +23,7 @@ from .action_space import (
 )
 from .observation_converter import ObservationConverter
 from .observation_space import declare_observation_space
+from .runtime_packages import resolve_runtime_env_path
 from .socket_ipc import SocketIPC
 
 from ..csv_logger import CsvLogger, LogBackend
@@ -51,6 +52,7 @@ class CraftGroundEnvironment(gym.Env):
         action_space_version: ActionSpaceVersion = ActionSpaceVersion.V1_MINEDOJO,
         verbose=False,
         env_path=None,
+        mc_version: str = "1.21",  # "26.2" builds but has no mixins/frame capture yet - non-functional
         port=8000,
         find_free_port: bool = True,
         use_shared_memory: bool = False,
@@ -104,10 +106,7 @@ class CraftGroundEnvironment(gym.Env):
         self.process = None
         self.use_shared_memory = use_shared_memory
         if env_path is None:
-            package_dir = os.path.dirname(
-                os.path.dirname(os.path.abspath(__file__))
-            )
-            self.env_path = os.path.join(package_dir, "minecraft", "mc121")
+            self.env_path = resolve_runtime_env_path(mc_version)
         else:
             self.env_path = env_path
             gradle_path = shutil.which("gradlew", path=self.env_path)

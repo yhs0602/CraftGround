@@ -1,0 +1,34 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61"]
+
+[project]
+name = "craftground-runtime-mc262"
+version = "0.1.0"
+description = "CraftGround Fabric mod runtime assets for Minecraft 26.2"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+
+[project.urls]
+Source = "https://github.com/yhs0602/CraftGround"
+
+[tool.setuptools]
+packages = ["craftground_runtime_mc262"]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+craftground_runtime_mc262 = "."
+
+[tool.setuptools.exclude-package-data]
+craftground_runtime_mc262 = [
+  "build",
+  "build/**",
+  "dist",
+  "dist/**",
+  "*.egg-info",
+  "*.egg-info/**",
+  "pyproject.toml",
+  "MANIFEST.in",
+  "setup.cfg",
+  ".gitignore",
+]
