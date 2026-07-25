@@ -104,10 +104,10 @@ class CraftGroundEnvironment(gym.Env):
         self.process = None
         self.use_shared_memory = use_shared_memory
         if env_path is None:
-            repo_root = os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            package_dir = os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__))
             )
-            self.env_path = os.path.join(repo_root, "minecraft", "mc121")
+            self.env_path = os.path.join(package_dir, "minecraft", "mc121")
         else:
             self.env_path = env_path
             gradle_path = shutil.which("gradlew", path=self.env_path)
@@ -461,8 +461,8 @@ class CraftGroundEnvironment(gym.Env):
     def get_env_base_path() -> str:
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
-        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-        env_dir = os.path.join(repo_root, "minecraft", "mc121", "run")
+        package_dir = os.path.dirname(current_dir)
+        env_dir = os.path.join(package_dir, "minecraft", "mc121", "run")
         return env_dir
 
     @staticmethod

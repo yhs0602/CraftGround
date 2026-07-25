@@ -150,6 +150,31 @@ target_compile_definitions(
 
 install(TARGETS craftground_native LIBRARY DESTINATION craftground)
 
+# The Fabric mod project (minecraft/mc121) is the Gradle project that
+# `CraftGroundEnvironment.start_server()` runs at runtime (`./gradlew
+# runClient`). It lives outside src/craftground so it isn't picked up
+# automatically by scikit-build-core's Python source packaging, so it has to
+# be installed into the wheel explicitly. Only the tracked project sources
+# are copied - local Gradle/CMake build output must never end up in the
+# wheel.
+install(
+    DIRECTORY ${CMAKE_SOURCE_DIR}/minecraft/mc121/
+    DESTINATION craftground/minecraft/mc121
+    USE_SOURCE_PERMISSIONS
+    PATTERN "build" EXCLUDE
+    PATTERN "run" EXCLUDE
+    PATTERN "_deps" EXCLUDE
+    PATTERN ".gradle" EXCLUDE
+    PATTERN "CMakeFiles" EXCLUDE
+    PATTERN "CMakeCache.txt" EXCLUDE
+    PATTERN "cmake_install.cmake" EXCLUDE
+    PATTERN "compile_commands.json" EXCLUDE
+    PATTERN "Makefile" EXCLUDE
+    PATTERN "*.so" EXCLUDE
+    PATTERN "*.dylib" EXCLUDE
+    PATTERN "*.dll" EXCLUDE
+)
+
 option(BUILD_TESTS "Build tests" OFF)
 if(BUILD_TESTS)
     enable_testing()
