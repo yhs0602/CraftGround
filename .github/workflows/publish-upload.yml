@@ -56,3 +56,7 @@ jobs:
     - uses: pypa/gh-action-pypi-publish@release/v1
       with:
         attestations: true
+        # craftground-runtime-mc121/mc262 aren't bumped on every core release
+        # (see minecraft/mc121, mc262 pyproject.toml `version`), so re-uploading
+        # an unchanged runtime wheel is expected and shouldn't fail the job.
+        skip-existing: true
