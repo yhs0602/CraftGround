@@ -9,7 +9,12 @@ updates:
     directory: "/minecraft/mc121" # Location of package manifests
     schedule:
       interval: "weekly"
-      
+
+  - package-ecosystem: "gradle"
+    directory: "/minecraft/mc262"
+    schedule:
+      interval: "weekly"
+
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:

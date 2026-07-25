@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "minecraftenv",
+  "version": "${version}",
+  "name": "minecraftenv",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/yhs0602/craftground"
+  },
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.kyhsgeekcode.minecraftenv.MinecraftEnv"
+    ],
+    "client": [
+      "com.kyhsgeekcode.minecraftenv.client.MinecraftEnvClient"
+    ]
+  },
+  "mixins": [
+    "minecraftenv.mixins.json",
+    {
+      "config": "minecraftenv.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-api": "*",
+    "minecraft": "~26.2",
+    "java": ">=25"
+  }
+}
