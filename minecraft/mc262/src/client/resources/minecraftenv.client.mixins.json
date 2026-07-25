@@ -10,7 +10,12 @@
 		"ClientPlayNetworkHandlerMixin",
 		"MouseXYAccessor",
 		"RenderSystemPollEventsInvoker",
-		"WindowSizeAccessor"
+		"WindowSizeAccessor",
+		"ChatVisibleMessageAccessor",
+		"GammaMixin",
+		"DeltaTrackerTimerAccessor",
+		"ClientTickPinMixin",
+		"InputConstantsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

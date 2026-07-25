@@ -301,3 +301,4 @@ dejavu-fonts-ttf-2.37
 *.dylib
 CODE_REVIEW.md
 minecraft/mc121/minecraft_sources/
+docs/26_2_mixin_deep_dive.md
