@@ -30,7 +30,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.stats.Stats
 import net.minecraft.tags.FluidTags
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.ProjectileUtil
@@ -692,9 +691,12 @@ class MinecraftEnv :
                         val playerBlockPos = player.blockPosition()
                         val currentPlayerBiome =
                             serverWorld.getUncachedNoiseBiome(
-                                net.minecraft.core.QuartPos.fromBlock(playerBlockPos.x),
-                                net.minecraft.core.QuartPos.fromBlock(playerBlockPos.y),
-                                net.minecraft.core.QuartPos.fromBlock(playerBlockPos.z),
+                                net.minecraft.core.QuartPos
+                                    .fromBlock(playerBlockPos.x),
+                                net.minecraft.core.QuartPos
+                                    .fromBlock(playerBlockPos.y),
+                                net.minecraft.core.QuartPos
+                                    .fromBlock(playerBlockPos.z),
                             )
                         println("Current player biome: $currentPlayerBiome")
                         val biomeCenterFinder = BiomeCenterFinder(serverWorld)
@@ -721,7 +723,11 @@ class MinecraftEnv :
                                     x = biomePos.x
                                     y = biomePos.y
                                     z = biomePos.z
-                                    biomeName = biomePos.biome.unwrapKey().map { it.identifier().toString() }.orElse("")
+                                    biomeName =
+                                        biomePos.biome
+                                            .unwrapKey()
+                                            .map { it.identifier().toString() }
+                                            .orElse("")
                                 },
                             )
                         }
