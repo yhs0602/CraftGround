@@ -8,9 +8,14 @@ set(CMAKE_FIND_PACKAGE_SORT_ORDER NATURAL)
 set(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# GL frame capture sources are shared across Minecraft versions (mc121, mc262) since the
+# Most GL frame capture sources are shared across Minecraft versions (mc121, mc262) since the
 # capture logic itself doesn't depend on the Minecraft version - only each mod's own Gradle
 # project compiles it into its own native-lib. See docs/26_2_MigrationPlan.md.
+#
+# framebuffer_capturer.cpp and rgb_capture.cpp are the exception: 26.2 dropped the old
+# Framebuffer/raw-FBO-int model in favor of GpuTexture/RenderTarget, so the RGB capture path
+# needs a texture-based rewrite (docs/26_2_phase2_plan.md W3) that doesn't apply to mc121. Local,
+# mc262-only copies of those two files live in this directory instead.
 set(GL_CAPTURE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../../../shared-native/gl-capture)
 
 include(FetchContent)
@@ -102,9 +107,9 @@ message(STATUS "Boost is now available")
 # Add your source files here
 set(
     SOURCE_FILES
-    ${GL_CAPTURE_DIR}/framebuffer_capturer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/framebuffer_capturer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/rgb_capture.cpp
     ${GL_CAPTURE_DIR}/cursor.cpp
-    ${GL_CAPTURE_DIR}/rgb_capture.cpp
     ${GL_CAPTURE_DIR}/depth_capture.cpp
     ${GL_CAPTURE_DIR}/noboost_ipc.cpp
 )

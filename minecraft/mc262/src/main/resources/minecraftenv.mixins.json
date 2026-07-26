@@ -2,7 +2,12 @@
 	"required": true,
 	"package": "com.kyhsgeekcode.minecraftenv.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"mixins": [],
+	"mixins": [
+		"SaveWorldMixin",
+		"ServerPlayNetworkHandlerDisableSpamChecker",
+		"EntityCollisionDetectorMixin",
+		"AbstractBlockCollisionDetectorMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}

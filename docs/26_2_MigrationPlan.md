@@ -1,3 +1,26 @@
+진행 상황 (2026-07-25 기준)
+
+완료됨
+
+* Gradle 독립 root 분리 — minecraft/mc121(Gradle 8.8, Loom 1.6-SNAPSHOT, Yarn mappings)과 minecraft/mc262(Gradle 9.5.1, Loom 1.17-SNAPSHOT, Java 25 toolchain, splitEnvironmentSourceSets())가 이미 독립된 Gradle root로 분리되어 있습니다. → 2장 권장 구조 그대로.
+* Python core/runtime 패키지 분리 — 최상위 pyproject.toml이 core craftground 패키지를 빌드하고, minecraft/mc121/pyproject.toml·minecraft/mc262/pyproject.toml이 각각 craftground-runtime-mc121/craftground-runtime-mc262를 별도 배포합니다. src/craftground/environment/runtime_packages.py가 mc_version → 런타임 패키지명을 매핑해 importlib.resources로 설치된 런타임을 탐색하며, craftground.make(mc_version=...)에서 그대로 사용됩니다. → 4장 core/runtime 분리 권고.
+* CI 런타임 패키지 matrix 빌드 — .github/workflows/publish-build-runtime-packages.yml이 mc_dir: [minecraft/mc121, minecraft/mc262] matrix로 각 런타임 패키지의 sdist/wheel을 빌드하고, publish-upload.yml이 이를 다른 배포 job들과 함께 오케스트레이션합니다. PyPI 업로드는 런타임 패키지가 매 릴리스마다 버전업되지 않는 점을 감안해 skip-existing으로 처리됩니다. → 8장 CI/CD 전략 중 일부.
+* mc262 mappings 방식 확정 — minecraft/mc262/build.gradle에는 의도적으로 mappings 블록이 없습니다. Fabric 공식 문서가 26.2 개발에는 Yarn 대신 Mojang 공식 매핑(Mojmap) 사용을 권고하고 있어, mc121(Yarn)과 달리 mc262는 Mojang 매핑을 그대로 사용하기로 확정된 것입니다.
+
+남은 작업
+
+프레임 캡처는 초당 수천 회 호출되는 hot path입니다. minecraft/mc121/.../FramebufferCapturer.kt를 보면 이미 RAW/PNG/ZEROCOPY encodingMode int 상수로 분기해 서로 다른 external(JNI) 함수를 직접 호출하는 구조이며, 객체·인터페이스 다형성이 없습니다. 아래 작업들은 이 패턴(가상 디스패치나 공통 레코드로의 복사가 없는 최소 분기)을 유지하는 방향으로 진행합니다 — 본 문서 6장이 제안하는 FrameCaptureBackend 인터페이스/CapturedFrame 레코드는 설계 참고용으로만 남기고 그대로 채택하지 않습니다.
+
+* (a) 버전별 캡처 경로 분리 방식 결정 — mc121과 동일하게 mc262용 FramebufferCapturer를 별도 클래스/오브젝트로 두고 자체 external JNI 함수 세트를 갖는 방식을 채택합니다. 공통 encodingMode 상수에 mc262 GL/Vulkan용 값을 추가할지, mc262 전용 상수 세트를 따로 둘지만 결정하면 되고, 상위 공통 인터페이스는 두지 않습니다.
+* (b) shared-java 공통 모듈 추출 — proto/*, MessageIO.kt/ToMessage.kt, CsvLogger.kt, PrintWithTime.kt, Point3D.java, EncodeImageToBytes.kt처럼 버전 독립적인 코드를 mc121 트리에서 분리해 두 Gradle root가 참조할 수 있는 공통 모듈로 이동합니다(우선 source-set 공유, 장기적으로 Maven artifact). FramebufferCapturer 자체는 버전별로 분리 유지하므로 공유 대상에서 제외합니다.
+* (c) mc262 Java/Mixin 포팅 — mc121의 Mixin 목록(RenderMixin, GameRendererDepthCaptureMixin, WindowOffScreenMixin, InputUtilMixin, ClientPlayNetworkHandlerMixin, ClientWorldMixin, EntityCollisionDetectorMixin 등)과 MinecraftEnv.kt/EnvironmentInitializer.kt 상태 머신을 26.2 Mojmap API에 맞춰 재작성합니다. 현재 mc262 쪽은 no-op 스켈레톤뿐입니다.
+* (d) mc262 네이티브 캡처 구현 — minecraft/mc262/src/main/cpp를 신설하고, 우선 OpenGL 경로로 (a)에서 정한 JNI 함수 세트를 구현한 뒤 CMake/vcpkg 빌드에 통합합니다. mc121의 glReadPixels 기반 zerocopy 구현을 최대한 재사용합니다.
+* (e) Vulkan 캡처 구현 — (d) 완료 후 Vulkan readback을 별도 JNI 함수 세트로 추가하고(같은 "분기만, 다형성 없음" 원칙), GL/Vulkan 픽셀 동일성과 지연시간을 검증합니다.
+* (f) Protocol handshake 추가 — protocol_version/minecraft_version/render_backend/capabilities 필드를 초기 핸드셰이크 메시지(proto)에 추가하고, Python 쪽에서 비호환 시 즉시 거부하도록 구현합니다. 세션당 1회만 발생하므로 성능 제약은 없습니다.
+* (g) 빌드/CI 오케스트레이션 정리 — dev_tools.sh는 현재 mc121 경로만 하드코딩되어 있어 mc262 protobuf 코드젠에 쓰이지 않습니다. 이를 확장하거나 scripts/build-runtime.py 같은 오케스트레이터로 대체하고, CI를 protocol-tests → build-mod-mc121/build-mod-mc262 → build-native-ipc/build-capture-native → assemble-runtime-packages 단계로 세분화합니다.
+
+⸻
+
 결론
 
 CraftGround에는 다음 구성이 가장 적합합니다.
