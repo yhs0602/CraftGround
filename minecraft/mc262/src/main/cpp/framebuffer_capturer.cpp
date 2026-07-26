@@ -12,10 +12,11 @@
 #include <iostream>
 #include <stdlib.h>
 
-// mc262 fork of shared-native/gl-capture/framebuffer_capturer.cpp (docs/26_2_phase2_plan.md
-// W3). Identical to mc121's version except captureFramebufferImpl no longer takes a
-// frameBufferId - 26.2 has no FBO integer to hand over (see rgb_capture.cpp), only a GL texture
-// id from GlTexture.glId().
+// mc262 fork of shared-native/gl-capture/framebuffer_capturer.cpp
+// (docs/26_2_phase2_plan.md W3). Identical to mc121's version except
+// captureFramebufferImpl no longer takes a frameBufferId - 26.2 has no FBO
+// integer to hand over (see rgb_capture.cpp), only a GL texture id from
+// GlTexture.glId().
 
 // JNI_Onload to cache classes and methods
 jclass byteStringClass = nullptr;
