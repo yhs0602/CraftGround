@@ -532,6 +532,10 @@ class EnvironmentInitializer(
                 return@let
             }
             println("Copying resource zip file: $sourcePath to $targetZipPath")
+            // A freshly created world has no "resourcepacks/" directory yet (vanilla only
+            // creates it lazily elsewhere) - copyTo doesn't create the target's parent dirs,
+            // so without this a fresh world throws NoSuchFileException here every time.
+            Files.createDirectories(targetZipPath.parent)
             sourcePath.copyTo(targetZipPath, true)
             println("(gap) Not yet reloading the world resource pack - see TODO above")
         } ?: run {
@@ -547,6 +551,7 @@ class EnvironmentInitializer(
                 return@let
             }
             println("Copying map directory: $mapSrcPath to $dataPath")
+            Files.createDirectories(dataPath)
             mapSrcPath.toFile().listFiles()?.forEach { file ->
                 if (file.isDirectory) {
                     return@forEach

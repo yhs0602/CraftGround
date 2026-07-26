@@ -438,12 +438,18 @@ W1에 끼워 넣는다. W13은 독립적이라 언제 해도 무방하다.
 - Vulkan 백엔드가 선택되면 캡처가 조용히 깨지므로 silent failure 방지가 목적.
 - `Minecraft.java:479`의 `preferredGraphicsBackend.getBackendsToTry()` 참고.
 
-### W5. Render skip 최적화 (`RenderMixin` 재설계)
+### W5. Render skip 최적화 (`RenderMixin` 재설계) — 결론: blit/present no-op는 폐기
 
-- `windowSurface.blitFromTexture(...)` → no-op
-- `windowSurface.present()` → capture 훅 (W1과 통합)
-- `FramerateLimiter.limitDisplayFPS(...)` → 무력화
-- vsync: `windowSurface.configure(config)`의 present mode 확인 필요
+- `FramerateLimiter.limitDisplayFPS(...)` → 무력화. **이것만 적용.**
+- ~~`windowSurface.blitFromTexture(...)` → no-op~~, ~~`windowSurface.present()` → no-op~~:
+  **실제로 시도했다가 되돌림.** `Minecraft.doWorldLoad()`(월드 생성 시 클라이언트가 서버
+  준비를 기다리는 루프)가 `while (!singleplayerServer.isReady() || gui.overlay() != null)`
+  안에서 매 반복마다 `this.renderFrame(false)`를 직접 호출하는데, 여기서 present/blit를
+  스킵하면 이 대기 조건이 영원히 안 풀림 — jstack으로 render thread가 이 루프 안에
+  영구히 park되어 있는 것을 확인, blit/present 스킵을 제거하자 즉시 정상화되고
+  `reset()`/`step()`이 실제로 끝까지 성공(SMOKE TEST PASSED, 5 step 완주)함.
+  present()를 실제 캡처 훅으로 재설계(W1)하기 전까지는 건드리지 않는다.
+- vsync: `windowSurface.configure(config)`의 present mode 확인은 W1에서 재검토.
 - mc121의 `Tessellator.getInstance().clear()`는 대응 개념 불확실 — 필요성 재검토
 - `RenderSystem.pollEvents()`는 26.2에서 public static이므로 Invoker mixin 경유 불필요
 

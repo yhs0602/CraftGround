@@ -120,8 +120,9 @@ tasks.named('build').configure {
 }
 
 tasks.named('runClient') {
+    def nativeLibDir = layout.projectDirectory.asFile
     doFirst {
-        jvmArgs += "-Djava.library.path=${projectDir}"
+        jvmArgs += "-Djava.library.path=${nativeLibDir}"
     }
 }
 
