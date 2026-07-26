@@ -129,6 +129,27 @@ pip install --upgrade protobuf
 
 ---
 
+### **CMake Can't Find JNI on macOS (`Could NOT find JNI (missing: JAVA_INCLUDE_PATH JAVA_INCLUDE_PATH2 AWT)`)**
+
+#### **Error Message**
+```plaintext
+CMake Error at .../FindPackageHandleStandardArgs.cmake:290 (message):
+  Could NOT find JNI (missing: JAVA_INCLUDE_PATH JAVA_INCLUDE_PATH2 AWT)
+```
+
+This happens when `JAVA_HOME` isn't set in the shell that runs `./gradlew configureCppProject` /
+`compileCpp` / `runClient`. Without it, CMake's `FindJNI` module falls back to macOS's old
+`/System/Library/Frameworks/JavaVM.framework` stub instead of your real JDK, which has no
+`jni.h`/AWT headers on modern macOS.
+
+#### **Solution**  
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home)  # or point at a specific JDK, e.g. a Temurin install
+./gradlew configureCppProject compileCpp
+```
+
+---
+
 ## **Development Setup & Build**  
 
 CraftGround development requires **Conda**, **Java**, **CMake**, and **C++ build tools**.  

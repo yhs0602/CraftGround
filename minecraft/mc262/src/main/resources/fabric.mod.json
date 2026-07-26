@@ -11,11 +11,8 @@
   "license": "All-Rights-Reserved",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "com.kyhsgeekcode.minecraftenv.MinecraftEnv"
-    ],
     "client": [
-      "com.kyhsgeekcode.minecraftenv.client.MinecraftEnvClient"
+      "com.kyhsgeekcode.minecraftenv.MinecraftEnv"
     ]
   },
   "mixins": [
