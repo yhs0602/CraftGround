@@ -66,8 +66,8 @@ static inline int rk_sema_wait(struct rk_sema *s) {
     DWORD r;
     do {
         r = WaitForSingleObject(s->sem_python, INFINITE);
-    } while (r == WAIT_FAILED && GetLastError() == ERROR_IO_PENDING
-    ); // 적절한 오류 코드로 변경
+    } while (r == WAIT_FAILED &&
+             GetLastError() == ERROR_IO_PENDING); // 적절한 오류 코드로 변경
     return r;
 #else
     int r;

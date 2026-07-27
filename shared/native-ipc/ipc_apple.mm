@@ -146,7 +146,8 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
                      }];
 
     if (!mtlBuffer) {
-        throw std::runtime_error("Failed to create Metal buffer from IOSurface"
+        throw std::runtime_error(
+            "Failed to create Metal buffer from IOSurface"
         );
     }
 
@@ -156,10 +157,8 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
 #if USE_CUSTOM_DL_PACK_TENSOR
     return py::reinterpret_steal<py::object>(torchTensorFromDLPack(tensor));
 #else
-    return py::reinterpret_steal<py::object>(PyCapsule_New(
-        tensor,
-        "dltensor",
-        [](PyObject *capsule) {
+    return py::reinterpret_steal<py::object>(
+        PyCapsule_New(tensor, "dltensor", [](PyObject *capsule) {
             // If a DLPack consumer already renamed the capsule to
             // "used_dltensor", ownership (and the deleter call) was
             // transferred to it -- calling the deleter again here would be a
@@ -174,7 +173,7 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
             if (tensor) {
                 tensor->deleter(tensor);
             }
-        }
-    ));
+        })
+    );
 #endif
 }

@@ -58,7 +58,8 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
         (DLManagedTensor *)malloc(sizeof(DLManagedTensor));
 
     if (!tensor) {
-        throw std::runtime_error("Failed to allocate memory for DLManagedTensor"
+        throw std::runtime_error(
+            "Failed to allocate memory for DLManagedTensor"
         );
     }
     tensor->dl_tensor.data = device_ptr;
@@ -75,7 +76,8 @@ mtl_tensor_from_cuda_ipc_handle(void *cuda_ipc_handle, int width, int height) {
     if (!tensor->dl_tensor.strides) {
         free(tensor->dl_tensor.shape);
         free(tensor);
-        throw std::runtime_error("Failed to allocate memory for tensor strides"
+        throw std::runtime_error(
+            "Failed to allocate memory for tensor strides"
         );
     }
     tensor->dl_tensor.strides[0] = width * 4;

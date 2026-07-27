@@ -361,11 +361,12 @@ int create_shared_memory_impl(
 void write_to_shared_memory_impl(
     const std::string &p2j_memory_name, const char *data, size_t action_size
 ) {
-    // p2jFd is owned by the shm_fd_cache in get_shared_memory_fd() and is reused
-    // across calls - it must not be close()d here, only by close_shared_memory_fd()
-    // (via destroy_shared_memory_impl). Closing it here left later calls reusing a
-    // cached-but-already-closed fd number, breaking action delivery after the
-    // first write (surfaced as spurious EACCES/EBADF errors from mmap).
+    // p2jFd is owned by the shm_fd_cache in get_shared_memory_fd() and is
+    // reused across calls - it must not be close()d here, only by
+    // close_shared_memory_fd() (via destroy_shared_memory_impl). Closing it
+    // here left later calls reusing a cached-but-already-closed fd number,
+    // breaking action delivery after the first write (surfaced as spurious
+    // EACCES/EBADF errors from mmap).
     int p2jFd = get_shared_memory_fd(p2j_memory_name.c_str());
     if (p2jFd == -1) {
         perror("shm_open failed while writing to shared memory");
@@ -388,11 +389,12 @@ void write_to_shared_memory_impl(
     layout->action_offset = sizeof(SharedMemoryLayout);
     std::memcpy((char *)ptr + layout->action_offset, data, layout->action_size);
     rk_sema_open(&layout->sem_obs_ready);
-    // Must be synchronous: async_rk_sema_post() posts from a detached thread that
-    // captures a pointer into `ptr`, but this function munmap()s `ptr` right after -
-    // the detached thread would then race to dereference already-unmapped memory,
-    // segfaulting nondeterministically (observed on the 2nd+ step in ZEROCOPY/JAX
-    // mode, once earlier bugs stopped masking this path).
+    // Must be synchronous: async_rk_sema_post() posts from a detached thread
+    // that captures a pointer into `ptr`, but this function munmap()s `ptr`
+    // right after - the detached thread would then race to dereference
+    // already-unmapped memory, segfaulting nondeterministically (observed on
+    // the 2nd+ step in ZEROCOPY/JAX mode, once earlier bugs stopped masking
+    // this path).
     if (rk_sema_post(&layout->sem_action_ready) < 0) {
         perror("Failed to post semaphore");
     }
