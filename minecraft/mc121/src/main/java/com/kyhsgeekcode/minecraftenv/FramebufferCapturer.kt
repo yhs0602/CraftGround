@@ -25,7 +25,7 @@ object FramebufferCapturer {
         xPos: Int,
         yPos: Int,
     ): ByteString {
-        if (encodingMode == ZEROCOPY) {
+        if (encodingMode == ZEROCOPY_TORCH || encodingMode == ZEROCOPY_JAX) {
             assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
             return captureFramebufferZerocopyImpl(
                 frameBufferId,
@@ -148,7 +148,11 @@ object FramebufferCapturer {
 
     const val RAW = 0
     const val PNG = 1
-    const val ZEROCOPY = 2
+
+    // Both share the mach-port/CUDA-handle capture path below; they only differ
+    // in which array type Python wraps the shared GPU buffer as.
+    const val ZEROCOPY_TORCH = 2
+    const val ZEROCOPY_JAX = 3
 
     var isExtensionAvailable: Boolean = false
     private var hasCheckedExtension: Boolean = false

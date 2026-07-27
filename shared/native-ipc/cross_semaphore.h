@@ -66,8 +66,8 @@ static inline int rk_sema_wait(struct rk_sema *s) {
     DWORD r;
     do {
         r = WaitForSingleObject(s->sem_python, INFINITE);
-    } while (r == WAIT_FAILED && GetLastError() == ERROR_IO_PENDING
-    ); // 적절한 오류 코드로 변경
+    } while (r == WAIT_FAILED &&
+             GetLastError() == ERROR_IO_PENDING); // 적절한 오류 코드로 변경
     return r;
 #else
     int r;
@@ -85,14 +85,6 @@ static inline int rk_sema_post(struct rk_sema *s) {
 #else
     return sem_post(s->sem_python);
 #endif
-}
-
-static inline void async_rk_sema_post(struct rk_sema *s) {
-    std::thread([s]() {
-        if (rk_sema_post(s) < 0) {
-            perror("Failed to post semaphore");
-        };
-    }).detach();
 }
 
 static inline void rk_sema_destroy(struct rk_sema *s) {

@@ -300,15 +300,6 @@ int create_shared_memory_impl(
     std::lock_guard<std::mutex> lock(shm_map_mutex);
     shm_map[std::this_thread::get_id()] = {p2j_memory_name, j2p_memory_name};
 
-    if (ftruncate(j2pFd, sizeof(J2PSharedMemoryLayout) + data_size) == -1) {
-        perror("ftruncate failed for j2pFd");
-        close(j2pFd);
-        close(p2jFd);
-        shm_unlink(j2p_memory_name.c_str());
-        shm_unlink(p2j_memory_name.c_str());
-        return -1;
-    }
-
     void *ptr = mmap(
         0, shared_memory_size, PROT_READ | PROT_WRITE, MAP_SHARED, p2jFd, 0
     );
@@ -370,7 +361,17 @@ int create_shared_memory_impl(
 void write_to_shared_memory_impl(
     const std::string &p2j_memory_name, const char *data, size_t action_size
 ) {
+    // p2jFd is owned by the shm_fd_cache in get_shared_memory_fd() and is
+    // reused across calls - it must not be close()d here, only by
+    // close_shared_memory_fd() (via destroy_shared_memory_impl). Closing it
+    // here left later calls reusing a cached-but-already-closed fd number,
+    // breaking action delivery after the first write (surfaced as spurious
+    // EACCES/EBADF errors from mmap).
     int p2jFd = get_shared_memory_fd(p2j_memory_name.c_str());
+    if (p2jFd == -1) {
+        perror("shm_open failed while writing to shared memory");
+        return;
+    }
     void *ptr = mmap(
         0,
         sizeof(SharedMemoryLayout) + action_size,
@@ -381,7 +382,6 @@ void write_to_shared_memory_impl(
     );
     if (ptr == MAP_FAILED) {
         perror("mmap failed while writing to shared memory");
-        close(p2jFd);
         return;
     }
     SharedMemoryLayout *layout = static_cast<SharedMemoryLayout *>(ptr);
@@ -389,10 +389,17 @@ void write_to_shared_memory_impl(
     layout->action_offset = sizeof(SharedMemoryLayout);
     std::memcpy((char *)ptr + layout->action_offset, data, layout->action_size);
     rk_sema_open(&layout->sem_obs_ready);
-    async_rk_sema_post(&layout->sem_action_ready);
+    // Must be synchronous: async_rk_sema_post() posts from a detached thread
+    // that captures a pointer into `ptr`, but this function munmap()s `ptr`
+    // right after - the detached thread would then race to dereference
+    // already-unmapped memory, segfaulting nondeterministically (observed on
+    // the 2nd+ step in ZEROCOPY/JAX mode, once earlier bugs stopped masking
+    // this path).
+    if (rk_sema_post(&layout->sem_action_ready) < 0) {
+        perror("Failed to post semaphore");
+    }
     // std::cout << "Wrote action to shared memory" << std::endl;
     munmap(ptr, sizeof(SharedMemoryLayout) + action_size);
-    close(p2jFd);
 }
 
 py::bytes read_from_shared_memory_impl(
@@ -414,7 +421,6 @@ py::bytes read_from_shared_memory_impl(
     );
     if (p2jPtr == MAP_FAILED) {
         perror("mmap p2j failed while reading from shared memory");
-        close(p2jFd);
         return py::bytes();
     }
     SharedMemoryLayout *layout = static_cast<SharedMemoryLayout *>(p2jPtr);
@@ -453,7 +459,6 @@ py::bytes read_from_shared_memory_impl(
     if (j2pPtr == MAP_FAILED) {
         perror("mmap j2p failed while reading from shared memory");
         munmap(p2jPtr, sizeof(SharedMemoryLayout));
-        close(p2jFd);
         close(j2pFd);
         return py::bytes();
     }
@@ -476,7 +481,6 @@ py::bytes read_from_shared_memory_impl(
     if (j2pPtr == MAP_FAILED) {
         perror("mmap j2p failed while reading from shared memory");
         munmap(p2jPtr, sizeof(SharedMemoryLayout));
-        close(p2jFd);
         close(j2pFd);
         return py::bytes();
     }
@@ -492,7 +496,6 @@ py::bytes read_from_shared_memory_impl(
     //           << std::endl;
     munmap(j2pPtr, sizeof(J2PSharedMemoryLayout) + obs_length);
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
-    close(p2jFd);
     close(j2pFd);
     return data;
 }
@@ -524,7 +527,7 @@ void destroy_shared_memory_impl(
                 rk_sema_destroy(&layout->sem_action_ready);
                 munmap(ptr, sizeof(SharedMemoryLayout));
             }
-            close(p2jFd);
+            close_shared_memory_fd(memory_name);
         }
     }
     shm_unlink(memory_name.c_str());

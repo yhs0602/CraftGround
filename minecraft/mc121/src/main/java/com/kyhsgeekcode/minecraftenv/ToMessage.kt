@@ -40,25 +40,28 @@ fun StatusEffectInstance.toMessage() =
 
 fun HitResult.toMessage(world: World) =
     when (type) {
-        HitResult.Type.MISS ->
+        HitResult.Type.MISS -> {
             hitResult {
                 type = com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.HitResult.Type.MISS
             }
+        }
 
-        HitResult.Type.BLOCK ->
+        HitResult.Type.BLOCK -> {
             hitResult {
                 type = com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.HitResult.Type.BLOCK
                 val blockPos = (this@toMessage as BlockHitResult).blockPos
                 val block = world.getBlockState(blockPos).block
                 targetBlock = block.toMessage(blockPos)
             }
+        }
 
-        HitResult.Type.ENTITY ->
+        HitResult.Type.ENTITY -> {
             hitResult {
                 val entity = (this@toMessage as EntityHitResult).entity
                 type = com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.HitResult.Type.ENTITY
                 targetEntity = entity.toMessage()
             }
+        }
     }
 
 fun Block.toMessage(blockPos: BlockPos) =

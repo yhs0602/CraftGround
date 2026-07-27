@@ -503,11 +503,11 @@ class MinecraftEnv :
             )
         }
         val colorTextureId = glColorTexture.glId()
-        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
             // TODO(26_2_phase2_plan.md W3): initializeZeroCopy still expects the mc121-era
             // FBO-attachment-based signature (colorAttachment/depthAttachment ints from
             // Framebuffer, which no longer exists). Needs the texture-based native rewrite.
-            printWithTime("ZEROCOPY mode requested but not yet ported for 26.2 (W3 pending)")
+            printWithTime("ZEROCOPY_TORCH mode requested but not yet ported for 26.2 (W3 pending)")
         }
 
         // request stats from server
@@ -546,7 +546,7 @@ class MinecraftEnv :
                     FramebufferCapturer.captureFramebuffer(
                         colorTextureId,
                         // frameBufferId: unused by the RAW/PNG path (texture-based on 26.2, see
-                        // W3); only the still-unported ZEROCOPY path would read this.
+                        // W3); only the still-unported ZEROCOPY_TORCH path would read this.
                         0,
                         mainRenderTarget.width,
                         mainRenderTarget.height,
@@ -754,7 +754,7 @@ class MinecraftEnv :
                     }
                     isOnGround = player.onGround()
                     isTouchingWater = player.isInWater
-                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
                         ipcHandle = FramebufferCapturer.ipcHandle
                     }
                     if (initialEnvironment.requiresDepth) {
@@ -983,6 +983,7 @@ fun performDirectionalRaycast(
                 entityName = entity.type.descriptionId,
             )
         }
+
         blockDistance < maxDistance -> {
             // Block hit
             val blockPos = (blockHitResult as BlockHitResult).blockPos
@@ -994,6 +995,7 @@ fun performDirectionalRaycast(
                 entityName = "",
             )
         }
+
         else -> {
             // Miss
             LidarRayResult(

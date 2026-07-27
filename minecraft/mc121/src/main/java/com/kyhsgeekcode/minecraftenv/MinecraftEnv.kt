@@ -499,7 +499,9 @@ class MinecraftEnv :
             printWithTime("GLEW not initialized")
             throw RuntimeException("GLEW not initialized")
         }
-        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH ||
+            initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_JAX
+        ) {
             FramebufferCapturer.initializeZeroCopy(
                 initialEnvironment.imageSizeX,
                 initialEnvironment.imageSizeY,
@@ -819,7 +821,9 @@ class MinecraftEnv :
                     }
                     isOnGround = player.isOnGround
                     isTouchingWater = player.isTouchingWater
-                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY) {
+                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH ||
+                        initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_JAX
+                    ) {
                         ipcHandle = FramebufferCapturer.ipcHandle
                     }
                     if (initialEnvironment.requiresDepth) {
@@ -1068,6 +1072,7 @@ fun performDirectionalRaycast(
                 entityName = entity.type.translationKey,
             )
         }
+
         blockDistance < maxDistance -> {
             // Block hit
             val blockPos = blockHitResult.blockPos
@@ -1079,6 +1084,7 @@ fun performDirectionalRaycast(
                 entityName = "",
             )
         }
+
         else -> {
             // Miss
             LidarRayResult(

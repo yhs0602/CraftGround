@@ -365,7 +365,7 @@ graph TB
     
     C --> C1[imageSizeX: int]
     C --> C2[imageSizeY: int]
-    C --> C3[screen_encoding_mode:<br/>PNG/RAW/ZEROCOPY/JAX]
+    C --> C3[screen_encoding_mode:<br/>PNG/RAW/ZEROCOPY_TORCH/ZEROCOPY_JAX]
     C --> C4[eye_distance: float<br/>Binocular mode]
     
     D --> D1[spawnX, Y, Z: float]

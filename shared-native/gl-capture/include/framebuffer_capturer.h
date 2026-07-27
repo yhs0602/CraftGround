@@ -4,4 +4,4 @@
 extern jclass byteStringClass;
 extern jmethodID copyFromMethod;
 
-enum EncodingMode { RAW = 0, PNG = 1, ZEROCOPY = 2 };
+enum EncodingMode { RAW = 0, PNG = 1, ZEROCOPY_TORCH = 2, ZEROCOPY_JAX = 3 };

@@ -27,9 +27,17 @@ object OBJLoader {
             for (line in lines) {
                 val tokens = line.trim().split("\\s+".toRegex())
                 when (tokens.firstOrNull()) {
-                    "v" -> vertices.addAll(tokens.drop(1).map { it.toFloat() })
-                    "vt" -> uvs.addAll(tokens.drop(1).map { it.toFloat() })
-                    "vn" -> normals.addAll(tokens.drop(1).map { it.toFloat() })
+                    "v" -> {
+                        vertices.addAll(tokens.drop(1).map { it.toFloat() })
+                    }
+
+                    "vt" -> {
+                        uvs.addAll(tokens.drop(1).map { it.toFloat() })
+                    }
+
+                    "vn" -> {
+                        normals.addAll(tokens.drop(1).map { it.toFloat() })
+                    }
 
                     "f" -> {
                         for (i in 1 until tokens.size) {
