@@ -1072,6 +1072,7 @@ fun performDirectionalRaycast(
                 entityName = entity.type.translationKey,
             )
         }
+
         blockDistance < maxDistance -> {
             // Block hit
             val blockPos = blockHitResult.blockPos
@@ -1083,6 +1084,7 @@ fun performDirectionalRaycast(
                 entityName = "",
             )
         }
+
         else -> {
             // Miss
             LidarRayResult(

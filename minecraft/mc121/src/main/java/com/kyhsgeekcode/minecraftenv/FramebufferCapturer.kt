@@ -148,6 +148,7 @@ object FramebufferCapturer {
 
     const val RAW = 0
     const val PNG = 1
+
     // Both share the mach-port/CUDA-handle capture path below; they only differ
     // in which array type Python wraps the shared GPU buffer as.
     const val ZEROCOPY_TORCH = 2
