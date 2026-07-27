@@ -68,7 +68,7 @@ class ObservationConverter:
         self.render_action = render_action
         self.render_mode = render_mode
         self.render_alternating_eyes = render_alternating_eyes
-        if output_type == ScreenEncodingMode.ZEROCOPY:
+        if output_type == ScreenEncodingMode.ZEROCOPY_TORCH:
             try:
                 from ..craftground_native import initialize_from_mach_port  # type: ignore
                 from ..craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
@@ -77,7 +77,7 @@ class ObservationConverter:
                     "To use zerocopy encoding mode, please install the craftground[cuda] package on linux or windows."
                     " If this error happens in macOS, please report it to the developers."
                 )
-        if output_type == ScreenEncodingMode.JAX:
+        if output_type == ScreenEncodingMode.ZEROCOPY_JAX:
             try:
                 import jax  # type: ignore
             except ImportError:
@@ -105,7 +105,7 @@ class ObservationConverter:
                 obs_2 = self.convert_raw_observation(observation.image_2)
             self.last_observations[0], self.last_observations[1] = obs_1, obs_2
             return (obs_1, obs_2)
-        elif self.output_type == ScreenEncodingMode.ZEROCOPY:
+        elif self.output_type == ScreenEncodingMode.ZEROCOPY_TORCH:
             if self.is_binocular:
                 raise ValueError("Zerocopy mode does not support binocular vision")
             if self.internal_type == ObservationTensorType.NONE:
@@ -121,14 +121,36 @@ class ObservationConverter:
                     f"Invalid internal type for output {self.output_type}: {self.internal_type}"
                 )
 
-        elif self.output_type == ScreenEncodingMode.JAX:
+        elif self.output_type == ScreenEncodingMode.ZEROCOPY_JAX:
             if self.is_binocular:
                 raise ValueError("JAX mode does not support binocular vision")
+            if self.internal_type == ObservationTensorType.NONE:
+                self.initialize_jax_zerocopy(observation.ipc_handle)
             if self.internal_type == ObservationTensorType.JAX_NP:
-                return (self.last_observations[0], None)
+                # self.last_observations[0] is a torch tensor that's a live view
+                # into the shared GPU buffer Java keeps rewriting every frame (same
+                # as ZEROCOPY mode) - it has to be freshly cloned and converted to
+                # a jax array on every call, not just once, or every frame after
+                # the first would return the same stale first-frame snapshot (jax
+                # arrays are immutable, so there's no in-place-updating jax array
+                # to just re-read the way ZEROCOPY re-reads its torch tensor).
+                import jax.dlpack
+
+                torch_frame = self.last_observations[0].clone()[:, :, [2, 1, 0]].flip(
+                    0
+                )
+                try:
+                    obs_1 = jax.dlpack.from_dlpack(torch_frame)
+                except TypeError:
+                    # No jax Metal/GPU backend installed (needs the separate
+                    # jax-metal plugin) - fall back to a CPU copy instead of
+                    # crashing.
+                    obs_1 = jax.dlpack.from_dlpack(torch_frame.cpu())
+                return (obs_1, None)
             else:
-                pass
-            return self.convert_jax_zerocopy(observation)
+                raise ValueError(
+                    f"Invalid internal type for output {self.output_type}: {self.internal_type}"
+                )
         else:
             raise ValueError(f"Unknown output type: {self.output_type}")
 
@@ -271,9 +293,14 @@ class ObservationConverter:
             # drop alpha, flip y axis, and clone
             self.internal_type = ObservationTensorType.CUDA_DLPACK
 
-    def convert_jax_observation(self, ipc_handle: bytes) -> "JaxArrayType":
-        import jax.numpy as jnp
-        from ..craftground_native import mtl_dlpack_from_mach_port  # type: ignore
+    def initialize_jax_zerocopy(self, ipc_handle: bytes) -> None:
+        # There is no native mach-port -> DLPack export for JAX; the mach-port path
+        # instead reuses the same native call ZEROCOPY uses, which hands back a
+        # torch tensor that's a live view into the shared GPU buffer Java keeps
+        # rewriting every frame. That torch tensor (not a one-off jax conversion
+        # of it) is what gets cached - see the JAX branch of convert() for why.
+        import torch.utils.dlpack
+        from ..craftground_native import initialize_from_mach_port  # type: ignore
         from ..craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
 
         if len(ipc_handle) == 0:
@@ -281,22 +308,12 @@ class ObservationConverter:
         if len(ipc_handle) == 4:
             mach_port = int.from_bytes(ipc_handle, byteorder="little", signed=False)
             print_with_time(f"{mach_port=}")
-            dlpack_capsule = mtl_dlpack_from_mach_port(
+            apple_tensor = initialize_from_mach_port(
                 mach_port, self.image_width, self.image_height
             )
-            if not dlpack_capsule:
-                raise ValueError(f"Failed to initialize from mach port {ipc_handle}.")
-            jax_image = jnp.from_dlpack(dlpack_capsule)
-            # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
-            rgb_array_or_tensor = jax_image
-            print(rgb_array_or_tensor.shape)
-            print(rgb_array_or_tensor.dtype)
-            print(rgb_array_or_tensor.device())
-            self.last_observations[0] = rgb_array_or_tensor
-            # drop alpha, flip y axis, and clone
-            rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(0)
-            self.internal_type = ObservationTensorType.JAX_NP
-            return rgb_array_or_tensor
+            if apple_tensor is None:
+                raise ValueError(f"Failed to initialize from mach port {mach_port}.")
+            self.last_observations[0] = apple_tensor
         else:
             cuda_dlpack = mtl_tensor_from_cuda_mem_handle(
                 ipc_handle,
@@ -305,8 +322,7 @@ class ObservationConverter:
             )
             if not cuda_dlpack:
                 raise ValueError("Invalid DLPack capsule: None")
-            jax_image = jnp.from_dlpack(cuda_dlpack)
-            rgb_array_or_tensor = jax_image
-            rgb_array_or_tensor = rgb_array_or_tensor.clone()[:, :, [2, 1, 0]].flip(0)
-            self.internal_type = ObservationTensorType.JAX_NP
-            return jax_image, None
+            self.last_observations[0] = torch.utils.dlpack.from_dlpack(cuda_dlpack)
+        print(self.last_observations[0].shape)
+        print(self.last_observations[0].dtype)
+        self.internal_type = ObservationTensorType.JAX_NP

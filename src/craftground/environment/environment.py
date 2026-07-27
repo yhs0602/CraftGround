@@ -28,6 +28,7 @@ from .socket_ipc import SocketIPC
 
 from ..csv_logger import CsvLogger, LogBackend
 from ..initial_environment_config import InitialEnvironmentConfig
+from ..screen_encoding_modes import ScreenEncodingMode
 import torch
 
 
@@ -104,7 +105,20 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands = []
 
         self.process = None
-        self.use_shared_memory = use_shared_memory
+        # ZEROCOPY_TORCH/ZEROCOPY_JAX only work over the shared-memory IPC path (the
+        # mach-port/CUDA handle they carry is exchanged via BoostIPC); there's no
+        # valid combination of these encoding modes with use_shared_memory=False, so
+        # don't make that a footgun callers have to remember to wire up themselves.
+        requires_shared_memory = self.encoding_mode in (
+            ScreenEncodingMode.ZEROCOPY_TORCH,
+            ScreenEncodingMode.ZEROCOPY_JAX,
+        )
+        if requires_shared_memory and not use_shared_memory:
+            print(
+                f"{self.encoding_mode} requires shared memory IPC; "
+                "forcing use_shared_memory=True."
+            )
+        self.use_shared_memory = use_shared_memory or requires_shared_memory
         if env_path is None:
             self.env_path = resolve_runtime_env_path(mc_version)
         else:

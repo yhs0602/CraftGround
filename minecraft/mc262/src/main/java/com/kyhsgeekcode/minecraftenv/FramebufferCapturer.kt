@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL30
 // texture-based instead, with the native side owning and caching its own capture FBO (see
 // docs/26_2_phase2_plan.md W3). VULKAN is scaffolding only for now: mc262's Vulkan renderer
 // readback isn't implemented yet, so it fails loudly instead of silently falling back to a
-// slower path in this hot-loop call. ZEROCOPY still uses the old mc121-era frameBufferId-based
+// slower path in this hot-loop call. ZEROCOPY_TORCH still uses the old mc121-era frameBufferId-based
 // native path and isn't wired up for 26.2 yet either (see initializeZeroCopy below).
 object FramebufferCapturer {
     init {
@@ -40,7 +40,7 @@ object FramebufferCapturer {
                 "Vulkan frame capture is not implemented yet for mc262 (encodingMode=VULKAN)",
             )
         }
-        if (encodingMode == ZEROCOPY) {
+        if (encodingMode == ZEROCOPY_TORCH) {
             assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
             return captureFramebufferZerocopyImpl(
                 frameBufferId,
@@ -161,7 +161,7 @@ object FramebufferCapturer {
 
     const val RAW = 0
     const val PNG = 1
-    const val ZEROCOPY = 2
+    const val ZEROCOPY_TORCH = 2
 
     // mc262-only: Vulkan readback. Not implemented yet (see captureFramebuffer above) -
     // reserved so the wire format/proto stays stable once it lands.

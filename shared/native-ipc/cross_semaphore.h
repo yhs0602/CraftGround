@@ -87,14 +87,6 @@ static inline int rk_sema_post(struct rk_sema *s) {
 #endif
 }
 
-static inline void async_rk_sema_post(struct rk_sema *s) {
-    std::thread([s]() {
-        if (rk_sema_post(s) < 0) {
-            perror("Failed to post semaphore");
-        };
-    }).detach();
-}
-
 static inline void rk_sema_destroy(struct rk_sema *s) {
 #if IS_WINDOWS
     CloseHandle(s->sem_python);

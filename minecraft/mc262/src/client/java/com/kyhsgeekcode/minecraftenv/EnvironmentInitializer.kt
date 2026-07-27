@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.components.TabButton
 import net.minecraft.client.gui.components.events.GuiEventListener
 import net.minecraft.client.gui.components.tabs.TabNavigationBar
+import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen
 import net.minecraft.client.gui.screens.GenericMessageScreen
 import net.minecraft.client.gui.screens.PresetFlatWorldScreen
 import net.minecraft.client.gui.screens.TitleScreen
@@ -92,6 +93,16 @@ class EnvironmentInitializer(
         }
         csvLogger.profileStartPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
         disableNarrator(client)
+        val currentScreenBeforeEnteringWorld = client.gui.screen()
+        if (currentScreenBeforeEnteringWorld is AccessibilityOnboardingScreen) {
+            // Fresh options.txt files make vanilla show this screen before the title
+            // screen. Our GUI-driving logic below doesn't know this screen, so left
+            // unhandled it blocks startup forever. Dismiss it the same way Escape/Done
+            // would, which also persists onboardAccessibility=false so it won't reappear.
+            currentScreenBeforeEnteringWorld.onClose()
+            csvLogger.profileEndPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
+            return
+        }
         if (!initialEnvironment.levelDisplayNameToPlay.isNullOrEmpty()) {
             enterExistingWorldUsingGUI(client, initialEnvironment.levelDisplayNameToPlay)
         } else {
