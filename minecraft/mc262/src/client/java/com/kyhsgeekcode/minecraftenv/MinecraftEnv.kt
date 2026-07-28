@@ -580,35 +580,30 @@ class MinecraftEnv :
             printWithTime("ZEROCOPY_TORCH mode requested but not yet ported for 26.2 (W3 pending)")
         }
 
-        // W11 (26_2_phase2_plan.md §1.3/§6.3 Seam A): read numeric observations from the
-        // authoritative ServerPlayer instead of the client-predicted LocalPlayer. The
-        // TickSynchronizer/StepBarrier lock's happens-before guarantees this is safe without a
-        // packet-arrival barrier - unlike the rendered image, which still goes through
-        // ClientLevel and does not have this guarantee (see §1.3's source-vs-image table).
-        val serverPlayer =
-            minecraftServer?.playerList?.players?.find { it.uuid == player.uuid }
-        val observationSource: ObservationSource =
-            if (serverPlayer != null) {
-                ServerAuthoritativeSource(serverPlayer)
-            } else {
-                csvLogger.log("W11: no matching ServerPlayer found; falling back to client player")
-                // Inline fallback, not a persisted ObservationSource implementation - a real
-                // multiplayer client-fallback source is deferred to §6.5 (YAGNI, §6.4).
-                object : ObservationSource {
-                    override val x get() = player.x
-                    override val y get() = player.y
-                    override val z get() = player.z
-                    override val prevX get() = player.xo
-                    override val prevY get() = player.yo
-                    override val prevZ get() = player.zo
-                    override val pitch get() = player.xRot
-                    override val yaw get() = player.yRot
-                    override val health get() = player.health
-                    override val foodLevel get() = player.foodData.foodLevel
-                    override val saturationLevel get() = player.foodData.saturationLevel
-                    override val isDead get() = player.isDeadOrDying
-                }
-            }
+        // W11 (26_2_phase2_plan.md §1.3/§6.3 Seam A) proposed reading numeric observations off the
+        // authoritative ServerPlayer rather than the client-predicted LocalPlayer, on the theory
+        // that the StepBarrier lock's happens-before makes the server copy race-free.
+        //
+        // We read the client player instead, because a server-sourced value structurally cannot
+        // satisfy W1's same-step guarantee. LocalPlayer.sendPosition() runs inside
+        // LocalPlayer.tick(), but camera rotation is applied by Minecraft.runTick's
+        // mouseHandler.handleAccumulatedMovement() call, which happens AFTER the tick loop. So the
+        // rotation produced by this step's action only reaches the server on the following tick -
+        // whereas the observation W1 captures at the end of this same step already reflects it,
+        // both in the rendered frame and in the client player's own yaw (verified end to end: a
+        // +30 deg camera action yields yaw delta 29.85 and a changed image within one step).
+        // Sourcing yaw from the server would report the pre-action value and reintroduce exactly
+        // the off-by-one-step observation that W1 exists to eliminate. This also matches mc121's
+        // long-shipped semantics.
+        //
+        // (Until the LevelLoadTrackerMixin added alongside this, the ServerPlayer was not merely
+        // one tick behind but permanently frozen at spawn, since LocalPlayer.tick() - and with it
+        // sendPosition() - never ran at all. That is fixed now; the choice above is about
+        // same-step semantics, not about the sync being broken.)
+        //
+        // The ObservationSource seam and ServerAuthoritativeSource are kept, so switching to
+        // server-authoritative numerics is a one-line change if that tradeoff is ever wanted.
+        val observationSource: ObservationSource = ClientPredictedSource(player)
 
         // request stats from server
         csvLogger.profileStartPrint(
