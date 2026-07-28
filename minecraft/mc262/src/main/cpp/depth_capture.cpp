@@ -6,9 +6,9 @@
 //
 // 1. Texture-based instead of FBO-based. 26.2 replaced Framebuffer with
 //    GpuTexture/RenderTarget, so there is no framebuffer integer to hand over -
-//    only a GL texture id from GlTexture.glId(). Like rgb_capture.cpp, this file
-//    owns a single capture FBO and attaches whatever depth texture id it is
-//    given as GL_DEPTH_ATTACHMENT, re-attaching only when the id changes.
+//    only a GL texture id from GlTexture.glId(). Like rgb_capture.cpp, this
+//    file owns a single capture FBO and attaches whatever depth texture id it
+//    is given as GL_DEPTH_ATTACHMENT, re-attaching only when the id changes.
 //
 // 2. Reverse-Z. Minecraft 26.2 renders the level with a reversed depth range:
 //    Projection.getMatrix() feeds zFar as JOML's `near` and zNear as its `far`,
@@ -23,8 +23,8 @@
 //    26.2's GlStateManager caches program/VAO/viewport state, so issuing raw
 //    draw calls mid-frame would desync that cache and corrupt the GUI pass that
 //    follows. Only the framebuffer binding is touched, and it is restored. The
-//    readback is a pipeline stall either way, so doing the arithmetic on the CPU
-//    costs little on top.
+//    readback is a pipeline stall either way, so doing the arithmetic on the
+//    CPU costs little on top.
 
 static float *depthPixels = nullptr;
 static size_t depthPixelsSize = 0;
@@ -101,11 +101,10 @@ float *captureDepth(
 
     if (requiresDepthConversion) {
         for (size_t i = 0; i < newDepthPixelsSize; i++) {
-            depthPixels[i] =
-                linearizeReverseZ(
-                    depthPixels[i], nearPlane, farPlane, zZeroToOne
-                ) /
-                farPlane;
+            depthPixels[i] = linearizeReverseZ(
+                                 depthPixels[i], nearPlane, farPlane, zZeroToOne
+                             ) /
+                             farPlane;
         }
     }
 
