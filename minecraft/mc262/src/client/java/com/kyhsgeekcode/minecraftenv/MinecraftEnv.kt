@@ -3,6 +3,7 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
+import com.kyhsgeekcode.minecraftenv.mixin.PacketProcessorQueueAccessor
 import com.kyhsgeekcode.minecraftenv.proto.ActionSpace.ActionSpaceMessageV2
 import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment
 import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace
@@ -16,7 +17,6 @@ import com.kyhsgeekcode.minecraftenv.proto.lidarRay
 import com.kyhsgeekcode.minecraftenv.proto.lidarResult
 import com.kyhsgeekcode.minecraftenv.proto.nearbyBiome
 import com.kyhsgeekcode.minecraftenv.proto.observationSpaceMessage
-import com.kyhsgeekcode.minecraftenv.mixin.PacketProcessorQueueAccessor
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
