@@ -121,8 +121,14 @@ tasks.named('build').configure {
 
 tasks.named('runClient') {
     def nativeLibDir = layout.projectDirectory.asFile
+    // Lets verification runs force Vulkan (or OpenGL) without touching options.txt, e.g.
+    // CRAFTGROUND_MC262_GRAPHICS_BACKEND=VULKAN ./gradlew runClient
+    def forcedBackend = System.getenv('CRAFTGROUND_MC262_GRAPHICS_BACKEND')
     doFirst {
         jvmArgs += "-Djava.library.path=${nativeLibDir}"
+        if (forcedBackend) {
+            args '--graphicsBackend', forcedBackend
+        }
     }
 }
 

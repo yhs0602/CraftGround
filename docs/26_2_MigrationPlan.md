@@ -446,6 +446,15 @@ mapped host-visible memory 접근
 
 가능한 추상화 경계
 
+> **후속 정정 (구현 완료 시점).** 아래의 "backend-neutral Blaze3D abstraction 위에서 캡처하라"는
+> 방향은 맞았지만, 그 아래 제안한 `FrameCaptureBackend` / `CapturedFrame` 인터페이스 계층은
+> **결국 필요하지 않았다**. 26.2의 `CommandEncoder`가 이미 백엔드 중립 readback
+> (`copyTextureToBuffer` + `GpuFence` + `GpuBuffer.map()`)을 제공하기 때문에, 우리 쪽은 캡처
+> 지점에서 두 갈래로 분기하기만 하면 됐다. "분기만 쓰고 다형성은 안 쓴다"는 원칙이 유지된다.
+> 또한 이 절이 경고한 layout transition / staging copy / barrier / fence 문제는 전부
+> `VulkanCommandEncoder` 안에 이미 구현돼 있어서, **네이티브 Vulkan 코드를 한 줄도 쓰지 않았다.**
+> 실제 구현과 검증 절차는 `docs/26_2_vulkan_capture.md`를 참고.
+
 CraftGround가 직접 com.mojang.blaze3d.opengl과 vulkan 구현을 동일 인터페이스로 감싸는 것보다, 가능한 한 Minecraft의 backend-neutral Blaze3D abstraction 위에서 캡처하는 것이 좋습니다.
 
 interface FrameCaptureBackend {

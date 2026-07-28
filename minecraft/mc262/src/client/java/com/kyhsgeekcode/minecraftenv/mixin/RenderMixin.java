@@ -49,6 +49,26 @@ public class RenderMixin {
     // do nothing - a headless step must never sleep waiting for a display refresh
   }
 
+  // Only used by the backend-neutral (Vulkan-capable) capture path; the OpenGL path does all its
+  // work in captureAfterSubmit below and this is a no-op for it.
+  //
+  // Blaze3D readbacks have to be *recorded*, and their fence *armed*, before the submission they
+  // ride on. GpuFence captures the encoder's current submit index at creation time and
+  // awaitCompletion() blocks until that index has been both submitted and completed - so a fence
+  // created after submit() would name a submission that hasn't been issued yet and simply hang.
+  // Hence this second hook, immediately before the same submit() call the one below follows.
+  // See docs/26_2_vulkan_capture.md.
+  @Inject(
+      method = "renderFrame",
+      at =
+          @At(
+              value = "INVOKE",
+              target = "Lcom/mojang/blaze3d/systems/CommandEncoder;submit()V",
+              shift = At.Shift.BEFORE))
+  private void captureBeforeSubmit(boolean advanceGameTime, CallbackInfo ci) {
+    MinecraftEnv.onBeforeSubmitCapture();
+  }
+
   @Inject(
       method = "renderFrame",
       at =

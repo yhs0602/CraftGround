@@ -140,29 +140,45 @@ class EnvironmentInitializer(
         if (initialEnvironment.noFovEffect) {
             setFovEffectDisabled(client)
         }
-        checkGlBackend(client)
+        checkRenderBackend(client)
         initializedClient = true
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
     }
 
-    // W4 (26_2_phase2_plan.md D2): fail fast at initialization if the GL backend isn't in use,
-    // rather than only discovering it on the first captureFramebuffer() call in
+    // W4 (26_2_phase2_plan.md D2): resolve and report the capture path once at initialization,
+    // rather than discovering a bad combination on the first captureFramebuffer() call in
     // MinecraftEnv.sendObservation(). Checked here (once, right before initializedClient is set)
     // rather than on the very first client tick, because the main render target's color texture
     // isn't guaranteed to exist yet before a world has been entered - by this point in
     // onClientTick a world is already up and the render pipeline has run many frames.
-    private fun checkGlBackend(client: Minecraft) {
-        val colorTexture = client.gameRenderer.mainRenderTarget().colorTexture
-        if (colorTexture !is com.mojang.blaze3d.opengl.GlTexture) {
-            val backendName =
-                com.mojang.blaze3d.systems.RenderSystem
-                    .getDevice()
-                    .deviceInfo
-                    .backendName()
+    //
+    // Both backends are supported now (docs/26_2_vulkan_capture.md); the only unsupported
+    // combination left is ZEROCOPY_TORCH off the OpenGL path, which still needs the mc121-era
+    // FBO-based native code.
+    private fun checkRenderBackend(client: Minecraft) {
+        val backendName =
+            com.mojang.blaze3d.systems.RenderSystem
+                .getDevice()
+                .deviceInfo
+                .backendName()
+        val colorTexture =
+            client.gameRenderer.mainRenderTarget().colorTexture
+                ?: throw IllegalStateException(
+                    "Main render target has no color texture; cannot determine the capture backend " +
+                        "(rendering backend is '$backendName').",
+                )
+        val captureBackend = Blaze3dCapture.backendFor(colorTexture)
+        println(
+            "CraftGround: rendering backend '$backendName' -> capture path $captureBackend " +
+                "(color texture ${colorTexture.javaClass.simpleName})",
+        )
+        if (captureBackend != Blaze3dCapture.CaptureBackend.OPENGL &&
+            initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH
+        ) {
             throw IllegalStateException(
-                "CraftGround requires the OpenGL rendering backend for capture, but the active " +
-                    "backend is '$backendName' (got color texture $colorTexture; see phase2_plan.md D2/W4). " +
-                    "Vulkan is not yet supported.",
+                "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, but the active " +
+                    "backend is '$backendName'. Use RAW or PNG, or force OpenGL " +
+                    "(see docs/26_2_vulkan_capture.md).",
             )
         }
     }

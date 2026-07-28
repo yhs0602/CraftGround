@@ -5,6 +5,7 @@
 #include "png_util.h"
 #include "cursor.h"
 #include "depth_capture.h"
+#include "frame_convert.h"
 #include "rgb_capture.h"
 #include "framebuffer_capturer.h"
 
@@ -124,28 +125,6 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeGLEW(
 #endif
 }
 
-extern "C" GLubyte *resize_pixels(
-    jint &textureWidth,
-    jint &textureHeight,
-    jint &targetSizeX,
-    jint &targetSizeY,
-    GLubyte *pixels
-) {
-    auto *resizedPixels = new GLubyte[targetSizeX * targetSizeY * 3];
-    for (int y = 0; y < targetSizeY; y++) {
-        for (int x = 0; x < targetSizeX; x++) {
-            int srcX = x * textureWidth / targetSizeX;
-            int srcY = y * textureHeight / targetSizeY;
-            int dstIndex = (y * targetSizeX + x) * 3;
-            int srcIndex = (srcY * textureWidth + srcX) * 3;
-            resizedPixels[dstIndex] = pixels[srcIndex];
-            resizedPixels[dstIndex + 1] = pixels[srcIndex + 1];
-            resizedPixels[dstIndex + 2] = pixels[srcIndex + 2];
-        }
-    }
-    return resizedPixels;
-}
-
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     JNIEnv *env,
@@ -161,88 +140,22 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     jint xPos,
     jint yPos
 ) {
-    if (byteStringClass == nullptr || env->ExceptionCheck()) {
-        // Handle error
-        return nullptr;
-    }
-    if (copyFromMethod == nullptr || env->ExceptionCheck()) {
-        // Handle error
-        return nullptr;
-    }
-    jbyteArray byteArray = nullptr;
-    if (encodingMode == RAW) {
-        byteArray = env->NewByteArray(targetSizeX * targetSizeY * 3);
-        if (byteArray == nullptr || env->ExceptionCheck()) {
-            // Handle error
-            return nullptr;
-        }
-    }
-
+    // The GL-specific part is just the readback; everything after it (resize,
+    // cursor, RAW/PNG encoding, ByteString) is shared with the backend-neutral
+    // Blaze3D path in frame_convert.cpp.
     GLubyte *pixels = caputreRGB(textureId, textureWidth, textureHeight);
-    bool resized = false;
-    // resize if needed
-    if (textureWidth != targetSizeX || textureHeight != targetSizeY) {
-        pixels = resize_pixels(
-            textureWidth, textureHeight, targetSizeX, targetSizeY, pixels
-        );
-        resized = true;
-    }
-
-    // Draw cursor
-    if (drawCursor && xPos >= 0 && xPos < targetSizeX && yPos >= 0 &&
-        yPos < targetSizeY) {
-        drawCursorCPU(xPos, yPos, targetSizeX, targetSizeY, pixels);
-    }
-
-    // make png bytes from the pixels
-    if (encodingMode == PNG) {
-#ifdef HAS_PNG
-        std::vector<ui8> imageBytes;
-        WritePngToMemory(
-            (size_t)targetSizeX, (size_t)targetSizeY, pixels, imageBytes
-        );
-        byteArray = env->NewByteArray(imageBytes.size());
-        env->SetByteArrayRegion(
-            byteArray,
-            0,
-            imageBytes.size(),
-            reinterpret_cast<jbyte *>(imageBytes.data())
-        );
-#else
-        // Handle error
-        env->ThrowNew(
-            env->FindClass("java/lang/RuntimeException"),
-            "PNG encoding is not supported on this platform: Could not find "
-            "libpng"
-        );
-        return nullptr;
-#endif
-    } else if (encodingMode == RAW) {
-        env->SetByteArrayRegion(
-            byteArray,
-            0,
-            targetSizeX * targetSizeY * 3,
-            reinterpret_cast<jbyte *>(pixels)
-        );
-    }
-    jobject byteStringObject =
-        env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
-    if (byteStringObject == nullptr || env->ExceptionCheck()) {
-        // Handle error
-        if (byteArray != nullptr) {
-            env->DeleteLocalRef(byteArray);
-        }
-        if (pixels != nullptr && resized) {
-            delete[] pixels;
-        }
-        return nullptr;
-    }
-    // Clean up
-    env->DeleteLocalRef(byteArray);
-    if (pixels != nullptr && resized) {
-        delete[] pixels;
-    }
-    return byteStringObject;
+    return makeByteStringFromRgb(
+        env,
+        pixels,
+        textureWidth,
+        textureHeight,
+        targetSizeX,
+        targetSizeY,
+        encodingMode,
+        drawCursor,
+        xPos,
+        yPos
+    );
 }
 
 extern "C" JNIEXPORT jfloatArray JNICALL
