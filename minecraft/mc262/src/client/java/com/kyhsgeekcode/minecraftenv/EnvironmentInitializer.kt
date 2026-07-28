@@ -140,8 +140,31 @@ class EnvironmentInitializer(
         if (initialEnvironment.noFovEffect) {
             setFovEffectDisabled(client)
         }
+        checkGlBackend(client)
         initializedClient = true
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/ClientTick/EnvironmentInitializer/onClientTick")
+    }
+
+    // W4 (26_2_phase2_plan.md D2): fail fast at initialization if the GL backend isn't in use,
+    // rather than only discovering it on the first captureFramebuffer() call in
+    // MinecraftEnv.sendObservation(). Checked here (once, right before initializedClient is set)
+    // rather than on the very first client tick, because the main render target's color texture
+    // isn't guaranteed to exist yet before a world has been entered - by this point in
+    // onClientTick a world is already up and the render pipeline has run many frames.
+    private fun checkGlBackend(client: Minecraft) {
+        val colorTexture = client.gameRenderer.mainRenderTarget().colorTexture
+        if (colorTexture !is com.mojang.blaze3d.opengl.GlTexture) {
+            val backendName =
+                com.mojang.blaze3d.systems.RenderSystem
+                    .getDevice()
+                    .deviceInfo
+                    .backendName()
+            throw IllegalStateException(
+                "CraftGround requires the OpenGL rendering backend for capture, but the active " +
+                    "backend is '$backendName' (got color texture $colorTexture; see phase2_plan.md D2/W4). " +
+                    "Vulkan is not yet supported.",
+            )
+        }
     }
 
     private fun enterExistingWorldUsingGUI(

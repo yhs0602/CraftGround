@@ -16,6 +16,7 @@ import com.kyhsgeekcode.minecraftenv.proto.lidarRay
 import com.kyhsgeekcode.minecraftenv.proto.lidarResult
 import com.kyhsgeekcode.minecraftenv.proto.nearbyBiome
 import com.kyhsgeekcode.minecraftenv.proto.observationSpaceMessage
+import com.kyhsgeekcode.minecraftenv.mixin.PacketProcessorQueueAccessor
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
@@ -84,11 +85,6 @@ enum class IOPhase {
  *
  * NOT yet applied in this file (left for the tasks below - porting them together with this
  * file would have meant guessing at APIs this port couldn't verify without them):
- * - W1 (moving capture to the present()-redirect frame boundary) and W1-a (PacketProcessor
- *   drain) - sendObservation() below still captures directly in END_WORLD_TICK, mc121-style.
- * - W11 (ObservationSource/ServerAuthoritativeSource) - numeric fields below are still read
- *   from the client LocalPlayer, not the server-authoritative ServerPlayer, even though
- *   ObservationSource/ServerAuthoritativeSource already exist (see ObservationSource.kt).
  * - W3/W5 (texture-based capture, present-hook, FramerateLimiter) - the eye-distance ("stereo")
  *   render path below is disabled (throws) rather than ported, because it depends on a
  *   `render(client)` helper that doesn't have a faithful 26.2 equivalent yet: GameRenderer's
@@ -100,6 +96,19 @@ enum class IOPhase {
 class MinecraftEnv :
     ClientModInitializer,
     CommandExecutor {
+    companion object {
+        @Volatile
+        private var instance: MinecraftEnv? = null
+
+        // W1 (26_2_phase2_plan.md §2.2): called from RenderMixin's present()-redirect. Static so
+        // the Java mixin (running in Minecraft's static context) can reach the running
+        // MinecraftEnv instance without holding a reference of its own.
+        @JvmStatic
+        fun onPresentCapture() {
+            instance?.handlePresentCapture()
+        }
+    }
+
     private lateinit var initialEnvironment: InitialEnvironment.InitialEnvironmentMessage
     private var soundListener: MinecraftSoundListener? = null
     private var entityListener: EntityRenderListenerImpl? =
@@ -107,15 +116,37 @@ class MinecraftEnv :
     private var resetPhase: ResetPhase = ResetPhase.END_RESET
     private var deathMessageCollector: GetMessagesInterface? = null
 
-    private val tickSynchronizer = TickSynchronizer()
+    private var skipSync = false
+
+    // W13 (26_2_phase2_plan.md Seam B): tick handlers call stepBarrier, not TickSynchronizer
+    // directly, so a future DistributedBarrier can be swapped in without touching them.
+    private val stepBarrier: StepBarrier = LockStepBarrier(skipSync = { skipSync })
     private val csvLogger = CsvLogger("java_log.csv", enabled = false, profile = false)
 
     private val variableCommandsAfterReset = mutableListOf<String>()
-    private var skipSync = false
     private var ioPhase = IOPhase.BEGINNING
     private var useSharedMemory = false
 
+    // W11 (26_2_phase2_plan.md Seam A): the integrated server, kept so numeric observations can
+    // be read from the authoritative ServerPlayer instead of the client-predicted LocalPlayer.
+    private var minecraftServer: MinecraftServer? = null
+
+    // W12 staleness instrumentation.
+    private var lastStepStartNanos: Long = 0L
+    private var lastServerTickCount: Long = -1L
+
+    // W1 (26_2_phase2_plan.md §2.2): capture+send moved out of END_LEVEL_TICK into the
+    // present-redirect hook (RenderMixin.captureInsteadOfPresent -> onPresentCapture ->
+    // handlePresentCapture below). END_LEVEL_TICK only decides *whether* to capture (based on
+    // ioPhase, same as before) and records the world to capture; messageIO is promoted to a
+    // field so the present-hook (which runs outside the END_LEVEL_TICK closure) can reach it.
+    private lateinit var messageIO: MessageIO
+
+    @Volatile
+    private var pendingObservationWorld: ClientLevel? = null
+
     override fun onInitializeClient() {
+        instance = this
         val isLdPreloadSet = System.getenv("LD_PRELOAD")
         if (isLdPreloadSet != null) {
             println("LD_PRELOAD is set: $isLdPreloadSet")
@@ -123,7 +154,6 @@ class MinecraftEnv :
             println("LD_PRELOAD is not set")
         }
         val socket: SocketChannel
-        val messageIO: MessageIO
         try {
             val portStr = System.getenv("PORT")
             val port = portStr?.toInt() ?: 8000
@@ -226,9 +256,8 @@ class MinecraftEnv :
         )
         ClientTickEvents.END_LEVEL_TICK.register(
             ClientTickEvents.EndLevelTick { world: ClientLevel ->
-                // allow server to start tick
-                tickSynchronizer.notifyServerTickStart()
-                // wait until server tick ends
+                lastStepStartNanos = System.nanoTime()
+                // allow server to start tick, then wait until it ends
                 csvLogger.profileStartPrint(
                     "Minecraft_env/onInitialize/EndWorldTick/WaitServerTickEnds",
                 )
@@ -236,31 +265,49 @@ class MinecraftEnv :
                     csvLogger.log("Skip waiting server world tick ends")
                 } else {
                     csvLogger.log("Wait server world tick ends")
-                    tickSynchronizer.waitForServerTickCompletion()
                 }
+                stepBarrier.onClientTickEnd()
                 csvLogger.profileEndPrint(
                     "Minecraft_env/onInitialize/EndWorldTick/WaitServerTickEnds",
                 )
-                csvLogger.profileStartPrint(
-                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation",
+
+                // W1-a (26_2_phase2_plan.md §1.1, C안): drain packets queued during the server
+                // tick we just waited on, so ClientLevel reflects that tick's authoritative state
+                // before capture. Mixin unnecessary - Minecraft.packetProcessor() and
+                // PacketProcessor.processQueuedPackets() are both public.
+                // W12: measure the queue depth we drained - evidence for whether W1-b's
+                // marker-packet barrier (currently deferred) is actually needed.
+                val client = Minecraft.getInstance()
+                val packetProcessor = client.packetProcessor()
+                val queuedPacketCount =
+                    (packetProcessor as PacketProcessorQueueAccessor).`minecraftEnv$getPacketsToBeHandled`().size
+                packetProcessor.processQueuedPackets()
+                val tickCountDelta = lastServerTickCount - world.gameTime
+                csvLogger.log(
+                    "W12 packetQueueDepthAtDrain=$queuedPacketCount " +
+                        "serverTick=$lastServerTickCount clientReflectedTick=${world.gameTime} " +
+                        "tickCountDelta=$tickCountDelta",
                 )
+
+                // W1: capture+send is no longer done here - only decide *whether* this step
+                // should capture (same ioPhase check as before) and hand the world off to the
+                // present-redirect hook (handlePresentCapture), which fires later in this same
+                // runTick once the frame has actually been rendered (phase2_plan.md §2.2).
                 if (ioPhase ==
                     IOPhase.GOT_INITIAL_ENVIRONMENT_SENT_OBSERVATION_SKIP_SEND_OBSERVATION ||
                     ioPhase == IOPhase.SENT_OBSERVATION_SHOULD_READ_ACTION
                 ) {
-                    // pass
                     csvLogger.log("Skip send observation; $ioPhase")
+                    pendingObservationWorld = null
                 } else {
-                    csvLogger.log("Real send observation; $ioPhase")
-                    sendObservation(messageIO, world)
+                    csvLogger.log("Will send observation at present hook; $ioPhase")
+                    pendingObservationWorld = world
                 }
-                csvLogger.profileEndPrint(
-                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation",
-                )
             },
         )
         ServerTickEvents.START_SERVER_TICK.register(
             ServerTickEvents.StartTick { server: MinecraftServer ->
+                minecraftServer = server
                 // wait until client tick ends
                 printWithTime("Wait client world tick ends")
                 csvLogger.profileStartPrint(
@@ -272,8 +319,8 @@ class MinecraftEnv :
                 } else {
                     csvLogger.log("Real Wait client world tick ends")
                     printWithTime("Real Wait client world tick ends")
-                    tickSynchronizer.waitForClientAction()
                 }
+                stepBarrier.onServerTickStart()
                 csvLogger.profileEndPrint(
                     "Minecraft_env/onInitialize/StartServerTick/WaitClientAction",
                 )
@@ -281,13 +328,15 @@ class MinecraftEnv :
         )
         ServerTickEvents.END_SERVER_TICK.register(
             ServerTickEvents.EndTick { server: MinecraftServer ->
+                minecraftServer = server
+                lastServerTickCount = server.tickCount.toLong()
                 // allow client to end tick
                 printWithTime("Notify server tick completion")
                 csvLogger.log("Notify server tick completion")
                 csvLogger.profileStartPrint(
                     "Minecraft_env/onInitialize/EndServerTick/NotifyClientSendObservation",
                 )
-                tickSynchronizer.notifyClientSendObservation()
+                stepBarrier.onServerTickEnd()
                 csvLogger.profileEndPrint(
                     "Minecraft_env/onInitialize/EndServerTick/NotifyClientSendObservation",
                 )
@@ -373,11 +422,11 @@ class MinecraftEnv :
             printWithTime("Timeout")
             csvLogger.log("Timeout")
         } catch (e: IOException) {
-            tickSynchronizer.terminate()
+            stepBarrier.terminate()
             e.printStackTrace()
             exitProcess(-1)
         } catch (e: Exception) {
-            tickSynchronizer.terminate()
+            stepBarrier.terminate()
             e.printStackTrace()
             exitProcess(-2)
         }
@@ -425,7 +474,7 @@ class MinecraftEnv :
         } else if (command == "exit") {
             printWithTime("Will terminate")
             csvLogger.log("Will terminate")
-            tickSynchronizer.terminate()
+            stepBarrier.terminate()
             // remove the world file
             client.getSingleplayerServer()?.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)?.let {
                 try {
@@ -473,6 +522,27 @@ class MinecraftEnv :
         return false
     }
 
+    // W1 (26_2_phase2_plan.md §2.2): called from RenderMixin.captureInsteadOfPresent via
+    // onPresentCapture(), i.e. from the present()-redirect - after
+    // RenderSystem.getDevice().createCommandEncoder().submit() in the same renderFrame() call
+    // that followed this step's END_LEVEL_TICK. Runs on the client render thread, same as
+    // END_LEVEL_TICK did, so no additional synchronization is needed around pendingObservationWorld
+    // beyond @Volatile (only one frame's worth of state is ever pending at a time - W2 pins
+    // ticksToDo to 1, so exactly one END_LEVEL_TICK precedes each renderFrame() call).
+    private fun handlePresentCapture() {
+        val world = pendingObservationWorld ?: return
+        pendingObservationWorld = null
+        csvLogger.profileStartPrint(
+            "Minecraft_env/onInitialize/EndWorldTick/SendObservation",
+        )
+        sendObservation(messageIO, world)
+        csvLogger.profileEndPrint(
+            "Minecraft_env/onInitialize/EndWorldTick/SendObservation",
+        )
+        val stepDurationMs = (System.nanoTime() - lastStepStartNanos) / 1_000_000.0
+        csvLogger.log("W12 stepDurationMs=$stepDurationMs")
+    }
+
     private fun sendObservation(
         messageIO: MessageIO,
         world: ClientLevel,
@@ -510,9 +580,37 @@ class MinecraftEnv :
             printWithTime("ZEROCOPY_TORCH mode requested but not yet ported for 26.2 (W3 pending)")
         }
 
+        // W11 (26_2_phase2_plan.md §1.3/§6.3 Seam A): read numeric observations from the
+        // authoritative ServerPlayer instead of the client-predicted LocalPlayer. The
+        // TickSynchronizer/StepBarrier lock's happens-before guarantees this is safe without a
+        // packet-arrival barrier - unlike the rendered image, which still goes through
+        // ClientLevel and does not have this guarantee (see §1.3's source-vs-image table).
+        val serverPlayer =
+            minecraftServer?.playerList?.players?.find { it.uuid == player.uuid }
+        val observationSource: ObservationSource =
+            if (serverPlayer != null) {
+                ServerAuthoritativeSource(serverPlayer)
+            } else {
+                csvLogger.log("W11: no matching ServerPlayer found; falling back to client player")
+                // Inline fallback, not a persisted ObservationSource implementation - a real
+                // multiplayer client-fallback source is deferred to §6.5 (YAGNI, §6.4).
+                object : ObservationSource {
+                    override val x get() = player.x
+                    override val y get() = player.y
+                    override val z get() = player.z
+                    override val prevX get() = player.xo
+                    override val prevY get() = player.yo
+                    override val prevZ get() = player.zo
+                    override val pitch get() = player.xRot
+                    override val yaw get() = player.yRot
+                    override val health get() = player.health
+                    override val foodLevel get() = player.foodData.foodLevel
+                    override val saturationLevel get() = player.foodData.saturationLevel
+                    override val isDead get() = player.isDeadOrDying
+                }
+            }
+
         // request stats from server
-        // TODO(W11): use ObservationSource.ServerAuthoritativeSource instead of the client
-        // player directly, per 26_2_phase2_plan.md §1.3 - not yet wired into this file.
         csvLogger.profileStartPrint(
             "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare",
         )
@@ -522,10 +620,7 @@ class MinecraftEnv :
         try {
             val imageByteString1: ByteString
             val imageByteString2: ByteString
-            val oldX = player.x
-            val oldY = player.y
-            val oldZ = player.z
-            val pos = Vec3(oldX, oldY, oldZ)
+            val pos = Vec3(observationSource.x, observationSource.y, observationSource.z)
             if (initialEnvironment.eyeDistance > 0) {
                 // TODO(26_2_phase2_plan.md W1/W3/W5): the stereo (eyeDistance>0) capture path
                 // needs the extract/render/present redesign described in phase2_plan.md §2 -
@@ -573,12 +668,12 @@ class MinecraftEnv :
                     x = pos.x
                     y = pos.y
                     z = pos.z
-                    pitch = player.xRot.toDouble()
-                    yaw = player.yRot.toDouble()
-                    health = player.health.toDouble()
-                    foodLevel = player.foodData.foodLevel.toDouble()
-                    saturationLevel = player.foodData.saturationLevel.toDouble()
-                    isDead = player.isDeadOrDying
+                    pitch = observationSource.pitch.toDouble()
+                    yaw = observationSource.yaw.toDouble()
+                    health = observationSource.health.toDouble()
+                    foodLevel = observationSource.foodLevel.toDouble()
+                    saturationLevel = observationSource.saturationLevel.toDouble()
+                    isDead = observationSource.isDead
                     val allItems =
                         sequenceOf(
                             player.inventory.nonEquipmentItems.asSequence(),
@@ -854,7 +949,7 @@ class MinecraftEnv :
             )
         } catch (e: IOException) {
             e.printStackTrace()
-            tickSynchronizer.terminate()
+            stepBarrier.terminate()
             client.stop()
 
             val threadGroup = Thread.currentThread().threadGroup

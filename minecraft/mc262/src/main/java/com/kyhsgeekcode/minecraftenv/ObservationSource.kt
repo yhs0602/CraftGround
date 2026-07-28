@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer
  * Only the IntegratedServer-backed implementation exists for now; a client-fallback
  * implementation is deferred to the multiplayer scoping in §6.5 (YAGNI, §6.4).
  */
-internal interface ObservationSource {
+interface ObservationSource {
     val x: Double
     val y: Double
     val z: Double
@@ -26,7 +26,7 @@ internal interface ObservationSource {
     val isDead: Boolean
 }
 
-internal class ServerAuthoritativeSource(
+class ServerAuthoritativeSource(
     private val serverPlayer: ServerPlayer,
 ) : ObservationSource {
     override val x: Double get() = serverPlayer.x
