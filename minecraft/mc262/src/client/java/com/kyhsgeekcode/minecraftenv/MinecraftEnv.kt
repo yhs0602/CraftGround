@@ -83,11 +83,15 @@ enum class IOPhase {
  * - D4: mc121's REALISTIC_HUMAN custom-entity registration is dropped - out of scope
  *   (see phase2_plan.md §4).
  *
+ * Color and depth capture work on both of 26.2's rendering backends. The OpenGL backend keeps the
+ * original native glReadPixels path; anything else (i.e. Vulkan) goes through Blaze3D's own
+ * backend-neutral readback - see Blaze3dCapture.CaptureBackend and
+ * docs/26_2_vulkan_capture.md.
+ *
  * Still unported: the ZEROCOPY_TORCH screen encoding, which needs the same texture-based native
  * rewrite the RGB and depth paths already got (26.2 has no FBO integer to hand to
- * initializeZeroCopy anymore), and the VULKAN encoding, which needs a Vulkan readback that
- * doesn't exist yet. Both fail loudly rather than silently producing garbage. Everything else -
- * single-eye and stereo color capture, depth capture - is ported and verified end to end.
+ * initializeZeroCopy anymore). It fails loudly rather than silently producing garbage. Everything
+ * else - single-eye and stereo color capture, depth capture - is ported and verified end to end.
  */
 class MinecraftEnv :
     ClientModInitializer,
@@ -102,6 +106,15 @@ class MinecraftEnv :
         @JvmStatic
         fun onPresentCapture() {
             instance?.handlePresentCapture()
+        }
+
+        // Called from RenderMixin immediately *before* the frame's CommandEncoder.submit(). Only
+        // the backend-neutral capture path needs it: Blaze3D fences name the submission that is
+        // current when they are created, so both the readback command and its fence have to be in
+        // place before the submit they ride on (see docs/26_2_vulkan_capture.md).
+        @JvmStatic
+        fun onBeforeSubmitCapture() {
+            instance?.handleBeforeSubmitCapture()
         }
     }
 
@@ -528,16 +541,41 @@ class MinecraftEnv :
         return false
     }
 
-    // W1 (26_2_phase2_plan.md §2.2): called from RenderMixin.captureInsteadOfPresent via
-    // onPresentCapture(), i.e. from the present()-redirect - after
-    // RenderSystem.getDevice().createCommandEncoder().submit() in the same renderFrame() call
-    // that followed this step's END_LEVEL_TICK. Runs on the client render thread, same as
-    // END_LEVEL_TICK did, so no additional synchronization is needed around pendingObservationWorld
-    // beyond @Volatile (only one frame's worth of state is ever pending at a time - W2 pins
-    // ticksToDo to 1, so exactly one END_LEVEL_TICK precedes each renderFrame() call).
+    /**
+     * Records this frame's color readback and arms the fence, on the backend-neutral capture path
+     * only. Skipped for stereo, which discards this frame and re-renders per eye
+     * ([renderEyeAndCapture] does its own record/arm/submit), and for ZEROCOPY_TORCH, which doesn't
+     * go through a readback buffer at all.
+     */
+    private fun handleBeforeSubmitCapture() {
+        if (pendingObservationWorld == null) return
+        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) return
+        val client = Minecraft.getInstance()
+        val colorTexture = client.gameRenderer.mainRenderTarget().colorTexture ?: return
+        if (Blaze3dCapture.backendFor(colorTexture) != Blaze3dCapture.CaptureBackend.BLAZE3D) {
+            return
+        }
+        if (initialEnvironment.eyeDistance <= 0) {
+            Blaze3dCapture.recordColorReadback(colorTexture)
+        }
+        // Armed even in the stereo case, because the depth mixin may already have recorded a depth
+        // copy into this same submission.
+        Blaze3dCapture.armFence()
+    }
+
+    // W1 (26_2_phase2_plan.md §2.2): called from RenderMixin.captureAfterSubmit via
+    // onPresentCapture() - after RenderSystem.getDevice().createCommandEncoder().submit() in the
+    // same renderFrame() call that followed this step's END_LEVEL_TICK. Runs on the client render
+    // thread, same as END_LEVEL_TICK did, so no additional synchronization is needed around
+    // pendingObservationWorld beyond @Volatile (only one frame's worth of state is ever pending at
+    // a time - W2 pins ticksToDo to 1, so exactly one END_LEVEL_TICK precedes each renderFrame()
+    // call).
     private fun handlePresentCapture() {
         val world = pendingObservationWorld ?: return
         pendingObservationWorld = null
+        // No-op unless handleBeforeSubmitCapture armed a fence; the submission it names has now
+        // been issued by the submit() this hook sits behind.
+        Blaze3dCapture.awaitPendingFence()
         csvLogger.profileStartPrint(
             "Minecraft_env/onInitialize/EndWorldTick/SendObservation",
         )
@@ -563,15 +601,20 @@ class MinecraftEnv :
      * The 26.2 equivalent of mc121's `render(client)` helper is update() + extract() + render():
      * `update()` re-runs `Camera.update` so the shifted position is picked up, `extract()` rebuilds
      * the render state (including frustum culling) against that camera, and `render()` draws it
-     * into the main render target. `submit()` is deliberately *not* called - the GL backend issues
-     * commands eagerly and the capture's `glReadPixels` is itself a sync point, whereas an extra
-     * `submit()` would advance GlCommandEncoder's frame-fence ring out of step with the real frame.
+     * into the main render target.
+     *
+     * On the OpenGL path `submit()` is deliberately *not* called - the GL backend issues commands
+     * eagerly and the capture's `glReadPixels` is itself a sync point, whereas an extra `submit()`
+     * would advance GlCommandEncoder's frame-fence ring out of step with the real frame. The
+     * backend-neutral path has no such eager sync point: its readback only completes when the
+     * submission carrying it does, so there it *must* submit (once per eye) - see
+     * [Blaze3dCapture.captureNow] and docs/26_2_vulkan_capture.md.
      */
     private fun renderEyeAndCapture(
         client: Minecraft,
         player: LocalPlayer,
         eye: Vec3,
-        colorTextureId: Int,
+        captureBackend: Blaze3dCapture.CaptureBackend,
     ): ByteString {
         val originalXo = player.xo
         val originalYo = player.yo
@@ -585,19 +628,34 @@ class MinecraftEnv :
             client.gameRenderer.extract(deltaTracker, true)
             client.gameRenderer.render(deltaTracker, true)
             val mainRenderTarget = client.gameRenderer.mainRenderTarget()
-            return FramebufferCapturer.captureFramebuffer(
-                colorTextureId,
-                0,
-                mainRenderTarget.width,
-                mainRenderTarget.height,
-                initialEnvironment.imageSizeX,
-                initialEnvironment.imageSizeY,
-                initialEnvironment.screenEncodingMode,
-                false,
-                MouseInfo.showCursor,
-                MouseInfo.mouseX.toInt(),
-                MouseInfo.mouseY.toInt(),
-            )
+            val colorTexture =
+                mainRenderTarget.colorTexture
+                    ?: throw IllegalStateException("Main render target has no color texture to capture")
+            return if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
+                Blaze3dCapture.captureNow(
+                    colorTexture,
+                    initialEnvironment.imageSizeX,
+                    initialEnvironment.imageSizeY,
+                    initialEnvironment.screenEncodingMode,
+                    MouseInfo.showCursor,
+                    MouseInfo.mouseX.toInt(),
+                    MouseInfo.mouseY.toInt(),
+                )
+            } else {
+                FramebufferCapturer.captureFramebuffer(
+                    (colorTexture as com.mojang.blaze3d.opengl.GlTexture).glId(),
+                    0,
+                    mainRenderTarget.width,
+                    mainRenderTarget.height,
+                    initialEnvironment.imageSizeX,
+                    initialEnvironment.imageSizeY,
+                    initialEnvironment.screenEncodingMode,
+                    false,
+                    MouseInfo.showCursor,
+                    MouseInfo.mouseX.toInt(),
+                    MouseInfo.mouseY.toInt(),
+                )
+            }
         } finally {
             player.xo = originalXo
             player.yo = originalYo
@@ -618,23 +676,21 @@ class MinecraftEnv :
             csvLogger.log("Player is null")
             return
         }
-        if (FramebufferCapturer.checkGLEW()) {
-            printWithTime("GLEW initialized")
-        } else {
-            printWithTime("GLEW not initialized")
-            throw RuntimeException("GLEW not initialized")
-        }
         val mainRenderTarget = client.gameRenderer.mainRenderTarget()
-        val glColorTexture = mainRenderTarget.colorTexture as? com.mojang.blaze3d.opengl.GlTexture
-        if (glColorTexture == null) {
-            // 26_2_phase2_plan.md D2/W4: fail fast rather than silently produce garbage
-            // frames if the GL backend isn't in use.
-            throw IllegalStateException(
-                "Expected an OpenGL color texture on the main render target " +
-                    "(got ${mainRenderTarget.colorTexture}); capture requires the GL backend (see phase2_plan.md D2).",
-            )
+        val colorTexture =
+            mainRenderTarget.colorTexture
+                ?: throw IllegalStateException("Main render target has no color texture to capture")
+        val captureBackend = Blaze3dCapture.backendFor(colorTexture)
+        // Only the native GL readback needs GLEW; on the backend-neutral path there may not even be
+        // a GL context, so initializing it would fail for no reason.
+        if (captureBackend == Blaze3dCapture.CaptureBackend.OPENGL) {
+            if (FramebufferCapturer.checkGLEW()) {
+                printWithTime("GLEW initialized")
+            } else {
+                printWithTime("GLEW not initialized")
+                throw RuntimeException("GLEW not initialized")
+            }
         }
-        val colorTextureId = glColorTexture.glId()
         if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
             // TODO(26_2_phase2_plan.md W3): initializeZeroCopy still expects the mc121-era
             // FBO-attachment-based signature (colorAttachment/depthAttachment ints from
@@ -692,8 +748,8 @@ class MinecraftEnv :
                 csvLogger.profileStartPrint(
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/StereoEye/ByteString",
                 )
-                imageByteString1 = renderEyeAndCapture(client, player, left, colorTextureId)
-                imageByteString2 = renderEyeAndCapture(client, player, right, colorTextureId)
+                imageByteString1 = renderEyeAndCapture(client, player, left, captureBackend)
+                imageByteString2 = renderEyeAndCapture(client, player, right, captureBackend)
                 csvLogger.profileEndPrint(
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/StereoEye/ByteString",
                 )
@@ -702,21 +758,34 @@ class MinecraftEnv :
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString",
                 )
                 imageByteString1 =
-                    FramebufferCapturer.captureFramebuffer(
-                        colorTextureId,
-                        // frameBufferId: unused by the RAW/PNG path (texture-based on 26.2, see
-                        // W3); only the still-unported ZEROCOPY_TORCH path would read this.
-                        0,
-                        mainRenderTarget.width,
-                        mainRenderTarget.height,
-                        initialEnvironment.imageSizeX,
-                        initialEnvironment.imageSizeY,
-                        initialEnvironment.screenEncodingMode,
-                        false,
-                        MouseInfo.showCursor,
-                        MouseInfo.mouseX.toInt(),
-                        MouseInfo.mouseY.toInt(),
-                    )
+                    if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
+                        // The copy was already recorded before this frame's submit() and waited on
+                        // in handlePresentCapture(); this only maps and converts it.
+                        Blaze3dCapture.readColor(
+                            initialEnvironment.imageSizeX,
+                            initialEnvironment.imageSizeY,
+                            initialEnvironment.screenEncodingMode,
+                            MouseInfo.showCursor,
+                            MouseInfo.mouseX.toInt(),
+                            MouseInfo.mouseY.toInt(),
+                        )
+                    } else {
+                        FramebufferCapturer.captureFramebuffer(
+                            (colorTexture as com.mojang.blaze3d.opengl.GlTexture).glId(),
+                            // frameBufferId: unused by the RAW/PNG path (texture-based on 26.2, see
+                            // W3); only the still-unported ZEROCOPY_TORCH path would read this.
+                            0,
+                            mainRenderTarget.width,
+                            mainRenderTarget.height,
+                            initialEnvironment.imageSizeX,
+                            initialEnvironment.imageSizeY,
+                            initialEnvironment.screenEncodingMode,
+                            false,
+                            MouseInfo.showCursor,
+                            MouseInfo.mouseX.toInt(),
+                            MouseInfo.mouseY.toInt(),
+                        )
+                    }
                 imageByteString2 = ByteString.EMPTY
                 csvLogger.profileEndPrint(
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString",
@@ -917,12 +986,15 @@ class MinecraftEnv :
                         ipcHandle = FramebufferCapturer.ipcHandle
                     }
                     if (initialEnvironment.requiresDepth) {
-                        depth.addAll(
-                            (client.gameRenderer as GameRendererDepthCaptureMixinGetterInterface)
+                        // On the backend-neutral path the depth mixin only *recorded* the copy;
+                        // this is where it is finally mapped and linearized. On the OpenGL path
+                        // readPendingDepth() returns null and the mixin already has the array.
+                        val depthBuffer =
+                            Blaze3dCapture.readPendingDepth(
+                                FramebufferCapturer.requiresDepthConversion,
+                            ) ?: (client.gameRenderer as GameRendererDepthCaptureMixinGetterInterface)
                                 .`minecraftEnv$getLastDepthBuffer`()
-                                ?.asIterable()
-                                ?: emptyList(),
-                        )
+                        depth.addAll(depthBuffer?.asIterable() ?: emptyList())
                     }
                     if (initialEnvironment.blockCollisionKeysCount > 0) {
                         blockCollisions.addAll(CollisionListener.blockCollisionInfo)

@@ -1,5 +1,6 @@
 package com.kyhsgeekcode.minecraftenv.mixin;
 
+import com.kyhsgeekcode.minecraftenv.Blaze3dCapture;
 import com.kyhsgeekcode.minecraftenv.FramebufferCapturer;
 import com.kyhsgeekcode.minecraftenv.GameRendererDepthCaptureMixinGetterInterface;
 import com.mojang.blaze3d.opengl.GlTexture;
@@ -50,20 +51,12 @@ public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMi
     if (!RenderSystem.isOnRenderThread()) {
       throw new IllegalStateException("Depth capture must run on the render thread");
     }
-    if (!FramebufferCapturer.INSTANCE.checkGLEW()) {
-      throw new IllegalStateException("GLEW not initialized");
-    }
 
     Minecraft client = Minecraft.getInstance();
     RenderTarget mainRenderTarget = client.gameRenderer.mainRenderTarget();
     GpuTexture depthTexture = mainRenderTarget.getDepthTexture();
-    if (!(depthTexture instanceof GlTexture glDepthTexture)) {
-      // Same fail-fast rationale as the color path (phase2_plan.md D2/W4): a non-GL backend
-      // would silently produce garbage instead of depth.
-      throw new IllegalStateException(
-          "Expected an OpenGL depth texture on the main render target (got "
-              + depthTexture
-              + "); depth capture requires the GL backend (see phase2_plan.md D2).");
+    if (depthTexture == null) {
+      throw new IllegalStateException("Main render target has no depth texture to capture");
     }
 
     // 26.2 computes the level's far plane per frame as max(renderDistance * 4, cloudRange * 16)
@@ -74,9 +67,23 @@ public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMi
         client.gameRenderer.gameRenderState().levelRenderState.cameraRenderState.depthFar;
     boolean zZeroToOne = RenderSystem.getDevice().getDeviceInfo().isZZeroToOne();
 
+    if (Blaze3dCapture.INSTANCE.backendFor(depthTexture) == Blaze3dCapture.CaptureBackend.BLAZE3D) {
+      // Backend-neutral path: only *record* the copy here. Reading it would need a fence, and a
+      // fence armed mid-frame would name the submission this very command is being written into -
+      // which submit() has not issued yet. MinecraftEnv maps it after the frame's submit()
+      // instead (Blaze3dCapture.readPendingDepth). The injection point still has to be here,
+      // because the copy command has to precede the clearDepthTexture() that follows.
+      Blaze3dCapture.INSTANCE.recordDepthReadback(
+          depthTexture, Camera.PROJECTION_Z_NEAR, farPlane, zZeroToOne);
+      return;
+    }
+
+    if (!FramebufferCapturer.INSTANCE.checkGLEW()) {
+      throw new IllegalStateException("GLEW not initialized");
+    }
     minecraftEnv$lastDepthBuffer =
         FramebufferCapturer.INSTANCE.captureDepthImpl(
-            glDepthTexture.glId(),
+            ((GlTexture) depthTexture).glId(),
             mainRenderTarget.width,
             mainRenderTarget.height,
             FramebufferCapturer.INSTANCE.getRequiresDepthConversion(),

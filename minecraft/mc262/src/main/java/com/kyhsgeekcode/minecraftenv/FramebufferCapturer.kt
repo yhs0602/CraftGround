@@ -13,10 +13,21 @@ import org.lwjgl.opengl.GL30
 // which is mc262-local (src/main/cpp/framebuffer_capturer.cpp + rgb_capture.cpp): 26.2 has no
 // FBO integer to hand over anymore (GpuTexture/RenderTarget replaced Framebuffer), so it's
 // texture-based instead, with the native side owning and caching its own capture FBO (see
-// docs/26_2_phase2_plan.md W3). VULKAN is scaffolding only for now: mc262's Vulkan renderer
-// readback isn't implemented yet, so it fails loudly instead of silently falling back to a
-// slower path in this hot-loop call. ZEROCOPY_TORCH still uses the old mc121-era frameBufferId-based
-// native path and isn't wired up for 26.2 yet either (see initializeZeroCopy below).
+// docs/26_2_phase2_plan.md W3).
+//
+// There are now two capture paths, picked by which rendering backend 26.2 actually came up with
+// (see Blaze3dCapture.CaptureBackend / docs/26_2_vulkan_capture.md):
+//
+//  * OPENGL  - the original one, and everything in this file. GlTexture.glId() -> native
+//              glReadPixels. Untouched, so the GL backend keeps exactly its previous performance.
+//  * BLAZE3D - backend-neutral, and the one that makes Vulkan work. Lives in Blaze3dCapture (in
+//              the client source set, because Blaze3D's GpuDevice/GpuBuffer types are client-only).
+//              It needs no native Vulkan code at all; the only part of it that crosses into JNI is
+//              the RGBA->RGB conversion, convertCapturedFrameImpl below, which reuses the same
+//              resize/cursor/PNG code as the GL path.
+//
+// ZEROCOPY_TORCH still uses the old mc121-era frameBufferId-based native path and isn't wired up
+// for 26.2 on either backend yet (see initializeZeroCopy below).
 object FramebufferCapturer {
     init {
         System.loadLibrary("native-lib")
@@ -35,11 +46,6 @@ object FramebufferCapturer {
         xPos: Int,
         yPos: Int,
     ): ByteString {
-        if (encodingMode == VULKAN) {
-            throw UnsupportedOperationException(
-                "Vulkan frame capture is not implemented yet for mc262 (encodingMode=VULKAN)",
-            )
-        }
         if (encodingMode == ZEROCOPY_TORCH) {
             assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
             return captureFramebufferZerocopyImpl(
@@ -165,13 +171,32 @@ object FramebufferCapturer {
         zZeroToOne: Boolean,
     ): FloatArray
 
+    // The one native entry point of the backend-neutral capture path (Blaze3dCapture, client source
+    // set). It stays declared here because the JNI symbol is bound to this class' name and because
+    // the C++ side of it shares the resize/cursor/PNG code with captureFramebufferImpl above.
+    //
+    // Takes the direct ByteBuffer from GpuBuffer.map(): tightly packed RGBA8 (CommandEncoder sizes
+    // the destination as width * height * format.blockSize(), so there is no row padding).
+    external fun convertCapturedFrameImpl(
+        src: java.nio.ByteBuffer,
+        srcWidth: Int,
+        srcHeight: Int,
+        targetSizeX: Int,
+        targetSizeY: Int,
+        encodingMode: Int,
+        flipVertically: Boolean,
+        drawCursor: Boolean,
+        xPos: Int,
+        yPos: Int,
+    ): ByteString
+
+    // Encoding modes are the wire format (see src/craftground/screen_encoding_modes.py) and are
+    // orthogonal to CaptureBackend: a Vulkan run still produces RAW or PNG bytes in exactly the
+    // same layout. There is deliberately no VULKAN encoding mode - an earlier scaffolding constant
+    // used ordinal 3, which collides with Python's ZEROCOPY_JAX.
     const val RAW = 0
     const val PNG = 1
     const val ZEROCOPY_TORCH = 2
-
-    // mc262-only: Vulkan readback. Not implemented yet (see captureFramebuffer above) -
-    // reserved so the wire format/proto stays stable once it lands.
-    const val VULKAN = 3
 
     var isExtensionAvailable: Boolean = false
     private var hasCheckedExtension: Boolean = false

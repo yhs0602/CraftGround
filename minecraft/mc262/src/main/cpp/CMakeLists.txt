@@ -114,6 +114,11 @@ set(
     ${CMAKE_CURRENT_LIST_DIR}/framebuffer_capturer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/rgb_capture.cpp
     ${CMAKE_CURRENT_LIST_DIR}/depth_capture.cpp
+    # CPU-only tail of the capture pipeline, shared by the OpenGL readback and
+    # the backend-neutral Blaze3D/Vulkan one. No Vulkan SDK is needed: the
+    # Vulkan readback itself is done through Blaze3D on the Kotlin side, so
+    # there is deliberately no find_package(Vulkan) here.
+    ${CMAKE_CURRENT_LIST_DIR}/frame_convert.cpp
     ${GL_CAPTURE_DIR}/cursor.cpp
     ${GL_CAPTURE_DIR}/noboost_ipc.cpp
 )
