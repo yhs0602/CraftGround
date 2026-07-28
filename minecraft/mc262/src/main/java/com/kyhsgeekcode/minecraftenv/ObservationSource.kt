@@ -9,15 +9,16 @@ import net.minecraft.server.level.ServerPlayer
  * race with packet delivery — and that [ServerAuthoritativeSource] should be used instead, since
  * the step barrier's happens-before makes the server copy safe to read.
  *
- * That is currently NOT the implementation in use. End-to-end testing on 26.2 found the
- * ServerPlayer's state never tracks the client at all (a camera action that rotated the client to
- * yaw=29.85 left serverYaw=0.0 indefinitely), because client→server player sync is not yet working
- * in this port — so a server-sourced observation reports values frozen at spawn. The client-side
- * `ClientPredictedSource` (in the `client` source set, as `LocalPlayer` is client-only) is wired up
- * instead, matching mc121's long-shipped semantics.
+ * That is NOT the implementation currently in use. The client-side `ClientPredictedSource` (in the
+ * `client` source set, since `LocalPlayer` is client-only) is wired up instead, because a
+ * server-sourced value structurally cannot satisfy W1's same-step guarantee: camera rotation is
+ * applied by `Minecraft.runTick`'s `handleAccumulatedMovement()` *after* the tick loop that ran
+ * `LocalPlayer.sendPosition()`, so the server only learns about it on the following tick. Reading
+ * yaw from the server would report the pre-action value and reintroduce the very off-by-one-step
+ * observation W1 exists to remove. This also matches mc121's long-shipped semantics.
  *
- * [ServerAuthoritativeSource] is kept so this can be flipped back in one line once the sync gap is
- * fixed and the switch can actually be re-verified end to end.
+ * [ServerAuthoritativeSource] is kept so switching is a one-line change if that tradeoff is ever
+ * wanted. See the selection site in `MinecraftEnv.sendObservation` for the full rationale.
  */
 interface ObservationSource {
     val x: Double

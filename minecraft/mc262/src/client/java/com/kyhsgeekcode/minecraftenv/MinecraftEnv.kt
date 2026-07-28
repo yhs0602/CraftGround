@@ -584,18 +584,25 @@ class MinecraftEnv :
         // authoritative ServerPlayer rather than the client-predicted LocalPlayer, on the theory
         // that the StepBarrier lock's happens-before makes the server copy race-free.
         //
-        // End-to-end testing showed that premise does not hold on 26.2 as currently wired: the
-        // ServerPlayer's values are not merely one tick stale, they never track the client at all.
-        // A camera action that moved the client to yaw=29.85 (and visibly rotated the rendered
-        // frame in the same step, exactly as W1 intends) left serverYaw=0.0 for every subsequent
-        // step. Client->server player state simply is not syncing yet in this port - see the
-        // known-gaps note in the PR/plan - so a server-sourced observation reports values frozen
-        // at spawn, which is strictly worse than the client-predicted values mc121 has always
-        // reported and shipped with.
+        // We read the client player instead, because a server-sourced value structurally cannot
+        // satisfy W1's same-step guarantee. LocalPlayer.sendPosition() runs inside
+        // LocalPlayer.tick(), but camera rotation is applied by Minecraft.runTick's
+        // mouseHandler.handleAccumulatedMovement() call, which happens AFTER the tick loop. So the
+        // rotation produced by this step's action only reaches the server on the following tick -
+        // whereas the observation W1 captures at the end of this same step already reflects it,
+        // both in the rendered frame and in the client player's own yaw (verified end to end: a
+        // +30 deg camera action yields yaw delta 29.85 and a changed image within one step).
+        // Sourcing yaw from the server would report the pre-action value and reintroduce exactly
+        // the off-by-one-step observation that W1 exists to eliminate. This also matches mc121's
+        // long-shipped semantics.
         //
-        // So: read from the client player (mc121's proven semantics) until the sync gap is fixed.
-        // The ObservationSource seam and ServerAuthoritativeSource are kept, so flipping back is a
-        // one-line change once client->server sync actually works and can be re-verified.
+        // (Until the LevelLoadTrackerMixin added alongside this, the ServerPlayer was not merely
+        // one tick behind but permanently frozen at spawn, since LocalPlayer.tick() - and with it
+        // sendPosition() - never ran at all. That is fixed now; the choice above is about
+        // same-step semantics, not about the sync being broken.)
+        //
+        // The ObservationSource seam and ServerAuthoritativeSource are kept, so switching to
+        // server-authoritative numerics is a one-line change if that tradeoff is ever wanted.
         val observationSource: ObservationSource = ClientPredictedSource(player)
 
         // request stats from server
