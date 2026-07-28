@@ -17,6 +17,7 @@
 		"ClientTickPinMixin",
 		"InputConstantsMixin",
 		"LevelExtractorEntityListenerMixin",
+		"PacketProcessorQueueAccessor",
 		"RenderMixin"
 	],
 	"injectors": {

@@ -6,7 +6,7 @@ package com.kyhsgeekcode.minecraftenv
  * `LockStepBarrier` vs `NoOpBarrier`. A future `DistributedBarrier` (§6.5) plugs in here
  * without touching the handlers. Do not add a third implementation speculatively (§6.4).
  */
-internal interface StepBarrier {
+interface StepBarrier {
     /** Called at END_WORLD_TICK: let the server proceed, then block for its tick to finish. */
     fun onClientTickEnd()
 
@@ -20,7 +20,7 @@ internal interface StepBarrier {
 }
 
 /** Wraps the existing [TickSynchronizer] condvar rendezvous — the current sync-mode behavior. */
-internal class LockStepBarrier(
+class LockStepBarrier(
     private val skipSync: () -> Boolean,
 ) : StepBarrier {
     private val synchronizer = TickSynchronizer()
@@ -48,7 +48,7 @@ internal class LockStepBarrier(
 }
 
 /** Async mode (W13): no rendezvous at all. Client and server tick independently. */
-internal class NoOpBarrier : StepBarrier {
+class NoOpBarrier : StepBarrier {
     override fun onClientTickEnd() {}
 
     override fun onServerTickStart() {}
