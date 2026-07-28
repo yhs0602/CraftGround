@@ -1,39 +1,28 @@
 # Deferred mixin ports
 
-These files are copies of the corresponding `minecraft/mc121` mixins with **only the package
-rename applied where trivial** — they are not compiled (not under `src/`) and not registered in
-`minecraftenv.mixins.json` / `minecraftenv.client.mixins.json`, because their mc121 target
-APIs don't have a mechanical 1:1 equivalent in Minecraft 26.2's Mojmap mappings:
+**Nothing is deferred anymore.** This directory used to hold copies of mc121 mixins whose mc121
+target APIs had no mechanical 1:1 equivalent in Minecraft 26.2's Mojmap mappings. All of them have
+now been resolved, either by porting or by a deliberate decision not to port:
 
-- `ClientRenderInvoker`: no `Minecraft.render(boolean)` method was found under that
-  name/signature - needs re-investigation against the 26.2 render loop entry point.
-- `WindowOffScreenMixin`: `WindowProvider.createWindow` doesn't exist; window creation moved
-  into `com.mojang.blaze3d.platform.Window`'s own constructor/`createWindow` (now private).
-- `GameRendererDepthCaptureMixin`, `RenderLayerTrianglesMixin`: both depend on
-  `Tessellator`/`VertexConsumerProvider`/`RenderPhase`/`RenderLayer.MultiPhaseParameters`, none
-  of which exist by that name in the decompiled 26.2 sources
-  (`com.mojang.blaze3d.vertex.VertexConsumer` exists, but the
-  `Tesselator`/`MultiBufferSource`/render-phase-builder trio doesn't) - this is the
-  RenderPipeline/Blaze3D rewrite `docs/26_2_MigrationPlan.md` section 6 warned about, and
-  needs an actual redesign against the new rendering API, not a mechanical port.
-  `GameRendererDepthCaptureMixin` specifically backs depth capture, which is still deferred/
-  unported for mc262 - `GameRendererDepthCaptureMixinGetterInterface` in `src/client/` has a
-  real consumer in `MinecraftEnv.kt` but no mixin implementation yet.
+| mixin | outcome |
+|---|---|
+| `GameRendererDepthCaptureMixin` | **Ported.** Redesigned against the 26.2 API and now lives in `src/client/java/.../mixin/`, registered in `minecraftenv.client.mixins.json`. It is texture-based (`RenderTarget.getDepthTexture()` -> `GlTexture.glId()`) rather than FBO-based, and accounts for 26.2's reverse-Z depth range. It must inject right after `GameRenderer.renderLevel`, because `GameRenderer.render` clears the depth texture before the GUI pass - by the time the color capture runs at `CommandEncoder.submit()`, world depth no longer exists. See `src/main/cpp/depth_capture.cpp`. |
+| `RenderLayerTrianglesMixin` | **Not ported, deliberately.** Its only consumer is `customentity/ModelCache.kt`'s `skull_and_roses_triangles` texture, i.e. the REALISTIC_HUMAN custom entity, which is out of scope per `docs/26_2_phase2_plan.md` §4 (D4). It would be dead code in mc262. |
+| `ClientRenderInvoker` | **Deleted (W10).** Its mc121 call sites were all commented out, and the W1 present-hook design does not need it; the stereo capture path drives `GameRenderer.update/extract/render` directly instead. |
+| `WindowOffScreenMixin` | **Deleted (W10).** mc121's own copy was entirely commented-out dead code, and 26.2 has no `WindowProvider.createWindow` to target - window creation moved into `com.mojang.blaze3d.platform.Window`'s own (private) constructor path. |
 
-Everything else that originally lived in this directory (`EntityCollisionDetectorMixin`,
-`AbstractBlockCollisionDetectorMixin`, `ServerPlayNetworkHandlerDisableSpamChecker`,
-`GammaMixin`, `ChatVisibleMessageAccessor`, `RenderMixin`, `InputUtilMixin`,
-`RenderTickCounterAccessor`, `TickSpeedMixin`, `ClientWorldMixin`,
-`WorldRendererCallEntityRenderMixin`) has since actually been ported - either under the same
-name against the real 26.2 API, or redesigned/renamed (`InputUtilMixin` -> `InputConstantsMixin`;
-`RenderTickCounterAccessor`/`TickSpeedMixin` -> `DeltaTrackerTimerAccessor`/`ClientTickPinMixin`;
-`ClientWorldMixin`/`WorldRendererCallEntityRenderMixin` -> `LevelExtractorEntityListenerMixin`) -
-and removed from this directory. Check `src/main/resources/minecraftenv.mixins.json` and
-`src/client/resources/minecraftenv.client.mixins.json` for the current registered list; this
-README only tracks the genuinely-deferred remainder above, not the full original mc121 mixin
-set.
+Everything else that originally lived here (`EntityCollisionDetectorMixin`,
+`AbstractBlockCollisionDetectorMixin`, `ServerPlayNetworkHandlerDisableSpamChecker`, `GammaMixin`,
+`ChatVisibleMessageAccessor`, `RenderMixin`, `InputUtilMixin`, `RenderTickCounterAccessor`,
+`TickSpeedMixin`, `ClientWorldMixin`, `WorldRendererCallEntityRenderMixin`) was ported earlier -
+either under the same name against the real 26.2 API, or redesigned/renamed (`InputUtilMixin` ->
+`InputConstantsMixin`; `RenderTickCounterAccessor`/`TickSpeedMixin` ->
+`DeltaTrackerTimerAccessor`/`ClientTickPinMixin`; `ClientWorldMixin`/
+`WorldRendererCallEntityRenderMixin` -> `LevelExtractorEntityListenerMixin`).
 
-See `docs/26_2_MigrationPlan.md` for the broader migration status. To continue this work:
-run `./gradlew genSources` (or `genSourcesWithVineflower`) in `minecraft/mc262` to get local
-decompiled 26.2 sources under `.gradle/loom-cache/minecraftMaven/.../*-sources.jar`, unzip them,
-and grep for the actual current API before touching these files.
+`src/main/resources/minecraftenv.mixins.json` and `src/client/resources/minecraftenv.client.mixins.json`
+are the authoritative list of what is registered. See `docs/26_2_MigrationPlan.md` and
+`docs/26_2_phase2_plan.md` for the broader migration status.
+
+This file is kept (rather than deleted with the directory) so the resolution of each deferred item
+stays discoverable; it can go once `docs/26_2_phase2_plan.md` is retired.

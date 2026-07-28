@@ -83,15 +83,11 @@ enum class IOPhase {
  * - D4: mc121's REALISTIC_HUMAN custom-entity registration is dropped - out of scope
  *   (see phase2_plan.md §4).
  *
- * NOT yet applied in this file (left for the tasks below - porting them together with this
- * file would have meant guessing at APIs this port couldn't verify without them):
- * - W3/W5 (texture-based capture, present-hook, FramerateLimiter) - the eye-distance ("stereo")
- *   render path below is disabled (throws) rather than ported, because it depends on a
- *   `render(client)` helper that doesn't have a faithful 26.2 equivalent yet: GameRenderer's
- *   immediate-mode re-render (RenderSystem.clear, Framebuffer.beginWrite/endWrite/draw) was
- *   restructured into the extract/render/present pipeline discussed in phase2_plan.md §2.
- *   Single-eye capture (eyeDistance == 0, the common case) does not need that helper and is
- *   fully ported.
+ * Still unported: the ZEROCOPY_TORCH screen encoding, which needs the same texture-based native
+ * rewrite the RGB and depth paths already got (26.2 has no FBO integer to hand to
+ * initializeZeroCopy anymore), and the VULKAN encoding, which needs a Vulkan readback that
+ * doesn't exist yet. Both fail loudly rather than silently producing garbage. Everything else -
+ * single-eye and stereo color capture, depth capture - is ported and verified end to end.
  */
 class MinecraftEnv :
     ClientModInitializer,
@@ -121,7 +117,17 @@ class MinecraftEnv :
     // W13 (26_2_phase2_plan.md Seam B): tick handlers call stepBarrier, not TickSynchronizer
     // directly, so a future DistributedBarrier can be swapped in without touching them.
     private val stepBarrier: StepBarrier = LockStepBarrier(skipSync = { skipSync })
-    private val csvLogger = CsvLogger("java_log.csv", enabled = false, profile = false)
+
+    // W12 (26_2_phase2_plan.md): the staleness instrumentation logs through this logger, so it
+    // has to be switchable without a rebuild. CRAFTGROUND_JAVA_LOG enables the plain log,
+    // CRAFTGROUND_JAVA_PROFILE additionally enables the profileStartPrint/profileEndPrint spans.
+    // Both default to off - this sits on the per-step hot path.
+    private val csvLogger =
+        CsvLogger(
+            "java_log.csv",
+            enabled = System.getenv("CRAFTGROUND_JAVA_LOG") != null,
+            profile = System.getenv("CRAFTGROUND_JAVA_PROFILE") != null,
+        )
 
     private val variableCommandsAfterReset = mutableListOf<String>()
     private var ioPhase = IOPhase.BEGINNING
@@ -543,6 +549,62 @@ class MinecraftEnv :
         csvLogger.log("W12 stepDurationMs=$stepDurationMs")
     }
 
+    /**
+     * Re-renders the level with the camera moved to [eye] and captures the result.
+     *
+     * mc121 did this by overwriting only the player's *previous* position (prevX/prevY/prevZ,
+     * `xo`/`yo`/`zo` in Mojmap) and re-rendering. That works because `Camera.alignWithEntity`
+     * places the camera at `Mth.lerp(partialTicks, entity.xo, entity.getX())` - and under
+     * ClientTickPinMixin (W2) `deltaTickResidual` is pinned to 0, so `partialTicks` is exactly 0
+     * and the lerp returns `xo` verbatim. The camera therefore lands precisely on [eye] without
+     * touching the player's real position, which would have to be undone before the next tick and
+     * could leak into collision/chunk state.
+     *
+     * The 26.2 equivalent of mc121's `render(client)` helper is update() + extract() + render():
+     * `update()` re-runs `Camera.update` so the shifted position is picked up, `extract()` rebuilds
+     * the render state (including frustum culling) against that camera, and `render()` draws it
+     * into the main render target. `submit()` is deliberately *not* called - the GL backend issues
+     * commands eagerly and the capture's `glReadPixels` is itself a sync point, whereas an extra
+     * `submit()` would advance GlCommandEncoder's frame-fence ring out of step with the real frame.
+     */
+    private fun renderEyeAndCapture(
+        client: Minecraft,
+        player: LocalPlayer,
+        eye: Vec3,
+        colorTextureId: Int,
+    ): ByteString {
+        val originalXo = player.xo
+        val originalYo = player.yo
+        val originalZo = player.zo
+        player.xo = eye.x
+        player.yo = eye.y
+        player.zo = eye.z
+        try {
+            val deltaTracker = client.deltaTracker
+            client.gameRenderer.update(deltaTracker)
+            client.gameRenderer.extract(deltaTracker, true)
+            client.gameRenderer.render(deltaTracker, true)
+            val mainRenderTarget = client.gameRenderer.mainRenderTarget()
+            return FramebufferCapturer.captureFramebuffer(
+                colorTextureId,
+                0,
+                mainRenderTarget.width,
+                mainRenderTarget.height,
+                initialEnvironment.imageSizeX,
+                initialEnvironment.imageSizeY,
+                initialEnvironment.screenEncodingMode,
+                false,
+                MouseInfo.showCursor,
+                MouseInfo.mouseX.toInt(),
+                MouseInfo.mouseY.toInt(),
+            )
+        } finally {
+            player.xo = originalXo
+            player.yo = originalYo
+            player.zo = originalZo
+        }
+    }
+
     private fun sendObservation(
         messageIO: MessageIO,
         world: ClientLevel,
@@ -617,16 +679,23 @@ class MinecraftEnv :
             val imageByteString2: ByteString
             val pos = Vec3(observationSource.x, observationSource.y, observationSource.z)
             if (initialEnvironment.eyeDistance > 0) {
-                // TODO(26_2_phase2_plan.md W1/W3/W5): the stereo (eyeDistance>0) capture path
-                // needs the extract/render/present redesign described in phase2_plan.md §2 -
-                // mc121's render(client) helper (RenderSystem.clear + Framebuffer.beginWrite/
-                // endWrite/draw + GameRenderer.render(RenderTickCounter, boolean)) has no
-                // faithful 26.2 equivalent; that machinery was restructured into
-                // extract()/render()/present(). Fail loud instead of silently capturing the
-                // wrong thing.
-                throw UnsupportedOperationException(
-                    "eyeDistance > 0 (stereo capture) is not yet supported on mc262 - " +
-                        "pending the RenderMixin/present-hook redesign (phase2_plan.md W1/W5).",
+                // Stereo capture, ported from mc121 (26_2_phase2_plan.md W1/W3/W5). The frame
+                // that has just been rendered is discarded; the level is re-rendered once from
+                // each eye and captured, exactly as mc121 did.
+                val eyeWidth = initialEnvironment.eyeDistance
+                val yawRadians = Math.toRadians(observationSource.yaw.toDouble())
+                val left =
+                    pos.add(eyeWidth * -sin(yawRadians), 0.0, eyeWidth * cos(yawRadians))
+                val right =
+                    pos.add(eyeWidth * sin(yawRadians), 0.0, eyeWidth * -cos(yawRadians))
+
+                csvLogger.profileStartPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/StereoEye/ByteString",
+                )
+                imageByteString1 = renderEyeAndCapture(client, player, left, colorTextureId)
+                imageByteString2 = renderEyeAndCapture(client, player, right, colorTextureId)
+                csvLogger.profileEndPrint(
+                    "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/StereoEye/ByteString",
                 )
             } else {
                 csvLogger.profileStartPrint(
