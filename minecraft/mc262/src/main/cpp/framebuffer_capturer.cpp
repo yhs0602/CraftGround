@@ -245,32 +245,28 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
     return byteStringObject;
 }
 
-static bool initializedDepth = false;
 extern "C" JNIEXPORT jfloatArray JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureDepthImpl(
     JNIEnv *env,
     jclass clazz,
-    jint depthFrameBufferId,
+    jint depthTextureId,
     jint textureWidth,
     jint textureHeight,
     jboolean requiresDepthConversion,
     jfloat near,
-    jfloat far
+    jfloat far,
+    jboolean zZeroToOne
 ) {
-    if (requiresDepthConversion) {
-        if (!initializedDepth) {
-            initDepthResources(textureWidth, textureHeight);
-            initializedDepth = true;
-        }
-    }
-
+    // No initDepthResources() anymore: the mc262 depth path linearizes on the
+    // CPU and owns nothing but a capture FBO, which it creates lazily.
     float *depthBuffer = captureDepth(
-        depthFrameBufferId,
+        depthTextureId,
         textureWidth,
         textureHeight,
         requiresDepthConversion,
         near,
-        far
+        far,
+        zZeroToOne
     );
     jfloatArray depthArray = env->NewFloatArray(textureWidth * textureHeight);
     env->SetFloatArrayRegion(

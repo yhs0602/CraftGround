@@ -427,8 +427,47 @@ W1에 끼워 넣는다. W13은 독립적이라 언제 해도 무방하다.
   문법 검증 완료(HAS_PNG on/off 둘 다). **CMake/JNI 툴체인이 이 샌드박스에서 깨져있어
   실제 링크·런타임 검증은 못 함** — 다음에 정상 툴체인에서 `runClient`로 실제 프레임이
   나오는지 (검은 화면/가비지가 아닌지) 확인 필요.
-- depth 경로(`captureDepthImpl`, `GameRendererDepthCaptureMixin`)는 이미 별도로 미포팅
-  상태(deferred, `docs/mixin-port-todo/`)라 이번엔 손대지 않음 — 여전히 mc121과 공유.
+- **depth 경로 — 포팅 완료.** `GameRendererDepthCaptureMixin`이
+  `src/client/java/.../mixin/`으로 복귀했고, native는 RGB와 마찬가지로 mc262 로컬 포크
+  (`src/main/cpp/depth_capture.cpp`, `include/depth_capture.h`)다. 세 가지가 달라졌다:
+  1. **텍스처 기반**: `RenderTarget.getDepthTexture()` → `GlTexture.glId()`를 넘기고,
+     native가 자체 FBO에 `GL_DEPTH_ATTACHMENT`로 attach (깊이 전용 FBO라
+     `glReadBuffer(GL_NONE)` 필요).
+  2. **주입 지점이 `GameRenderer.render`의 `renderLevel(...)` 직후여야 한다.** 26.2는
+     레벨 패스 뒤 GUI 패스 앞에서
+     `clearDepthTexture(mainRenderTarget().getDepthTexture(), 0.0)`을 호출하므로
+     (GameRenderer.java L437), 컬러를 캡처하는 `submit()` 시점에는 월드 depth가 이미
+     지워져 있다. 컬러와 같은 훅에 태울 수 없는 이유다.
+  3. **reverse-Z**: `Projection.getMatrix()`가 zFar를 JOML의 `near`로, zNear를 `far`로
+     넘기고(Projection.java L67-68) clear 값이 0.0, depth func가 `GL_GREATER`다. 즉 raw
+     depth 1.0이 근평면, 0.0이 원평면으로 mc121과 정반대다. 선형화 식도 clip range에
+     따라 갈리므로(`GL_ARB_clip_control` 유무 = `DeviceInfo.isZZeroToOne`) 플래그를
+     Java에서 넘긴다. near는 `Camera.PROJECTION_Z_NEAR`(0.05), far는
+     `cameraRenderState.depthFar`(= `max(renderDistance*4, cloudRange*16)`)를 읽는다 —
+     mc121이 하드코딩하던 `viewDistance*4`는 cloudRange가 우세할 때 더 이상 맞지 않는다.
+  4. **선형화는 CPU에서** 한다. mc121의 GPU 경로는 자체 셰이더 프로그램으로 풀스크린
+     쿼드를 그렸는데, 이 캡처는 프레임 중간에 실행되고 26.2 `GlStateManager`는
+     program/VAO/viewport 상태를 캐시하므로 raw draw call이 뒤따르는 GUI 패스를 깨뜨린다.
+     건드리는 상태는 FBO 바인딩뿐이고 그것도 복원한다.
+  - 검증: 64x64 관측에서 depth 범위 [0.00081, 0.99963], 서로 다른 값 123개, 화면 하단
+    (가까운 지면) 0.88 < 상단(하늘/원경) 0.9996, 아래로 시선을 내리면 평균이
+    0.970 → 0.953으로 감소.
+- **스테레오(`eyeDistance > 0`) 경로 — 포팅 완료.** mc121의 `render(client)` 헬퍼
+  (`RenderSystem.clear` + `Framebuffer.beginWrite/endWrite/draw`)에 해당하는 26.2 조합은
+  `gameRenderer.update(dt)` → `extract(dt, true)` → `render(dt, true)`다. `update()`가
+  `Camera.update`를 다시 돌려 옮긴 위치를 반영하고, `extract()`가 그 카메라 기준으로
+  프러스텀 컬링까지 포함한 렌더 상태를 재구성한다.
+  - `submit()`은 **일부러 호출하지 않는다**. GL 백엔드는 명령을 즉시 발행하고 캡처의
+    `glReadPixels`가 그 자체로 동기화 지점이며, 여분의 `submit()`은
+    `GlCommandEncoder`의 프레임 fence 링을 실제 프레임과 어긋나게 만든다.
+  - 카메라 이동은 mc121과 동일하게 플레이어의 **이전 위치**(`xo`/`yo`/`zo`)만 덮어쓴다.
+    `Camera.alignWithEntity`가 `Mth.lerp(partialTicks, entity.xo, entity.getX())`로
+    카메라를 놓는데, W2의 `ClientTickPinMixin`이 `deltaTickResidual`을 0으로 고정하므로
+    `partialTicks`가 정확히 0이고 lerp가 `xo`를 그대로 돌려준다. 즉 실제 위치를 건드리지
+    않고도 카메라가 정확히 눈 위치에 놓인다. (이 등식은 tick pinning에 의존한다 — W2를
+    되돌리면 스테레오 오프셋이 `(1 - partialTicks)` 배로 줄어든다.)
+  - 검증: 눈 간격 0.1 기준 두 이미지의 평균 절대차 1.874(시차는 있으나 같은 장면),
+    양쪽 다 검은 화면 아님(평균 62.65 / 62.69), 6 스텝 정지 후 플레이어 위치 드리프트 0.
 - ZEROCOPY 경로(`captureFramebufferZerocopyImpl`/`initializeZerocopyImpl`)도 이미
   no-op/placeholder 상태였고 이번 변경 범위 밖 — 여전히 mc121과 공유, frameBufferId 기반.
 
@@ -524,6 +563,62 @@ player stats` 주석의 실현. 이것만으로 수치 관측은 락의 happens-
 - 스텝당 벽시계 소요 및 그 분산.
 - **산출물**: staleness 분포표. 이것이 W1-b 착수 여부와 6.1절 (C) 주장의 근거가 된다.
 
+#### W12 계측 결과 (완료)
+
+계측은 `CsvLogger`로 라우팅되며 `CRAFTGROUND_JAVA_LOG=1`(로그) /
+`CRAFTGROUND_JAVA_PROFILE=1`(프로파일 스팬)로 켠다. 둘 다 기본 off — 스텝 핫패스에 있다.
+
+측정 조건: mc262, 64x64 관측, reset 1회 + 85 step, macOS/GL 백엔드.
+"정상 상태"는 월드 로드가 끝난 뒤(초기 15 샘플 제외) 72 샘플.
+
+| 지표 | 전체 (n=87) | 정상 상태 (n=72) |
+|---|---|---|
+| 드레인 시점 `packetsToBeHandled` 크기 | mean 0.60, p50 0, p99 22.4, max 31 | **전 구간 0 (100%)** |
+| `serverTick - clientLevel.gameTime` | mean 1.02, p90 7, max 7 | **전 구간 0 (100%)** |
+| 스텝 벽시계 (ms) | mean 7.6, p50 3.9, p99 53.5, max 195 | mean 4.5, p50 3.8, p90 7.4, p99 8.8, max 9.0 |
+
+파이썬 쪽에서 잰 왕복 스텝 시간은 60 스텝 기준
+mean 11.9ms / p50 10.5 / p90 19.1 / p99 29.4 / max 31.2ms.
+
+0이 아닌 값은 전부 reset·월드 로드 구간에서만 나온다. 정상 상태에서는 드레인이
+사실상 no-op이고 tick 번호도 완전히 일치한다.
+
+**해석의 한계 (정직하게)**: 두 지표 모두 "패킷이 이미 처리됐다"와 "패킷이 아직 도착하지
+않았다"를 구분하지 못한다 — 후자가 정확히 W1-b가 막으려는 실패 모드다. 특히
+`tickCountDelta`는 `ClientLevel.gameTime`이 클라 tick마다 증가하고 W2가 클라 tick을
+서버 tick과 1:1로 고정하므로, 0이 나오는 것이 부분적으로 동어반복이다. 이 지표가
+실제로 배제해주는 것은 "ticksToDo 드리프트"(W2의 관심사)이지 패킷 도착 자체가 아니다.
+
+### W1-b 결정: 착수하지 않는다 (조건 미충족)
+
+W1-b의 착수 조건은 "W12 계측 결과가 유의미한 유실을 보일 때"였고, 위 데이터는 그 조건을
+충족하지 않는다. 추가로 W11에서 **수치 관측을 서버가 아닌 클라이언트에서 읽기로 결정**
+했으므로, 배리어가 필요한 대상은 애초에 "렌더링된 이미지 하나"로 줄었고 그 이미지는 클라
+상태로부터 그려진다. e2e에서도 액션→관측 정합성 이상이 관찰되지 않았다
+(yaw +30° same-step 반영, forward 유지 시 단조 전진).
+
+다시 검토해야 하는 조건:
+- 멀티플레이어/원격 서버로 확장할 때 (§6.5) — 로컬 채널이 아니게 되면 위 데이터는 무효다.
+- 서버 권위 관측(W11의 원안)으로 되돌릴 때.
+- 위 계측에서 정상 상태 큐 깊이가 0이 아닌 값으로 관찰되기 시작할 때.
+
+### reset 직후 렌더 warmup (LevelLoadTrackerMixin 후속)
+
+`LevelLoadTrackerMixin`이 렌더러의 청크 섹션 컴파일 대기를 건너뛰므로, reset 직후 몇
+프레임은 지형이 덜 그려져 있을 수 있다. 정지 상태에서 연속 프레임 간 평균 절대 픽셀 차를
+2회 측정한 결과:
+
+- run 1: `9.2, 9.4, 5.4, 3.4, 1.75, 1.73, 0.42, 62.8, 0.28, 2.10, 0.10, 0.04, ...`
+- run 2: `16.3, 2.66, 1.92, 13.97, 1.83, 2.91, 0.77, 0.53, 0.33, 0.28, 0.31, 0.21, ...`
+
+큰 변화는 6~10 스텝 안에 잦아든다. 그 뒤에 남는 ~0.2-0.3의 잔차는 warmup이 아니라 물/잎
+같은 애니메이션 텍스처의 정상 변동이므로, 안정화 판정 임계값을 0.5 이하로 잡으면 영원히
+"불안정"으로 나온다. run 1의 스텝 7에 나타난 62.8 스파이크(대량 청크 배치 또는 조명 갱신
+추정)는 run 2에서 재현되지 않았다.
+
+**권장**: reset 후 **12 스텝**을 warmup으로 버린다. 6~10이면 대체로 충분하지만 위
+일회성 스파이크를 감안한 여유값이다.
+
 ### W13. sync / async 모드 명시화 (Seam B)
 
 6.1절 (C)의 정직판. 현행 `skipSync: Boolean`을 환경 옵션으로 승격한다.
@@ -550,17 +645,36 @@ player stats` 주석의 실현. 이것만으로 수치 관측은 락의 happens-
 
 ## 5. 미해결 / 검증 필요
 
-- **`GammaMixin`의 26.2 메서드 시그니처**: `caption` / `codec` 필드 존재는 확인됨.
-  `getCodec()` → `codec()` 개명 여부, `setValue` 존치 여부는 미확인.
+**전부 해소됨.** 아래는 각 항목의 결론이다.
+
+- ~~**`GammaMixin`의 26.2 메서드 시그니처**~~ → **확인 완료. 현재 코드가 맞다.**
+  `OptionInstance`(26.2 디컴파일 기준): `caption` 필드 L47, `value` 필드 L48,
+  `codec()` L141, `set(T)` L150. mc121의 `getCodec()`/`setValue`는 각각
+  `codec()`/`set()`으로 개명됐고 `GammaMixin`은 이미 그 이름을 타겟하고 있다.
+  변경 불필요.
 - ~~**통합 서버 패킷 flush 타이밍**~~ → **확인 완료. 보장되지 않는다.** 1.3절 참고.
-- **vsync 무력화 경로**: `options.enableVsync()`를 끄는 것만으로 충분한지, 아니면
-  `windowSurface.configure(...)`의 present mode까지 건드려야 하는지.
-- **GPU interop 동기화**: `submit()` 후 CUDA/Metal이 텍스처를 읽을 때 fence가 필요한지.
-  26.2에 `createFence()` / `RenderSystem.executePendingTasks()`가 있으므로 검토.
-- **`shared-native/gl-capture/` 시그니처 변경의 mc121 영향 범위**: 구 API 유지 + 신규
-  추가로 갈지, 양쪽 동시 전환할지 결정 필요.
-- **`ClientRenderInvoker` 실사용처**: mc121에서 호출부가 모두 주석 처리되어 있음.
-  W1 설계상 필요 없다면 W10(삭제)로 이동.
+- ~~**vsync 무력화 경로**~~ → **확인 완료. `options.enableVsync()`만으로 충분하다.**
+  `Minecraft.renderFrame`이 서피스를 재구성할 때마다 present mode를 직접
+  `GpuSurface.PresentMode.getSupportedVsyncMode(supportedPresentModes(), options.enableVsync().get())`
+  로 계산하므로(Minecraft.java L1308-1311), 옵션만 끄면 바닐라가 알아서
+  `configure(...)`에 반영한다. 게다가 이 환경은 창을 iconify하므로
+  `acquireNextTexture()` 자체가 `!window.isMinimized()` 조건에 걸려 실행되지 않고,
+  따라서 `blitFromTexture`/`present()`도 호출되지 않는다 — vsync가 개입할 지점이
+  애초에 없다.
+- ~~**GPU interop 동기화**~~ → **확인 완료. GL readback 경로에는 fence가 불필요하다.**
+  GL 백엔드에서 `GlCommandEncoder`는 모든 명령을 `GL33C.*`로 즉시 발행하고,
+  `submit()`은 프레임 페이싱용 `glFenceSync`를 꽂을 뿐이다. 같은 컨텍스트의
+  `glReadPixels`는 GL 스펙상 앞선 명령들 뒤에 순서가 보장되고 완료까지 블록하므로
+  추가 fence가 필요 없다. fence가 필요한 것은 외부 API(CUDA/Metal) interop, 즉
+  ZEROCOPY 경로뿐이며 이는 현재 범위 밖이다.
+- ~~**`shared-native/gl-capture/` 시그니처 변경의 mc121 영향 범위**~~ →
+  **확인 완료. mc121은 무영향.** RGB(W3)에 이어 depth 경로도 mc262 로컬 포크
+  (`minecraft/mc262/src/main/cpp/depth_capture.cpp` + `include/depth_capture.h`)로
+  분리했고, mc262 `CMakeLists.txt`가 로컬 헤더를 우선하도록 `include_directories(BEFORE ...)`를
+  둔다. `shared-native/gl-capture/`의 시그니처는 그대로이므로 mc121은 손대지 않았다.
+- ~~**`ClientRenderInvoker` 실사용처**~~ → **없음. W10(삭제)로 이동, 삭제 완료.**
+  스테레오 캡처 경로가 `GameRenderer.update/extract/render`를 직접 호출하므로
+  invoker가 필요 없다.
 
 ---
 

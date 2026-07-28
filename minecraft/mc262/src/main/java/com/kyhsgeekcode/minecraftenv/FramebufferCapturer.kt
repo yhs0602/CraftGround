@@ -150,13 +150,19 @@ object FramebufferCapturer {
         mouseY: Int,
     ): ByteString?
 
+    // Texture-based like captureFramebufferImpl, and reverse-Z aware: 26.2 renders the level
+    // with a reversed depth range, so raw depth 1.0 is the near plane and 0.0 the far plane.
+    // `zZeroToOne` is RenderSystem.getDevice().deviceInfo.isZZeroToOne (true when
+    // GL_ARB_clip_control is available, which selects a [0,1] rather than [-1,1] clip range);
+    // the two cases need different linearization. See src/main/cpp/depth_capture.cpp.
     external fun captureDepthImpl(
-        depthFrameBufferId: Int,
+        depthTextureId: Int,
         textureWidth: Int,
         textureHeight: Int,
         requiresDepthConversion: Boolean,
         near: Float,
         far: Float,
+        zZeroToOne: Boolean,
     ): FloatArray
 
     const val RAW = 0
