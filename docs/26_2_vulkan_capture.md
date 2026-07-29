@@ -125,6 +125,7 @@ Python 쪽은 **변경 없음**. wire format이 동일하고 백엔드는 Java �
 |---|---|---|
 | `CRAFTGROUND_CAPTURE_BACKEND` 환경변수 (또는 `-Dcraftground.captureBackend`) = `opengl`\|`blaze3d` | 자동 감지 | 캡처 경로 강제. GL 머신에서 `blaze3d`를 켜서 두 경로를 바이트 단위로 비교하는 용도 |
 | `-Dcraftground.blaze3dFlipVertically=<bool>` | 디바이스가 OpenGL이 아니면 true | 위 flip 추론 무효화 |
+| `-Dcraftground.enableMetalObjects=true` | false | Vulkan 디바이스 생성 시 물리 디바이스가 지원하면 `VK_EXT_metal_objects`를 활성화 (ZEROCOPY (Metal) 선행 작업, 확장 활성화까지만 — 이미지 import는 미구현) |
 
 ## 검증
 
@@ -187,13 +188,50 @@ CraftGround: rendering backend 'Vulkan' -> capture path BLAZE3D (color texture V
 
 ---
 
-## ZEROCOPY (Metal) — 설계만, 미구현
+## ZEROCOPY (Metal) — GL 포팅 + 확장 활성화 완료, 이미지 import는 아직
 
-현재 mc262는 **GL ZEROCOPY조차 포팅되지 않은 상태**(W3 pending)다. 26.2에는
-`initializeZeroCopy`에 넘길 FBO 정수가 더 이상 없기 때문이다. 그래서 Vulkan ZEROCOPY는
-선행조건 자체가 비어 있고, 이번 범위에서 제외했다. 아래는 착수할 때를 위한 메모다.
+### GL ZEROCOPY (텍스처 기반)
 
-### 걸림돌: MC가 `VK_EXT_metal_objects`를 켜지 않는다
+mc262 GL ZEROCOPY가 포팅됐다. mc121은 FBO 정수를 `glCopyTexSubImage2D`에 넘겼지만, mc262는
+RAW/PNG와 마찬가지로 FBO가 없다. `glCopyImageSubData`(GL 4.3 core)도 고려했지만 macOS의
+`OpenGL.framework`는 GL 4.1 core profile까지만 지원해 그 심볼을 안전하게 믿을 수 없어서, 대신
+매 프레임 소스 텍스처를 임시 FBO에 붙이고 `glBlitFramebuffer`(GL 3.0 core, 서로 다른 텍스처
+타겟 간에도 동작)로 IOSurface 백업 `GL_TEXTURE_RECTANGLE_ARB` 텍스처에 복사한다
+(`(colorTexture as GlTexture).glId()` → `targetFbo`). 에이전트용 커서 오버레이는 그 대상 FBO에
+이어서 그린다 — mc121처럼 실제 화면 프레임버퍼에 그리지 않으므로, 사람이 보는 게임 창에는
+나타나지 않는다(RAW 경로의
+`drawCursorCPU`가 CPU 버퍼에만 그리는 것과 같은 원칙).
+
+여전히 OpenGL 백엔드 전용이다 — `EnvironmentInitializer.checkRenderBackend`가 Vulkan +
+`ZEROCOPY_TORCH` 조합을 그대로 fail-fast 처리한다. Depth ZEROCOPY는 mc121에도 없어서
+(`TODO: Depth buffer`) 포팅하지 않았다.
+
+관련 파일: `shared-native/gl-capture/framebuffer_capturer_apple.mm` (+cuda/dummy 변형),
+`jni/jni_macos_zerocopy.cpp`, `FramebufferCapturer.kt`의 `initializeZeroCopy`/
+`captureFramebufferZerocopyImpl`, `MinecraftEnv.kt`의 `sendObservation`(초기화 1회 호출 +
+`ipcHandle` 필드 채우기).
+
+### Vulkan + `VK_EXT_metal_objects`: 확장 활성화까지 완료
+
+`VulkanBackendMetalExtensionMixin` (client mixin)이 `VulkanBackend`의 private
+`createDevice(Collection<String>, VulkanPhysicalDevice, Set<VulkanFeature>)` 호출을
+`@Redirect`로 가로채, 물리 디바이스가 `VK_EXT_metal_objects`를 지원하면 그 확장을
+`deviceExtensions`에 추가한 뒤 원래 메서드를 그대로 호출한다. `@Shadow`로 그 private 메서드를
+직접 호출한다(별도 accessor/invoker 불필요 — mixin이 같은 클래스로 병합되므로).
+
+**opt-in**: `-Dcraftground.enableMetalObjects=true`가 없으면 이 mixin은 아무것도 바꾸지 않는다
+(기존 `deviceExtensions`를 그대로 넘김). Mojang의 디바이스 생성 경로에 개입하는 가장 위험도
+높은 지점이라, 검증 전까지 기본 Vulkan 실행에 영향을 주지 않도록 게이팅했다.
+
+**아직 안 한 것**: 확장이 활성화된 이후의 실제 사용 — IOSurface 백업 `MTLTexture`를
+`VkImportMetalTextureInfoEXT`로 `VkImage`로 import하고, 매 프레임 `vkCmdCopyImage`로 MC의
+color image를 그리로 복사하는 것. 이건 네이티브 Vulkan 코드가 필요한 별도 작업이고, LWJGL에
+`VK_EXT_metal_objects` 바인딩이 있는지부터 확인해야 한다. mach port를 Python에 넘기는 마지막
+단계는 기존 경로(`createMachPortForIOSurface` / `observation_converter.py:254`의
+`initialize_from_mach_port`)를 그대로 재사용할 수 있을 것으로 보인다 — Python 쪽은 IOSurface가
+어느 API로 채워졌는지 신경 쓰지 않기 때문이다.
+
+### 걸림돌이었던 사실 (여전히 유효): MC가 `VK_EXT_metal_objects`를 기본으로 켜지 않는다
 
 `VulkanBackend.java:59`의 필수 확장 목록은 이게 전부다:
 
@@ -210,11 +248,10 @@ VK_EXT_vertex_attribute_divisor, VK_KHR_swapchain
 `VkImportMetalTextureInfoEXT`도 쓸 수 없다. **디바이스 생성 시점에 활성화돼 있어야 하는
 확장**이라 사후에 끼워넣을 수 없다.
 
-### 구현 스케치
+### 남은 구현 스케치
 
-1. `VulkanBackend`의 `deviceExtensions` 리스트에 `VK_EXT_metal_objects`를 주입하는 mixin
-   (`VulkanBackend.java:147` 부근, 물리 디바이스가 지원할 때만).
-   — Mojang의 디바이스 생성 경로에 개입하는 것이므로 이 방식의 위험도가 가장 높다.
+1. ~~`VulkanBackend`의 `deviceExtensions` 리스트에 `VK_EXT_metal_objects`를 주입하는 mixin~~ —
+   완료 (`VulkanBackendMetalExtensionMixin`, opt-in).
 2. IOSurface 백업 MTLTexture를 만들고 (`shared-native/gl-capture/framebuffer_capturer_apple.mm`의
    `createSharedIOSurface`가 이미 한다), 그걸 `VkImage`로 import.
 3. 매 프레임 `vkCmdCopyImage`로 MC의 color image → 우리 이미지.
@@ -225,8 +262,8 @@ VK_EXT_vertex_attribute_divisor, VK_KHR_swapchain
 **Python 쪽은 변경이 필요 없다.** 지금도 `ipc_handle` 바이트를 mach port로만 해석하고,
 IOSurface가 어느 API로 채워졌는지는 신경 쓰지 않는다.
 
-### 선행 작업 순서
+### 남은 선행 작업 순서
 
-1. mc262 GL ZEROCOPY 포팅 (W3) — texture 기반으로 IOSurface 채우기
-2. Vulkan + `VK_EXT_metal_objects` mixin
-3. 위 3~4단계
+1. ~~mc262 GL ZEROCOPY 포팅 (W3) — texture 기반으로 IOSurface 채우기~~ — 완료.
+2. ~~Vulkan + `VK_EXT_metal_objects` mixin~~ — 완료 (opt-in, 기본 off).
+3. 위 2~4단계 (이미지 import, `vkCmdCopyImage`, mach port 전달) — 미착수.

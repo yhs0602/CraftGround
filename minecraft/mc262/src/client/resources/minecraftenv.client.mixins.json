@@ -20,7 +20,8 @@
 		"LevelExtractorEntityListenerMixin",
 		"LevelLoadTrackerMixin",
 		"PacketProcessorQueueAccessor",
-		"RenderMixin"
+		"RenderMixin",
+		"VulkanBackendMetalExtensionMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

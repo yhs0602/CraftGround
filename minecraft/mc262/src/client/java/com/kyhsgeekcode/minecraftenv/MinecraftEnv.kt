@@ -692,10 +692,13 @@ class MinecraftEnv :
             }
         }
         if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
-            // TODO(26_2_phase2_plan.md W3): initializeZeroCopy still expects the mc121-era
-            // FBO-attachment-based signature (colorAttachment/depthAttachment ints from
-            // Framebuffer, which no longer exists). Needs the texture-based native rewrite.
-            printWithTime("ZEROCOPY_TORCH mode requested but not yet ported for 26.2 (W3 pending)")
+            // EnvironmentInitializer.checkRenderBackend already fails fast if this isn't OpenGL.
+            // Guarded by ipcHandle inside initializeZeroCopy, so this only does real work once.
+            FramebufferCapturer.initializeZeroCopy(
+                initialEnvironment.imageSizeX,
+                initialEnvironment.imageSizeY,
+                initialEnvironment.pythonPid,
+            )
         }
 
         // W11 (26_2_phase2_plan.md §1.3/§6.3 Seam A) proposed reading numeric observations off the
@@ -877,6 +880,7 @@ class MinecraftEnv :
                     worldTime = world.gameTime // world tick, monotonic increasing
                     lastDeathMessage = deathMessageCollector?.lastDeathMessage?.firstOrNull() ?: ""
                     image2 = imageByteString2
+                    ipcHandle = FramebufferCapturer.ipcHandle
 
                     if (initialEnvironment.requiresSurroundingBlocks) {
                         val blocks = mutableListOf<ObservationSpace.BlockInfo>()
