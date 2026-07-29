@@ -152,9 +152,11 @@ class EnvironmentInitializer(
     // isn't guaranteed to exist yet before a world has been entered - by this point in
     // onClientTick a world is already up and the render pipeline has run many frames.
     //
-    // Both backends are supported now (docs/26_2_vulkan_capture.md); the only unsupported
-    // combination left is ZEROCOPY_TORCH off the OpenGL path, which still needs the mc121-era
-    // FBO-based native code.
+    // Both backends are supported now (docs/26_2_vulkan_capture.md). ZEROCOPY_TORCH works on
+    // OpenGL unconditionally, and on Vulkan only when VK_EXT_metal_objects +
+    // VK_EXT_external_memory_metal actually got enabled at device-creation time (see
+    // VulkanBackendMetalExtensionMixin, opt-in via -Dcraftground.enableMetalObjects=true) -
+    // otherwise VulkanMetalZerocopy has nothing to import an IOSurface into.
     private fun checkRenderBackend(client: Minecraft) {
         val backendName =
             com.mojang.blaze3d.systems.RenderSystem
@@ -175,11 +177,17 @@ class EnvironmentInitializer(
         if (captureBackend != Blaze3dCapture.CaptureBackend.OPENGL &&
             initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH
         ) {
-            throw IllegalStateException(
-                "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, but the active " +
-                    "backend is '$backendName'. Use RAW or PNG, or force OpenGL " +
-                    "(see docs/26_2_vulkan_capture.md).",
-            )
+            val vulkanMetalZerocopySupported =
+                captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D &&
+                    VulkanMetalObjectsState.metalObjectsEnabled
+            if (!vulkanMetalZerocopySupported) {
+                throw IllegalStateException(
+                    "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, or Vulkan with " +
+                        "-Dcraftground.enableMetalObjects=true on a device supporting " +
+                        "VK_EXT_metal_objects + VK_EXT_external_memory_metal (active backend " +
+                        "'$backendName'). Use RAW or PNG otherwise (see docs/26_2_vulkan_capture.md).",
+                )
+            }
         }
     }
 

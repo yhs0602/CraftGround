@@ -126,7 +126,11 @@ set(
 message(STATUS "SOURCE_FILES=${SOURCE_FILES}")
 
 if(APPLE)
-    list(APPEND SOURCE_FILES ${GL_CAPTURE_DIR}/framebuffer_capturer_apple.mm ${GL_CAPTURE_DIR}/jni/jni_macos_zerocopy.cpp)
+    list(APPEND SOURCE_FILES
+        ${GL_CAPTURE_DIR}/framebuffer_capturer_apple.mm
+        ${GL_CAPTURE_DIR}/jni/jni_macos_zerocopy.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/vulkan_metal_zerocopy_apple.mm
+    )
 elseif(CUDAToolkit_FOUND)
     list(APPEND SOURCE_FILES ${GL_CAPTURE_DIR}/framebuffer_capturer_cuda.cpp ${GL_CAPTURE_DIR}/jni/jni_cuda_zerocopy.cpp)
 else()
