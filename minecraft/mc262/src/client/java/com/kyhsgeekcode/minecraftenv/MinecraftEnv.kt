@@ -544,6 +544,20 @@ class MinecraftEnv :
     }
 
     /**
+     * `RenderSystem.getDevice()` always returns the concrete `GpuDevice` wrapper class - it
+     * composes a `GpuDeviceBackend` rather than being implemented by one (`VulkanDevice`'s only
+     * supertype is `Object`) - so `RenderSystem.getDevice() as VulkanDevice` can never succeed.
+     * [com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor] exposes the private `backend`
+     * field GpuDevice actually wraps, which is a `VulkanDevice` whenever the capture backend is
+     * BLAZE3D - callers only reach this after already checking that.
+     */
+    private fun vulkanDeviceFromRenderSystem(): com.mojang.blaze3d.vulkan.VulkanDevice {
+        val accessor =
+            com.mojang.blaze3d.systems.RenderSystem.getDevice() as com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
+        return accessor.backend as com.mojang.blaze3d.vulkan.VulkanDevice
+    }
+
+    /**
      * Records this frame's color readback and arms the fence, on the backend-neutral capture path
      * only. Skipped for stereo, which discards this frame and re-renders per eye
      * ([renderEyeAndCapture] does its own record/arm/submit). For ZEROCOPY_TORCH on Vulkan, this
@@ -558,7 +572,18 @@ class MinecraftEnv :
             return
         }
         if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
-            val device = com.mojang.blaze3d.systems.RenderSystem.getDevice() as com.mojang.blaze3d.vulkan.VulkanDevice
+            val device = vulkanDeviceFromRenderSystem()
+            // Must run here, not in sendObservation(): this hook fires before submit(), while
+            // sendObservation() (which used to own this call) only runs after it, in the same
+            // frame - so on the very first observation frame, recordCopy() would otherwise see
+            // dstImage still 0 and segfault inside MoltenVK's vkCmdCopyImage. initialize() is
+            // idempotent (guarded by ipcHandle), so this is a no-op on every later frame.
+            VulkanMetalZerocopy.initialize(
+                device,
+                initialEnvironment.imageSizeX,
+                initialEnvironment.imageSizeY,
+                initialEnvironment.pythonPid,
+            )
             VulkanMetalZerocopy.recordCopy(
                 device,
                 colorTexture as com.mojang.blaze3d.vulkan.VulkanGpuTexture,
@@ -707,16 +732,10 @@ class MinecraftEnv :
         if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
             // EnvironmentInitializer.checkRenderBackend already fails fast unless this is OpenGL,
             // or Vulkan with VK_EXT_metal_objects/VK_EXT_external_memory_metal actually enabled.
-            // Both initialize() calls are guarded by their own ipcHandle, so this only does real
-            // work once.
-            if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
-                VulkanMetalZerocopy.initialize(
-                    com.mojang.blaze3d.systems.RenderSystem.getDevice() as com.mojang.blaze3d.vulkan.VulkanDevice,
-                    initialEnvironment.imageSizeX,
-                    initialEnvironment.imageSizeY,
-                    initialEnvironment.pythonPid,
-                )
-            } else {
+            // On the BLAZE3D path, initialize() already ran from handleBeforeSubmitCapture() -
+            // it has to happen before the first submit(), not here, after it - so there is
+            // nothing to do for that case at this point.
+            if (captureBackend != Blaze3dCapture.CaptureBackend.BLAZE3D) {
                 FramebufferCapturer.initializeZeroCopy(
                     initialEnvironment.imageSizeX,
                     initialEnvironment.imageSizeY,
@@ -785,7 +804,15 @@ class MinecraftEnv :
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString",
                 )
                 imageByteString1 =
-                    if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
+                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH &&
+                        captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D
+                    ) {
+                        // No CPU readback was recorded for this frame (handleBeforeSubmitCapture
+                        // called VulkanMetalZerocopy.recordCopy instead) - the pixels went
+                        // straight to the IOSurface Python reads via ipcHandle, same as GL
+                        // zerocopy's FramebufferCapturer.captureFramebuffer returning EMPTY here.
+                        ByteString.EMPTY
+                    } else if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
                         // The copy was already recorded before this frame's submit() and waited on
                         // in handlePresentCapture(); this only maps and converts it.
                         Blaze3dCapture.readColor(

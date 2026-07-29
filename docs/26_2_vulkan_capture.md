@@ -271,14 +271,51 @@ IOSurface가 GL 텍스처로 채워졌는지 Vulkan 이미지로 채워졌는지
 정상 방향(§5의 `blaze3dFlipVertically() == false` 기대와 일치, 뒤집히지 않음). GL zerocopy·
 Vulkan CPU-readback과 동일 경로(회귀 없음)도 이 세션에서 재확인.
 
+**최초 구현에 있었던 버그 세 개 (프로파일링 중 실제로 걸림, 전부 수정됨)**:
+1. **`RenderSystem.getDevice() as VulkanDevice`가 항상 실패** — `RenderSystem.getDevice()`는
+   `GpuDeviceBackend`를 구현하는 게 아니라 그걸 감싸는 concrete 클래스 `GpuDevice`를 반환한다
+   (`VulkanDevice`의 유일한 상위 타입은 `Object`). 이 캐스트는 이론상 한 번도 성공할 수 없는데,
+   초기 스모크 테스트에서는 우연히 걸리지 않다가 프로파일링 중 `ClassCastException`으로 크래시
+   재현됨. `GpuDeviceBackendAccessor` (새 `@Accessor` mixin, `GpuDevice`의 private `backend`
+   필드를 노출)로 실제 백엔드를 언랩해서 고침 — `MinecraftEnv.vulkanDeviceFromRenderSystem()`.
+2. **`vkCmdCopyImage`가 `libMoltenVK.dylib` 안에서 SIGSEGV** — `VulkanMetalZerocopy.initialize()`
+   호출이 `sendObservation()`(submit() *이후*)에만 있었는데, `recordCopy()`를 호출하는
+   `handleBeforeSubmitCapture()`는 submit() *이전*에 실행된다. 그래서 관찰이 시작된 첫 프레임엔
+   `initialize()`가 아직 한 번도 안 돌아 `dstImage`가 0인 채로 `vkCmdCopyImage`가 호출돼
+   네이티브 크래시가 났다. `initialize()` 호출을 `handleBeforeSubmitCapture()`의
+   `recordCopy()` 직전으로 옮겨서 고침 (자체적으로 `ipcHandle` 가드가 있어 매 프레임 호출해도
+   실제 작업은 최초 1회뿐).
+3. **`Blaze3dCapture.readColor()`가 가드 없이 호출됨** — `sendObservation()`의 단일-눈 분기가
+   `captureBackend == BLAZE3D`이기만 하면 무조건 `readColor()`를 호출했는데, ZEROCOPY_TORCH
+   에서는애초에 CPU 리드백을 기록한 적이 없어 `IllegalStateException`으로 크래시. ZEROCOPY_TORCH
+   + BLAZE3D일 때는 GL zerocopy와 동일하게 `ByteString.EMPTY`를 반환하도록 분기 추가 — 실제
+   픽셀은 IOSurface를 통해 Python이 직접 읽으므로 이 필드는 원래도 안 쓰인다.
+
+**레이턴시 프로파일링** (2026-07-30, 같은 하드웨어, 128×128, 150 스텝, warmup 10 스텝,
+`profile_one_config.py`로 config별 완전히 새 프로세스에서 측정 — Python 쪽 wall-clock
+`env.step()` 처리량):
+
+| 경로 | steps/sec |
+|---|---|
+| Vulkan CPU-readback (RAW) | 94.43 |
+| **Vulkan+Metal ZEROCOPY** | **105.86** |
+| GL ZEROCOPY (베이스라인) | 92.87 |
+
+Vulkan+Metal ZEROCOPY가 Vulkan CPU-readback 대비 약 12% 빠르고, 기존 GL ZEROCOPY보다도 약간
+빠르다 — CPU 왕복을 실제로 건너뛰는 게 측정 가능한 이득으로 나타난다. 다만 이건 이 머신에서의
+단발 측정이고(반복측정/분산 없음), Java 쪽 `SendObservation` 스팬 세부 프로파일
+(`CRAFTGROUND_JAVA_PROFILE`)은 별도로 뜨지 않았다 — 위 표는 Python wall-clock 처리량만 반영한다.
+
 **미검증/알려진 한계**:
 - Apple Silicon + MoltenVK 한 대에서만 검증됨 — 이 기능은 애초에 Apple 전용 확장
   (`VK_EXT_metal_objects`/`VK_EXT_external_memory_metal`)이라 다른 플랫폼에서는 존재하지 않는다.
-- `VkExternalMemoryImageCreateInfo` + `VkImportMetalIOSurfaceInfoEXT`의 struct 체이닝은
-  스펙에서 추론한 것이지 알려진 동작 샘플과 대조하지는 않았다 — 실행 결과가 정상이었으므로
-  이 하드웨어에서는 맞는 것으로 확인됐다.
+- `VkExternalMemoryImageCreateInfo` + `VkImportMetalIOSurfaceInfoEXT`의 struct 체이닝(포함
+  `VK_IMAGE_TILING_LINEAR` 선택)은 스펙에서 추론한 것이지 알려진 동작 샘플과 대조하지는
+  않았다 — 실행 결과가 정상이었으므로 이 하드웨어에서는 맞는 것으로 확인됐다.
 - Depth ZEROCOPY는 GL 경로와 마찬가지로 미포팅.
-- Latency(CPU readback 대비 실제 이득)는 별도로 프로파일링하지 않았다.
+- 스테레오(`eyeDistance > 0`) + Vulkan ZEROCOPY_TORCH 조합은 다루지 않았다 (`renderEyeAndCapture`가
+  BLAZE3D일 때 여전히 `Blaze3dCapture.captureNow`만 호출) — 기존 GL zerocopy도 스테레오는
+  별도로 검증된 적이 없어 새로 생긴 갭은 아니지만, 명시적으로 막혀 있지도 않다.
 
 ### MC가 `VK_EXT_metal_objects`를 기본으로 켜지 않는다는 사실 (여전히 유효)
 

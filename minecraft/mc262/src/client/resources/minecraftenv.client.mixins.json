@@ -22,7 +22,8 @@
 		"PacketProcessorQueueAccessor",
 		"RenderMixin",
 		"VulkanBackendMetalExtensionMixin",
-		"VulkanCommandEncoderAccessor"
+		"VulkanCommandEncoderAccessor",
+		"GpuDeviceBackendAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

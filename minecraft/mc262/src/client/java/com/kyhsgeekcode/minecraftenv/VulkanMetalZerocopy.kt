@@ -55,7 +55,7 @@ object VulkanMetalZerocopy {
 
     /**
      * Call once per resolution, guarded like [FramebufferCapturer.initializeZeroCopy]. `device`
-     * must be the live Vulkan device (`RenderSystem.getDevice() as VulkanDevice`).
+     * must be the live Vulkan device (see `MinecraftEnv.vulkanDeviceFromRenderSystem`).
      */
     fun initialize(
         device: VulkanDevice,
@@ -87,7 +87,10 @@ object VulkanMetalZerocopy {
                     .mipLevels(1)
                     .arrayLayers(1)
                     .samples(VK10.VK_SAMPLE_COUNT_1_BIT)
-                    .tiling(VK10.VK_IMAGE_TILING_OPTIMAL)
+                    // IOSurfaces are inherently linear (row-major host-visible) memory, unlike an
+                    // opaque GPU-optimal tiling - OPTIMAL here produced a SIGSEGV inside
+                    // libMoltenVK.dylib on vkCmdCopyImage (empirically confirmed on this hardware).
+                    .tiling(VK10.VK_IMAGE_TILING_LINEAR)
                     .usage(VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT)
                     .sharingMode(VK10.VK_SHARING_MODE_EXCLUSIVE)
                     .initialLayout(VK10.VK_IMAGE_LAYOUT_UNDEFINED)
@@ -240,7 +243,14 @@ object VulkanMetalZerocopy {
 
     fun close() {
         if (dstImage == 0L && dstMemory == 0L && ioSurfacePtr == 0L) return
-        val device = com.mojang.blaze3d.systems.RenderSystem.getDevice() as? VulkanDevice
+        // See MinecraftEnv.vulkanDeviceFromRenderSystem's kdoc: RenderSystem.getDevice() always
+        // returns the GpuDevice wrapper, never VulkanDevice directly, so the actual backend must
+        // be unwrapped via GpuDeviceBackendAccessor.
+        val device =
+            (
+                com.mojang.blaze3d.systems.RenderSystem.getDevice() as?
+                    com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
+            )?.backend as? VulkanDevice
         if (device != null) {
             if (dstImage != 0L) VK10.vkDestroyImage(device.vkDevice(), dstImage, null)
             if (dstMemory != 0L) VK10.vkFreeMemory(device.vkDevice(), dstMemory, null)
