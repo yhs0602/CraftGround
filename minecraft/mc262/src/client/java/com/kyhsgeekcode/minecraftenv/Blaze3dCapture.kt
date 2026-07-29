@@ -67,27 +67,21 @@ object Blaze3dCapture {
     // Whether this readback yields rows in the opposite order to glReadPixels, which is what the
     // rest of the pipeline (and the Python side) is calibrated against.
     //
-    // OpenGL: never. GlCommandEncoder.copyTextureToBuffer is literally glReadPixels into a PBO, so
-    // it is byte-identical to the native path by construction.
-    //
-    // Vulkan: yes. 26.2's Vulkan backend sets a plain, non-negative-height viewport
-    // (VulkanRenderPass) and compensates by declaring VK_FRONT_FACE_CLOCKWISE in every pipeline
-    // (VulkanRenderPipeline) - the winding fix you only need when the Y axis is flipped relative to
-    // GL. So it renders with y-down NDC, image row 0 is the top of the screen, and
-    // vkCmdCopyImageToBuffer hands back rows in the reverse order to glReadPixels.
-    //
-    // Keyed off the actual device rather than off CaptureBackend, because this path can be forced
-    // on an OpenGL device and there it must stay byte-identical to the native GL path. Override
-    // with -Dcraftground.blaze3dFlipVertically=<bool> if the inference above ever stops holding.
+    // Verified only on Apple Silicon + MoltenVK so far (docs/26_2_vulkan_capture.md, verification
+    // step 3): a byte-level comparison against the native GL path showed vkCmdCopyImageToBuffer
+    // already hands back rows in the same order as glReadPixels there, so no flip is needed. A
+    // prior version of this function instead inferred `true` from the Vulkan backend's y-down NDC
+    // (VulkanRenderPass's non-negative-height viewport, compensated by VK_FRONT_FACE_CLOCKWISE in
+    // VulkanRenderPipeline) - that inference turned out backwards on this hardware (captured
+    // frames came out upside down). The viewport/winding setup is the same portable Java/LWJGL
+    // code on every platform, so `false` is likely also correct on Linux/Windows Vulkan drivers,
+    // but that has NOT been verified there - spot-check with the same byte-level comparison before
+    // trusting this default on non-Apple hardware, and override with
+    // -Dcraftground.blaze3dFlipVertically=<bool> if it disagrees.
     private val flipOverride: Boolean? =
         System.getProperty("craftground.blaze3dFlipVertically")?.toBooleanStrictOrNull()
 
-    private fun blaze3dFlipVertically(): Boolean =
-        flipOverride ?: !RenderSystem
-            .getDevice()
-            .deviceInfo
-            .backendName()
-            .contains("OpenGL", ignoreCase = true)
+    private fun blaze3dFlipVertically(): Boolean = flipOverride ?: false
 
     private const val READBACK_USAGE = GpuBuffer.USAGE_MAP_READ or GpuBuffer.USAGE_COPY_DST
     private const val FENCE_TIMEOUT_NANOS = 5_000_000_000L

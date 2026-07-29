@@ -78,21 +78,27 @@ CommandEncoder.submit()
 
 ### 상하 반전 (flip)
 
-Vulkan 경로는 `flipVertically = true`가 필요하다. 근거:
+**둘 다 `flipVertically = false`다.** 애초에는 Vulkan 쪽에 `true`가 필요하다고 추론했었다:
 
-- 26.2 Vulkan 백엔드는 `VulkanRenderPass`에서 **평범한 양수 height 뷰포트**를 설정한다
+- 26.2 Vulkan 백엔드는 `VulkanRenderPass`에서 평범한 양수 height 뷰포트를 설정한다
   (negative-height viewport 트릭을 쓰지 않는다).
 - 대신 `VulkanRenderPipeline`이 모든 파이프라인에 `frontFace(1)` = `VK_FRONT_FACE_CLOCKWISE`를
-  선언한다. GL 기하는 CCW가 정면인데, **Y축이 뒤집혔을 때만 필요한 winding 보정**이 바로 이것이다.
+  선언한다. GL 기하는 CCW가 정면인데, Y축이 뒤집혔을 때만 필요한 winding 보정이 이것이라 추론했다.
+- ⇒ Vulkan은 y-down NDC로 렌더하니 이미지 row 0이 화면 위쪽이고, `glReadPixels`의 첫 row(화면
+  아래쪽)와 정확히 뒤집혀 있을 거라 예상했다.
 
-⇒ Vulkan은 y-down NDC로 렌더하고, 이미지 row 0이 화면 위쪽이다. 반면 `glReadPixels`의 첫 row는
-프레임버퍼 아래쪽이다. 두 경로는 정확히 뒤집혀 있다.
+**Apple Silicon(MoltenVK)에서 실제로 캡처해보니 이 추론은 틀렸다**: `minecraft-simulator-benchmark`
+하네스로 Vulkan RAW 프레임을 떠 보면(§3 참고) `flipVertically = true`(기존 기본값)일 때 상하가
+뒤집혀 나오고, `-Dcraftground.blaze3dFlipVertically=false`로 강제하면 GL 베이스라인과 동일하게
+나온다 — 즉 이 하드웨어에서는 `vkCmdCopyImageToBuffer`가 이미 `glReadPixels`와 같은 row 순서로
+돌려준다. winding 보정과 readback row 순서는 서로 무관했던 것. 기본값을 `false`로 고쳤다.
 
-GL 경로는 `flipVertically = false`다 — 이건 추론이 아니라 자명하다:
-`GlCommandEncoder.copyTextureToBuffer`가 문자 그대로 PBO로 `glReadPixels`를 부른다.
-
-이 추론이 틀린 것으로 드러나면 `-Dcraftground.blaze3dFlipVertically=<bool>` 한 줄로 뒤집을 수
-있다 (아래 검증 §3 참고).
+**중요 — 이건 Apple Silicon/MoltenVK 한 대에서만 검증했다.** 뷰포트/winding 설정은 플랫폼 불문
+동일한 Java/LWJGL 코드라서 Linux/Windows 네이티브 Vulkan 드라이버(AMD/NVIDIA/Intel)에서도
+`false`가 맞을 개연성은 있지만, 실제로 확인된 사실은 아니다 — 감이나 스펙 문서가 아니라 딱 이
+한 대에서의 바이트 단위 비교 결과일 뿐이다. 다른 플랫폼에 배포하기 전에 같은 §3 비교를 그
+하드웨어에서 반드시 재현해 보고, 다시 어긋나면 `-Dcraftground.blaze3dFlipVertically=<bool>`로
+뒤집을 수 있다.
 
 ## 구현 지도
 
@@ -124,7 +130,7 @@ Python 쪽은 **변경 없음**. wire format이 동일하고 백엔드는 Java �
 | 설정 | 기본값 | 용도 |
 |---|---|---|
 | `CRAFTGROUND_CAPTURE_BACKEND` 환경변수 (또는 `-Dcraftground.captureBackend`) = `opengl`\|`blaze3d` | 자동 감지 | 캡처 경로 강제. GL 머신에서 `blaze3d`를 켜서 두 경로를 바이트 단위로 비교하는 용도 |
-| `-Dcraftground.blaze3dFlipVertically=<bool>` | 디바이스가 OpenGL이 아니면 true | 위 flip 추론 무효화 |
+| `-Dcraftground.blaze3dFlipVertically=<bool>` | false (Apple Silicon/MoltenVK에서 검증됨, 다른 플랫폼 미검증) | 위 flip 기본값 무효화 |
 | `-Dcraftground.enableMetalObjects=true` | false | Vulkan 디바이스 생성 시 물리 디바이스가 지원하면 `VK_EXT_metal_objects`를 활성화 (ZEROCOPY (Metal) 선행 작업, 확장 활성화까지만 — 이미지 import는 미구현) |
 
 ## 검증
