@@ -8,14 +8,11 @@
 #include <driver_types.h>
 
 int initialize_cuda_ipc(
-    int width,
-    int height,
-    int colorAttachment,
-    int depthAttachment,
-    cudaIpcMemHandle_t *memHandlePtr,
-    int *deviceId
+    int width, int height, cudaIpcMemHandle_t *memHandlePtr, int *deviceId
 );
 
-void copyFramebufferToCudaSharedMemory(int width, int height);
+void copyFramebufferToCudaSharedMemory(
+    int sourceTextureId, int width, int height
+);
 
 #endif

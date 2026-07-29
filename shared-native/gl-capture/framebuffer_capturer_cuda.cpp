@@ -8,14 +8,8 @@ static void *sharedCudaColorMem = nullptr;
 static bool initialized = false;
 static int rendering_gpu = -1;
 
-// TODO: depth attachment
 int initialize_cuda_ipc(
-    int width,
-    int height,
-    int colorAttachment,
-    int depthAttachment,
-    cudaIpcMemHandle_t *memHandlePtr,
-    int *deviceId
+    int width, int height, cudaIpcMemHandle_t *memHandlePtr, int *deviceId
 ) {
     if (initialized) {
         fprintf(stderr, "CUDA IPC already initialized\n");
@@ -81,57 +75,13 @@ int initialize_cuda_ipc(
     return sizeof(cudaIpcMemHandle_t);
 }
 
-void checkAndPrintGLError() {
-    GLenum error = glGetError();
-    while (error != GL_NO_ERROR) {
-        printf("OpenGL Error: 0x%x\n", error);
-        error = glGetError();
-    }
-    fflush(stdout);
-}
-
-void copyFramebufferToCudaSharedMemory(int width, int height) {
-    GLuint renderedTextureId;
-    glGetFramebufferAttachmentParameteriv(
-        GL_READ_FRAMEBUFFER,
-        GL_COLOR_ATTACHMENT0,
-        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-        (GLint *)&renderedTextureId
-    );
-    checkAndPrintGLError();
-    glBindTexture(GL_TEXTURE_2D, renderedTextureId);
-    checkAndPrintGLError();
-    int textureWidth, textureHeight;
-    int format;
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
-    checkAndPrintGLError();
-    glGetTexLevelParameteriv(
-        GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight
-    );
-    checkAndPrintGLError();
-    glGetTexLevelParameteriv(
-        GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &format
-    );
-    checkAndPrintGLError();
-    // printf("width: %d, height: %d, format: %d\n", textureWidth,
-    // textureHeight, format); fflush(stdout);
-    assert(format == GL_RGBA8);
-    // printf("width: %d, height: %d\n", textureWidth, textureHeight);
-    glViewport(0, 0, width, height);
-    checkAndPrintGLError();
-    glReadBuffer(GL_COLOR_ATTACHMENT0);
-    checkAndPrintGLError();
-    GLenum status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
-    checkAndPrintGLError();
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        printf("Framebuffer is not complete! Status: 0x%x\n", status);
-        fflush(stdout);
-        assert(status == GL_FRAMEBUFFER_COMPLETE);
-    }
-    fflush(stdout);
-    assert(width == textureWidth);
-    assert(height == textureHeight);
-
+void copyFramebufferToCudaSharedMemory(
+    int sourceTextureId, int width, int height
+) {
+    // mc262's main color target is a texture handed directly from Java (see
+    // docs/26_2_vulkan_capture.md - the RAW/PNG path is texture-based, not
+    // FBO-based), so it's registered with CUDA directly instead of being
+    // looked up from a bound read framebuffer's attachment.
     assert(sharedCudaColorMem != nullptr);
     assert(initialized);
 
@@ -142,7 +92,7 @@ void copyFramebufferToCudaSharedMemory(int width, int height) {
     // register the texture with CUDA
     err = cudaGraphicsGLRegisterImage(
         &cudaResource,
-        renderedTextureId,
+        sourceTextureId,
         GL_TEXTURE_2D,
         cudaGraphicsRegisterFlagsReadOnly
     );
