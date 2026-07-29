@@ -8,13 +8,7 @@
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
-    JNIEnv *env,
-    jclass clazz,
-    jint width,
-    jint height,
-    jint colorAttachment,
-    jint depthAttachment,
-    jint python_pid
+    JNIEnv *env, jclass clazz, jint width, jint height, jint python_pid
 ) {
     if (!initCursorTexture()) {
         fflush(stderr);
@@ -67,22 +61,18 @@ extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
-    jint frameBufferId,
+    jint sourceTextureId,
     jint targetSizeX,
     jint targetSizeY,
     jboolean drawCursor,
     jint mouseX,
     jint mouseY
 ) {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
-    if (drawCursor) {
-        renderCursor(mouseX, mouseY);
-    }
-
-    // It could have been that the rendered image is already being shared,
-    // but the original texture is TEXTURE_2D, so we need to convert to
-    // TEXTURE_2D_RECTANGLE_ARB
-    copyFramebufferToIOSurface(targetSizeX, targetSizeY);
+    // The rendered image is a plain GL_TEXTURE_2D, so it's copied into the
+    // IOSurface-backed GL_TEXTURE_2D_RECTANGLE_ARB texture directly.
+    copyFramebufferToIOSurface(
+        sourceTextureId, targetSizeX, targetSizeY, drawCursor, mouseX, mouseY
+    );
     return nullptr;
 }
 #endif

@@ -12,13 +12,7 @@
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
-    JNIEnv *env,
-    jclass clazz,
-    jint width,
-    jint height,
-    jint colorAttachment,
-    jint depthAttachment,
-    jint python_pid
+    JNIEnv *env, jclass clazz, jint width, jint height, jint python_pid
 ) {
     if (!initCursorTexture()) {
         fflush(stderr);
@@ -50,9 +44,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
 
     cudaIpcMemHandle_t memHandle;
     int deviceId = -1;
-    int size = initialize_cuda_ipc(
-        width, height, colorAttachment, depthAttachment, &memHandle, &deviceId
-    );
+    int size = initialize_cuda_ipc(width, height, &memHandle, &deviceId);
 
     if (size < 0) {
         fflush(stderr);
@@ -96,22 +88,21 @@ extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
-    jint frameBufferId,
+    jint sourceTextureId,
     jint targetSizeX,
     jint targetSizeY,
     jboolean drawCursor,
     jint mouseX,
     jint mouseY
 ) {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferId);
-
-    if (drawCursor) {
-        renderCursor(mouseX, mouseY);
-    }
-
-    // CUDA IPC handles are used to share the framebuffer with the Python side
-    // However copy is required anyway
-    copyFramebufferToCudaSharedMemory(targetSizeX, targetSizeY);
+    // CUDA IPC handles are used to share the framebuffer with the Python side.
+    // The cursor overlay isn't composited for this path (see
+    // copyFramebufferToCudaSharedMemory) - drawCursor/mouseX/mouseY are kept
+    // as parameters only for JNI signature parity with the other zerocopy
+    // implementations.
+    copyFramebufferToCudaSharedMemory(
+        sourceTextureId, targetSizeX, targetSizeY
+    );
     return nullptr;
 }
 #endif

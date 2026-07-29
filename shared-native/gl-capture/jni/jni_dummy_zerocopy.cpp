@@ -23,13 +23,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
 // CPU)
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_initializeZerocopyImpl(
-    JNIEnv *env,
-    jclass clazz,
-    jint width,
-    jint height,
-    jint colorAttachment,
-    jint depthAttachment,
-    jint python_pid
+    JNIEnv *env, jclass clazz, jint width, jint height, jint python_pid
 ) {
     // jclass byteStringClass =
     // env->FindClass("com/google/protobuf/ByteString");
@@ -53,7 +47,7 @@ extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocopyImpl(
     JNIEnv *env,
     jclass clazz,
-    jint frameBufferId,
+    jint sourceTextureId,
     jint targetSizeX,
     jint targetSizeY,
     jboolean drawCursor,
@@ -63,8 +57,8 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferZerocop
     return Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_captureFramebufferImpl(
         env,
         clazz,
+        sourceTextureId,
         0,
-        frameBufferId,
         targetSizeX,
         targetSizeY,
         targetSizeX,

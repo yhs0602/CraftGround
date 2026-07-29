@@ -26,8 +26,10 @@ import org.lwjgl.opengl.GL30
 //              the RGBA->RGB conversion, convertCapturedFrameImpl below, which reuses the same
 //              resize/cursor/PNG code as the GL path.
 //
-// ZEROCOPY_TORCH still uses the old mc121-era frameBufferId-based native path and isn't wired up
-// for 26.2 on either backend yet (see initializeZeroCopy below).
+// ZEROCOPY_TORCH is texture-based like RAW/PNG above (see initializeZeroCopy below) and, like
+// mc121, only supported on the OpenGL backend - EnvironmentInitializer fails fast if it's
+// requested on Vulkan. See docs/26_2_vulkan_capture.md's ZEROCOPY (Metal) section for the Vulkan
+// design (not implemented).
 object FramebufferCapturer {
     init {
         System.loadLibrary("native-lib")
@@ -49,7 +51,7 @@ object FramebufferCapturer {
         if (encodingMode == ZEROCOPY_TORCH) {
             assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
             return captureFramebufferZerocopyImpl(
-                frameBufferId,
+                textureId,
                 targetSizeX,
                 targetSizeY,
                 drawCursor,
@@ -124,14 +126,12 @@ object FramebufferCapturer {
     fun initializeZeroCopy(
         width: Int,
         height: Int,
-        colorAttachment: Int,
-        depthAttachment: Int,
         pythonPid: Int,
     ) {
         if (ipcHandle != ByteString.EMPTY) {
             return
         }
-        val result = initializeZerocopyImpl(width, height, colorAttachment, depthAttachment, pythonPid)
+        val result = initializeZerocopyImpl(width, height, pythonPid)
         if (result == null || result == ByteString.EMPTY) {
             println("FramebufferCapturer: ZeroCopy initialization failed")
             throw RuntimeException("ZeroCopy initialization failed")
@@ -142,13 +142,14 @@ object FramebufferCapturer {
     external fun initializeZerocopyImpl(
         width: Int,
         height: Int,
-        colorAttachment: Int,
-        depthAttachment: Int,
         pythonPid: Int,
     ): ByteString?
 
+    // sourceTextureId is the GL texture id of the main color target (like captureFramebufferImpl
+    // above) - no FBO is bound; the native side copies texture-to-texture into the IOSurface-backed
+    // rectangle texture (see shared-native/gl-capture/framebuffer_capturer_apple.mm).
     external fun captureFramebufferZerocopyImpl(
-        frameBufferId: Int,
+        sourceTextureId: Int,
         targetSizeX: Int,
         targetSizeY: Int,
         drawCursor: Boolean,
