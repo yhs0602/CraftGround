@@ -20,7 +20,7 @@ import org.lwjgl.vulkan.VkPhysicalDeviceMemoryProperties
 /**
  * Vulkan+Metal ZEROCOPY: imports an IOSurface directly as a `VkImage` via
  * `VK_EXT_metal_objects`/`VK_EXT_external_memory_metal` (both enabled by
- * [com.kyhsgeekcode.minecraftenv.mixin.VulkanBackendMetalExtensionMixin], opt-in behind
+ * [com.kyhsgeekcode.minecraftenv.mixin.VulkanBackendInteropExtensionMixin], opt-in behind
  * `-Dcraftground.enableMetalObjects=true`), and `vkCmdCopyImage`s MC's color target into it every
  * frame - the Vulkan equivalent of what [FramebufferCapturer]'s GL zerocopy path does with
  * `glBlitFramebuffer` into an IOSurface-backed GL texture. The same IOSurface's mach port is

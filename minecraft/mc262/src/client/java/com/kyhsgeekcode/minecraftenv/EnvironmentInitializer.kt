@@ -153,10 +153,12 @@ class EnvironmentInitializer(
     // onClientTick a world is already up and the render pipeline has run many frames.
     //
     // Both backends are supported now (docs/26_2_vulkan_capture.md). ZEROCOPY_TORCH works on
-    // OpenGL unconditionally, and on Vulkan only when VK_EXT_metal_objects +
-    // VK_EXT_external_memory_metal actually got enabled at device-creation time (see
-    // VulkanBackendMetalExtensionMixin, opt-in via -Dcraftground.enableMetalObjects=true) -
-    // otherwise VulkanMetalZerocopy has nothing to import an IOSurface into.
+    // OpenGL unconditionally, and on Vulkan only when one of the cross-API interop extension pairs
+    // actually got enabled at device-creation time (see VulkanBackendInteropExtensionMixin):
+    // VK_EXT_metal_objects + VK_EXT_external_memory_metal (-Dcraftground.enableMetalObjects=true,
+    // verified on Apple Silicon), or VK_KHR_external_memory_fd/win32
+    // (-Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in this dev
+    // environment) - otherwise VulkanZerocopy has nothing to import a shared surface/buffer into.
     private fun checkRenderBackend(client: Minecraft) {
         val backendName =
             com.mojang.blaze3d.systems.RenderSystem
@@ -177,15 +179,17 @@ class EnvironmentInitializer(
         if (captureBackend != Blaze3dCapture.CaptureBackend.OPENGL &&
             initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH
         ) {
-            val vulkanMetalZerocopySupported =
+            val vulkanZerocopySupported =
                 captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D &&
-                    VulkanMetalObjectsState.metalObjectsEnabled
-            if (!vulkanMetalZerocopySupported) {
+                    (VulkanMetalObjectsState.metalObjectsEnabled || VulkanCudaObjectsState.cudaInteropEnabled)
+            if (!vulkanZerocopySupported) {
                 throw IllegalStateException(
                     "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, or Vulkan with " +
                         "-Dcraftground.enableMetalObjects=true on a device supporting " +
-                        "VK_EXT_metal_objects + VK_EXT_external_memory_metal (active backend " +
-                        "'$backendName'). Use RAW or PNG otherwise (see docs/26_2_vulkan_capture.md).",
+                        "VK_EXT_metal_objects + VK_EXT_external_memory_metal, or " +
+                        "-Dcraftground.enableCudaInterop=true on a device supporting " +
+                        "VK_KHR_external_memory_fd/win32 (active backend '$backendName'). Use RAW " +
+                        "or PNG otherwise (see docs/26_2_vulkan_capture.md).",
                 )
             }
         }

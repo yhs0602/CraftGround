@@ -21,7 +21,7 @@
 		"LevelLoadTrackerMixin",
 		"PacketProcessorQueueAccessor",
 		"RenderMixin",
-		"VulkanBackendMetalExtensionMixin",
+		"VulkanBackendInteropExtensionMixin",
 		"VulkanCommandEncoderAccessor",
 		"GpuDeviceBackendAccessor"
 	],

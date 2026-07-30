@@ -89,11 +89,14 @@ enum class IOPhase {
  * docs/26_2_vulkan_capture.md.
  *
  * ZEROCOPY_TORCH is implemented on both backends: OpenGL via FramebufferCapturer's texture-based
- * IOSurface path (verified end to end), Vulkan via VulkanMetalZerocopy's VK_EXT_metal_objects
- * import (opt-in behind -Dcraftground.enableMetalObjects=true; see docs/26_2_vulkan_capture.md for
- * its verification status). EnvironmentInitializer fails loudly rather than silently producing
- * garbage if ZEROCOPY_TORCH is requested on Vulkan without that flag. Single-eye and stereo color
- * capture and depth capture are ported and verified end to end on both backends.
+ * IOSurface path (verified end to end), Vulkan via VulkanZerocopy - VulkanMetalZerocopy's
+ * VK_EXT_metal_objects import on Apple (opt-in behind -Dcraftground.enableMetalObjects=true,
+ * verified) or VulkanCudaZerocopy's VK_KHR_external_memory_fd/win32 + CUDA import on Linux/Windows
+ * (opt-in behind -Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in
+ * this dev environment; see docs/26_2_vulkan_capture.md for both paths' verification status).
+ * EnvironmentInitializer fails loudly rather than silently producing garbage if ZEROCOPY_TORCH is
+ * requested on Vulkan without one of those flags. Single-eye and stereo color capture and depth
+ * capture are ported and verified end to end on both backends.
  */
 class MinecraftEnv :
     ClientModInitializer,
@@ -561,7 +564,7 @@ class MinecraftEnv :
      * Records this frame's color readback and arms the fence, on the backend-neutral capture path
      * only. Skipped for stereo, which discards this frame and re-renders per eye
      * ([renderEyeAndCapture] does its own record/arm/submit). For ZEROCOPY_TORCH on Vulkan, this
-     * records [VulkanMetalZerocopy.recordCopy] instead of a CPU readback; on OpenGL, ZEROCOPY_TORCH
+     * records [VulkanZerocopy.recordCopy] instead of a CPU readback; on OpenGL, ZEROCOPY_TORCH
      * doesn't go through this hook at all (see [FramebufferCapturer.captureFramebuffer]).
      */
     private fun handleBeforeSubmitCapture() {
@@ -578,13 +581,13 @@ class MinecraftEnv :
             // frame - so on the very first observation frame, recordCopy() would otherwise see
             // dstImage still 0 and segfault inside MoltenVK's vkCmdCopyImage. initialize() is
             // idempotent (guarded by ipcHandle), so this is a no-op on every later frame.
-            VulkanMetalZerocopy.initialize(
+            VulkanZerocopy.initialize(
                 device,
                 initialEnvironment.imageSizeX,
                 initialEnvironment.imageSizeY,
                 initialEnvironment.pythonPid,
             )
-            VulkanMetalZerocopy.recordCopy(
+            VulkanZerocopy.recordCopy(
                 device,
                 colorTexture as com.mojang.blaze3d.vulkan.VulkanGpuTexture,
                 initialEnvironment.imageSizeX,
@@ -808,9 +811,14 @@ class MinecraftEnv :
                         captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D
                     ) {
                         // No CPU readback was recorded for this frame (handleBeforeSubmitCapture
-                        // called VulkanMetalZerocopy.recordCopy instead) - the pixels went
-                        // straight to the IOSurface Python reads via ipcHandle, same as GL
+                        // called VulkanZerocopy.recordCopy instead) - the pixels went straight to
+                        // the shared surface/buffer Python reads via ipcHandle, same as GL
                         // zerocopy's FramebufferCapturer.captureFramebuffer returning EMPTY here.
+                        // syncAfterFence() is a no-op on Metal (Python reads the IOSurface
+                        // directly) but on CUDA does the device-to-device copy into the
+                        // IPC-shared buffer - it must run after handlePresentCapture()'s
+                        // awaitPendingFence(), which by this point has already happened.
+                        VulkanZerocopy.syncAfterFence()
                         ByteString.EMPTY
                     } else if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
                         // The copy was already recorded before this frame's submit() and waited on
@@ -1040,7 +1048,7 @@ class MinecraftEnv :
                     if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
                         ipcHandle =
                             if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
-                                VulkanMetalZerocopy.ipcHandle
+                                VulkanZerocopy.ipcHandle
                             } else {
                                 FramebufferCapturer.ipcHandle
                             }
