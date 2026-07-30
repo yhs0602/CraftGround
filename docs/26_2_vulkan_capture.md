@@ -131,7 +131,8 @@ Python 쪽은 **변경 없음**. wire format이 동일하고 백엔드는 Java �
 |---|---|---|
 | `CRAFTGROUND_CAPTURE_BACKEND` 환경변수 (또는 `-Dcraftground.captureBackend`) = `opengl`\|`blaze3d` | 자동 감지 | 캡처 경로 강제. GL 머신에서 `blaze3d`를 켜서 두 경로를 바이트 단위로 비교하는 용도 |
 | `-Dcraftground.blaze3dFlipVertically=<bool>` | false (Apple Silicon/MoltenVK에서 검증됨, 다른 플랫폼 미검증) | 위 flip 기본값 무효화 |
-| `-Dcraftground.enableMetalObjects=true` | false | Vulkan 디바이스 생성 시 물리 디바이스가 지원하면 `VK_EXT_metal_objects`를 활성화 (ZEROCOPY (Metal) 선행 작업, 확장 활성화까지만 — 이미지 import는 미구현) |
+| `-Dcraftground.enableMetalObjects=true` | false | Vulkan 디바이스 생성 시 물리 디바이스가 지원하면 `VK_EXT_metal_objects` + `VK_EXT_external_memory_metal`을 활성화. Vulkan에서 `ZEROCOPY_TORCH`를 쓰려면 필수 (§ZEROCOPY (Metal)) |
+| `-Dcraftground.enableCudaInterop=true` | false | Vulkan 디바이스 생성 시 물리 디바이스가 지원하면 `VK_KHR_external_memory_fd`(Linux)/`VK_KHR_external_memory_win32`(Windows)를 활성화. Vulkan+CUDA `ZEROCOPY_TORCH`에 필수 (§ZEROCOPY (CUDA) — **미검증**) |
 
 ## 검증
 
@@ -194,7 +195,7 @@ CraftGround: rendering backend 'Vulkan' -> capture path BLAZE3D (color texture V
 
 ---
 
-## ZEROCOPY (Metal) — GL 포팅 + 확장 활성화 완료, 이미지 import는 아직
+## ZEROCOPY — GL 포팅 완료, Vulkan+Metal 검증 완료, Vulkan+CUDA 구현됨(미검증)
 
 ### GL ZEROCOPY (텍스처 기반)
 
@@ -217,27 +218,189 @@ RAW/PNG와 마찬가지로 FBO가 없다. `glCopyImageSubData`(GL 4.3 core)도 �
 `captureFramebufferZerocopyImpl`, `MinecraftEnv.kt`의 `sendObservation`(초기화 1회 호출 +
 `ipcHandle` 필드 채우기).
 
-### Vulkan + `VK_EXT_metal_objects`: 확장 활성화까지 완료
+### Vulkan + `VK_EXT_metal_objects`: 확장 활성화 + 이미지 import + 매 프레임 복사, 전부 완료
 
-`VulkanBackendMetalExtensionMixin` (client mixin)이 `VulkanBackend`의 private
+`VulkanBackendInteropExtensionMixin` (client mixin — Metal과 CUDA 두 opt-in 확장 세트를 모두 이
+mixin 하나가 처리한다. `@Redirect`는 같은 호출 지점을 두 mixin이 각자 가로채면 충돌하므로,
+아래 CUDA 절과 같은 `@Redirect`를 공유한다)이 `VulkanBackend`의 private
 `createDevice(Collection<String>, VulkanPhysicalDevice, Set<VulkanFeature>)` 호출을
-`@Redirect`로 가로채, 물리 디바이스가 `VK_EXT_metal_objects`를 지원하면 그 확장을
-`deviceExtensions`에 추가한 뒤 원래 메서드를 그대로 호출한다. `@Shadow`로 그 private 메서드를
-직접 호출한다(별도 accessor/invoker 불필요 — mixin이 같은 클래스로 병합되므로).
+`@Redirect`로 가로채, 물리 디바이스가 `VK_EXT_metal_objects`**와**
+`VK_EXT_external_memory_metal`을 모두 지원하면(하나만 있으면 의미가 없어서 이 둘을 함께
+게이팅) 두 확장을 `deviceExtensions`에 추가한 뒤 원래 메서드를 그대로 호출한다. `@Shadow`로 그
+private 메서드를 직접 호출한다(별도 accessor/invoker 불필요 — mixin이 같은 클래스로 병합되므로).
+실제로 확장을 추가했는지는 `VulkanMetalObjectsState.metalObjectsEnabled`(mixin 패키지 밖의
+평범한 클래스 — Sponge Mixin이 `mixin.*` 패키지의 클래스를 변환된 코드에서 직접 참조하는 것을
+금지하고, mixin 클래스 자신의 필드는 `private`이어야 해서 mixin 안에는 못 둔다)에 기록해,
+`EnvironmentInitializer.checkRenderBackend`가 그 값으로 게이팅을 건다 —
+`DeviceInfo.underlyingExtensions()`나 "Using graphics device extensions" 로그는 이 redirect가
+실제로 `vkCreateDevice`에 넘기는 확장 집합이 아니라 `VulkanBackend`가 redirect 이전에 자체적으로
+만든 로컬 리스트를 반영하므로 신뢰할 수 없다.
 
-**opt-in**: `-Dcraftground.enableMetalObjects=true`가 없으면 이 mixin은 아무것도 바꾸지 않는다
-(기존 `deviceExtensions`를 그대로 넘김). Mojang의 디바이스 생성 경로에 개입하는 가장 위험도
-높은 지점이라, 검증 전까지 기본 Vulkan 실행에 영향을 주지 않도록 게이팅했다.
+**opt-in**: 이 mixin은 `-Dcraftground.enableMetalObjects=true`나
+`-Dcraftground.enableCudaInterop=true` 둘 중 하나라도 없으면 그 경로에 대해서는 아무것도
+바꾸지 않는다 (기존 `deviceExtensions`를 그대로 넘김) — 즉 두 플래그 다 없으면 완전히 no-op이고,
+CUDA 절만 켜져 있어도 Metal 관련 확장은 그대로 추가되지 않는다(반대도 마찬가지). Mojang의
+디바이스 생성 경로에 개입하는 가장 위험도 높은 지점이라, 각 opt-in이 검증 전까지 기본 Vulkan
+실행에 영향을 주지 않도록 개별적으로 게이팅했다.
 
-**아직 안 한 것**: 확장이 활성화된 이후의 실제 사용 — IOSurface 백업 `MTLTexture`를
-`VkImportMetalTextureInfoEXT`로 `VkImage`로 import하고, 매 프레임 `vkCmdCopyImage`로 MC의
-color image를 그리로 복사하는 것. 이건 네이티브 Vulkan 코드가 필요한 별도 작업이고, LWJGL에
-`VK_EXT_metal_objects` 바인딩이 있는지부터 확인해야 한다. mach port를 Python에 넘기는 마지막
-단계는 기존 경로(`createMachPortForIOSurface` / `observation_converter.py:254`의
-`initialize_from_mach_port`)를 그대로 재사용할 수 있을 것으로 보인다 — Python 쪽은 IOSurface가
-어느 API로 채워졌는지 신경 쓰지 않기 때문이다.
+**실제 zerocopy 데이터 경로 (`VulkanMetalZerocopy.kt`, client 소스셋)**:
 
-### 걸림돌이었던 사실 (여전히 유효): MC가 `VK_EXT_metal_objects`를 기본으로 켜지 않는다
+1. 최초 1회(`initialize`): `createSharedIOSurface`로 IOSurface를 만들고,
+   `vkCreateImage`(`pNext = VkExternalMemoryImageCreateInfo{handleTypes =
+   VK_EXTERNAL_MEMORY_HANDLE_TYPE_MTLTEXTURE_BIT_EXT}`)로 외부 메모리용 이미지를 만든 뒤,
+   `vkAllocateMemory`(`pNext = VkImportMetalIOSurfaceInfoEXT{ioSurface = ...}`)로 그 IOSurface를
+   디바이스 메모리로 import해서 `vkBindImageMemory`로 바인딩한다. 그다음 임시 커맨드버퍼로
+   `UNDEFINED → TRANSFER_DST_OPTIMAL` 레이아웃 전환을 한 번 하고 즉시 제출·대기한다. 마지막으로
+   같은 IOSurface의 mach port를 Python에 넘긴다 — GL zerocopy와 동일한
+   `createMachPortForIOSurface`를 재사용(새 JNI 진입점은 mc262 전용
+   `src/main/cpp/vulkan_metal_zerocopy_apple.mm`에 있다).
+2. 매 프레임(`recordCopy`): `VulkanCommandEncoderAccessor`(새 `@Invoker` accessor mixin)로 MC가
+   이미 쓰고 있는 트랜지언트 커맨드버퍼를 얻어, `VK12.vkCmdCopyImage`로 MC의 color image(이미
+   `VK_IMAGE_LAYOUT_GENERAL`)를 우리 이미지로 복사하고, `VulkanCommandEncoder.memoryBarrier`와
+   같은 전체 파이프라인 배리어를 건다. 새 커맨드버퍼나 별도 submit이 필요 없다 — 이 프레임의
+   제출에 얹혀서, `Blaze3dCapture.armFence()`/`awaitPendingFence()`가 이미 기다리는 그 fence가
+   이 복사도 함께 커버한다.
+
+`MinecraftEnv.kt`의 배선은 GL zerocopy와 완전히 대칭이다: `sendObservation`의 초기화 지점과
+`ipcHandle` 대입 두 곳 모두 `captureBackend`로 분기해서 `VulkanMetalZerocopy`
+`FramebufferCapturer` 중 하나를 고른다. `handleBeforeSubmitCapture`도 `ZEROCOPY_TORCH` +
+`BLAZE3D`일 때 `Blaze3dCapture.recordColorReadback` 대신 `VulkanMetalZerocopy.recordCopy`를
+호출하도록 분기됐다 — 이 경로는 CPU 버퍼를 전혀 쓰지 않는다.
+
+**Python 쪽은 정말로 변경이 필요 없었다.** 여전히 `ipc_handle` 바이트를 mach port로만 해석하고,
+IOSurface가 GL 텍스처로 채워졌는지 Vulkan 이미지로 채워졌는지는 신경 쓰지 않는다.
+
+**검증 완료** (2026-07-30, Apple M3 Ultra / MoltenVK 1.4.2, `minecraft-simulator-benchmark`
+하네스): `preferredGraphicsBackend:"vulkan"` + `-Dcraftground.enableMetalObjects=true` +
+`screenEncodingMode=ZEROCOPY_TORCH`로 실행 → mach port 정상 수신 → `initialize_from_mach_port`가
+`mps:0` 텐서 반환 → `env.reset()`/`env.step()` 5회 정상 → 저장한 프레임이 HUD·크로스헤어 포함
+정상 방향(§5의 `blaze3dFlipVertically() == false` 기대와 일치, 뒤집히지 않음). GL zerocopy·
+Vulkan CPU-readback과 동일 경로(회귀 없음)도 이 세션에서 재확인.
+
+**최초 구현에 있었던 버그 세 개 (프로파일링 중 실제로 걸림, 전부 수정됨)**:
+1. **`RenderSystem.getDevice() as VulkanDevice`가 항상 실패** — `RenderSystem.getDevice()`는
+   `GpuDeviceBackend`를 구현하는 게 아니라 그걸 감싸는 concrete 클래스 `GpuDevice`를 반환한다
+   (`VulkanDevice`의 유일한 상위 타입은 `Object`). 이 캐스트는 이론상 한 번도 성공할 수 없는데,
+   초기 스모크 테스트에서는 우연히 걸리지 않다가 프로파일링 중 `ClassCastException`으로 크래시
+   재현됨. `GpuDeviceBackendAccessor` (새 `@Accessor` mixin, `GpuDevice`의 private `backend`
+   필드를 노출)로 실제 백엔드를 언랩해서 고침 — `MinecraftEnv.vulkanDeviceFromRenderSystem()`.
+2. **`vkCmdCopyImage`가 `libMoltenVK.dylib` 안에서 SIGSEGV** — `VulkanMetalZerocopy.initialize()`
+   호출이 `sendObservation()`(submit() *이후*)에만 있었는데, `recordCopy()`를 호출하는
+   `handleBeforeSubmitCapture()`는 submit() *이전*에 실행된다. 그래서 관찰이 시작된 첫 프레임엔
+   `initialize()`가 아직 한 번도 안 돌아 `dstImage`가 0인 채로 `vkCmdCopyImage`가 호출돼
+   네이티브 크래시가 났다. `initialize()` 호출을 `handleBeforeSubmitCapture()`의
+   `recordCopy()` 직전으로 옮겨서 고침 (자체적으로 `ipcHandle` 가드가 있어 매 프레임 호출해도
+   실제 작업은 최초 1회뿐).
+3. **`Blaze3dCapture.readColor()`가 가드 없이 호출됨** — `sendObservation()`의 단일-눈 분기가
+   `captureBackend == BLAZE3D`이기만 하면 무조건 `readColor()`를 호출했는데, ZEROCOPY_TORCH
+   에서는애초에 CPU 리드백을 기록한 적이 없어 `IllegalStateException`으로 크래시. ZEROCOPY_TORCH
+   + BLAZE3D일 때는 GL zerocopy와 동일하게 `ByteString.EMPTY`를 반환하도록 분기 추가 — 실제
+   픽셀은 IOSurface를 통해 Python이 직접 읽으므로 이 필드는 원래도 안 쓰인다.
+
+**레이턴시 프로파일링** (2026-07-30, 같은 하드웨어, 128×128, 150 스텝, warmup 10 스텝,
+`profile_one_config.py`로 config별 완전히 새 프로세스에서 측정 — Python 쪽 wall-clock
+`env.step()` 처리량):
+
+| 경로 | steps/sec |
+|---|---|
+| Vulkan CPU-readback (RAW) | 94.43 |
+| **Vulkan+Metal ZEROCOPY** | **105.86** |
+| GL ZEROCOPY (베이스라인) | 92.87 |
+
+Vulkan+Metal ZEROCOPY가 Vulkan CPU-readback 대비 약 12% 빠르고, 기존 GL ZEROCOPY보다도 약간
+빠르다 — CPU 왕복을 실제로 건너뛰는 게 측정 가능한 이득으로 나타난다. 다만 이건 이 머신에서의
+단발 측정이고(반복측정/분산 없음), Java 쪽 `SendObservation` 스팬 세부 프로파일
+(`CRAFTGROUND_JAVA_PROFILE`)은 별도로 뜨지 않았다 — 위 표는 Python wall-clock 처리량만 반영한다.
+
+**미검증/알려진 한계**:
+- Apple Silicon + MoltenVK 한 대에서만 검증됨 — 이 기능은 애초에 Apple 전용 확장
+  (`VK_EXT_metal_objects`/`VK_EXT_external_memory_metal`)이라 다른 플랫폼에서는 존재하지 않는다.
+- `VkExternalMemoryImageCreateInfo` + `VkImportMetalIOSurfaceInfoEXT`의 struct 체이닝(포함
+  `VK_IMAGE_TILING_LINEAR` 선택)은 스펙에서 추론한 것이지 알려진 동작 샘플과 대조하지는
+  않았다 — 실행 결과가 정상이었으므로 이 하드웨어에서는 맞는 것으로 확인됐다.
+- Depth ZEROCOPY는 GL 경로와 마찬가지로 미포팅.
+- 스테레오(`eyeDistance > 0`) + Vulkan ZEROCOPY_TORCH 조합은 다루지 않았다 (`renderEyeAndCapture`가
+  BLAZE3D일 때 여전히 `Blaze3dCapture.captureNow`만 호출) — 기존 GL zerocopy도 스테레오는
+  별도로 검증된 적이 없어 새로 생긴 갭은 아니지만, 명시적으로 막혀 있지도 않다.
+
+### ZEROCOPY (CUDA) — Vulkan+CUDA 이미지/버퍼 interop, 구현됨·**미검증**
+
+Metal 경로가 macOS 전용이므로, 같은 아이디어를 Linux/Windows + NVIDIA에 적용한 대응 경로다.
+**이 개발 환경에는 CUDA 툴킷도, Linux/NVIDIA 하드웨어도 없어서 컴파일(Kotlin/Java 쪽만) 이상은
+전혀 실행해 보지 못했다** — 아래 설계 전체를 실제 하드웨어에서 검증되지 않은 첫 시도로 취급할 것.
+
+**방향이 Metal과 반대다.** Metal에서는 Vulkan이 네이티브로 만든 IOSurface를 *import*한다. CUDA
+경로에서는 Vulkan이 자기 이미지 메모리를 OS 핸들(Linux는 POSIX fd via
+`VK_KHR_external_memory_fd`, Windows는 `HANDLE` via `VK_KHR_external_memory_win32` —
+`VK_KHR_external_memory` 자체는 Vulkan 1.1부터 core라 확장 문자열이 필요 없고, OS 핸들 특화
+확장만 요청하면 된다)으로 *export*하고, CUDA가 그 핸들을 `cudaImportExternalMemory` +
+`cudaExternalMemoryGetMappedMipmappedArray`로 import한다. 이렇게 import된 뷰는
+`cudaIpcGetMemHandle`을 걸 수 없다(그 API는 `cudaMalloc` 포인터에만 동작) — 그래서 GL+CUDA
+zerocopy가 이미 쓰는 것과 똑같은, 별도의 `cudaMalloc`'d 버퍼를 하나 더 두고, 매 프레임
+`cudaMemcpy2DFromArray`로 import된 뷰 → 그 버퍼로 device-to-device 복사한다. Python은 그 버퍼의
+`cudaIpcMemHandle`을 여는다 — GL+CUDA zerocopy와 정확히 같은 와이어 포맷
+(`shared/native-ipc/ipc_cuda.cpp`의 `mtl_tensor_from_cuda_ipc_handle`,
+`observation_converter.py`의 `mtl_tensor_from_cuda_mem_handle`)이라 **Python 쪽은 변경이
+필요 없다** — `len(ipc_handle)`으로 mach port(4바이트)와 CUDA 핸들을 구분하는 기존 분기가 그대로
+CUDA 핸들 크기를 집어간다.
+
+**확장 활성화**: `VulkanBackendInteropExtensionMixin`의 같은 `@Redirect`가
+`-Dcraftground.enableCudaInterop=true`일 때 물리 디바이스가 지원하면(OS별로 `VK_KHR_external_memory_fd`
+또는 `VK_KHR_external_memory_win32`) 그 확장을 추가하고 `VulkanCudaObjectsState.cudaInteropEnabled`를
+켠다. `EnvironmentInitializer.checkRenderBackend`는 Metal 플래그와 이 플래그 중 하나라도 켜져
+있으면 Vulkan + `ZEROCOPY_TORCH`를 허용한다.
+
+**실제 데이터 경로 (`VulkanCudaZerocopy.kt`, client 소스셋)**:
+
+1. 최초 1회(`initialize`): `vkGetPhysicalDeviceProperties2` + `VkPhysicalDeviceIDProperties`로
+   Vulkan 물리 디바이스의 16바이트 `deviceUUID`를 얻는다(멀티 GPU 머신에서 CUDA가 엉뚱한 GPU를
+   잡지 않도록 — 이 UUID를 나중에 네이티브 쪽에서 각 `cudaDeviceProp.uuid`와 비교해 올바른 CUDA
+   디바이스를 고른다). `vkCreateImage`(`pNext = VkExternalMemoryImageCreateInfo{handleTypes =
+   OPAQUE_FD_BIT/OPAQUE_WIN32_BIT}`, `tiling = OPTIMAL` — CUDA는 CPU-visible 포인터가 아니라
+   opaque `cudaMipmappedArray`로 읽으므로 Metal의 IOSurface처럼 LINEAR를 강제할 이유가 없다)로
+   목적지 이미지를 만들고, `vkAllocateMemory`(`pNext = VkExportMemoryAllocateInfo{handleTypes =
+   같은 비트}`)로 export 가능한 메모리를 할당·바인딩한 뒤, 임시 커맨드버퍼로
+   `UNDEFINED → TRANSFER_DST_OPTIMAL` 전환을 하고(Metal 경로와 동일), `vkGetMemoryFdKHR`/
+   `vkGetMemoryWin32HandleKHR`로 그 메모리의 OS 핸들을 뽑는다. 그 핸들 + `deviceUUID` + 크기를
+   네이티브(`vulkan_cuda_zerocopy.cpp`)로 넘겨 `cudaImportExternalMemory` →
+   `cudaExternalMemoryGetMappedMipmappedArray` → 레벨 0 `cudaArray_t`를 얻고, 별도로
+   `cudaMalloc` + `cudaIpcGetMemHandle`로 Python에 넘길 버퍼를 만든다.
+2. 매 프레임(`recordCopy`): Metal 경로와 동일하게 `VulkanCommandEncoderAccessor`로 얻은
+   커맨드버퍼에 `VK12.vkCmdCopyImage`로 MC의 color image를 이 목적지 이미지로 복사하고 전체
+   파이프라인 배리어를 건다.
+3. **Metal에는 없는 단계** — fence 이후(`syncAfterFence`): Python이 읽는 버퍼는 Vulkan이 방금
+   쓴 이미지와 다른 별도 할당이므로, `Blaze3dCapture.awaitPendingFence()`로 이번 프레임의
+   `vkCmdCopyImage` 제출이 끝났다는 게 확인된 *후에* `cudaMemcpy2DFromArray`로 device-to-device
+   복사를 한 번 더 해야 한다. `MinecraftEnv.sendObservation()`의 ZEROCOPY_TORCH+BLAZE3D 단일-눈
+   분기에서 `ByteString.EMPTY`를 반환하기 직전에 이 호출이 들어간다.
+
+`VulkanZerocopy.kt`가 Metal/CUDA 두 백엔드를 감싸는 얇은 파사드다 — `MinecraftEnv.kt`의 호출부는
+어느 쪽이 활성화됐는지 몰라도 된다(`VulkanMetalObjectsState`/`VulkanCudaObjectsState` 플래그로
+분기).
+
+**미검증 항목 (전부)**:
+- `VkExternalMemoryImageCreateInfo`/`VkExportMemoryAllocateInfo` + `vkGetMemoryFdKHR`/
+  `vkGetMemoryWin32HandleKHR` 체이닝 자체가 실제 Vulkan 구현(NVIDIA/Mesa 드라이버)에서 동작하는지.
+- `cudaImportExternalMemory`가 그 fd/HANDLE을 실제로 받아들이는지, `cudaExternalMemoryHandleDesc`의
+  `size`/`flags` 설정이 충분한지(dedicated allocation 정보를 안 실었다 — Metal 쪽도 마찬가지로
+  생략).
+- `deviceUUID` 매칭 로직(`vulkan_cuda_zerocopy.cpp`의 `findMatchingCudaDevice`)이 실제 멀티 GPU
+  머신에서 올바른 디바이스를 고르는지. 매칭 실패 시에는 디바이스 0으로 폴백하지 않고 fail-closed
+  (`-1` 반환 → `initialize` 실패)하도록 고쳐져 있다 — 멀티 GPU 머신에서 잘못된 디바이스를 골라
+  invalid access나 조용한 오작동을 일으키느니, 초기화 실패로 명확히 드러나는 쪽을 택함.
+- `cudaMemcpy2DFromArray`를 fence 완료 직후, 그것도 동기적으로 실행하는 게 충분한지 — 이상적으로는
+  Vulkan→CUDA 세마포어 import(`VK_KHR_external_semaphore` + `cudaExternalSemaphore`)로
+  GPU 큐 레벨에서 동기화하는 게 맞지만, 여기서는 CPU 쪽 fence 대기(`awaitPendingFence`)로 충분하다고
+  가정했다 — 검증되지 않음.
+- Windows(`VK_KHR_external_memory_win32`/`cudaExternalMemoryHandleTypeOpaqueWin32`) 경로는
+  Linux(`_fd`/`OpaqueFd`) 경로와 대칭으로 작성만 했을 뿐 더더욱 검증되지 않았다.
+- Depth ZEROCOPY, 스테레오 조합 미포팅은 Metal 경로와 동일한 한계.
+
+관련 파일: `VulkanCudaObjectsState.java`, `VulkanCudaZerocopy.kt`, `VulkanZerocopy.kt`,
+`mixin/VulkanBackendInteropExtensionMixin.java`, `src/main/cpp/vulkan_cuda_zerocopy.cpp`
+(CMake `CUDAToolkit_FOUND` 분기에 추가).
+
+### MC가 `VK_EXT_metal_objects`/CUDA 확장을 기본으로 켜지 않는다는 사실 (여전히 유효)
 
 `VulkanBackend.java:59`의 필수 확장 목록은 이게 전부다:
 
@@ -248,28 +411,7 @@ VK_EXT_vertex_attribute_divisor, VK_KHR_swapchain
 
 여기에 조건부로 `VK_KHR_portability_subset`(macOS), `VK_AMD_buffer_marker` /
 `VK_NV_device_diagnostic_checkpoints`, `VK_EXT_multi_draw`가 붙는다
-(`VulkanBackend.java:147-160`).
-
-`VK_EXT_metal_objects`가 없으므로 `vkExportMetalObjectsEXT`도, 이미지 생성 시
-`VkImportMetalTextureInfoEXT`도 쓸 수 없다. **디바이스 생성 시점에 활성화돼 있어야 하는
-확장**이라 사후에 끼워넣을 수 없다.
-
-### 남은 구현 스케치
-
-1. ~~`VulkanBackend`의 `deviceExtensions` 리스트에 `VK_EXT_metal_objects`를 주입하는 mixin~~ —
-   완료 (`VulkanBackendMetalExtensionMixin`, opt-in).
-2. IOSurface 백업 MTLTexture를 만들고 (`shared-native/gl-capture/framebuffer_capturer_apple.mm`의
-   `createSharedIOSurface`가 이미 한다), 그걸 `VkImage`로 import.
-3. 매 프레임 `vkCmdCopyImage`로 MC의 color image → 우리 이미지.
-4. mach port를 Python으로 전달 — **기존 경로 그대로**
-   (`framebuffer_capturer_apple.mm`의 `createMachPortForIOSurface`,
-   `src/craftground/environment/observation_converter.py:254`의 `initialize_from_mach_port`).
-
-**Python 쪽은 변경이 필요 없다.** 지금도 `ipc_handle` 바이트를 mach port로만 해석하고,
-IOSurface가 어느 API로 채워졌는지는 신경 쓰지 않는다.
-
-### 남은 선행 작업 순서
-
-1. ~~mc262 GL ZEROCOPY 포팅 (W3) — texture 기반으로 IOSurface 채우기~~ — 완료.
-2. ~~Vulkan + `VK_EXT_metal_objects` mixin~~ — 완료 (opt-in, 기본 off).
-3. 위 2~4단계 (이미지 import, `vkCmdCopyImage`, mach port 전달) — 미착수.
+(`VulkanBackend.java:147-160`). `VK_EXT_metal_objects`/`VK_EXT_external_memory_metal`도
+`VK_KHR_external_memory_fd`/`_win32`도 여전히 기본 목록에 없다 — **디바이스 생성 시점에 활성화돼
+있어야 하는 확장**이라 사후에 끼워넣을 수 없고, `VulkanBackendInteropExtensionMixin`의 opt-in
+redirect가 유일한 활성화 경로다.

@@ -21,7 +21,9 @@
 		"LevelLoadTrackerMixin",
 		"PacketProcessorQueueAccessor",
 		"RenderMixin",
-		"VulkanBackendMetalExtensionMixin"
+		"VulkanBackendInteropExtensionMixin",
+		"VulkanCommandEncoderAccessor",
+		"GpuDeviceBackendAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

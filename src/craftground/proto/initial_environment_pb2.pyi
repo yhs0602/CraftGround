@@ -39,6 +39,18 @@ LARGE_BIOMES: WorldType
 AMPLIFIED: WorldType
 SINGLE_BIOME: WorldType
 
+class HandshakeAck(_message.Message):
+    __slots__ = ("protocol_version", "minecraft_version", "render_backend", "capabilities")
+    PROTOCOL_VERSION_FIELD_NUMBER: _ClassVar[int]
+    MINECRAFT_VERSION_FIELD_NUMBER: _ClassVar[int]
+    RENDER_BACKEND_FIELD_NUMBER: _ClassVar[int]
+    CAPABILITIES_FIELD_NUMBER: _ClassVar[int]
+    protocol_version: int
+    minecraft_version: str
+    render_backend: str
+    capabilities: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, protocol_version: _Optional[int] = ..., minecraft_version: _Optional[str] = ..., render_backend: _Optional[str] = ..., capabilities: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class LidarConfig(_message.Message):
     __slots__ = ("horizontal_rays", "max_distance", "vertical_angle", "vertical_rays", "vertical_fov")
     HORIZONTAL_RAYS_FIELD_NUMBER: _ClassVar[int]
@@ -54,7 +66,7 @@ class LidarConfig(_message.Message):
     def __init__(self, horizontal_rays: _Optional[int] = ..., max_distance: _Optional[float] = ..., vertical_angle: _Optional[float] = ..., vertical_rays: _Optional[int] = ..., vertical_fov: _Optional[float] = ...) -> None: ...
 
 class InitialEnvironmentMessage(_message.Message):
-    __slots__ = ("imageSizeX", "imageSizeY", "gamemode", "difficulty", "worldType", "worldTypeArgs", "seed", "generate_structures", "bonus_chest", "datapackPaths", "initialExtraCommands", "killedStatKeys", "minedStatKeys", "miscStatKeys", "surroundingEntityDistances", "hudHidden", "render_distance", "simulation_distance", "eye_distance", "structurePaths", "no_fov_effect", "request_raycast", "screen_encoding_mode", "requiresSurroundingBlocks", "level_display_name_to_play", "fov", "requiresBiomeInfo", "requiresHeightmap", "python_pid", "requiresDepth", "requiresDepthConversion", "resourceZipPath", "blockCollisionKeys", "entityCollisionKeys", "map_dir_path", "lidar_config")
+    __slots__ = ("imageSizeX", "imageSizeY", "gamemode", "difficulty", "worldType", "worldTypeArgs", "seed", "generate_structures", "bonus_chest", "datapackPaths", "initialExtraCommands", "killedStatKeys", "minedStatKeys", "miscStatKeys", "surroundingEntityDistances", "hudHidden", "render_distance", "simulation_distance", "eye_distance", "structurePaths", "no_fov_effect", "request_raycast", "screen_encoding_mode", "requiresSurroundingBlocks", "level_display_name_to_play", "fov", "requiresBiomeInfo", "requiresHeightmap", "python_pid", "requiresDepth", "requiresDepthConversion", "resourceZipPath", "blockCollisionKeys", "entityCollisionKeys", "map_dir_path", "lidar_config", "protocol_version")
     IMAGESIZEX_FIELD_NUMBER: _ClassVar[int]
     IMAGESIZEY_FIELD_NUMBER: _ClassVar[int]
     GAMEMODE_FIELD_NUMBER: _ClassVar[int]
@@ -91,6 +103,7 @@ class InitialEnvironmentMessage(_message.Message):
     ENTITYCOLLISIONKEYS_FIELD_NUMBER: _ClassVar[int]
     MAP_DIR_PATH_FIELD_NUMBER: _ClassVar[int]
     LIDAR_CONFIG_FIELD_NUMBER: _ClassVar[int]
+    PROTOCOL_VERSION_FIELD_NUMBER: _ClassVar[int]
     imageSizeX: int
     imageSizeY: int
     gamemode: GameMode
@@ -127,4 +140,5 @@ class InitialEnvironmentMessage(_message.Message):
     entityCollisionKeys: _containers.RepeatedScalarFieldContainer[str]
     map_dir_path: str
     lidar_config: LidarConfig
-    def __init__(self, imageSizeX: _Optional[int] = ..., imageSizeY: _Optional[int] = ..., gamemode: _Optional[_Union[GameMode, str]] = ..., difficulty: _Optional[_Union[Difficulty, str]] = ..., worldType: _Optional[_Union[WorldType, str]] = ..., worldTypeArgs: _Optional[str] = ..., seed: _Optional[str] = ..., generate_structures: bool = ..., bonus_chest: bool = ..., datapackPaths: _Optional[_Iterable[str]] = ..., initialExtraCommands: _Optional[_Iterable[str]] = ..., killedStatKeys: _Optional[_Iterable[str]] = ..., minedStatKeys: _Optional[_Iterable[str]] = ..., miscStatKeys: _Optional[_Iterable[str]] = ..., surroundingEntityDistances: _Optional[_Iterable[int]] = ..., hudHidden: bool = ..., render_distance: _Optional[int] = ..., simulation_distance: _Optional[int] = ..., eye_distance: _Optional[float] = ..., structurePaths: _Optional[_Iterable[str]] = ..., no_fov_effect: bool = ..., request_raycast: bool = ..., screen_encoding_mode: _Optional[int] = ..., requiresSurroundingBlocks: bool = ..., level_display_name_to_play: _Optional[str] = ..., fov: _Optional[float] = ..., requiresBiomeInfo: bool = ..., requiresHeightmap: bool = ..., python_pid: _Optional[int] = ..., requiresDepth: bool = ..., requiresDepthConversion: bool = ..., resourceZipPath: _Optional[str] = ..., blockCollisionKeys: _Optional[_Iterable[str]] = ..., entityCollisionKeys: _Optional[_Iterable[str]] = ..., map_dir_path: _Optional[str] = ..., lidar_config: _Optional[_Union[LidarConfig, _Mapping]] = ...) -> None: ...
+    protocol_version: int
+    def __init__(self, imageSizeX: _Optional[int] = ..., imageSizeY: _Optional[int] = ..., gamemode: _Optional[_Union[GameMode, str]] = ..., difficulty: _Optional[_Union[Difficulty, str]] = ..., worldType: _Optional[_Union[WorldType, str]] = ..., worldTypeArgs: _Optional[str] = ..., seed: _Optional[str] = ..., generate_structures: bool = ..., bonus_chest: bool = ..., datapackPaths: _Optional[_Iterable[str]] = ..., initialExtraCommands: _Optional[_Iterable[str]] = ..., killedStatKeys: _Optional[_Iterable[str]] = ..., minedStatKeys: _Optional[_Iterable[str]] = ..., miscStatKeys: _Optional[_Iterable[str]] = ..., surroundingEntityDistances: _Optional[_Iterable[int]] = ..., hudHidden: bool = ..., render_distance: _Optional[int] = ..., simulation_distance: _Optional[int] = ..., eye_distance: _Optional[float] = ..., structurePaths: _Optional[_Iterable[str]] = ..., no_fov_effect: bool = ..., request_raycast: bool = ..., screen_encoding_mode: _Optional[int] = ..., requiresSurroundingBlocks: bool = ..., level_display_name_to_play: _Optional[str] = ..., fov: _Optional[float] = ..., requiresBiomeInfo: bool = ..., requiresHeightmap: bool = ..., python_pid: _Optional[int] = ..., requiresDepth: bool = ..., requiresDepthConversion: bool = ..., resourceZipPath: _Optional[str] = ..., blockCollisionKeys: _Optional[_Iterable[str]] = ..., entityCollisionKeys: _Optional[_Iterable[str]] = ..., map_dir_path: _Optional[str] = ..., lidar_config: _Optional[_Union[LidarConfig, _Mapping]] = ..., protocol_version: _Optional[int] = ...) -> None: ...

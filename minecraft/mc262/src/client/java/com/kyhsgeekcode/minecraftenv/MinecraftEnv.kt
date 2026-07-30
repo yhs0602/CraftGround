@@ -88,10 +88,17 @@ enum class IOPhase {
  * backend-neutral readback - see Blaze3dCapture.CaptureBackend and
  * docs/26_2_vulkan_capture.md.
  *
- * Still unported: the ZEROCOPY_TORCH screen encoding, which needs the same texture-based native
- * rewrite the RGB and depth paths already got (26.2 has no FBO integer to hand to
- * initializeZeroCopy anymore). It fails loudly rather than silently producing garbage. Everything
- * else - single-eye and stereo color capture, depth capture - is ported and verified end to end.
+ * ZEROCOPY_TORCH is implemented on both backends: OpenGL via FramebufferCapturer's texture-based
+ * IOSurface path (verified end to end), Vulkan via VulkanZerocopy - VulkanMetalZerocopy's
+ * VK_EXT_metal_objects import on Apple (opt-in behind -Dcraftground.enableMetalObjects=true,
+ * verified) or VulkanCudaZerocopy's VK_KHR_external_memory_fd/win32 + CUDA import on Linux/Windows
+ * (opt-in behind -Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in
+ * this dev environment; see docs/26_2_vulkan_capture.md for both paths' verification status).
+ * EnvironmentInitializer fails loudly rather than silently producing garbage if ZEROCOPY_TORCH is
+ * requested on Vulkan without one of those flags. Single-eye and stereo color capture (RAW/PNG/
+ * ZEROCOPY_TORCH) are ported and verified end to end on both backends. Depth capture is CPU-readback
+ * only - it is out of scope for ZEROCOPY_TORCH on every backend, including OpenGL - but is otherwise
+ * ported and verified end to end on both backends the same way color RAW/PNG is.
  */
 class MinecraftEnv :
     ClientModInitializer,
@@ -241,7 +248,7 @@ class MinecraftEnv :
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
         resetPhase = ResetPhase.WAIT_INIT_ENDS
         csvLogger.log("Initial environment read; $ioPhase $resetPhase")
-        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger)
+        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger, messageIO)
         ClientTickEvents.START_CLIENT_TICK.register(
             ClientTickEvents.StartTick { client: Minecraft ->
                 printWithTime("Start Client tick")
@@ -542,17 +549,54 @@ class MinecraftEnv :
     }
 
     /**
+     * `RenderSystem.getDevice()` always returns the concrete `GpuDevice` wrapper class - it
+     * composes a `GpuDeviceBackend` rather than being implemented by one (`VulkanDevice`'s only
+     * supertype is `Object`) - so `RenderSystem.getDevice() as VulkanDevice` can never succeed.
+     * [com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor] exposes the private `backend`
+     * field GpuDevice actually wraps, which is a `VulkanDevice` whenever the capture backend is
+     * BLAZE3D - callers only reach this after already checking that.
+     */
+    private fun vulkanDeviceFromRenderSystem(): com.mojang.blaze3d.vulkan.VulkanDevice {
+        val accessor =
+            com.mojang.blaze3d.systems.RenderSystem
+                .getDevice() as com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
+        return accessor.backend as com.mojang.blaze3d.vulkan.VulkanDevice
+    }
+
+    /**
      * Records this frame's color readback and arms the fence, on the backend-neutral capture path
      * only. Skipped for stereo, which discards this frame and re-renders per eye
-     * ([renderEyeAndCapture] does its own record/arm/submit), and for ZEROCOPY_TORCH, which doesn't
-     * go through a readback buffer at all.
+     * ([renderEyeAndCapture] does its own record/arm/submit). For ZEROCOPY_TORCH on Vulkan, this
+     * records [VulkanZerocopy.recordCopy] instead of a CPU readback; on OpenGL, ZEROCOPY_TORCH
+     * doesn't go through this hook at all (see [FramebufferCapturer.captureFramebuffer]).
      */
     private fun handleBeforeSubmitCapture() {
         if (pendingObservationWorld == null) return
-        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) return
         val client = Minecraft.getInstance()
         val colorTexture = client.gameRenderer.mainRenderTarget().colorTexture ?: return
         if (Blaze3dCapture.backendFor(colorTexture) != Blaze3dCapture.CaptureBackend.BLAZE3D) {
+            return
+        }
+        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
+            val device = vulkanDeviceFromRenderSystem()
+            // Must run here, not in sendObservation(): this hook fires before submit(), while
+            // sendObservation() (which used to own this call) only runs after it, in the same
+            // frame - so on the very first observation frame, recordCopy() would otherwise see
+            // dstImage still 0 and segfault inside MoltenVK's vkCmdCopyImage. initialize() is
+            // idempotent (guarded by ipcHandle), so this is a no-op on every later frame.
+            VulkanZerocopy.initialize(
+                device,
+                initialEnvironment.imageSizeX,
+                initialEnvironment.imageSizeY,
+                initialEnvironment.pythonPid,
+            )
+            VulkanZerocopy.recordCopy(
+                device,
+                colorTexture as com.mojang.blaze3d.vulkan.VulkanGpuTexture,
+                initialEnvironment.imageSizeX,
+                initialEnvironment.imageSizeY,
+            )
+            Blaze3dCapture.armFence()
             return
         }
         if (initialEnvironment.eyeDistance <= 0) {
@@ -692,13 +736,18 @@ class MinecraftEnv :
             }
         }
         if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
-            // EnvironmentInitializer.checkRenderBackend already fails fast if this isn't OpenGL.
-            // Guarded by ipcHandle inside initializeZeroCopy, so this only does real work once.
-            FramebufferCapturer.initializeZeroCopy(
-                initialEnvironment.imageSizeX,
-                initialEnvironment.imageSizeY,
-                initialEnvironment.pythonPid,
-            )
+            // EnvironmentInitializer.checkRenderBackend already fails fast unless this is OpenGL,
+            // or Vulkan with VK_EXT_metal_objects/VK_EXT_external_memory_metal actually enabled.
+            // On the BLAZE3D path, initialize() already ran from handleBeforeSubmitCapture() -
+            // it has to happen before the first submit(), not here, after it - so there is
+            // nothing to do for that case at this point.
+            if (captureBackend != Blaze3dCapture.CaptureBackend.BLAZE3D) {
+                FramebufferCapturer.initializeZeroCopy(
+                    initialEnvironment.imageSizeX,
+                    initialEnvironment.imageSizeY,
+                    initialEnvironment.pythonPid,
+                )
+            }
         }
 
         // W11 (26_2_phase2_plan.md §1.3/§6.3 Seam A) proposed reading numeric observations off the
@@ -761,7 +810,20 @@ class MinecraftEnv :
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString",
                 )
                 imageByteString1 =
-                    if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
+                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH &&
+                        captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D
+                    ) {
+                        // No CPU readback was recorded for this frame (handleBeforeSubmitCapture
+                        // called VulkanZerocopy.recordCopy instead) - the pixels went straight to
+                        // the shared surface/buffer Python reads via ipcHandle, same as GL
+                        // zerocopy's FramebufferCapturer.captureFramebuffer returning EMPTY here.
+                        // syncAfterFence() is a no-op on Metal (Python reads the IOSurface
+                        // directly) but on CUDA does the device-to-device copy into the
+                        // IPC-shared buffer - it must run after handlePresentCapture()'s
+                        // awaitPendingFence(), which by this point has already happened.
+                        VulkanZerocopy.syncAfterFence()
+                        ByteString.EMPTY
+                    } else if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
                         // The copy was already recorded before this frame's submit() and waited on
                         // in handlePresentCapture(); this only maps and converts it.
                         Blaze3dCapture.readColor(
@@ -775,8 +837,8 @@ class MinecraftEnv :
                     } else {
                         FramebufferCapturer.captureFramebuffer(
                             (colorTexture as com.mojang.blaze3d.opengl.GlTexture).glId(),
-                            // frameBufferId: unused by the RAW/PNG path (texture-based on 26.2, see
-                            // W3); only the still-unported ZEROCOPY_TORCH path would read this.
+                            // frameBufferId: unused - both RAW/PNG and ZEROCOPY_TORCH are
+                            // texture-based on 26.2's OpenGL backend (see W3).
                             0,
                             mainRenderTarget.width,
                             mainRenderTarget.height,
@@ -987,7 +1049,12 @@ class MinecraftEnv :
                     isOnGround = player.onGround()
                     isTouchingWater = player.isInWater
                     if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
-                        ipcHandle = FramebufferCapturer.ipcHandle
+                        ipcHandle =
+                            if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
+                                VulkanZerocopy.ipcHandle
+                            } else {
+                                FramebufferCapturer.ipcHandle
+                            }
                     }
                     if (initialEnvironment.requiresDepth) {
                         // On the backend-neutral path the depth mixin only *recorded* the copy;

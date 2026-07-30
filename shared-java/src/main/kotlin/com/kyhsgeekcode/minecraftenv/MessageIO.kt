@@ -19,6 +19,13 @@ interface MessageIO {
 
     fun readInitialEnvironment(): InitialEnvironment.InitialEnvironmentMessage
 
+    /**
+     * Sent once per session, right after [readInitialEnvironment] succeeds, so Python can reject
+     * an incompatible server immediately instead of hanging on the first read_observation() call
+     * or finding out only when Java crashes mid-init (docs/26_2_MigrationPlan.md item (f)).
+     */
+    fun writeHandshakeAck(ack: InitialEnvironment.HandshakeAck)
+
     fun writeObservation(observation: com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.ObservationSpaceMessage)
 }
 
@@ -65,6 +72,15 @@ class TCPSocketMessageIO(
                 throw RuntimeException(e)
             }
         }
+    }
+
+    override fun writeHandshakeAck(ack: InitialEnvironment.HandshakeAck) {
+        printWithTime("Writing handshake ack with size ${ack.serializedSize}")
+        val dataOutputStream = LittleEndianDataOutputStream(outputStream)
+        dataOutputStream.writeInt(ack.serializedSize)
+        ack.writeTo(outputStream)
+        outputStream.flush()
+        printWithTime("Flushed handshake ack")
     }
 
     override fun writeObservation(observationSpace: ObservationSpace.ObservationSpaceMessage) {
@@ -122,6 +138,21 @@ class DomainSocketMessageIO(
                 throw RuntimeException(e)
             }
         }
+    }
+
+    override fun writeHandshakeAck(ack: InitialEnvironment.HandshakeAck) {
+        printWithTime("Writing handshake ack with size ${ack.serializedSize}")
+        val bufferSize = 4 + ack.serializedSize
+        val buffer = ByteBuffer.allocate(bufferSize).order(ByteOrder.LITTLE_ENDIAN)
+        buffer.putInt(ack.serializedSize)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        ack.writeTo(byteArrayOutputStream)
+        buffer.put(byteArrayOutputStream.toByteArray())
+        buffer.flip()
+        while (buffer.hasRemaining()) {
+            socketChannel.write(buffer)
+        }
+        printWithTime("Flushed handshake ack")
     }
 
     override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) {
@@ -185,6 +216,15 @@ class NamedPipeMessageIO(
         }
     }
 
+    override fun writeHandshakeAck(ack: InitialEnvironment.HandshakeAck) {
+        FileOutputStream(writePipePath).use { fos ->
+            LittleEndianDataOutputStream(fos).use { dos ->
+                dos.writeInt(ack.serializedSize)
+                ack.writeTo(dos)
+            }
+        }
+    }
+
     override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) {
         FileOutputStream(writePipePath).use { fos ->
             LittleEndianDataOutputStream(fos).use { dos ->
@@ -211,6 +251,14 @@ class SharedMemoryMessageIO(
 
     override fun readInitialEnvironment(): InitialEnvironment.InitialEnvironmentMessage =
         FramebufferCapturer.readInitialEnvironment(p2jMemoryName, port)
+
+    // Writes the ack as a one-off payload on the j2p channel, reusing the same generic
+    // byte-write path as writeObservation. BoostIPC (Python) consumes exactly one such payload
+    // via read_from_shared_memory before it starts treating j2p reads as observations - see
+    // docs/26_2_MigrationPlan.md item (f).
+    override fun writeHandshakeAck(ack: InitialEnvironment.HandshakeAck) {
+        FramebufferCapturer.writeHandshakeAck(p2jMemoryName, j2pMemoryName, ack)
+    }
 
     override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) =
         FramebufferCapturer.writeObservation(p2jMemoryName, j2pMemoryName, observation)

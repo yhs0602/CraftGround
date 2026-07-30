@@ -8,7 +8,8 @@ from ..proto.observation_space_pb2 import ObservationSpaceMessage
 from ..csv_logger import CsvLogger
 from ..environment.ipc_interface import IPCInterface
 from ..proto.action_space_pb2 import ActionSpaceMessageV2
-from ..proto.initial_environment_pb2 import InitialEnvironmentMessage
+from ..proto.initial_environment_pb2 import HandshakeAck, InitialEnvironmentMessage
+from ..protocol_version import validate_handshake_ack
 
 # Torch should be imported first before craftground_native to avoid segfaults
 try:
@@ -37,6 +38,7 @@ class BoostIPC(IPCInterface):
     ):
         self.port = port
         self.logger = logger
+        self.initial_environment = initial_environment
         initial_environment_bytes: bytes = initial_environment.SerializeToString()
 
         # Get the length of the action space message
@@ -103,6 +105,18 @@ class BoostIPC(IPCInterface):
         self.logger.log(f"Sending action to shared memory: {len(v)} bytes")
         write_to_shared_memory(self.p2j_shared_memory_name, v, len(v))
 
+    def _read_handshake_ack(self) -> HandshakeAck:
+        # Java writes exactly one HandshakeAck payload over the same j2p channel/protocol as a
+        # real observation (SharedMemoryMessageIO.writeHandshakeAck reuses writeObservationImpl),
+        # so this consumes it with the same read_from_shared_memory call used by
+        # read_observation(), before the caller starts treating j2p reads as observations.
+        data_bytes = read_from_shared_memory(
+            self.p2j_shared_memory_name, self.j2p_shared_memory_name
+        )
+        ack = HandshakeAck()
+        ack.ParseFromString(data_bytes)
+        return ack
+
     def start_communication(self, server_event: threading.Event):
         # wait until the j2p shared memory is created
         wait_time = 1
@@ -122,6 +136,13 @@ class BoostIPC(IPCInterface):
         self.logger.log(
             f"Java process created shared memory {self.j2p_shared_memory_name}"
         )
+        ack = self._read_handshake_ack()
+        self.logger.log(
+            f"Received handshake ack: protocol_version={ack.protocol_version} "
+            f"minecraft_version={ack.minecraft_version} render_backend={ack.render_backend} "
+            f"capabilities={list(ack.capabilities)}"
+        )
+        validate_handshake_ack(ack, self.initial_environment.screen_encoding_mode)
 
     def __del__(self):
         self.destroy()

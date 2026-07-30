@@ -243,4 +243,18 @@ object FramebufferCapturer {
     ) {
         writeObservationImpl(p2jMemoryName, j2pMemoryName, observationData.toByteArray())
     }
+
+    // writeObservationImpl's native side (write_observation in shared-native/gl-capture) just
+    // copies arbitrary bytes into the j2p shared-memory region under the same p2j-mutex-guarded
+    // handshake it uses for real observations - it has no observation-specific framing. That
+    // makes it reusable as-is to deliver a one-off HandshakeAck over the same channel: Python's
+    // BoostIPC now consumes exactly one such payload via read_from_shared_memory before entering
+    // its normal read_observation loop (docs/26_2_MigrationPlan.md item (f)).
+    fun writeHandshakeAck(
+        p2jMemoryName: String,
+        j2pMemoryName: String,
+        ack: InitialEnvironment.HandshakeAck,
+    ) {
+        writeObservationImpl(p2jMemoryName, j2pMemoryName, ack.toByteArray())
+    }
 }

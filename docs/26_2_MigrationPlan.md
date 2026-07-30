@@ -1,4 +1,4 @@
-진행 상황 (2026-07-25 기준)
+진행 상황 (2026-07-30 기준)
 
 완료됨
 
@@ -6,6 +6,8 @@
 * Python core/runtime 패키지 분리 — 최상위 pyproject.toml이 core craftground 패키지를 빌드하고, minecraft/mc121/pyproject.toml·minecraft/mc262/pyproject.toml이 각각 craftground-runtime-mc121/craftground-runtime-mc262를 별도 배포합니다. src/craftground/environment/runtime_packages.py가 mc_version → 런타임 패키지명을 매핑해 importlib.resources로 설치된 런타임을 탐색하며, craftground.make(mc_version=...)에서 그대로 사용됩니다. → 4장 core/runtime 분리 권고.
 * CI 런타임 패키지 matrix 빌드 — .github/workflows/publish-build-runtime-packages.yml이 mc_dir: [minecraft/mc121, minecraft/mc262] matrix로 각 런타임 패키지의 sdist/wheel을 빌드하고, publish-upload.yml이 이를 다른 배포 job들과 함께 오케스트레이션합니다. PyPI 업로드는 런타임 패키지가 매 릴리스마다 버전업되지 않는 점을 감안해 skip-existing으로 처리됩니다. → 8장 CI/CD 전략 중 일부.
 * mc262 mappings 방식 확정 — minecraft/mc262/build.gradle에는 의도적으로 mappings 블록이 없습니다. Fabric 공식 문서가 26.2 개발에는 Yarn 대신 Mojang 공식 매핑(Mojmap) 사용을 권고하고 있어, mc121(Yarn)과 달리 mc262는 Mojang 매핑을 그대로 사용하기로 확정된 것입니다.
+* (f) Protocol handshake 추가 — proto/initial_environment.proto에 InitialEnvironmentMessage.protocol_version 필드와 HandshakeAck 메시지(protocol_version/minecraft_version/render_backend/capabilities)를 추가했습니다. Java는 MessageIO.writeHandshakeAck를 통해 초기 환경 메시지를 읽은 직후(세션당 1회) 이를 전송합니다 — mc262는 EnvironmentInitializer.checkRenderBackend에서 실제 캡처 백엔드가 확정되는 시점에, mc121은 MinecraftEnv.onInitializeClient에서 readInitialEnvironment 직후에 보냅니다. Python은 SocketIPC.start_communication에서 initial environment 전송 직후 이를 읽어 craftground.protocol_version.validate_handshake_ack로 검증하고, 버전이 다르면 ProtocolVersionMismatchError를 즉시 발생시켜 서버가 응답하지 않거나 나중에 크래시할 때까지 기다리지 않습니다. 단, TCP/Unix 도메인 소켓 경로에만 적용되어 있고, BoostIPC(공유 메모리) 경로는 SharedMemoryMessageIO.writeHandshakeAck가 no-op로 남아있습니다(대응하는 Python 쪽 사전 read 단계가 없어 j2p 채널의 첫 관찰값을 깨뜨릴 위험이 있음 — 후속 작업으로 문서화).
+* (g) 빌드/CI 오케스트레이션 정리 — dev_tools.sh에 build_mod/build_mods/build_native_ipc/assemble_runtime_packages/protocol_tests/build_all 함수를 추가해 CI에 이미 흩어져 있던 단계(gradle.yml의 mc121/mc262 matrix, publish-build-runtime-packages.yml의 mc_dir matrix, python-ci.yml의 cpp extension 빌드)를 로컬에서 protocol-tests → build-mod-mc121/mc262 → build-native-ipc → assemble-runtime-packages 순서로 한 번에 실행할 수 있게 했습니다. 확인 결과 CI 자체(gradle.yml의 gradle_build_mc262, dependency-submission, publish-build-runtime-packages.yml)는 이미 두 버전을 매트릭스로 빌드하고 있었고, dev_tools.sh의 generate_proto 역시 애초에 mc121 전용이 아니라 공통 shared-java 출력을 만들고 있었습니다 — 실제로 빠져 있던 것은 로컬에서 이 단계들을 한 번에 돌릴 수 있는 오케스트레이터뿐이었습니다.
 
 남은 작업
 
@@ -16,8 +18,6 @@
 * (c) mc262 Java/Mixin 포팅 — mc121의 Mixin 목록(RenderMixin, GameRendererDepthCaptureMixin, WindowOffScreenMixin, InputUtilMixin, ClientPlayNetworkHandlerMixin, ClientWorldMixin, EntityCollisionDetectorMixin 등)과 MinecraftEnv.kt/EnvironmentInitializer.kt 상태 머신을 26.2 Mojmap API에 맞춰 재작성합니다. 현재 mc262 쪽은 no-op 스켈레톤뿐입니다.
 * (d) mc262 네이티브 캡처 구현 — minecraft/mc262/src/main/cpp를 신설하고, 우선 OpenGL 경로로 (a)에서 정한 JNI 함수 세트를 구현한 뒤 CMake/vcpkg 빌드에 통합합니다. mc121의 glReadPixels 기반 zerocopy 구현을 최대한 재사용합니다.
 * (e) Vulkan 캡처 구현 — (d) 완료 후 Vulkan readback을 별도 JNI 함수 세트로 추가하고(같은 "분기만, 다형성 없음" 원칙), GL/Vulkan 픽셀 동일성과 지연시간을 검증합니다.
-* (f) Protocol handshake 추가 — protocol_version/minecraft_version/render_backend/capabilities 필드를 초기 핸드셰이크 메시지(proto)에 추가하고, Python 쪽에서 비호환 시 즉시 거부하도록 구현합니다. 세션당 1회만 발생하므로 성능 제약은 없습니다.
-* (g) 빌드/CI 오케스트레이션 정리 — dev_tools.sh는 현재 mc121 경로만 하드코딩되어 있어 mc262 protobuf 코드젠에 쓰이지 않습니다. 이를 확장하거나 scripts/build-runtime.py 같은 오케스트레이터로 대체하고, CI를 protocol-tests → build-mod-mc121/build-mod-mc262 → build-native-ipc/build-capture-native → assemble-runtime-packages 단계로 세분화합니다.
 
 ⸻
 

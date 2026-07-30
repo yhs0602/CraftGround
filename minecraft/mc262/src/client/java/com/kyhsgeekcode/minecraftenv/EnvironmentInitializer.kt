@@ -69,6 +69,7 @@ internal val chatList = mutableListOf<ChatMessageRecord>()
 class EnvironmentInitializer(
     private val initialEnvironment: InitialEnvironmentMessage,
     private val csvLogger: CsvLogger,
+    private val messageIO: MessageIO,
 ) {
     private var hasRunInitWorld: Boolean = false
         private set
@@ -83,6 +84,7 @@ class EnvironmentInitializer(
     private var finishedEnteringWorld = false
     private var shouldReloadResourcePack = false
     private var reloadResourcePackFuture: CompletableFuture<Void>? = null
+    private var handshakeAckSent = false
 
     fun onClientTick(client: Minecraft) {
         if (finishedEnteringWorld && initializedClient) {
@@ -131,6 +133,7 @@ class EnvironmentInitializer(
         }
         disablePauseOnLostFocus(client)
         disableOnboardAccessibility(client)
+        setHudHidden(client, initialEnvironment.hudHidden)
         setRenderDistance(client, initialEnvironment.renderDistance)
         setSimulationDistance(client, initialEnvironment.simulationDistance)
         disableVSync(client)
@@ -152,9 +155,13 @@ class EnvironmentInitializer(
     // isn't guaranteed to exist yet before a world has been entered - by this point in
     // onClientTick a world is already up and the render pipeline has run many frames.
     //
-    // Both backends are supported now (docs/26_2_vulkan_capture.md); the only unsupported
-    // combination left is ZEROCOPY_TORCH off the OpenGL path, which still needs the mc121-era
-    // FBO-based native code.
+    // Both backends are supported now (docs/26_2_vulkan_capture.md). ZEROCOPY_TORCH works on
+    // OpenGL unconditionally, and on Vulkan only when one of the cross-API interop extension pairs
+    // actually got enabled at device-creation time (see VulkanBackendInteropExtensionMixin):
+    // VK_EXT_metal_objects + VK_EXT_external_memory_metal (-Dcraftground.enableMetalObjects=true,
+    // verified on Apple Silicon), or VK_KHR_external_memory_fd/win32
+    // (-Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in this dev
+    // environment) - otherwise VulkanZerocopy has nothing to import a shared surface/buffer into.
     private fun checkRenderBackend(client: Minecraft) {
         val backendName =
             com.mojang.blaze3d.systems.RenderSystem
@@ -172,15 +179,65 @@ class EnvironmentInitializer(
             "CraftGround: rendering backend '$backendName' -> capture path $captureBackend " +
                 "(color texture ${colorTexture.javaClass.simpleName})",
         )
+        val vulkanZerocopySupported =
+            captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D &&
+                (VulkanMetalObjectsState.metalObjectsEnabled || VulkanCudaObjectsState.cudaInteropEnabled)
+        if (!handshakeAckSent) {
+            sendHandshakeAck(captureBackend, vulkanZerocopySupported)
+            handshakeAckSent = true
+        }
         if (captureBackend != Blaze3dCapture.CaptureBackend.OPENGL &&
             initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH
         ) {
-            throw IllegalStateException(
-                "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, but the active " +
-                    "backend is '$backendName'. Use RAW or PNG, or force OpenGL " +
-                    "(see docs/26_2_vulkan_capture.md).",
-            )
+            if (!vulkanZerocopySupported) {
+                throw IllegalStateException(
+                    "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, or Vulkan with " +
+                        "-Dcraftground.enableMetalObjects=true on a device supporting " +
+                        "VK_EXT_metal_objects + VK_EXT_external_memory_metal, or " +
+                        "-Dcraftground.enableCudaInterop=true on a device supporting " +
+                        "VK_KHR_external_memory_fd/win32 (active backend '$backendName'). Use RAW " +
+                        "or PNG otherwise (see docs/26_2_vulkan_capture.md).",
+                )
+            }
         }
+    }
+
+    // Sent once, right when the capture backend is resolved (before the incompatibility throw
+    // above, so Python learns about a bad ZEROCOPY_TORCH/backend pairing from a clean rejection
+    // instead of a dropped connection) - docs/26_2_MigrationPlan.md item (f).
+    private fun sendHandshakeAck(
+        captureBackend: Blaze3dCapture.CaptureBackend,
+        vulkanZerocopySupported: Boolean,
+    ) {
+        val renderBackend =
+            when (captureBackend) {
+                Blaze3dCapture.CaptureBackend.OPENGL -> {
+                    "opengl"
+                }
+
+                Blaze3dCapture.CaptureBackend.BLAZE3D -> {
+                    when {
+                        VulkanMetalObjectsState.metalObjectsEnabled -> "vulkan-zerocopy-metal"
+                        VulkanCudaObjectsState.cudaInteropEnabled -> "vulkan-zerocopy-cuda"
+                        else -> "vulkan-cpu-readback"
+                    }
+                }
+            }
+        val capabilities = mutableListOf<String>()
+        if (captureBackend == Blaze3dCapture.CaptureBackend.OPENGL || vulkanZerocopySupported) {
+            capabilities.add("zerocopy")
+        }
+        capabilities.add("depth")
+        capabilities.add("lidar")
+        messageIO.writeHandshakeAck(
+            InitialEnvironment.HandshakeAck
+                .newBuilder()
+                .setProtocolVersion(CRAFTGROUND_PROTOCOL_VERSION)
+                .setMinecraftVersion("26.2")
+                .setRenderBackend(renderBackend)
+                .addAllCapabilities(capabilities)
+                .build(),
+        )
     }
 
     private fun enterExistingWorldUsingGUI(
@@ -567,12 +624,21 @@ class EnvironmentInitializer(
             println("World path not found; server: $minecraftServer")
         }
 
-        // TODO: 26.2's world-specific resource pack loading path (mc121's
-        // client.serverResourcePackProvider / IntegratedServerLoader.WORLD_PACK_ID) could not
-        // be located in the decompiled 26.2 sources during this port - ServerPackManager
-        // exists but its API surface for a world's own resourcepacks/resources.zip wasn't
-        // confirmed. The zip is still copied to LevelResource.MAP_RESOURCE_FILE below; only
-        // the "tell the client to actually load it" step is missing.
+        // TODO: 26.2's world-specific resource pack loading path. mc121's own attempt at this
+        // (client.serverResourcePackProvider / IntegratedServerLoader.WORLD_PACK_ID /
+        // loader.addResourcePack) never actually reloads either - see
+        // minecraft/mc121/src/main/java/.../EnvironmentInitializer.kt: shouldReloadResourcePack
+        // is registered but the code path that would set it true is commented out, so mc121
+        // only registers the pack, it never applies it. So there's no known-working reference to
+        // port. For 26.2, javap against the deobfuscated client jar found
+        // net.minecraft.client.resources.server.ServerPackManager.pushLocalPack(UUID, Path) as
+        // the likely replacement primitive (reached via Minecraft.getDownloadedPackSource()),
+        // plus Minecraft.reloadResourcePacks() to trigger the actual reload - but the exact
+        // getter from DownloadedPackSource to ServerPackManager wasn't confirmed (javap access to
+        // this repo's decompiled jar cache was unavailable when this was last checked), so wiring
+        // it up here was deferred rather than guessing at a call that could fail to compile.
+        // The zip is still copied to LevelResource.MAP_RESOURCE_FILE below; only the "tell the
+        // client to actually load it" step is missing, exactly as in mc121.
         minecraftServer?.getWorldPath(LevelResource.MAP_RESOURCE_FILE)?.let { targetZipPath ->
             println("Copying resource zip file to: $targetZipPath")
             val sourcePath = Path(initialEnvironment.resourceZipPath)
@@ -687,13 +753,19 @@ class EnvironmentInitializer(
         }
     }
 
-    // TODO: 26.2's HUD-hidden toggle (mc121's Options.hudHidden) could not be located in the
-    // decompiled sources during this port. Not wired up yet - if the HUD (crosshair/hotbar/
-    // health bar) renders over captured frames, this needs to be found and reinstated.
+    // 26.2 moved HUD rendering (and its "hidden" flag) off Options.hudHidden and onto a
+    // dedicated Hud object owned by Gui (confirmed via javap against the deobfuscated 26.2
+    // client jar: Gui.hud is public, Hud.isHidden()/toggle() are public - toggle() is a plain
+    // negation of the private isHidden field, so there's no direct setter).
     private fun setHudHidden(
         client: Minecraft,
         hudHidden: Boolean,
     ) {
+        val hud = client.gui.hud
+        if (hud.isHidden != hudHidden) {
+            hud.toggle()
+            println(if (hudHidden) "Hid hud" else "Showed hud")
+        }
     }
 
     private fun setMaxFPSToUnlimited(client: Minecraft) {

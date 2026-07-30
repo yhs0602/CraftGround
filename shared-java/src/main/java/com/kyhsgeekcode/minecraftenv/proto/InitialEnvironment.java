@@ -430,6 +430,1124 @@ public final class InitialEnvironment {
     // @@protoc_insertion_point(enum_scope:WorldType)
   }
 
+  public interface HandshakeAckOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:HandshakeAck)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * CRAFTGROUND_PROTOCOL_VERSION the Java side implements
+     * </pre>
+     *
+     * <code>int32 protocol_version = 1;</code>
+     * @return The protocolVersion.
+     */
+    int getProtocolVersion();
+
+    /**
+     * <pre>
+     * e.g. "1.21" or "26.2"
+     * </pre>
+     *
+     * <code>string minecraft_version = 2;</code>
+     * @return The minecraftVersion.
+     */
+    java.lang.String getMinecraftVersion();
+    /**
+     * <pre>
+     * e.g. "1.21" or "26.2"
+     * </pre>
+     *
+     * <code>string minecraft_version = 2;</code>
+     * @return The bytes for minecraftVersion.
+     */
+    com.google.protobuf.ByteString
+        getMinecraftVersionBytes();
+
+    /**
+     * <pre>
+     * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+     * </pre>
+     *
+     * <code>string render_backend = 3;</code>
+     * @return The renderBackend.
+     */
+    java.lang.String getRenderBackend();
+    /**
+     * <pre>
+     * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+     * </pre>
+     *
+     * <code>string render_backend = 3;</code>
+     * @return The bytes for renderBackend.
+     */
+    com.google.protobuf.ByteString
+        getRenderBackendBytes();
+
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @return A list containing the capabilities.
+     */
+    java.util.List<java.lang.String>
+        getCapabilitiesList();
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @return The count of capabilities.
+     */
+    int getCapabilitiesCount();
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @param index The index of the element to return.
+     * @return The capabilities at the given index.
+     */
+    java.lang.String getCapabilities(int index);
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the capabilities at the given index.
+     */
+    com.google.protobuf.ByteString
+        getCapabilitiesBytes(int index);
+  }
+  /**
+   * <pre>
+   * Sent by Java right after it reads InitialEnvironmentMessage, before entering the world -
+   * lets Python reject an incompatible server immediately instead of hanging on the first
+   * read_observation() call or crashing Java mid-init. One per session, so no perf constraint
+   * (docs/26_2_MigrationPlan.md item (f)).
+   * </pre>
+   *
+   * Protobuf type {@code HandshakeAck}
+   */
+  public static final class HandshakeAck extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:HandshakeAck)
+      HandshakeAckOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 29,
+        /* patch= */ 2,
+        /* suffix= */ "",
+        HandshakeAck.class.getName());
+    }
+    // Use HandshakeAck.newBuilder() to construct.
+    private HandshakeAck(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private HandshakeAck() {
+      minecraftVersion_ = "";
+      renderBackend_ = "";
+      capabilities_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.internal_static_HandshakeAck_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.internal_static_HandshakeAck_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck.class, com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck.Builder.class);
+    }
+
+    public static final int PROTOCOL_VERSION_FIELD_NUMBER = 1;
+    private int protocolVersion_ = 0;
+    /**
+     * <pre>
+     * CRAFTGROUND_PROTOCOL_VERSION the Java side implements
+     * </pre>
+     *
+     * <code>int32 protocol_version = 1;</code>
+     * @return The protocolVersion.
+     */
+    @java.lang.Override
+    public int getProtocolVersion() {
+      return protocolVersion_;
+    }
+
+    public static final int MINECRAFT_VERSION_FIELD_NUMBER = 2;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object minecraftVersion_ = "";
+    /**
+     * <pre>
+     * e.g. "1.21" or "26.2"
+     * </pre>
+     *
+     * <code>string minecraft_version = 2;</code>
+     * @return The minecraftVersion.
+     */
+    @java.lang.Override
+    public java.lang.String getMinecraftVersion() {
+      java.lang.Object ref = minecraftVersion_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        minecraftVersion_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * e.g. "1.21" or "26.2"
+     * </pre>
+     *
+     * <code>string minecraft_version = 2;</code>
+     * @return The bytes for minecraftVersion.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getMinecraftVersionBytes() {
+      java.lang.Object ref = minecraftVersion_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        minecraftVersion_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int RENDER_BACKEND_FIELD_NUMBER = 3;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object renderBackend_ = "";
+    /**
+     * <pre>
+     * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+     * </pre>
+     *
+     * <code>string render_backend = 3;</code>
+     * @return The renderBackend.
+     */
+    @java.lang.Override
+    public java.lang.String getRenderBackend() {
+      java.lang.Object ref = renderBackend_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        renderBackend_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+     * </pre>
+     *
+     * <code>string render_backend = 3;</code>
+     * @return The bytes for renderBackend.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getRenderBackendBytes() {
+      java.lang.Object ref = renderBackend_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        renderBackend_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int CAPABILITIES_FIELD_NUMBER = 4;
+    @SuppressWarnings("serial")
+    private com.google.protobuf.LazyStringArrayList capabilities_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @return A list containing the capabilities.
+     */
+    public com.google.protobuf.ProtocolStringList
+        getCapabilitiesList() {
+      return capabilities_;
+    }
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @return The count of capabilities.
+     */
+    public int getCapabilitiesCount() {
+      return capabilities_.size();
+    }
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @param index The index of the element to return.
+     * @return The capabilities at the given index.
+     */
+    public java.lang.String getCapabilities(int index) {
+      return capabilities_.get(index);
+    }
+    /**
+     * <pre>
+     * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+     * </pre>
+     *
+     * <code>repeated string capabilities = 4;</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the capabilities at the given index.
+     */
+    public com.google.protobuf.ByteString
+        getCapabilitiesBytes(int index) {
+      return capabilities_.getByteString(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (protocolVersion_ != 0) {
+        output.writeInt32(1, protocolVersion_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(minecraftVersion_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, minecraftVersion_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(renderBackend_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, renderBackend_);
+      }
+      for (int i = 0; i < capabilities_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 4, capabilities_.getRaw(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (protocolVersion_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, protocolVersion_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(minecraftVersion_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, minecraftVersion_);
+      }
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(renderBackend_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(3, renderBackend_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < capabilities_.size(); i++) {
+          dataSize += computeStringSizeNoTag(capabilities_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getCapabilitiesList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck)) {
+        return super.equals(obj);
+      }
+      com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck other = (com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck) obj;
+
+      if (getProtocolVersion()
+          != other.getProtocolVersion()) return false;
+      if (!getMinecraftVersion()
+          .equals(other.getMinecraftVersion())) return false;
+      if (!getRenderBackend()
+          .equals(other.getRenderBackend())) return false;
+      if (!getCapabilitiesList()
+          .equals(other.getCapabilitiesList())) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + PROTOCOL_VERSION_FIELD_NUMBER;
+      hash = (53 * hash) + getProtocolVersion();
+      hash = (37 * hash) + MINECRAFT_VERSION_FIELD_NUMBER;
+      hash = (53 * hash) + getMinecraftVersion().hashCode();
+      hash = (37 * hash) + RENDER_BACKEND_FIELD_NUMBER;
+      hash = (53 * hash) + getRenderBackend().hashCode();
+      if (getCapabilitiesCount() > 0) {
+        hash = (37 * hash) + CAPABILITIES_FIELD_NUMBER;
+        hash = (53 * hash) + getCapabilitiesList().hashCode();
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * Sent by Java right after it reads InitialEnvironmentMessage, before entering the world -
+     * lets Python reject an incompatible server immediately instead of hanging on the first
+     * read_observation() call or crashing Java mid-init. One per session, so no perf constraint
+     * (docs/26_2_MigrationPlan.md item (f)).
+     * </pre>
+     *
+     * Protobuf type {@code HandshakeAck}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:HandshakeAck)
+        com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAckOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.internal_static_HandshakeAck_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.internal_static_HandshakeAck_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck.class, com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck.Builder.class);
+      }
+
+      // Construct using com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck.newBuilder()
+      private Builder() {
+
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        protocolVersion_ = 0;
+        minecraftVersion_ = "";
+        renderBackend_ = "";
+        capabilities_ =
+            com.google.protobuf.LazyStringArrayList.emptyList();
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.internal_static_HandshakeAck_descriptor;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck getDefaultInstanceForType() {
+        return com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck build() {
+        com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck buildPartial() {
+        com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck result = new com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.protocolVersion_ = protocolVersion_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.minecraftVersion_ = minecraftVersion_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.renderBackend_ = renderBackend_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          capabilities_.makeImmutable();
+          result.capabilities_ = capabilities_;
+        }
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck) {
+          return mergeFrom((com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck other) {
+        if (other == com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck.getDefaultInstance()) return this;
+        if (other.getProtocolVersion() != 0) {
+          setProtocolVersion(other.getProtocolVersion());
+        }
+        if (!other.getMinecraftVersion().isEmpty()) {
+          minecraftVersion_ = other.minecraftVersion_;
+          bitField0_ |= 0x00000002;
+          onChanged();
+        }
+        if (!other.getRenderBackend().isEmpty()) {
+          renderBackend_ = other.renderBackend_;
+          bitField0_ |= 0x00000004;
+          onChanged();
+        }
+        if (!other.capabilities_.isEmpty()) {
+          if (capabilities_.isEmpty()) {
+            capabilities_ = other.capabilities_;
+            bitField0_ |= 0x00000008;
+          } else {
+            ensureCapabilitiesIsMutable();
+            capabilities_.addAll(other.capabilities_);
+          }
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 8: {
+                protocolVersion_ = input.readInt32();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 8
+              case 18: {
+                minecraftVersion_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+              case 26: {
+                renderBackend_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+              case 34: {
+                java.lang.String s = input.readStringRequireUtf8();
+                ensureCapabilitiesIsMutable();
+                capabilities_.add(s);
+                break;
+              } // case 34
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private int protocolVersion_ ;
+      /**
+       * <pre>
+       * CRAFTGROUND_PROTOCOL_VERSION the Java side implements
+       * </pre>
+       *
+       * <code>int32 protocol_version = 1;</code>
+       * @return The protocolVersion.
+       */
+      @java.lang.Override
+      public int getProtocolVersion() {
+        return protocolVersion_;
+      }
+      /**
+       * <pre>
+       * CRAFTGROUND_PROTOCOL_VERSION the Java side implements
+       * </pre>
+       *
+       * <code>int32 protocol_version = 1;</code>
+       * @param value The protocolVersion to set.
+       * @return This builder for chaining.
+       */
+      public Builder setProtocolVersion(int value) {
+
+        protocolVersion_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * CRAFTGROUND_PROTOCOL_VERSION the Java side implements
+       * </pre>
+       *
+       * <code>int32 protocol_version = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearProtocolVersion() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        protocolVersion_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object minecraftVersion_ = "";
+      /**
+       * <pre>
+       * e.g. "1.21" or "26.2"
+       * </pre>
+       *
+       * <code>string minecraft_version = 2;</code>
+       * @return The minecraftVersion.
+       */
+      public java.lang.String getMinecraftVersion() {
+        java.lang.Object ref = minecraftVersion_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          minecraftVersion_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * e.g. "1.21" or "26.2"
+       * </pre>
+       *
+       * <code>string minecraft_version = 2;</code>
+       * @return The bytes for minecraftVersion.
+       */
+      public com.google.protobuf.ByteString
+          getMinecraftVersionBytes() {
+        java.lang.Object ref = minecraftVersion_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          minecraftVersion_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * e.g. "1.21" or "26.2"
+       * </pre>
+       *
+       * <code>string minecraft_version = 2;</code>
+       * @param value The minecraftVersion to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMinecraftVersion(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        minecraftVersion_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "1.21" or "26.2"
+       * </pre>
+       *
+       * <code>string minecraft_version = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMinecraftVersion() {
+        minecraftVersion_ = getDefaultInstance().getMinecraftVersion();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "1.21" or "26.2"
+       * </pre>
+       *
+       * <code>string minecraft_version = 2;</code>
+       * @param value The bytes for minecraftVersion to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMinecraftVersionBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        minecraftVersion_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object renderBackend_ = "";
+      /**
+       * <pre>
+       * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+       * </pre>
+       *
+       * <code>string render_backend = 3;</code>
+       * @return The renderBackend.
+       */
+      public java.lang.String getRenderBackend() {
+        java.lang.Object ref = renderBackend_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          renderBackend_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+       * </pre>
+       *
+       * <code>string render_backend = 3;</code>
+       * @return The bytes for renderBackend.
+       */
+      public com.google.protobuf.ByteString
+          getRenderBackendBytes() {
+        java.lang.Object ref = renderBackend_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          renderBackend_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+       * </pre>
+       *
+       * <code>string render_backend = 3;</code>
+       * @param value The renderBackend to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRenderBackend(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        renderBackend_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+       * </pre>
+       *
+       * <code>string render_backend = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearRenderBackend() {
+        renderBackend_ = getDefaultInstance().getRenderBackend();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+       * </pre>
+       *
+       * <code>string render_backend = 3;</code>
+       * @param value The bytes for renderBackend to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRenderBackendBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        renderBackend_ = value;
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringArrayList capabilities_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+      private void ensureCapabilitiesIsMutable() {
+        if (!capabilities_.isModifiable()) {
+          capabilities_ = new com.google.protobuf.LazyStringArrayList(capabilities_);
+        }
+        bitField0_ |= 0x00000008;
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @return A list containing the capabilities.
+       */
+      public com.google.protobuf.ProtocolStringList
+          getCapabilitiesList() {
+        capabilities_.makeImmutable();
+        return capabilities_;
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @return The count of capabilities.
+       */
+      public int getCapabilitiesCount() {
+        return capabilities_.size();
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @param index The index of the element to return.
+       * @return The capabilities at the given index.
+       */
+      public java.lang.String getCapabilities(int index) {
+        return capabilities_.get(index);
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @param index The index of the value to return.
+       * @return The bytes of the capabilities at the given index.
+       */
+      public com.google.protobuf.ByteString
+          getCapabilitiesBytes(int index) {
+        return capabilities_.getByteString(index);
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @param index The index to set the value at.
+       * @param value The capabilities to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCapabilities(
+          int index, java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        ensureCapabilitiesIsMutable();
+        capabilities_.set(index, value);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @param value The capabilities to add.
+       * @return This builder for chaining.
+       */
+      public Builder addCapabilities(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        ensureCapabilitiesIsMutable();
+        capabilities_.add(value);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @param values The capabilities to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllCapabilities(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureCapabilitiesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, capabilities_);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCapabilities() {
+        capabilities_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+       * </pre>
+       *
+       * <code>repeated string capabilities = 4;</code>
+       * @param value The bytes of the capabilities to add.
+       * @return This builder for chaining.
+       */
+      public Builder addCapabilitiesBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        ensureCapabilitiesIsMutable();
+        capabilities_.add(value);
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:HandshakeAck)
+    }
+
+    // @@protoc_insertion_point(class_scope:HandshakeAck)
+    private static final com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck();
+    }
+
+    public static com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<HandshakeAck>
+        PARSER = new com.google.protobuf.AbstractParser<HandshakeAck>() {
+      @java.lang.Override
+      public HandshakeAck parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<HandshakeAck> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<HandshakeAck> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.HandshakeAck getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface LidarConfigOrBuilder extends
       // @@protoc_insertion_point(interface_extends:LidarConfig)
       com.google.protobuf.MessageOrBuilder {
@@ -1770,6 +2888,16 @@ public final class InitialEnvironment {
      * <code>.LidarConfig lidar_config = 36;</code>
      */
     com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.LidarConfigOrBuilder getLidarConfigOrBuilder();
+
+    /**
+     * <pre>
+     * CRAFTGROUND_PROTOCOL_VERSION the Python client implements
+     * </pre>
+     *
+     * <code>int32 protocol_version = 37;</code>
+     * @return The protocolVersion.
+     */
+    int getProtocolVersion();
   }
   /**
    * Protobuf type {@code InitialEnvironmentMessage}
@@ -2709,6 +3837,21 @@ public final class InitialEnvironment {
       return lidarConfig_ == null ? com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.LidarConfig.getDefaultInstance() : lidarConfig_;
     }
 
+    public static final int PROTOCOL_VERSION_FIELD_NUMBER = 37;
+    private int protocolVersion_ = 0;
+    /**
+     * <pre>
+     * CRAFTGROUND_PROTOCOL_VERSION the Python client implements
+     * </pre>
+     *
+     * <code>int32 protocol_version = 37;</code>
+     * @return The protocolVersion.
+     */
+    @java.lang.Override
+    public int getProtocolVersion() {
+      return protocolVersion_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -2835,6 +3978,9 @@ public final class InitialEnvironment {
       }
       if (((bitField0_ & 0x00000001) != 0)) {
         output.writeMessage(36, getLidarConfig());
+      }
+      if (protocolVersion_ != 0) {
+        output.writeInt32(37, protocolVersion_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -3026,6 +4172,10 @@ public final class InitialEnvironment {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(36, getLidarConfig());
       }
+      if (protocolVersion_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(37, protocolVersion_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
@@ -3115,6 +4265,8 @@ public final class InitialEnvironment {
         if (!getLidarConfig()
             .equals(other.getLidarConfig())) return false;
       }
+      if (getProtocolVersion()
+          != other.getProtocolVersion()) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -3230,6 +4382,8 @@ public final class InitialEnvironment {
         hash = (37 * hash) + LIDAR_CONFIG_FIELD_NUMBER;
         hash = (53 * hash) + getLidarConfig().hashCode();
       }
+      hash = (37 * hash) + PROTOCOL_VERSION_FIELD_NUMBER;
+      hash = (53 * hash) + getProtocolVersion();
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -3416,6 +4570,7 @@ public final class InitialEnvironment {
           lidarConfigBuilder_.dispose();
           lidarConfigBuilder_ = null;
         }
+        protocolVersion_ = 0;
         return this;
       }
 
@@ -3574,6 +4729,9 @@ public final class InitialEnvironment {
               ? lidarConfig_
               : lidarConfigBuilder_.build();
           to_bitField0_ |= 0x00000001;
+        }
+        if (((from_bitField1_ & 0x00000010) != 0)) {
+          result.protocolVersion_ = protocolVersion_;
         }
         result.bitField0_ |= to_bitField0_;
       }
@@ -3771,6 +4929,9 @@ public final class InitialEnvironment {
         }
         if (other.hasLidarConfig()) {
           mergeLidarConfig(other.getLidarConfig());
+        }
+        if (other.getProtocolVersion() != 0) {
+          setProtocolVersion(other.getProtocolVersion());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
@@ -3999,6 +5160,11 @@ public final class InitialEnvironment {
                 bitField1_ |= 0x00000008;
                 break;
               } // case 290
+              case 296: {
+                protocolVersion_ = input.readInt32();
+                bitField1_ |= 0x00000010;
+                break;
+              } // case 296
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -6413,6 +7579,50 @@ public final class InitialEnvironment {
         return lidarConfigBuilder_;
       }
 
+      private int protocolVersion_ ;
+      /**
+       * <pre>
+       * CRAFTGROUND_PROTOCOL_VERSION the Python client implements
+       * </pre>
+       *
+       * <code>int32 protocol_version = 37;</code>
+       * @return The protocolVersion.
+       */
+      @java.lang.Override
+      public int getProtocolVersion() {
+        return protocolVersion_;
+      }
+      /**
+       * <pre>
+       * CRAFTGROUND_PROTOCOL_VERSION the Python client implements
+       * </pre>
+       *
+       * <code>int32 protocol_version = 37;</code>
+       * @param value The protocolVersion to set.
+       * @return This builder for chaining.
+       */
+      public Builder setProtocolVersion(int value) {
+
+        protocolVersion_ = value;
+        bitField1_ |= 0x00000010;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * CRAFTGROUND_PROTOCOL_VERSION the Python client implements
+       * </pre>
+       *
+       * <code>int32 protocol_version = 37;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearProtocolVersion() {
+        bitField1_ = (bitField1_ & ~0x00000010);
+        protocolVersion_ = 0;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:InitialEnvironmentMessage)
     }
 
@@ -6465,6 +7675,11 @@ public final class InitialEnvironment {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_HandshakeAck_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_HandshakeAck_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_LidarConfig_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -6483,58 +7698,67 @@ public final class InitialEnvironment {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\037proto/initial_environment.proto\"\201\001\n\013Li" +
-      "darConfig\022\027\n\017horizontal_rays\030\001 \001(\005\022\024\n\014ma" +
-      "x_distance\030\002 \001(\002\022\026\n\016vertical_angle\030\003 \001(\002" +
-      "\022\025\n\rvertical_rays\030\004 \001(\005\022\024\n\014vertical_fov\030" +
-      "\005 \001(\002\"\274\007\n\031InitialEnvironmentMessage\022\022\n\ni" +
-      "mageSizeX\030\001 \001(\005\022\022\n\nimageSizeY\030\002 \001(\005\022\033\n\010g" +
-      "amemode\030\003 \001(\0162\t.GameMode\022\037\n\ndifficulty\030\004" +
-      " \001(\0162\013.Difficulty\022\035\n\tworldType\030\005 \001(\0162\n.W" +
-      "orldType\022\025\n\rworldTypeArgs\030\006 \001(\t\022\014\n\004seed\030" +
-      "\007 \001(\t\022\033\n\023generate_structures\030\010 \001(\010\022\023\n\013bo" +
-      "nus_chest\030\t \001(\010\022\025\n\rdatapackPaths\030\n \003(\t\022\034" +
-      "\n\024initialExtraCommands\030\013 \003(\t\022\026\n\016killedSt" +
-      "atKeys\030\014 \003(\t\022\025\n\rminedStatKeys\030\r \003(\t\022\024\n\014m" +
-      "iscStatKeys\030\016 \003(\t\022\"\n\032surroundingEntityDi" +
-      "stances\030\017 \003(\005\022\021\n\thudHidden\030\020 \001(\010\022\027\n\017rend" +
-      "er_distance\030\021 \001(\005\022\033\n\023simulation_distance" +
-      "\030\022 \001(\005\022\024\n\014eye_distance\030\023 \001(\002\022\026\n\016structur" +
-      "ePaths\030\024 \003(\t\022\025\n\rno_fov_effect\030\025 \001(\010\022\027\n\017r" +
-      "equest_raycast\030\026 \001(\010\022\034\n\024screen_encoding_" +
-      "mode\030\027 \001(\005\022!\n\031requiresSurroundingBlocks\030" +
-      "\030 \001(\010\022\"\n\032level_display_name_to_play\030\031 \001(" +
-      "\t\022\013\n\003fov\030\032 \001(\002\022\031\n\021requiresBiomeInfo\030\033 \001(" +
-      "\010\022\031\n\021requiresHeightmap\030\034 \001(\010\022\022\n\npython_p" +
-      "id\030\035 \001(\005\022\025\n\rrequiresDepth\030\036 \001(\010\022\037\n\027requi" +
-      "resDepthConversion\030\037 \001(\010\022\027\n\017resourceZipP" +
-      "ath\030  \001(\t\022\032\n\022blockCollisionKeys\030! \003(\t\022\033\n" +
-      "\023entityCollisionKeys\030\" \003(\t\022\024\n\014map_dir_pa" +
-      "th\030# \001(\t\022\"\n\014lidar_config\030$ \001(\0132\014.LidarCo" +
-      "nfig*4\n\010GameMode\022\014\n\010SURVIVAL\020\000\022\014\n\010HARDCO" +
-      "RE\020\001\022\014\n\010CREATIVE\020\002*:\n\nDifficulty\022\014\n\010PEAC" +
-      "EFUL\020\000\022\010\n\004EASY\020\001\022\n\n\006NORMAL\020\002\022\010\n\004HARD\020\003*Z" +
-      "\n\tWorldType\022\013\n\007DEFAULT\020\000\022\r\n\tSUPERFLAT\020\001\022" +
-      "\020\n\014LARGE_BIOMES\020\002\022\r\n\tAMPLIFIED\020\003\022\020\n\014SING" +
-      "LE_BIOME\020\004B%\n#com.kyhsgeekcode.minecraft" +
-      "env.protob\006proto3"
+      "\n\037proto/initial_environment.proto\"q\n\014Han" +
+      "dshakeAck\022\030\n\020protocol_version\030\001 \001(\005\022\031\n\021m" +
+      "inecraft_version\030\002 \001(\t\022\026\n\016render_backend" +
+      "\030\003 \001(\t\022\024\n\014capabilities\030\004 \003(\t\"\201\001\n\013LidarCo" +
+      "nfig\022\027\n\017horizontal_rays\030\001 \001(\005\022\024\n\014max_dis" +
+      "tance\030\002 \001(\002\022\026\n\016vertical_angle\030\003 \001(\002\022\025\n\rv" +
+      "ertical_rays\030\004 \001(\005\022\024\n\014vertical_fov\030\005 \001(\002" +
+      "\"\326\007\n\031InitialEnvironmentMessage\022\022\n\nimageS" +
+      "izeX\030\001 \001(\005\022\022\n\nimageSizeY\030\002 \001(\005\022\033\n\010gamemo" +
+      "de\030\003 \001(\0162\t.GameMode\022\037\n\ndifficulty\030\004 \001(\0162" +
+      "\013.Difficulty\022\035\n\tworldType\030\005 \001(\0162\n.WorldT" +
+      "ype\022\025\n\rworldTypeArgs\030\006 \001(\t\022\014\n\004seed\030\007 \001(\t" +
+      "\022\033\n\023generate_structures\030\010 \001(\010\022\023\n\013bonus_c" +
+      "hest\030\t \001(\010\022\025\n\rdatapackPaths\030\n \003(\t\022\034\n\024ini" +
+      "tialExtraCommands\030\013 \003(\t\022\026\n\016killedStatKey" +
+      "s\030\014 \003(\t\022\025\n\rminedStatKeys\030\r \003(\t\022\024\n\014miscSt" +
+      "atKeys\030\016 \003(\t\022\"\n\032surroundingEntityDistanc" +
+      "es\030\017 \003(\005\022\021\n\thudHidden\030\020 \001(\010\022\027\n\017render_di" +
+      "stance\030\021 \001(\005\022\033\n\023simulation_distance\030\022 \001(" +
+      "\005\022\024\n\014eye_distance\030\023 \001(\002\022\026\n\016structurePath" +
+      "s\030\024 \003(\t\022\025\n\rno_fov_effect\030\025 \001(\010\022\027\n\017reques" +
+      "t_raycast\030\026 \001(\010\022\034\n\024screen_encoding_mode\030" +
+      "\027 \001(\005\022!\n\031requiresSurroundingBlocks\030\030 \001(\010" +
+      "\022\"\n\032level_display_name_to_play\030\031 \001(\t\022\013\n\003" +
+      "fov\030\032 \001(\002\022\031\n\021requiresBiomeInfo\030\033 \001(\010\022\031\n\021" +
+      "requiresHeightmap\030\034 \001(\010\022\022\n\npython_pid\030\035 " +
+      "\001(\005\022\025\n\rrequiresDepth\030\036 \001(\010\022\037\n\027requiresDe" +
+      "pthConversion\030\037 \001(\010\022\027\n\017resourceZipPath\030 " +
+      " \001(\t\022\032\n\022blockCollisionKeys\030! \003(\t\022\033\n\023enti" +
+      "tyCollisionKeys\030\" \003(\t\022\024\n\014map_dir_path\030# " +
+      "\001(\t\022\"\n\014lidar_config\030$ \001(\0132\014.LidarConfig\022" +
+      "\030\n\020protocol_version\030% \001(\005*4\n\010GameMode\022\014\n" +
+      "\010SURVIVAL\020\000\022\014\n\010HARDCORE\020\001\022\014\n\010CREATIVE\020\002*" +
+      ":\n\nDifficulty\022\014\n\010PEACEFUL\020\000\022\010\n\004EASY\020\001\022\n\n" +
+      "\006NORMAL\020\002\022\010\n\004HARD\020\003*Z\n\tWorldType\022\013\n\007DEFA" +
+      "ULT\020\000\022\r\n\tSUPERFLAT\020\001\022\020\n\014LARGE_BIOMES\020\002\022\r" +
+      "\n\tAMPLIFIED\020\003\022\020\n\014SINGLE_BIOME\020\004B%\n#com.k" +
+      "yhsgeekcode.minecraftenv.protob\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         });
-    internal_static_LidarConfig_descriptor =
+    internal_static_HandshakeAck_descriptor =
       getDescriptor().getMessageTypes().get(0);
+    internal_static_HandshakeAck_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_HandshakeAck_descriptor,
+        new java.lang.String[] { "ProtocolVersion", "MinecraftVersion", "RenderBackend", "Capabilities", });
+    internal_static_LidarConfig_descriptor =
+      getDescriptor().getMessageTypes().get(1);
     internal_static_LidarConfig_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_LidarConfig_descriptor,
         new java.lang.String[] { "HorizontalRays", "MaxDistance", "VerticalAngle", "VerticalRays", "VerticalFov", });
     internal_static_InitialEnvironmentMessage_descriptor =
-      getDescriptor().getMessageTypes().get(1);
+      getDescriptor().getMessageTypes().get(2);
     internal_static_InitialEnvironmentMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_InitialEnvironmentMessage_descriptor,
-        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", "ResourceZipPath", "BlockCollisionKeys", "EntityCollisionKeys", "MapDirPath", "LidarConfig", });
+        new java.lang.String[] { "ImageSizeX", "ImageSizeY", "Gamemode", "Difficulty", "WorldType", "WorldTypeArgs", "Seed", "GenerateStructures", "BonusChest", "DatapackPaths", "InitialExtraCommands", "KilledStatKeys", "MinedStatKeys", "MiscStatKeys", "SurroundingEntityDistances", "HudHidden", "RenderDistance", "SimulationDistance", "EyeDistance", "StructurePaths", "NoFovEffect", "RequestRaycast", "ScreenEncodingMode", "RequiresSurroundingBlocks", "LevelDisplayNameToPlay", "Fov", "RequiresBiomeInfo", "RequiresHeightmap", "PythonPid", "RequiresDepth", "RequiresDepthConversion", "ResourceZipPath", "BlockCollisionKeys", "EntityCollisionKeys", "MapDirPath", "LidarConfig", "ProtocolVersion", });
     descriptor.resolveAllFeaturesImmutable();
   }
 

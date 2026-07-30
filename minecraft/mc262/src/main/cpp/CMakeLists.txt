@@ -126,9 +126,19 @@ set(
 message(STATUS "SOURCE_FILES=${SOURCE_FILES}")
 
 if(APPLE)
-    list(APPEND SOURCE_FILES ${GL_CAPTURE_DIR}/framebuffer_capturer_apple.mm ${GL_CAPTURE_DIR}/jni/jni_macos_zerocopy.cpp)
+    list(APPEND SOURCE_FILES
+        ${GL_CAPTURE_DIR}/framebuffer_capturer_apple.mm
+        ${GL_CAPTURE_DIR}/jni/jni_macos_zerocopy.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/vulkan_metal_zerocopy_apple.mm
+    )
 elseif(CUDAToolkit_FOUND)
-    list(APPEND SOURCE_FILES ${GL_CAPTURE_DIR}/framebuffer_capturer_cuda.cpp ${GL_CAPTURE_DIR}/jni/jni_cuda_zerocopy.cpp)
+    list(APPEND SOURCE_FILES
+        ${GL_CAPTURE_DIR}/framebuffer_capturer_cuda.cpp
+        ${GL_CAPTURE_DIR}/jni/jni_cuda_zerocopy.cpp
+        # Vulkan+CUDA ZEROCOPY (VulkanCudaZerocopy.kt's native half) - mc262/Vulkan-specific, so
+        # not in shared-native/ (mc121 has no Vulkan backend to pair it with).
+        ${CMAKE_CURRENT_LIST_DIR}/vulkan_cuda_zerocopy.cpp
+    )
 else()
     list(APPEND SOURCE_FILES ${GL_CAPTURE_DIR}/jni/jni_dummy_zerocopy.cpp)
 endif()

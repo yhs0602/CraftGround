@@ -23,8 +23,7 @@ IOSurfaceRef createSharedIOSurface(int width, int height) {
     return IOSurfaceCreate((CFDictionaryRef)surfaceAttributes);
 }
 
-static mach_port_t
-createMachPortForIOSurface(IOSurfaceRef ioSurface, int python_pid) {
+mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface, int python_pid) {
     kern_return_t result;
     mach_port_t machPort = MACH_PORT_NULL;
     machPort = IOSurfaceCreateMachPort(ioSurface);
