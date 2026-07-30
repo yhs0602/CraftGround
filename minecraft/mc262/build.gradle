@@ -1,7 +1,7 @@
 plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.4.10'
 }
 
 // Native GL frame-capture build - mirrors minecraft/mc121/build.gradle. The C++ sources live
