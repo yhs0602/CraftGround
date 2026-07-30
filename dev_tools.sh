@@ -8,6 +8,7 @@ format_code() {
 
 generate_proto() {
     (
+        set -e
         cd src/
         protoc proto/action_space.proto --python_out=craftground --pyi_out=craftground
         protoc proto/initial_environment.proto --python_out=craftground --pyi_out=craftground
@@ -28,8 +29,8 @@ generate_proto() {
 # Stage 1: protocol-tests - proto codegen must be current, then the Python unit tests that exercise
 # the wire format (including the HandshakeAck handshake added for item (f)) must pass.
 protocol_tests() {
-    generate_proto
-    PYTHONPATH=./build:src/craftground python -m pytest tests/python/unit/
+    generate_proto || return 1
+    PYTHONPATH=src:./build python -m pytest tests/python/unit/
 }
 
 # Stage 2: build-mod-mc121 / build-mod-mc262 - each Minecraft version is its own Gradle root
@@ -40,8 +41,7 @@ build_mod() {
 }
 
 build_mods() {
-    build_mod mc121
-    build_mod mc262
+    build_mod mc121 && build_mod mc262
 }
 
 # Stage 3: build-native-ipc / build-capture-native - the shared C++ IPC + pybind11 extension at the
@@ -56,13 +56,13 @@ build_native_ipc() {
 # publish-build-runtime-packages.yml's mc_dir matrix.
 assemble_runtime_packages() {
     for mc_dir in minecraft/mc121 minecraft/mc262; do
-        (cd "${mc_dir}" && python -m build)
+        (cd "${mc_dir}" && python -m build) || return 1
     done
 }
 
 build_all() {
-    protocol_tests
-    build_mods
-    build_native_ipc
-    assemble_runtime_packages
+    protocol_tests \
+        && build_mods \
+        && build_native_ipc \
+        && assemble_runtime_packages
 }

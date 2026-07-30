@@ -95,8 +95,10 @@ enum class IOPhase {
  * (opt-in behind -Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in
  * this dev environment; see docs/26_2_vulkan_capture.md for both paths' verification status).
  * EnvironmentInitializer fails loudly rather than silently producing garbage if ZEROCOPY_TORCH is
- * requested on Vulkan without one of those flags. Single-eye and stereo color capture and depth
- * capture are ported and verified end to end on both backends.
+ * requested on Vulkan without one of those flags. Single-eye and stereo color capture (RAW/PNG/
+ * ZEROCOPY_TORCH) are ported and verified end to end on both backends. Depth capture is CPU-readback
+ * only - it is out of scope for ZEROCOPY_TORCH on every backend, including OpenGL - but is otherwise
+ * ported and verified end to end on both backends the same way color RAW/PNG is.
  */
 class MinecraftEnv :
     ClientModInitializer,
@@ -556,7 +558,8 @@ class MinecraftEnv :
      */
     private fun vulkanDeviceFromRenderSystem(): com.mojang.blaze3d.vulkan.VulkanDevice {
         val accessor =
-            com.mojang.blaze3d.systems.RenderSystem.getDevice() as com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
+            com.mojang.blaze3d.systems.RenderSystem
+                .getDevice() as com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
         return accessor.backend as com.mojang.blaze3d.vulkan.VulkanDevice
     }
 

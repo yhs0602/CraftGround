@@ -236,9 +236,12 @@ private 메서드를 직접 호출한다(별도 accessor/invoker 불필요 — m
 실제로 `vkCreateDevice`에 넘기는 확장 집합이 아니라 `VulkanBackend`가 redirect 이전에 자체적으로
 만든 로컬 리스트를 반영하므로 신뢰할 수 없다.
 
-**opt-in**: `-Dcraftground.enableMetalObjects=true`가 없으면 이 mixin은 아무것도 바꾸지 않는다
-(기존 `deviceExtensions`를 그대로 넘김). Mojang의 디바이스 생성 경로에 개입하는 가장 위험도
-높은 지점이라, 검증 전까지 기본 Vulkan 실행에 영향을 주지 않도록 게이팅했다.
+**opt-in**: 이 mixin은 `-Dcraftground.enableMetalObjects=true`나
+`-Dcraftground.enableCudaInterop=true` 둘 중 하나라도 없으면 그 경로에 대해서는 아무것도
+바꾸지 않는다 (기존 `deviceExtensions`를 그대로 넘김) — 즉 두 플래그 다 없으면 완전히 no-op이고,
+CUDA 절만 켜져 있어도 Metal 관련 확장은 그대로 추가되지 않는다(반대도 마찬가지). Mojang의
+디바이스 생성 경로에 개입하는 가장 위험도 높은 지점이라, 각 opt-in이 검증 전까지 기본 Vulkan
+실행에 영향을 주지 않도록 개별적으로 게이팅했다.
 
 **실제 zerocopy 데이터 경로 (`VulkanMetalZerocopy.kt`, client 소스셋)**:
 
@@ -382,8 +385,9 @@ CUDA 핸들 크기를 집어간다.
   `size`/`flags` 설정이 충분한지(dedicated allocation 정보를 안 실었다 — Metal 쪽도 마찬가지로
   생략).
 - `deviceUUID` 매칭 로직(`vulkan_cuda_zerocopy.cpp`의 `findMatchingCudaDevice`)이 실제 멀티 GPU
-  머신에서 올바른 디바이스를 고르는지 — 매칭 실패 시 디바이스 0으로 폴백하는데, 이 폴백이 안전한
-  경우는 사실상 단일 GPU 머신뿐이다.
+  머신에서 올바른 디바이스를 고르는지. 매칭 실패 시에는 디바이스 0으로 폴백하지 않고 fail-closed
+  (`-1` 반환 → `initialize` 실패)하도록 고쳐져 있다 — 멀티 GPU 머신에서 잘못된 디바이스를 골라
+  invalid access나 조용한 오작동을 일으키느니, 초기화 실패로 명확히 드러나는 쪽을 택함.
 - `cudaMemcpy2DFromArray`를 fence 완료 직후, 그것도 동기적으로 실행하는 게 충분한지 — 이상적으로는
   Vulkan→CUDA 세마포어 import(`VK_KHR_external_semaphore` + `cudaExternalSemaphore`)로
   GPU 큐 레벨에서 동기화하는 게 맞지만, 여기서는 CPU 쪽 fence 대기(`awaitPendingFence`)로 충분하다고

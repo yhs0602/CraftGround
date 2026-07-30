@@ -17,13 +17,20 @@ object VulkanZerocopy {
 
     private fun activeBackend(): Backend =
         when {
-            VulkanMetalObjectsState.metalObjectsEnabled -> Backend.METAL
-            VulkanCudaObjectsState.cudaInteropEnabled -> Backend.CUDA
-            else ->
+            VulkanMetalObjectsState.metalObjectsEnabled -> {
+                Backend.METAL
+            }
+
+            VulkanCudaObjectsState.cudaInteropEnabled -> {
+                Backend.CUDA
+            }
+
+            else -> {
                 throw IllegalStateException(
                     "VulkanZerocopy used without an enabled interop backend - " +
                         "EnvironmentInitializer.checkRenderBackend should have already fail-fast.",
                 )
+            }
         }
 
     fun initialize(

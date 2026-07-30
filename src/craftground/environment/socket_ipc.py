@@ -180,10 +180,21 @@ class SocketIPC(IPCInterface):
     def send_exit(self):
         self.send_commands(["exit"])
 
+    # Java only sends the ack after checkRenderBackend runs, which needs a world to already be up
+    # (see EnvironmentInitializer.checkRenderBackend) - that can take much longer than the 30s
+    # timeout _connect_server sets for steady-state action/observation reads, so this read uses
+    # its own generous timeout instead of inheriting the connect-time one.
+    HANDSHAKE_ACK_TIMEOUT_SECONDS = 300
+
     def _read_handshake_ack(self) -> HandshakeAck:
-        data_len_bytes = self.buffered_socket.read(4, True)
-        data_len = struct.unpack("<I", data_len_bytes)[0]
-        data_bytes = self.buffered_socket.read(data_len, True)
+        previous_timeout = self.sock.gettimeout()
+        self.sock.settimeout(self.HANDSHAKE_ACK_TIMEOUT_SECONDS)
+        try:
+            data_len_bytes = self.buffered_socket.read(4, True)
+            data_len = struct.unpack("<I", data_len_bytes)[0]
+            data_bytes = self.buffered_socket.read(data_len, True)
+        finally:
+            self.sock.settimeout(previous_timeout)
         ack = HandshakeAck()
         ack.ParseFromString(data_bytes)
         return ack
@@ -199,7 +210,7 @@ class SocketIPC(IPCInterface):
             f"minecraft_version={ack.minecraft_version} render_backend={ack.render_backend} "
             f"capabilities={list(ack.capabilities)}"
         )
-        validate_handshake_ack(ack)
+        validate_handshake_ack(ack, self.initial_environment.screen_encoding_mode)
 
     def _connect_server(self, server_event: threading.Event):
         wait_time = 1

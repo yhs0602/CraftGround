@@ -133,6 +133,7 @@ class EnvironmentInitializer(
         }
         disablePauseOnLostFocus(client)
         disableOnboardAccessibility(client)
+        setHudHidden(client, initialEnvironment.hudHidden)
         setRenderDistance(client, initialEnvironment.renderDistance)
         setSimulationDistance(client, initialEnvironment.simulationDistance)
         disableVSync(client)
@@ -210,13 +211,17 @@ class EnvironmentInitializer(
     ) {
         val renderBackend =
             when (captureBackend) {
-                Blaze3dCapture.CaptureBackend.OPENGL -> "opengl"
-                Blaze3dCapture.CaptureBackend.BLAZE3D ->
+                Blaze3dCapture.CaptureBackend.OPENGL -> {
+                    "opengl"
+                }
+
+                Blaze3dCapture.CaptureBackend.BLAZE3D -> {
                     when {
                         VulkanMetalObjectsState.metalObjectsEnabled -> "vulkan-zerocopy-metal"
                         VulkanCudaObjectsState.cudaInteropEnabled -> "vulkan-zerocopy-cuda"
                         else -> "vulkan-cpu-readback"
                     }
+                }
             }
         val capabilities = mutableListOf<String>()
         if (captureBackend == Blaze3dCapture.CaptureBackend.OPENGL || vulkanZerocopySupported) {
@@ -619,12 +624,21 @@ class EnvironmentInitializer(
             println("World path not found; server: $minecraftServer")
         }
 
-        // TODO: 26.2's world-specific resource pack loading path (mc121's
-        // client.serverResourcePackProvider / IntegratedServerLoader.WORLD_PACK_ID) could not
-        // be located in the decompiled 26.2 sources during this port - ServerPackManager
-        // exists but its API surface for a world's own resourcepacks/resources.zip wasn't
-        // confirmed. The zip is still copied to LevelResource.MAP_RESOURCE_FILE below; only
-        // the "tell the client to actually load it" step is missing.
+        // TODO: 26.2's world-specific resource pack loading path. mc121's own attempt at this
+        // (client.serverResourcePackProvider / IntegratedServerLoader.WORLD_PACK_ID /
+        // loader.addResourcePack) never actually reloads either - see
+        // minecraft/mc121/src/main/java/.../EnvironmentInitializer.kt: shouldReloadResourcePack
+        // is registered but the code path that would set it true is commented out, so mc121
+        // only registers the pack, it never applies it. So there's no known-working reference to
+        // port. For 26.2, javap against the deobfuscated client jar found
+        // net.minecraft.client.resources.server.ServerPackManager.pushLocalPack(UUID, Path) as
+        // the likely replacement primitive (reached via Minecraft.getDownloadedPackSource()),
+        // plus Minecraft.reloadResourcePacks() to trigger the actual reload - but the exact
+        // getter from DownloadedPackSource to ServerPackManager wasn't confirmed (javap access to
+        // this repo's decompiled jar cache was unavailable when this was last checked), so wiring
+        // it up here was deferred rather than guessing at a call that could fail to compile.
+        // The zip is still copied to LevelResource.MAP_RESOURCE_FILE below; only the "tell the
+        // client to actually load it" step is missing, exactly as in mc121.
         minecraftServer?.getWorldPath(LevelResource.MAP_RESOURCE_FILE)?.let { targetZipPath ->
             println("Copying resource zip file to: $targetZipPath")
             val sourcePath = Path(initialEnvironment.resourceZipPath)
@@ -739,13 +753,19 @@ class EnvironmentInitializer(
         }
     }
 
-    // TODO: 26.2's HUD-hidden toggle (mc121's Options.hudHidden) could not be located in the
-    // decompiled sources during this port. Not wired up yet - if the HUD (crosshair/hotbar/
-    // health bar) renders over captured frames, this needs to be found and reinstated.
+    // 26.2 moved HUD rendering (and its "hidden" flag) off Options.hudHidden and onto a
+    // dedicated Hud object owned by Gui (confirmed via javap against the deobfuscated 26.2
+    // client jar: Gui.hud is public, Hud.isHidden()/toggle() are public - toggle() is a plain
+    // negation of the private isHidden field, so there's no direct setter).
     private fun setHudHidden(
         client: Minecraft,
         hudHidden: Boolean,
     ) {
+        val hud = client.gui.hud
+        if (hud.isHidden != hudHidden) {
+            hud.toggle()
+            println(if (hudHidden) "Hid hud" else "Showed hud")
+        }
     }
 
     private fun setMaxFPSToUnlimited(client: Minecraft) {

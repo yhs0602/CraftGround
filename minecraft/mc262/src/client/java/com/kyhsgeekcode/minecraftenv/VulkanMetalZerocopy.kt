@@ -237,7 +237,8 @@ object VulkanMetalZerocopy {
             // Full pipeline barrier, same coverage as VulkanCommandEncoder.memoryBarrier's private
             // instance overload - makes the write visible before this submission's fence signals,
             // which is what Blaze3dCapture.armFence()/awaitPendingFence() then waits on.
-            com.mojang.blaze3d.vulkan.VulkanCommandEncoder.memoryBarrier(cmd, stack)
+            com.mojang.blaze3d.vulkan.VulkanCommandEncoder
+                .memoryBarrier(cmd, stack)
         }
     }
 
@@ -248,9 +249,13 @@ object VulkanMetalZerocopy {
         // be unwrapped via GpuDeviceBackendAccessor.
         val device =
             (
-                com.mojang.blaze3d.systems.RenderSystem.getDevice() as?
+                com.mojang.blaze3d.systems.RenderSystem
+                    .getDevice() as?
                     com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
             )?.backend as? VulkanDevice
+        // See VulkanCudaZerocopy.close()'s comment: recordCopy's vkCmdCopyImage submission may
+        // still be in flight, so wait for it before destroying the image/memory it targets.
+        device?.graphicsQueue()?.waitIdle()
         if (device != null) {
             if (dstImage != 0L) VK10.vkDestroyImage(device.vkDevice(), dstImage, null)
             if (dstMemory != 0L) VK10.vkFreeMemory(device.vkDevice(), dstMemory, null)

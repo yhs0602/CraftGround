@@ -4,9 +4,9 @@ import com.google.protobuf.ByteString
 import com.kyhsgeekcode.minecraftenv.mixin.VulkanCommandEncoderAccessor
 import com.mojang.blaze3d.vulkan.VulkanDevice
 import com.mojang.blaze3d.vulkan.VulkanGpuTexture
+import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.KHRExternalMemoryFd
 import org.lwjgl.vulkan.KHRExternalMemoryWin32
-import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VK11
 import org.lwjgl.vulkan.VK12
@@ -208,8 +208,11 @@ object VulkanCudaZerocopy {
                 }
         }
 
-        // Ownership of the OS handle passes to CUDA here (cudaImportExternalMemory takes it over,
-        // per the CUDA runtime docs) - Vulkan must not close/duplicate it afterwards.
+        // Handle lifetime differs by platform (see vulkan_cuda_zerocopy.cpp's import function for
+        // the actual close/no-close logic): on success, a POSIX fd is consumed by CUDA; a Win32
+        // HANDLE is never taken over by CUDA and is always closed there once imported (or on
+        // failure). Either way, the Kotlin/Vulkan side does nothing further with osHandle after
+        // this call.
         val result =
             importVulkanMemoryAndInitCudaIpcImpl(
                 osHandle,
@@ -268,16 +271,25 @@ object VulkanCudaZerocopy {
         device.graphicsQueue().waitIdle()
     }
 
+    // Unlike VulkanMetalZerocopy's IOSurface-backed destination (inherently host-visible, linear
+    // memory), this image is TILING_OPTIMAL and read by CUDA as a GPU-resident cudaMipmappedArray
+    // - it must land in device-local memory, or it silently falls back to slower host-visible
+    // memory (or fails the CUDA import outright) on GPUs that expose a matching but non-local
+    // type first. Prefer a DEVICE_LOCAL type; only fall back to any matching type if none is.
     private fun findMemoryTypeIndex(
         memProperties: VkPhysicalDeviceMemoryProperties,
         typeBits: Int,
     ): Int {
+        var fallback = -1
         for (i in 0 until memProperties.memoryTypeCount()) {
-            if ((typeBits and (1 shl i)) != 0) {
+            if ((typeBits and (1 shl i)) == 0) continue
+            if (fallback < 0) fallback = i
+            val flags = memProperties.memoryTypes(i).propertyFlags()
+            if ((flags and VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0) {
                 return i
             }
         }
-        return -1
+        return fallback
     }
 
     /**
@@ -309,7 +321,8 @@ object VulkanCudaZerocopy {
                 VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 region,
             )
-            com.mojang.blaze3d.vulkan.VulkanCommandEncoder.memoryBarrier(cmd, stack)
+            com.mojang.blaze3d.vulkan.VulkanCommandEncoder
+                .memoryBarrier(cmd, stack)
         }
     }
 
@@ -330,9 +343,15 @@ object VulkanCudaZerocopy {
         if (dstImage == 0L && dstMemory == 0L && !cudaImportDone) return
         val device =
             (
-                com.mojang.blaze3d.systems.RenderSystem.getDevice() as?
+                com.mojang.blaze3d.systems.RenderSystem
+                    .getDevice() as?
                     com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
             )?.backend as? VulkanDevice
+        // vkDestroyImage/vkFreeMemory on a resource with an in-flight vkCmdCopyImage referencing it
+        // is undefined behavior - recordCopy's submission may still be executing (its fence is only
+        // guaranteed awaited by the *next* frame's awaitPendingFence, not by the time close() runs
+        // on a resolution change or shutdown). waitIdle() guarantees nothing is still using dstImage.
+        device?.graphicsQueue()?.waitIdle()
         if (cudaImportDone) destroyCudaImportImpl()
         if (device != null) {
             if (dstImage != 0L) VK10.vkDestroyImage(device.vkDevice(), dstImage, null)

@@ -3,6 +3,11 @@
 #include <cuda_runtime.h>
 #include <cstring>
 #include <cstdio>
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "framebuffer_capturer.h"
 
@@ -29,10 +34,11 @@ void *g_sharedBuffer = nullptr;
 
 // Picks the CUDA device whose cudaDeviceProp.uuid matches the Vulkan physical device's
 // VkPhysicalDeviceIDProperties.deviceUUID - both are 16-byte identifiers for the same physical
-// GPU. Falls back to device 0 (with a loud warning) if nothing matches, e.g. if the CUDA and
-// Vulkan (MoltenVK/Mesa/NVIDIA driver) views of the machine's GPUs disagree for some reason;
-// cudaImportExternalMemory below will simply fail if that guess is wrong, rather than silently
-// reading from/writing to an unrelated GPU.
+// GPU. Fails closed (-1) if nothing matches, rather than falling back to device 0: on a
+// multi-GPU machine, device 0 need not be the one Vulkan is rendering on nor own the exported
+// memory, and importing a mismatched device's memory can invalid-access or silently produce
+// garbage rather than a clean cudaImportExternalMemory failure. Callers must treat -1 as
+// initialization failure and not attempt the import.
 int findMatchingCudaDevice(const jbyte *deviceUUID) {
     int deviceCount = 0;
     cudaError_t err = cudaGetDeviceCount(&deviceCount);
@@ -53,9 +59,9 @@ int findMatchingCudaDevice(const jbyte *deviceUUID) {
     fprintf(
         stderr,
         "VulkanCudaZerocopy: no CUDA device UUID matched the Vulkan physical device; "
-        "falling back to device 0 (this may fail or silently pick the wrong GPU)\n"
+        "failing closed rather than guessing device 0\n"
     );
-    return deviceCount > 0 ? 0 : -1;
+    return -1;
 }
 
 } // namespace
@@ -107,6 +113,15 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
 
     cudaExternalMemory_t extMem;
     err = cudaImportExternalMemory(&extMem, &memHandleDesc);
+    // Handle ownership per the CUDA runtime docs: an opaque POSIX fd is consumed by CUDA only on
+    // a *successful* import (the driver closes it internally) - on failure it's still ours to
+    // close. An opaque Win32 HANDLE is never taken over by CUDA (it duplicates internally), so we
+    // must always close our copy, success or failure.
+    if (isWin32) {
+        CloseHandle(reinterpret_cast<HANDLE>(osHandle));
+    } else if (err != cudaSuccess) {
+        close(static_cast<int>(osHandle));
+    }
     if (err != cudaSuccess) {
         fprintf(
             stderr,
@@ -207,6 +222,13 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_copyImportedArrayToCudaSha
         return;
     }
     cudaSetDevice(g_deviceId);
+    // No stream argument -> the default (legacy) stream, which is synchronous with the host: this
+    // call blocks until the device-to-device copy completes, so by the time
+    // VulkanCudaZerocopy.syncAfterFence() (its only caller) returns, g_sharedBuffer is fully
+    // written and safe for Python to read via the cudaIpcMemHandle. The caller is required to only
+    // invoke this after Blaze3dCapture.awaitPendingFence() confirms the source vkCmdCopyImage
+    // finished (see syncAfterFence's kdoc) - Vulkan and CUDA have no shared queue/stream to order
+    // against otherwise.
     cudaError_t err = cudaMemcpy2DFromArray(
         g_sharedBuffer,
         static_cast<size_t>(g_width) * 4,

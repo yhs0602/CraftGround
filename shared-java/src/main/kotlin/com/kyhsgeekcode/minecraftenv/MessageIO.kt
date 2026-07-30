@@ -252,12 +252,13 @@ class SharedMemoryMessageIO(
     override fun readInitialEnvironment(): InitialEnvironment.InitialEnvironmentMessage =
         FramebufferCapturer.readInitialEnvironment(p2jMemoryName, port)
 
-    // Not wired up on the Python side yet: BoostIPC (the shared-memory IPCInterface) has no
-    // pre-read_observation() step to consume a standalone ack from the j2p channel, and writing
-    // one there would just corrupt the first real observation read. Left a no-op rather than
-    // silently breaking BoostIPC until that Python-side read is added - see
-    // docs/26_2_MigrationPlan.md item (f) for the TCP/domain-socket path that IS wired up.
-    override fun writeHandshakeAck(ack: InitialEnvironment.HandshakeAck) {}
+    // Writes the ack as a one-off payload on the j2p channel, reusing the same generic
+    // byte-write path as writeObservation. BoostIPC (Python) consumes exactly one such payload
+    // via read_from_shared_memory before it starts treating j2p reads as observations - see
+    // docs/26_2_MigrationPlan.md item (f).
+    override fun writeHandshakeAck(ack: InitialEnvironment.HandshakeAck) {
+        FramebufferCapturer.writeHandshakeAck(p2jMemoryName, j2pMemoryName, ack)
+    }
 
     override fun writeObservation(observation: ObservationSpace.ObservationSpaceMessage) =
         FramebufferCapturer.writeObservation(p2jMemoryName, j2pMemoryName, observation)

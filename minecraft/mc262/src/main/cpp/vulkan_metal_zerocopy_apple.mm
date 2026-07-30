@@ -24,9 +24,9 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanMetalZerocopy_createSharedIOSurfaceImpl
     if (surface == nullptr) {
         return 0;
     }
-    // +1 ref owned by the Kotlin-side lifetime of VulkanMetalZerocopy; released in
-    // destroyIOSurfaceImpl (close()).
-    CFRetain(surface);
+    // createSharedIOSurface (IOSurfaceCreate) already returns a +1 ref, owned from here by the
+    // Kotlin-side lifetime of VulkanMetalZerocopy and released in destroyIOSurfaceImpl (close()) -
+    // no extra CFRetain needed here.
     return reinterpret_cast<jlong>(surface);
 }
 
