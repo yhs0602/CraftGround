@@ -11,8 +11,9 @@ from craftground.csv_logger import CsvLogger
 from craftground.environment.action_space import action_v2_dict_to_message, no_op_v2
 from craftground.environment.ipc_interface import IPCInterface
 from craftground.proto.action_space_pb2 import ActionSpaceMessageV2
-from craftground.proto.initial_environment_pb2 import InitialEnvironmentMessage
+from craftground.proto.initial_environment_pb2 import HandshakeAck, InitialEnvironmentMessage
 from craftground.proto.observation_space_pb2 import ObservationSpaceMessage
+from craftground.protocol_version import validate_handshake_ack
 import socket
 
 
@@ -179,11 +180,26 @@ class SocketIPC(IPCInterface):
     def send_exit(self):
         self.send_commands(["exit"])
 
+    def _read_handshake_ack(self) -> HandshakeAck:
+        data_len_bytes = self.buffered_socket.read(4, True)
+        data_len = struct.unpack("<I", data_len_bytes)[0]
+        data_bytes = self.buffered_socket.read(data_len, True)
+        ack = HandshakeAck()
+        ack.ParseFromString(data_bytes)
+        return ack
+
     def start_communication(self, server_event: threading.Event):
         self._connect_server(server_event)
         self.buffered_socket = BufferedSocket(self.sock)
         self._send_initial_environment(self.initial_environment)
         self.logger.log("Sent initial environment")
+        ack = self._read_handshake_ack()
+        self.logger.log(
+            f"Received handshake ack: protocol_version={ack.protocol_version} "
+            f"minecraft_version={ack.minecraft_version} render_backend={ack.render_backend} "
+            f"capabilities={list(ack.capabilities)}"
+        )
+        validate_handshake_ack(ack)
 
     def _connect_server(self, server_event: threading.Event):
         wait_time = 1

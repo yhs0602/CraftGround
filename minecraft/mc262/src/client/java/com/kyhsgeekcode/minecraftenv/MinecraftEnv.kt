@@ -246,7 +246,7 @@ class MinecraftEnv :
         ioPhase = IOPhase.GOT_INITIAL_ENVIRONMENT_SHOULD_SEND_OBSERVATION
         resetPhase = ResetPhase.WAIT_INIT_ENDS
         csvLogger.log("Initial environment read; $ioPhase $resetPhase")
-        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger)
+        val initializer = EnvironmentInitializer(initialEnvironment, csvLogger, messageIO)
         ClientTickEvents.START_CLIENT_TICK.register(
             ClientTickEvents.StartTick { client: Minecraft ->
                 printWithTime("Start Client tick")

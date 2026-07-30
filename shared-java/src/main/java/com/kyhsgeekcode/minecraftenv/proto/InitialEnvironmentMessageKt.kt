@@ -1242,6 +1242,31 @@ public object InitialEnvironmentMessageKt {
 
     public val InitialEnvironmentMessageKt.Dsl.lidarConfigOrNull: com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.LidarConfig?
       get() = _builder.lidarConfigOrNull
+
+    /**
+     * ```
+     * CRAFTGROUND_PROTOCOL_VERSION the Python client implements
+     * ```
+     *
+     * `int32 protocol_version = 37;`
+     */
+    public var protocolVersion: kotlin.Int
+      @JvmName("getProtocolVersion")
+      get() = _builder.protocolVersion
+      @JvmName("setProtocolVersion")
+      set(value) {
+        _builder.protocolVersion = value
+      }
+    /**
+     * ```
+     * CRAFTGROUND_PROTOCOL_VERSION the Python client implements
+     * ```
+     *
+     * `int32 protocol_version = 37;`
+     */
+    public fun clearProtocolVersion() {
+      _builder.clearProtocolVersion()
+    }
   }
 }
 @kotlin.jvm.JvmSynthetic

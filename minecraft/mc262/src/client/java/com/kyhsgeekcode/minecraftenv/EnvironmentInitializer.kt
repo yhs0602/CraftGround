@@ -69,6 +69,7 @@ internal val chatList = mutableListOf<ChatMessageRecord>()
 class EnvironmentInitializer(
     private val initialEnvironment: InitialEnvironmentMessage,
     private val csvLogger: CsvLogger,
+    private val messageIO: MessageIO,
 ) {
     private var hasRunInitWorld: Boolean = false
         private set
@@ -83,6 +84,7 @@ class EnvironmentInitializer(
     private var finishedEnteringWorld = false
     private var shouldReloadResourcePack = false
     private var reloadResourcePackFuture: CompletableFuture<Void>? = null
+    private var handshakeAckSent = false
 
     fun onClientTick(client: Minecraft) {
         if (finishedEnteringWorld && initializedClient) {
@@ -176,12 +178,16 @@ class EnvironmentInitializer(
             "CraftGround: rendering backend '$backendName' -> capture path $captureBackend " +
                 "(color texture ${colorTexture.javaClass.simpleName})",
         )
+        val vulkanZerocopySupported =
+            captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D &&
+                (VulkanMetalObjectsState.metalObjectsEnabled || VulkanCudaObjectsState.cudaInteropEnabled)
+        if (!handshakeAckSent) {
+            sendHandshakeAck(captureBackend, vulkanZerocopySupported)
+            handshakeAckSent = true
+        }
         if (captureBackend != Blaze3dCapture.CaptureBackend.OPENGL &&
             initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH
         ) {
-            val vulkanZerocopySupported =
-                captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D &&
-                    (VulkanMetalObjectsState.metalObjectsEnabled || VulkanCudaObjectsState.cudaInteropEnabled)
             if (!vulkanZerocopySupported) {
                 throw IllegalStateException(
                     "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, or Vulkan with " +
@@ -193,6 +199,40 @@ class EnvironmentInitializer(
                 )
             }
         }
+    }
+
+    // Sent once, right when the capture backend is resolved (before the incompatibility throw
+    // above, so Python learns about a bad ZEROCOPY_TORCH/backend pairing from a clean rejection
+    // instead of a dropped connection) - docs/26_2_MigrationPlan.md item (f).
+    private fun sendHandshakeAck(
+        captureBackend: Blaze3dCapture.CaptureBackend,
+        vulkanZerocopySupported: Boolean,
+    ) {
+        val renderBackend =
+            when (captureBackend) {
+                Blaze3dCapture.CaptureBackend.OPENGL -> "opengl"
+                Blaze3dCapture.CaptureBackend.BLAZE3D ->
+                    when {
+                        VulkanMetalObjectsState.metalObjectsEnabled -> "vulkan-zerocopy-metal"
+                        VulkanCudaObjectsState.cudaInteropEnabled -> "vulkan-zerocopy-cuda"
+                        else -> "vulkan-cpu-readback"
+                    }
+            }
+        val capabilities = mutableListOf<String>()
+        if (captureBackend == Blaze3dCapture.CaptureBackend.OPENGL || vulkanZerocopySupported) {
+            capabilities.add("zerocopy")
+        }
+        capabilities.add("depth")
+        capabilities.add("lidar")
+        messageIO.writeHandshakeAck(
+            InitialEnvironment.HandshakeAck
+                .newBuilder()
+                .setProtocolVersion(CRAFTGROUND_PROTOCOL_VERSION)
+                .setMinecraftVersion("26.2")
+                .setRenderBackend(renderBackend)
+                .addAllCapabilities(capabilities)
+                .build(),
+        )
     }
 
     private fun enterExistingWorldUsingGUI(

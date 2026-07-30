@@ -51,6 +51,10 @@ class BoostIPC(IPCInterface):
             len(dummy_action_bytes),
             find_free_port,
         )
+        # NOTE: unlike SocketIPC, this transport doesn't read a HandshakeAck back from Java -
+        # SharedMemoryMessageIO.writeHandshakeAck (Kotlin side) is a documented no-op for the
+        # shared-memory path, since there's no read step here to consume it before the first
+        # read_observation() call (docs/26_2_MigrationPlan.md item (f)).
         self.SHMEM_PREFIX = "Global\\" if platform.system() == "Windows" else "/"
         self.p2j_shared_memory_name = f"{self.SHMEM_PREFIX}craftground_{self.port}_p2j"
         self.j2p_shared_memory_name = f"{self.SHMEM_PREFIX}craftground_{self.port}_j2p"

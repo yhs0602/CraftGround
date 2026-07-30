@@ -22,6 +22,17 @@ enum WorldType {
   SINGLE_BIOME = 4;
 }
 
+// Sent by Java right after it reads InitialEnvironmentMessage, before entering the world -
+// lets Python reject an incompatible server immediately instead of hanging on the first
+// read_observation() call or crashing Java mid-init. One per session, so no perf constraint
+// (docs/26_2_MigrationPlan.md item (f)).
+message HandshakeAck {
+  int32 protocol_version = 1; // CRAFTGROUND_PROTOCOL_VERSION the Java side implements
+  string minecraft_version = 2; // e.g. "1.21" or "26.2"
+  string render_backend = 3; // e.g. "opengl", "vulkan-cpu-readback", "vulkan-zerocopy-metal", "vulkan-zerocopy-cuda"
+  repeated string capabilities = 4; // e.g. "zerocopy_gl", "zerocopy_metal", "zerocopy_cuda", "depth"
+}
+
 message LidarConfig {
   int32 horizontal_rays = 1;  // Number of rays in the horizontal plane (e.g., 32 for 32 rays around 360 degrees)
   float max_distance = 2;      // Maximum raycast distance in blocks (e.g., 100.0)
@@ -67,4 +78,5 @@ message InitialEnvironmentMessage {
   repeated string entityCollisionKeys = 34;
   string map_dir_path = 35;
   LidarConfig lidar_config = 36;  // Lidar configuration, if not set, Lidar is disabled
+  int32 protocol_version = 37; // CRAFTGROUND_PROTOCOL_VERSION the Python client implements
 }

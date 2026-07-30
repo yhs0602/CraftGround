@@ -184,6 +184,20 @@ class MinecraftEnv :
         FramebufferCapturer.requiresDepthConversion = initialEnvironment.requiresDepthConversion
         csvLogger.profileEndPrint("Minecraft_env/onInitialize/readInitialEnvironment")
 
+        // Sent once per session so Python can reject an incompatible server immediately, rather
+        // than hanging on the first read_observation() call (docs/26_2_MigrationPlan.md item (f)).
+        // Unlike mc262, mc121 has only one rendering/capture backend, so this doesn't need to wait
+        // for a per-tick backend check - GL zerocopy is unconditionally supported.
+        messageIO.writeHandshakeAck(
+            InitialEnvironment.HandshakeAck
+                .newBuilder()
+                .setProtocolVersion(CRAFTGROUND_PROTOCOL_VERSION)
+                .setMinecraftVersion("1.21")
+                .setRenderBackend("opengl")
+                .addAllCapabilities(listOf("zerocopy", "depth", "lidar"))
+                .build(),
+        )
+
         // Check the collision info dict and override collision dynamically
 //        Blocks.BLUE_ICE.defaultState.onEntityCollision()
         for (blockCollisionKey in initialEnvironment.blockCollisionKeysList) {

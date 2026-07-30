@@ -4,6 +4,7 @@ import os
 from typing import List, Tuple, Optional
 
 from .proto import initial_environment_pb2
+from .protocol_version import CRAFTGROUND_PROTOCOL_VERSION
 from .screen_encoding_modes import ScreenEncodingMode
 
 
@@ -247,4 +248,5 @@ class InitialEnvironmentConfig:
             initial_env.lidar_config.vertical_angle = self.lidar_config.vertical_angle
             initial_env.lidar_config.vertical_rays = self.lidar_config.vertical_rays
             initial_env.lidar_config.vertical_fov = self.lidar_config.vertical_fov
+        initial_env.protocol_version = CRAFTGROUND_PROTOCOL_VERSION
         return initial_env
