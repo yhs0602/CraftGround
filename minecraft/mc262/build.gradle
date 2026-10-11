@@ -72,7 +72,8 @@ tasks.register('configureCppProject', Exec) {
 }
 
 tasks.register('compileCpp', Exec) {
-    commandLine 'cmake', '--build', '.', '--config', 'Release', '--parallel', '8'
+    def buildParallelism = System.getenv('CMAKE_BUILD_PARALLEL_LEVEL') ?: '8'
+    commandLine 'cmake', '--build', '.', '--config', 'Release', '--parallel', buildParallelism
     inputs.dir("src/main/cpp")
     inputs.dir("../../shared-native/gl-capture")
     def os = org.gradle.internal.os.OperatingSystem.current()

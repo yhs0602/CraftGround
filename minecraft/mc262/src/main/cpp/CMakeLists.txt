@@ -52,7 +52,8 @@ include_directories(${GL_CAPTURE_DIR}/include)
 message("GL_CAPTURE_DIR=${GL_CAPTURE_DIR}")
 # Find JNI
 find_package(Java COMPONENTS Development)
-find_package(JNI REQUIRED)
+# Only JNI/JVM is used; AWT headers are absent from headless JDKs.
+find_package(JNI REQUIRED COMPONENTS JVM)
 include_directories(${JNI_INCLUDE_DIRS})
 
 # Find OpenGL

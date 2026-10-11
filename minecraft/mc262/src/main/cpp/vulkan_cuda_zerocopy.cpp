@@ -117,11 +117,15 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
     // a *successful* import (the driver closes it internally) - on failure it's still ours to
     // close. An opaque Win32 HANDLE is never taken over by CUDA (it duplicates internally), so we
     // must always close our copy, success or failure.
+#if defined(_WIN32)
     if (isWin32) {
         CloseHandle(reinterpret_cast<HANDLE>(osHandle));
-    } else if (err != cudaSuccess) {
+    }
+#else
+    if (!isWin32 && err != cudaSuccess) {
         close(static_cast<int>(osHandle));
     }
+#endif
     if (err != cudaSuccess) {
         fprintf(
             stderr,
