@@ -174,7 +174,7 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'com.google.protobuf:protobuf-kotlin:4.29.2'
+    implementation 'com.google.protobuf:protobuf-kotlin:4.36.2'
 }
 
 sourceSets {
