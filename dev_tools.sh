@@ -36,12 +36,12 @@ protocol_tests() {
 # Stage 2: build-mod-mc121 / build-mod-mc262 - each Minecraft version is its own Gradle root
 # (docs/26_2_MigrationPlan.md's "완료됨" section); mirrors gradle.yml's gradle_build/gradle_build_mc262 jobs.
 build_mod() {
-    local mc_dir="$1" # mc121 or mc262
+    local mc_dir="$1"
     (cd "minecraft/${mc_dir}" && ./gradlew build)
 }
 
 build_mods() {
-    build_mod mc121 && build_mod mc262
+    build_mod mc121 && build_mod mc262 && build_mod mc263
 }
 
 # Stage 3: build-native-ipc / build-capture-native - the shared C++ IPC + pybind11 extension at the
@@ -55,7 +55,7 @@ build_native_ipc() {
 # Stage 4: assemble-runtime-packages - sdist/wheel for each craftground-runtime-mc* package; mirrors
 # publish-build-runtime-packages.yml's mc_dir matrix.
 assemble_runtime_packages() {
-    for mc_dir in minecraft/mc121 minecraft/mc262; do
+    for mc_dir in minecraft/mc121 minecraft/mc262 minecraft/mc263; do
         (cd "${mc_dir}" && python -m build) || return 1
     done
 }

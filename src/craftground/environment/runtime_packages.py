@@ -18,10 +18,11 @@ _NATIVE_BUILD_ARTIFACTS = [
 
 # Maps the public `mc_version` string to the installed runtime package that
 # ships the corresponding Fabric mod's Gradle project (see
-# minecraft/mc121/pyproject.toml, minecraft/mc262/pyproject.toml).
+# the runtime pyproject.toml files under minecraft/).
 _RUNTIME_PACKAGES = {
     "1.21": "craftground_runtime_mc121",
     "26.2": "craftground_runtime_mc262",
+    "26.3": "craftground_runtime_mc263",
 }
 
 

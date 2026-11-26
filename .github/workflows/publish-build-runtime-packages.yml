@@ -11,11 +11,11 @@ concurrency:
 
 jobs:
   build_runtime_packages:
-    name: Build ${{ matrix.mc_dir }} runtime package
+    name: Build ${{ matrix.runtime }} runtime package
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        mc_dir: [minecraft/mc121, minecraft/mc262]
+        runtime: [mc121, mc262, mc263]
     steps:
     - uses: actions/checkout@v4
 
@@ -25,12 +25,12 @@ jobs:
 
     - name: Build sdist and wheel
       run: pipx run build --outdir ${{ github.workspace }}/dist
-      working-directory: ${{ matrix.mc_dir }}
+      working-directory: minecraft/${{ matrix.runtime }}
 
     - name: Check metadata
       run: pipx run twine check dist/*
 
     - uses: actions/upload-artifact@v4
       with:
-        name: cibw-runtime-${{ matrix.mc_dir == 'minecraft/mc121' && 'mc121' || 'mc262' }}
+        name: cibw-runtime-${{ matrix.runtime }}
         path: dist/*

@@ -14,21 +14,13 @@ Source = "https://github.com/yhs0602/CraftGround"
 
 [tool.setuptools]
 packages = ["craftground_runtime_mc263"]
-include-package-data = true
+include-package-data = false
 
 [tool.setuptools.package-dir]
 craftground_runtime_mc263 = "."
 
-[tool.setuptools.exclude-package-data]
+[tool.setuptools.package-data]
 craftground_runtime_mc263 = [
-  "build",
-  "build/**",
-  "dist",
-  "dist/**",
-  "*.egg-info",
-  "*.egg-info/**",
-  "pyproject.toml",
-  "MANIFEST.in",
-  "setup.cfg",
-  ".gitignore",
+  "LICENSE", "gradlew", "gradlew.bat", "*.gradle", "gradle.properties",
+  "gradle/wrapper/*", "src/**/*",
 ]

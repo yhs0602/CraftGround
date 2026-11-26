@@ -52,7 +52,7 @@ class CraftGroundEnvironment(gym.Env):
         action_space_version: ActionSpaceVersion = ActionSpaceVersion.V1_MINEDOJO,
         verbose=False,
         env_path=None,
-        mc_version: str = "1.21",  # "26.2" builds but has no mixins/frame capture yet - non-functional
+        mc_version: str = "1.21",
         port=8000,
         find_free_port: bool = True,
         use_shared_memory: bool = False,
