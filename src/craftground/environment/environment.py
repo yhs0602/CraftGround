@@ -80,6 +80,7 @@ class CraftGroundEnvironment(gym.Env):
         self.initial_env_message = initial_env.to_initial_environment_message()
 
         self.use_terminate = use_terminate
+        self.mc_version = mc_version
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
         self.no_threaded_optimizations = no_threaded_optimizations
@@ -234,6 +235,7 @@ class CraftGroundEnvironment(gym.Env):
         # Prepare command
         my_env = os.environ.copy()
         my_env["PORT"] = str(self.ipc.port)
+        my_env["CRAFTGROUND_CLEANUP_WORLD"] = str(int(self.cleanup_world))
         my_env["USE_SHARED_MEMORY"] = str(int(self.use_shared_memory))
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
         if self.track_native_memory:
@@ -392,9 +394,10 @@ class CraftGroundEnvironment(gym.Env):
     def terminate(self):
         self.server_event = None
         try:
+            wait_for_exit = self.mc_version == "26.3" and self.ipc.is_alive()
             self.ipc.destroy()
         except Exception:
-            pass
+            wait_for_exit = False
 
         p = self.process
         if not p:
@@ -403,6 +406,13 @@ class CraftGroundEnvironment(gym.Env):
 
         pid = p.pid
         try:
+            # The 26.3 exit handler stops the integrated server and finalizes the save.
+            if wait_for_exit:
+                try:
+                    p.wait(timeout=10)
+                    return
+                except subprocess.TimeoutExpired:
+                    pass
             if hasattr(os, "getpgid"):
                 # Unix: Process group kill
                 try:

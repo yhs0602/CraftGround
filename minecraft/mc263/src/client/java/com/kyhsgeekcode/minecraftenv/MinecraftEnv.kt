@@ -36,6 +36,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.ProjectileUtil
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.storage.LevelResource
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.EntityHitResult
@@ -475,13 +476,28 @@ class MinecraftEnv :
             printWithTime("Will terminate")
             csvLogger.log("Will terminate")
             stepBarrier.terminate()
-            // remove the world file
-            client.getSingleplayerServer()?.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)?.let {
+            // A named world belongs to the caller. Only remove a generated save directly
+            // under this client's saves directory. ROOT can end in "/." on 26.3.
+            val server = client.singleplayerServer
+            val save =
+                server
+                    ?.getWorldPath(LevelResource.ROOT)
+                    ?.toAbsolutePath()
+                    ?.normalize()
+            val saves =
+                client.levelSource.baseDir
+                    .toAbsolutePath()
+                    .normalize()
+            server?.halt(true)
+            if (initialEnvironment.levelDisplayNameToPlay.isEmpty() &&
+                System.getenv("CRAFTGROUND_CLEANUP_WORLD") != "0" &&
+                save != null &&
+                save.parent == saves
+            ) {
                 try {
-                    it.deleteRecursively()
-                    printWithTime("Successfully deleted the world $it")
+                    save.deleteRecursively()
                 } catch (e: IOException) {
-                    printWithTime("Failed to delete the world $it")
+                    printWithTime("Failed to delete generated world $save")
                     e.printStackTrace()
                 }
             }
