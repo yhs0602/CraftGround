@@ -67,3 +67,92 @@ def test_installed_runtime(mode, stereo):
         assert env.step(no_op_v2())[0]["rgb"].shape == frame.shape
     finally:
         env.close()
+
+
+@pytest.mark.parametrize("mode", [ScreenEncodingMode.RAW, ScreenEncodingMode.PNG])
+def test_block_interaction_and_frame_orientation(mode):
+    width, height = 319, 181
+    config = craftground.InitialEnvironmentConfig(
+        image_width=width,
+        image_height=height,
+        world_type=WorldType.SUPERFLAT,
+        seed="43",
+        render_distance=3,
+        hud_hidden=True,
+        request_raycast=True,
+        requires_depth=True,
+        screen_encoding_mode=mode,
+        initial_extra_commands=[
+            "difficulty peaceful",
+            "time set noon",
+            "weather clear",
+            "gamemode creative @p",
+            "fill -6 79 -6 6 79 6 smooth_stone",
+            "tp @p 0.5 80 0.5 0 0",
+            "fill 1 82 5 9 90 5 red_concrete",
+            "fill -9 82 5 0 90 5 lime_concrete",
+            "fill 1 73 5 9 81 5 blue_concrete",
+            "fill -9 73 5 0 81 5 yellow_concrete",
+            "setblock 0 81 3 poplar_planks",
+        ],
+    )
+    env = craftground.make(
+        mc_version="26.3",
+        initial_env_config=config,
+        action_space_version=ActionSpaceVersion.V2_MINERL_HUMAN,
+    )
+
+    def target(obs):
+        block = obs["full"].raycast_result.target_block
+        return block.translation_key, block.x, block.y, block.z
+
+    def depth_at(obs, x):
+        depth = np.asarray(obs["full"].depth).reshape(height, width)
+        return np.median(depth[88:93, x - 2 : x + 3])
+
+    try:
+        obs, _ = env.reset()
+        plank = ("block.minecraft.poplar_planks", 0, 81, 3)
+        # Facing +Z at z=0.5, the plank face is 2.5 blocks away and the wall is 4.5.
+        distance_ratio = 4.5 / 2.5
+        for _ in range(100):
+            obs = env.step(no_op_v2())[0]
+            near = depth_at(obs, width // 2)
+            expected_far = pytest.approx(near * distance_ratio, rel=0.03)
+            if target(obs) == plank and near > 0 and depth_at(obs, 65) == expected_far:
+                break
+        else:
+            pytest.fail(f"Plank or wall missing from raycast/depth: {target(obs)}, {near}")
+
+        obs = env.step(dict(no_op_v2(), attack=True))[0]
+        wall = ("block.minecraft.yellow_concrete", 0, 81, 5)
+        for _ in range(100):
+            if target(obs) == wall:
+                break
+            obs = env.step(no_op_v2())[0]
+        assert target(obs) == wall
+
+        # The raycast can see the wall before the chunk mesh is ready.
+        for _ in range(100):
+            obs = env.step(no_op_v2())[0]
+            rgb = obs["rgb"]
+            if mode == ScreenEncodingMode.PNG:
+                rgb = rgb.transpose(2, 1, 0)  # PNG is channels, width, height.
+            assert rgb.shape == (height, width, 3)
+            red, green, blue, yellow = [
+                np.median(rgb[y - 7 : y + 7, x - 7 : x + 7], axis=(0, 1))
+                for y in (46, 132)
+                for x in (65, 250)
+            ]
+            if (
+                red[0] > 1.5 * max(red[1:])
+                and green[1] > 1.25 * max(green[0], green[2])
+                and blue[2] > 1.4 * max(blue[:2])
+                and min(yellow[:2]) > 2 * yellow[2]
+                and depth_at(obs, width // 2) == expected_far
+            ):
+                break
+        else:
+            pytest.fail(f"Unexpected quadrant colors: {red}, {green}, {blue}, {yellow}")
+    finally:
+        env.close()
