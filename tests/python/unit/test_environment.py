@@ -1,4 +1,5 @@
 import signal
+import subprocess
 import pytest
 from unittest.mock import MagicMock, patch
 
@@ -122,6 +123,7 @@ def test_close_environment(mock_close, environment):
 def test_terminate_environment(mock_kill, mock_getpgid, environment):
     environment.process = MagicMock()
     environment.process.pid = 1234
+    environment.process.wait.side_effect = subprocess.TimeoutExpired("java", 10)
     mock_getpgid.return_value = -1234
 
     environment.terminate()

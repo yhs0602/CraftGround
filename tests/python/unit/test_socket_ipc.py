@@ -9,7 +9,8 @@ from craftground.buffered_socket import BufferedSocket
 from craftground.csv_logger import CsvLogger
 from craftground.environment.socket_ipc import SocketIPC
 from craftground.proto.action_space_pb2 import ActionSpaceMessageV2
-from craftground.proto.initial_environment_pb2 import InitialEnvironmentMessage
+from craftground.proto.initial_environment_pb2 import HandshakeAck, InitialEnvironmentMessage
+from craftground.protocol_version import CRAFTGROUND_PROTOCOL_VERSION
 from craftground.proto.observation_space_pb2 import ObservationSpaceMessage
 
 
@@ -20,7 +21,7 @@ def mock_logger():
 
 @pytest.fixture
 def mock_initial_environment():
-    return MagicMock(spec=InitialEnvironmentMessage)
+    return InitialEnvironmentMessage()
 
 
 @pytest.fixture
@@ -111,13 +112,14 @@ def test_start_communication(mock_socket, socket_ipc):
     mock_sock = MagicMock()
     mock_socket.return_value = mock_sock
     socket_ipc.sock = mock_sock
-    socket_ipc.buffered_socket = MagicMock(spec=BufferedSocket)
+    ack = HandshakeAck(
+        protocol_version=CRAFTGROUND_PROTOCOL_VERSION,
+        minecraft_version="26.3",
+        render_backend="opengl",
+    ).SerializeToString()
+    mock_sock.recv.side_effect = [struct.pack("<I", len(ack)), ack]
 
-    event = threading.Event()
-    socket_ipc.start_communication(event)
-
-    sleep(5)
-    event.set()
+    socket_ipc.start_communication(threading.Event())
 
     mock_sock.send.assert_called()
     mock_sock.sendall.assert_called()
