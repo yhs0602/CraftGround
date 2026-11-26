@@ -73,33 +73,7 @@ enum class IOPhase {
     SENT_OBSERVATION_SHOULD_READ_ACTION,
 }
 
-/**
- * Port of mc121's MinecraftEnv onto 26.2. See 26_2_phase2_plan.md for the design this follows:
- *
- * - W6: "/tick rate 10000" (unchanged from mc121 - still backed by the vanilla
- *   TickRateManager in 26.2) is issued from EnvironmentInitializer.setUnlimitedTPS(), not here.
- * - W2: client tick pacing is pinned to 1 tick/frame by ClientTickPinMixin
- *   (DeltaTracker.Timer), not by anything in this file.
- * - D4: mc121's REALISTIC_HUMAN custom-entity registration is dropped - out of scope
- *   (see phase2_plan.md §4).
- *
- * Color and depth capture work on both of 26.2's rendering backends. The OpenGL backend keeps the
- * original native glReadPixels path; anything else (i.e. Vulkan) goes through Blaze3D's own
- * backend-neutral readback - see Blaze3dCapture.CaptureBackend and
- * docs/26_2_vulkan_capture.md.
- *
- * ZEROCOPY_TORCH is implemented on both backends: OpenGL via FramebufferCapturer's texture-based
- * IOSurface path (verified end to end), Vulkan via VulkanZerocopy - VulkanMetalZerocopy's
- * VK_EXT_metal_objects import on Apple (opt-in behind -Dcraftground.enableMetalObjects=true,
- * verified) or VulkanCudaZerocopy's VK_KHR_external_memory_fd/win32 + CUDA import on Linux/Windows
- * (opt-in behind -Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in
- * this dev environment; see docs/26_2_vulkan_capture.md for both paths' verification status).
- * EnvironmentInitializer fails loudly rather than silently producing garbage if ZEROCOPY_TORCH is
- * requested on Vulkan without one of those flags. Single-eye and stereo color capture (RAW/PNG/
- * ZEROCOPY_TORCH) are ported and verified end to end on both backends. Depth capture is CPU-readback
- * only - it is out of scope for ZEROCOPY_TORCH on every backend, including OpenGL - but is otherwise
- * ported and verified end to end on both backends the same way color RAW/PNG is.
- */
+/** Drives one integrated-server tick per action and captures the resulting rendered frame. */
 class MinecraftEnv :
     ClientModInitializer,
     CommandExecutor {
@@ -556,11 +530,11 @@ class MinecraftEnv :
      * field GpuDevice actually wraps, which is a `VulkanDevice` whenever the capture backend is
      * BLAZE3D - callers only reach this after already checking that.
      */
-    private fun vulkanDeviceFromRenderSystem(): com.mojang.blaze3d.vulkan.VulkanDevice {
+    private fun vulkanDeviceFromRenderSystem(): com.mojang.renderpearl.backend.vulkan.VulkanDevice {
         val accessor =
             com.mojang.blaze3d.systems.RenderSystem
                 .getDevice() as com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
-        return accessor.backend as com.mojang.blaze3d.vulkan.VulkanDevice
+        return accessor.backend as com.mojang.renderpearl.backend.vulkan.VulkanDevice
     }
 
     /**
@@ -592,7 +566,7 @@ class MinecraftEnv :
             )
             VulkanZerocopy.recordCopy(
                 device,
-                colorTexture as com.mojang.blaze3d.vulkan.VulkanGpuTexture,
+                colorTexture as com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture,
                 initialEnvironment.imageSizeX,
                 initialEnvironment.imageSizeY,
             )
@@ -670,7 +644,7 @@ class MinecraftEnv :
             val deltaTracker = client.deltaTracker
             client.gameRenderer.update(deltaTracker)
             client.gameRenderer.extract(deltaTracker, true)
-            client.gameRenderer.render(deltaTracker, true)
+            client.gameRenderer.render()
             val mainRenderTarget = client.gameRenderer.mainRenderTarget()
             val colorTexture =
                 mainRenderTarget.colorTexture
@@ -687,7 +661,7 @@ class MinecraftEnv :
                 )
             } else {
                 FramebufferCapturer.captureFramebuffer(
-                    (colorTexture as com.mojang.blaze3d.opengl.GlTexture).glId(),
+                    (colorTexture as com.mojang.renderpearl.backend.opengl.GlTexture).glId(),
                     0,
                     mainRenderTarget.width,
                     mainRenderTarget.height,
@@ -836,7 +810,7 @@ class MinecraftEnv :
                         )
                     } else {
                         FramebufferCapturer.captureFramebuffer(
-                            (colorTexture as com.mojang.blaze3d.opengl.GlTexture).glId(),
+                            (colorTexture as com.mojang.renderpearl.backend.opengl.GlTexture).glId(),
                             // frameBufferId: unused - both RAW/PNG and ZEROCOPY_TORCH are
                             // texture-based on 26.2's OpenGL backend (see W3).
                             0,

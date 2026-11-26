@@ -2,8 +2,8 @@ package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
 import com.kyhsgeekcode.minecraftenv.mixin.VulkanCommandEncoderAccessor
-import com.mojang.blaze3d.vulkan.VulkanDevice
-import com.mojang.blaze3d.vulkan.VulkanGpuTexture
+import com.mojang.renderpearl.backend.vulkan.VulkanDevice
+import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.KHRExternalMemoryFd
 import org.lwjgl.vulkan.KHRExternalMemoryWin32
@@ -321,7 +321,7 @@ object VulkanCudaZerocopy {
                 VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 region,
             )
-            com.mojang.blaze3d.vulkan.VulkanCommandEncoder
+            com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder
                 .memoryBarrier(cmd, stack)
         }
     }

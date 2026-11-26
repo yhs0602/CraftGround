@@ -2,8 +2,8 @@ package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
 import com.kyhsgeekcode.minecraftenv.mixin.VulkanCommandEncoderAccessor
-import com.mojang.blaze3d.vulkan.VulkanDevice
-import com.mojang.blaze3d.vulkan.VulkanGpuTexture
+import com.mojang.renderpearl.backend.vulkan.VulkanDevice
+import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.EXTExternalMemoryMetal
 import org.lwjgl.vulkan.EXTMetalObjects
@@ -237,7 +237,7 @@ object VulkanMetalZerocopy {
             // Full pipeline barrier, same coverage as VulkanCommandEncoder.memoryBarrier's private
             // instance overload - makes the write visible before this submission's fence signals,
             // which is what Blaze3dCapture.armFence()/awaitPendingFence() then waits on.
-            com.mojang.blaze3d.vulkan.VulkanCommandEncoder
+            com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder
                 .memoryBarrier(cmd, stack)
         }
     }

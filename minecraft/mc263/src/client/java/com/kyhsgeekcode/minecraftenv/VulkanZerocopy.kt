@@ -1,8 +1,8 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
-import com.mojang.blaze3d.vulkan.VulkanDevice
-import com.mojang.blaze3d.vulkan.VulkanGpuTexture
+import com.mojang.renderpearl.backend.vulkan.VulkanDevice
+import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture
 
 /**
  * Dispatches to whichever Vulkan cross-API ZEROCOPY backend [VulkanBackendInteropExtensionMixin]

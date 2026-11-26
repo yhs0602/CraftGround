@@ -29,7 +29,8 @@ public class LevelExtractorEntityListenerMixin implements AddListenerInterface {
       at =
           @At(
               value = "INVOKE",
-              target = "Lnet/minecraft/client/multiplayer/ClientLevel;entitiesForRendering()Ljava/lang/Iterable;"))
+              target =
+                  "Lnet/minecraft/client/multiplayer/ClientLevel;entitiesForRendering()Ljava/lang/Iterable;"))
   private Iterable<Entity> getEntitiesForRendering(ClientLevel level) {
     for (EntityRenderListener listener : listeners) {
       listener.clear();

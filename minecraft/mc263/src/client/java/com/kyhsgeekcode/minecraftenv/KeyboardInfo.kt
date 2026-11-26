@@ -1,60 +1,34 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.kyhsgeekcode.minecraftenv.proto.ActionSpace
-import org.lwjgl.glfw.GLFW.GLFW_KEY_1
-import org.lwjgl.glfw.GLFW.GLFW_KEY_2
-import org.lwjgl.glfw.GLFW.GLFW_KEY_3
-import org.lwjgl.glfw.GLFW.GLFW_KEY_4
-import org.lwjgl.glfw.GLFW.GLFW_KEY_5
-import org.lwjgl.glfw.GLFW.GLFW_KEY_6
-import org.lwjgl.glfw.GLFW.GLFW_KEY_7
-import org.lwjgl.glfw.GLFW.GLFW_KEY_8
-import org.lwjgl.glfw.GLFW.GLFW_KEY_9
-import org.lwjgl.glfw.GLFW.GLFW_KEY_A
-import org.lwjgl.glfw.GLFW.GLFW_KEY_D
-import org.lwjgl.glfw.GLFW.GLFW_KEY_E
-import org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL
-import org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT
-import org.lwjgl.glfw.GLFW.GLFW_KEY_Q
-import org.lwjgl.glfw.GLFW.GLFW_KEY_S
-import org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE
-import org.lwjgl.glfw.GLFW.GLFW_KEY_W
-import org.lwjgl.glfw.GLFW.GLFW_PRESS
-import org.lwjgl.glfw.GLFW.GLFW_RELEASE
-import org.lwjgl.glfw.GLFW.GLFW_REPEAT
-import org.lwjgl.glfw.GLFWCharCallbackI
-import org.lwjgl.glfw.GLFWKeyCallbackI
+import com.mojang.blaze3d.platform.InputConstants
+import net.minecraft.client.Minecraft
+import net.minecraft.client.input.KeyEvent
+import org.lwjgl.sdl.SDLKeyboard.SDL_GetKeyFromScancode
 
 object KeyboardInfo {
-    // InputConstants.setupKeyboardCallbacks takes GLFWCharCallbackI in 26.2 (mc121's
-    // Mouse/InputUtil equivalent took GLFWCharModsCallbackI) - stored for signature
-    // symmetry with the mixin below; unused otherwise, same as in mc121.
-    var charModsCallback: GLFWCharCallbackI? = null
-    var keyCallback: GLFWKeyCallbackI? = null
-    var handle: Long = 0
-
     var currentState: MutableMap<Int, Boolean> = mutableMapOf()
 
     val keyMappings =
         mapOf(
-            "W" to GLFW_KEY_W,
-            "A" to GLFW_KEY_A,
-            "S" to GLFW_KEY_S,
-            "D" to GLFW_KEY_D,
-            "LShift" to GLFW_KEY_LEFT_SHIFT,
-            "Ctrl" to GLFW_KEY_LEFT_CONTROL,
-            "Space" to GLFW_KEY_SPACE,
-            "E" to GLFW_KEY_E,
-            "Q" to GLFW_KEY_Q,
-            "Hotbar1" to GLFW_KEY_1,
-            "Hotbar2" to GLFW_KEY_2,
-            "Hotbar3" to GLFW_KEY_3,
-            "Hotbar4" to GLFW_KEY_4,
-            "Hotbar5" to GLFW_KEY_5,
-            "Hotbar6" to GLFW_KEY_6,
-            "Hotbar7" to GLFW_KEY_7,
-            "Hotbar8" to GLFW_KEY_8,
-            "Hotbar9" to GLFW_KEY_9,
+            "W" to InputConstants.KEY_W,
+            "A" to InputConstants.KEY_A,
+            "S" to InputConstants.KEY_S,
+            "D" to InputConstants.KEY_D,
+            "LShift" to InputConstants.KEY_LSHIFT,
+            "Ctrl" to InputConstants.KEY_LCONTROL,
+            "Space" to InputConstants.KEY_SPACE,
+            "E" to InputConstants.KEY_E,
+            "Q" to InputConstants.KEY_Q,
+            "Hotbar1" to InputConstants.KEY_1,
+            "Hotbar2" to InputConstants.KEY_2,
+            "Hotbar3" to InputConstants.KEY_3,
+            "Hotbar4" to InputConstants.KEY_4,
+            "Hotbar5" to InputConstants.KEY_5,
+            "Hotbar6" to InputConstants.KEY_6,
+            "Hotbar7" to InputConstants.KEY_7,
+            "Hotbar8" to InputConstants.KEY_8,
+            "Hotbar9" to InputConstants.KEY_9,
         )
 
     fun onAction(actionDict: ActionSpace.ActionSpaceMessageV2) {
@@ -80,24 +54,19 @@ object KeyboardInfo {
                 "Hotbar9" to actionDict.hotbar9,
             )
 
-        // 각 키의 상태를 비교하여 변화가 있으면 keyCallback 호출
-        for ((key, glfwKey) in keyMappings) {
-            val previousState = currentState[glfwKey] ?: false
-            val currentState = actions[key] ?: false
-
-            if (!previousState && currentState) {
-                // 키가 처음 눌렸을 때 GLFW_PRESS 호출
-                keyCallback?.invoke(handle, glfwKey, 0, GLFW_PRESS, 0)
-            } else if (previousState && currentState) {
-                // 키가 계속 눌린 상태라면 GLFW_REPEAT 호출
-                keyCallback?.invoke(handle, glfwKey, 0, GLFW_REPEAT, 0)
-            } else if (previousState && !currentState) {
-                // 키가 떼졌을 때 GLFW_RELEASE 호출
-                keyCallback?.invoke(handle, glfwKey, 0, GLFW_RELEASE, 0)
-            }
-
-            // 현재 상태 갱신
-            this.currentState[glfwKey] = currentState
+        val client = Minecraft.getInstance()
+        for ((key, scanCode) in keyMappings) {
+            val held = actions.getValue(key)
+            val wasHeld = currentState.put(scanCode, held) == true
+            val action =
+                when {
+                    held && wasHeld -> InputConstants.REPEAT
+                    held -> InputConstants.PRESS
+                    wasHeld -> InputConstants.RELEASE
+                    else -> continue
+                }
+            val keycode = SDL_GetKeyFromScancode(scanCode, 0, false)
+            client.keyboardHandler.keyPress(client.window.handle(), action, KeyEvent(scanCode, keycode, 0))
         }
     }
 

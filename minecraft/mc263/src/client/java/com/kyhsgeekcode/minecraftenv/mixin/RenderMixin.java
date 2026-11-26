@@ -63,7 +63,7 @@ public class RenderMixin {
       at =
           @At(
               value = "INVOKE",
-              target = "Lcom/mojang/blaze3d/systems/CommandEncoder;submit()V",
+              target = "Lcom/mojang/renderpearl/api/commands/CommandEncoder;submit()V",
               shift = At.Shift.BEFORE))
   private void captureBeforeSubmit(boolean advanceGameTime, CallbackInfo ci) {
     MinecraftEnv.onBeforeSubmitCapture();
@@ -74,7 +74,7 @@ public class RenderMixin {
       at =
           @At(
               value = "INVOKE",
-              target = "Lcom/mojang/blaze3d/systems/CommandEncoder;submit()V",
+              target = "Lcom/mojang/renderpearl/api/commands/CommandEncoder;submit()V",
               shift = At.Shift.AFTER))
   private void captureAfterSubmit(boolean advanceGameTime, CallbackInfo ci) {
     // W1 (26_2_phase2_plan.md §2.2): the frame boundary the capture point moves to. Fires on every

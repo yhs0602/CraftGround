@@ -12,7 +12,10 @@ public class SaveWorldMixin {
   // tickServer/tickChildren/processPacketsAndTick).
   @Redirect(
       method = "autoSave",
-      at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;saveEverything(ZZZ)Z"))
+      at =
+          @At(
+              value = "INVOKE",
+              target = "Lnet/minecraft/server/MinecraftServer;saveEverything(ZZZ)Z"))
   private boolean saveEverything(MinecraftServer server, boolean bl, boolean bl2, boolean bl3) {
     return false; // disable saving
   }

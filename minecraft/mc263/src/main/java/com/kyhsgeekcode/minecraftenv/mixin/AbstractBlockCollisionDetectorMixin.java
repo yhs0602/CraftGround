@@ -17,32 +17,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockBehaviour.BlockStateBase.class)
 public abstract class AbstractBlockCollisionDetectorMixin {
-    @Shadow
-    public abstract Block getBlock();
+  @Shadow
+  public abstract Block getBlock();
 
-    // 26.2 added InsideBlockEffectApplier + isPrecise params to entityInside; unused here,
-    // same as mc121's onEntityCollision which only cared about the block/entity/position.
-    @Inject(method = "entityInside", at = @At("HEAD"))
-    public void entityInside(
-            Level level,
-            BlockPos pos,
-            Entity entity,
-            InsideBlockEffectApplier effectApplier,
-            boolean isPrecise,
-            CallbackInfo ci
-    ) {
-        if (!(entity instanceof Player))
-            return;
+  // 26.2 added InsideBlockEffectApplier + isPrecise params to entityInside; unused here,
+  // same as mc121's onEntityCollision which only cared about the block/entity/position.
+  @Inject(method = "entityInside", at = @At("HEAD"))
+  public void entityInside(
+      Level level,
+      BlockPos pos,
+      Entity entity,
+      InsideBlockEffectApplier effectApplier,
+      boolean isPrecise,
+      CallbackInfo ci) {
+    if (!(entity instanceof Player)) return;
 
-        String blockName = this.getBlock().getDescriptionId();
-        if (CollisionListener.Companion.getBlockCollisionInfoSet().contains(blockName)) {
-            ObservationSpace.BlockCollisionInfo info = ObservationSpace.BlockCollisionInfo.newBuilder()
-                    .setX(pos.getX())
-                    .setY(pos.getY())
-                    .setZ(pos.getZ())
-                    .setBlockName(blockName)
-                    .build();
-            CollisionListener.Companion.getBlockCollisionInfo().add(info);
-        }
+    String blockName = this.getBlock().getDescriptionId();
+    if (CollisionListener.Companion.getBlockCollisionInfoSet().contains(blockName)) {
+      ObservationSpace.BlockCollisionInfo info =
+          ObservationSpace.BlockCollisionInfo.newBuilder()
+              .setX(pos.getX())
+              .setY(pos.getY())
+              .setZ(pos.getZ())
+              .setBlockName(blockName)
+              .build();
+      CollisionListener.Companion.getBlockCollisionInfo().add(info);
     }
+  }
 }

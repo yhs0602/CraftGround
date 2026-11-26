@@ -3,12 +3,11 @@ package com.kyhsgeekcode.minecraftenv.mixin;
 import com.kyhsgeekcode.minecraftenv.Blaze3dCapture;
 import com.kyhsgeekcode.minecraftenv.FramebufferCapturer;
 import com.kyhsgeekcode.minecraftenv.GameRendererDepthCaptureMixinGetterInterface;
-import com.mojang.blaze3d.opengl.GlTexture;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.renderpearl.backend.opengl.GlTexture;
 import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,34 +16,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * 26.2 port of mc121's depth-capture mixin (docs/26_2_phase2_plan.md W3, depth path).
- *
- * <p>The injection point is load-bearing and is the reason this can't ride along with the color
- * capture in RenderMixin. GameRenderer.render() calls {@code
- * CommandEncoder.clearDepthTexture(mainRenderTarget().getDepthTexture(), 0.0)} immediately after
- * the level pass and before the GUI pass, so by the time the frame reaches {@code
- * CommandEncoder.submit()} - where color is captured - the world depth is already gone. Depth has
- * to be read while it still exists, right after renderLevel().
- *
- * <p>mc121 wrapped its capture in {@code RenderSystem.recordRenderCall}; that isn't needed here
- * because GameRenderer.render() already runs on the render thread inside Minecraft.renderFrame. The
- * assertion is kept as a cheap guard.
- */
+/** Read world depth before the 3D HUD clears the main depth texture. */
 @Mixin(GameRenderer.class)
 public class GameRendererDepthCaptureMixin implements GameRendererDepthCaptureMixinGetterInterface {
   @Unique private float[] minecraftEnv$lastDepthBuffer = null;
 
   @Inject(
-      method = "render",
+      method = "renderLevel",
       at =
           @At(
               value = "INVOKE",
               target =
-                  "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(Lnet/minecraft/client/DeltaTracker;)V",
-              shift = At.Shift.AFTER))
-  private void minecraftEnv$captureDepthAfterLevel(
-      DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo ci) {
+                  "Lnet/minecraft/client/renderer/GameRenderer;render3dHud(Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lnet/minecraft/client/renderer/state/level/PlayerRenderState;Lnet/minecraft/client/renderer/state/OptionsRenderState;Z)V"))
+  private void minecraftEnv$captureWorldDepth(CallbackInfo ci) {
     if (!FramebufferCapturer.INSTANCE.getShouldCaptureDepth()) {
       return;
     }

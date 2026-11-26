@@ -26,7 +26,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.storage.LevelResource
-import org.lwjgl.glfw.GLFW
+import org.lwjgl.sdl.SDLVideo.SDL_MinimizeWindow
 import java.nio.file.Files
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.Path
@@ -87,6 +87,14 @@ class EnvironmentInitializer(
     private var handshakeAckSent = false
 
     fun onClientTick(client: Minecraft) {
+        // SDL clamps the physical window to a minimum size. Minecraft uses these
+        // framebuffer dimensions for its offscreen target, camera and GUI extraction.
+        val window = client.window
+        if (window.width != initialEnvironment.imageSizeX || window.height != initialEnvironment.imageSizeY) {
+            window.width = initialEnvironment.imageSizeX
+            window.height = initialEnvironment.imageSizeY
+            window.setGuiScale(window.guiScale)
+        }
         if (finishedEnteringWorld && initializedClient) {
             return
         }
@@ -110,25 +118,16 @@ class EnvironmentInitializer(
         } else {
             createNewWorldAndEnterUsingGUI(client)
         }
-        val window = Minecraft.getInstance().window
         val windowSizeGetter = (window as WindowSizeAccessor)
-        val glfwScaleWidth = FloatArray(1)
-        val glfwScaleHeight = FloatArray(1)
-        GLFW.glfwGetWindowContentScale(window.handle(), glfwScaleWidth, glfwScaleHeight)
-        val desiredWindowWidth = (initialEnvironment.imageSizeX / glfwScaleWidth[0]).toInt()
-        val desiredWindowHeight = (initialEnvironment.imageSizeY / glfwScaleHeight[0]).toInt()
+        val desiredWindowWidth = (initialEnvironment.imageSizeX / window.pixelDensity).toInt()
+        val desiredWindowHeight = (initialEnvironment.imageSizeY / window.pixelDensity).toInt()
         if (windowSizeGetter.windowedWidth != desiredWindowWidth ||
             windowSizeGetter.windowedHeight != desiredWindowHeight
         ) {
             window.setWindowed(desiredWindowWidth, desiredWindowHeight)
-            // mc121 followed a manual window resize with an explicit onResolutionChanged()
-            // call; no public equivalent was found on 26.2's Minecraft/Window. Window's own
-            // GLFW framebuffer/resize callbacks (onFramebufferResize/onResize) are private and
-            // GLFW-callback-driven, so setWindowed() should trigger them on its own - but this
-            // is unverified without a runtime check.
         }
         if (!hasMinimizedWindow) {
-            GLFW.glfwIconifyWindow(window.handle())
+            SDL_MinimizeWindow(window.handle())
             hasMinimizedWindow = true
         }
         disablePauseOnLostFocus(client)
@@ -233,7 +232,7 @@ class EnvironmentInitializer(
             InitialEnvironment.HandshakeAck
                 .newBuilder()
                 .setProtocolVersion(CRAFTGROUND_PROTOCOL_VERSION)
-                .setMinecraftVersion("26.2")
+                .setMinecraftVersion("26.3")
                 .setRenderBackend(renderBackend)
                 .addAllCapabilities(capabilities)
                 .build(),
@@ -640,9 +639,10 @@ class EnvironmentInitializer(
         // The zip is still copied to LevelResource.MAP_RESOURCE_FILE below; only the "tell the
         // client to actually load it" step is missing, exactly as in mc121.
         minecraftServer?.getWorldPath(LevelResource.MAP_RESOURCE_FILE)?.let { targetZipPath ->
+            if (initialEnvironment.resourceZipPath.isEmpty()) return@let
             println("Copying resource zip file to: $targetZipPath")
             val sourcePath = Path(initialEnvironment.resourceZipPath)
-            if (!Files.exists(sourcePath)) {
+            if (!Files.isRegularFile(sourcePath)) {
                 println("Resource zip path not found: $sourcePath")
                 return@let
             }
@@ -658,10 +658,10 @@ class EnvironmentInitializer(
         }
 
         minecraftServer?.getWorldPath(LevelResource.ROOT)?.let { rootPath ->
+            if (initialEnvironment.mapDirPath.isEmpty()) return@let
             val dataPath = rootPath.resolve("data")
-            println("Copying resource zip file to: $dataPath")
             val mapSrcPath = Path(initialEnvironment.mapDirPath)
-            if (!Files.exists(mapSrcPath)) {
+            if (!Files.isDirectory(mapSrcPath)) {
                 println("Map directory path not found: $mapSrcPath")
                 return@let
             }

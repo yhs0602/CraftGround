@@ -1,7 +1,7 @@
 plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.4.0'
 }
 
 // Native GL frame-capture build - mirrors minecraft/mc121/build.gradle. The C++ sources live
@@ -202,28 +202,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-    def javaVersion = JavaVersion.VERSION_25
-    if (JavaVersion.current() < javaVersion) {
-        // foojay-resolver-convention (see settings.gradle) lets Gradle download this
-        // toolchain automatically when it isn't installed locally.
-        toolchain.languageVersion = JavaLanguageVersion.of(25)
-    }
-
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
-
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-}
-
-compileKotlin {
-    kotlinOptions {
-        // Kotlin 2.0.0's jvmTarget enum doesn't yet cover Java 25; 21-bytecode classes
-        // still load fine on a Java 25 JVM, so this stays lower than the Java toolchain.
-        jvmTarget = "21"
-    }
 }
 
 jar {

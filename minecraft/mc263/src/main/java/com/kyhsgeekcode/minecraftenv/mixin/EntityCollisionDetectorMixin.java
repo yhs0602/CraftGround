@@ -13,30 +13,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
 public abstract class EntityCollisionDetectorMixin {
-    @Shadow
-    public abstract EntityType<?> getType();
+  @Shadow
+  public abstract EntityType<?> getType();
 
-    @Shadow
-    public abstract double getX();
+  @Shadow
+  public abstract double getX();
 
-    @Shadow
-    public abstract double getY();
+  @Shadow
+  public abstract double getY();
 
-    @Shadow
-    public abstract double getZ();
+  @Shadow
+  public abstract double getZ();
 
-    @Inject(method = "playerTouch", at = @At("HEAD"))
-    public void playerTouch(Player player, CallbackInfo ci) {
-        String translationKey = getType().getDescriptionId();
-        if (CollisionListener.Companion.getEntityCollisionInfoSet().contains(translationKey)) {
-            CollisionListener.Companion.getEntityCollisionInfo().add(
-                    ObservationSpace.EntityCollisionInfo.newBuilder()
-                            .setX((float) getX())
-                            .setY((float) getY())
-                            .setZ((float) getZ())
-                            .setEntityName(translationKey)
-                            .build()
-            );
-        }
+  @Inject(method = "playerTouch", at = @At("HEAD"))
+  public void playerTouch(Player player, CallbackInfo ci) {
+    String translationKey = getType().getDescriptionId();
+    if (CollisionListener.Companion.getEntityCollisionInfoSet().contains(translationKey)) {
+      CollisionListener.Companion.getEntityCollisionInfo()
+          .add(
+              ObservationSpace.EntityCollisionInfo.newBuilder()
+                  .setX((float) getX())
+                  .setY((float) getY())
+                  .setZ((float) getZ())
+                  .setEntityName(translationKey)
+                  .build());
     }
+  }
 }

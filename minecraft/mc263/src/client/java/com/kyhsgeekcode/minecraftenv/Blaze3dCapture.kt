@@ -1,10 +1,10 @@
 package com.kyhsgeekcode.minecraftenv
 
 import com.google.protobuf.ByteString
-import com.mojang.blaze3d.buffers.GpuBuffer
-import com.mojang.blaze3d.buffers.GpuFence
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.textures.GpuTexture
+import com.mojang.renderpearl.api.buffers.GpuBuffer
+import com.mojang.renderpearl.api.commands.GpuFence
+import com.mojang.renderpearl.api.textures.GpuTexture
 import java.nio.ByteOrder
 
 /**
@@ -55,7 +55,7 @@ object Blaze3dCapture {
         detectedBackend?.let { return it }
         val detected =
             forcedBackend
-                ?: if (texture is com.mojang.blaze3d.opengl.GlTexture) {
+                ?: if (texture is com.mojang.renderpearl.backend.opengl.GlTexture) {
                     CaptureBackend.OPENGL
                 } else {
                     CaptureBackend.BLAZE3D
