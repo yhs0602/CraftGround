@@ -1,0 +1,31 @@
+{
+	"required": true,
+	"package": "com.kyhsgeekcode.minecraftenv.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"ClientCommonNetworkHandlerClientAccessor",
+		"DisableRegionalComplianceMixin",
+		"ClientEntityRenderDispatcherAccessor",
+		"ClientIsWindowFocusedMixin",
+		"ClientPlayNetworkHandlerMixin",
+		"MouseXYAccessor",
+		"RenderSystemPollEventsInvoker",
+		"WindowSizeAccessor",
+		"ChatVisibleMessageAccessor",
+		"GammaMixin",
+		"DeltaTrackerTimerAccessor",
+		"GameRendererDepthCaptureMixin",
+		"ClientTickPinMixin",
+		"InputConstantsMixin",
+		"LevelExtractorEntityListenerMixin",
+		"LevelLoadTrackerMixin",
+		"PacketProcessorQueueAccessor",
+		"RenderMixin",
+		"VulkanBackendInteropExtensionMixin",
+		"VulkanCommandEncoderAccessor",
+		"GpuDeviceBackendAccessor"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
