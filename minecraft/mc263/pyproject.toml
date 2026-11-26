@@ -6,6 +6,7 @@ requires = ["setuptools>=61"]
 name = "craftground-runtime-mc263"
 version = "0.1.0"
 description = "CraftGround Fabric mod runtime assets for Minecraft 26.3"
+readme = {text = "Fabric mod sources, shared capture code, and Gradle wrapper for the Minecraft 26.3 runtime used by craftground.make(mc_version='26.3').", content-type = "text/plain"}
 license = {file = "LICENSE"}
 requires-python = ">=3.9"
 

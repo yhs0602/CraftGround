@@ -4,7 +4,7 @@
 [![CMake Build](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/cmake-build.yml)
 [![Gradle Build](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml/badge.svg)](https://github.com/yhs0602/CraftGround/actions/workflows/gradle.yml)
 <!-- [![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/yhs0602/8497c0c395a8d6b18d1e81f05ff57dba/raw/craftground__heads_main.json)]() -->
-![Static Badge](https://img.shields.io/badge/Minecraft-1.21.0%20%7C%2026.2-green)
+![Static Badge](https://img.shields.io/badge/Minecraft-1.21.0%20%7C%2026.2%20%7C%2026.3-green)
 ![Static Badge](https://img.shields.io/badge/CraftGround-2.7.8-blue)
 
 <img src="docs/craftground.webp" alt="CraftGround_Logo" width="50%"/>
@@ -14,7 +14,7 @@
 
 **CraftGround** provides a lightweight and customizable environment for reinforcement learning experiments using Minecraft.
 
-**Supported Minecraft versions:** 1.21.0 and 26.2 (OpenGL and Vulkan, including Vulkan zero-copy on CUDA and Metal). See [Minecraft 26.2 & Vulkan Support](docs/mc262_vulkan_support.md) for details.
+CraftGround supports Minecraft 1.21.0 (default), 26.2, and 26.3. The newer versions have separate Fabric runtimes. See [Minecraft 26.3 installation and capture modes](docs/mc263_support.md) and [Minecraft 26.2 & Vulkan Support](docs/mc262_vulkan_support.md).
 
 ---
 
