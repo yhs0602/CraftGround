@@ -157,7 +157,7 @@ class EnvironmentInitializer(
     // Both backends are supported now (docs/26_2_vulkan_capture.md). ZEROCOPY_TORCH works on
     // OpenGL unconditionally, and on Vulkan only when one of the cross-API interop extension pairs
     // actually got enabled at device-creation time (see VulkanBackendInteropExtensionMixin):
-    // VK_EXT_metal_objects + VK_EXT_external_memory_metal (-Dcraftground.enableMetalObjects=true,
+    // VK_EXT_metal_objects (-Dcraftground.enableMetalObjects=true,
     // verified on Apple Silicon), or VK_KHR_external_memory_fd/win32
     // (-Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in this dev
     // environment) - otherwise VulkanZerocopy has nothing to import a shared surface/buffer into.
@@ -192,7 +192,7 @@ class EnvironmentInitializer(
                 throw IllegalStateException(
                     "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, or Vulkan with " +
                         "-Dcraftground.enableMetalObjects=true on a device supporting " +
-                        "VK_EXT_metal_objects + VK_EXT_external_memory_metal, or " +
+                        "VK_EXT_metal_objects, or " +
                         "-Dcraftground.enableCudaInterop=true on a device supporting " +
                         "VK_KHR_external_memory_fd/win32 (active backend '$backendName'). Use RAW " +
                         "or PNG otherwise (see docs/26_2_vulkan_capture.md).",

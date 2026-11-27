@@ -53,11 +53,17 @@ The Apple Silicon integration test exercises single-eye RAW and stereo PNG with 
 
 The same suite targets a poplar plank, breaks it with a Python action, and confirms by raycast that the wall behind it is now visible. It checks the change in depth against the known distances to both surfaces and uses four colors on the wall to check RAW and PNG orientation at 319 × 181.
 
-The 26.3 runtime also includes the opt-in Vulkan zero-copy implementations inherited from 26.2. On this port, Metal reached device and IOSurface initialization. End-to-end tensor verification requires permission for the macOS Mach-port transfer. The CUDA path awaits verification on an NVIDIA system. [26.2 GPU interop design](26_2_vulkan_capture.md)
+Apple Silicon also supports `ScreenEncodingMode.ZEROCOPY_TORCH` on Vulkan. Set `CRAFTGROUND_MC263_GRAPHICS_BACKEND=VULKAN` and add `-Dcraftground.enableMetalObjects=true` to `JAVA_TOOL_OPTIONS`. macOS may ask for administrator authorization when Minecraft shares its IOSurface with Python. The live test checks colors, orientation, and a camera turn on the returned PyTorch MPS tensor. The CUDA path awaits verification on an NVIDIA system. [26.2 GPU interop design](26_2_vulkan_capture.md)
 
 To run the installed-runtime checks from a checkout with pytest installed, use
 
 ```sh
 CRAFTGROUND_MC263_GRAPHICS_BACKEND=OPENGL python -m pytest tests/python/native_integration/mc263_smoke.py
 CRAFTGROUND_MC263_GRAPHICS_BACKEND=VULKAN python -m pytest tests/python/native_integration/mc263_smoke.py
+```
+
+To include the live Metal test on macOS, run
+
+```sh
+CRAFTGROUND_TEST_METAL=1 python -m pytest tests/python/native_integration/mc263_smoke.py -k metal
 ```

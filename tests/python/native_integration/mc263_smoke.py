@@ -1,6 +1,8 @@
 """Run explicitly with pytest on a machine that can launch the Minecraft client."""
 
 import math
+import os
+import sys
 
 import numpy as np
 import pytest
@@ -69,8 +71,30 @@ def test_installed_runtime(mode, stereo):
         env.close()
 
 
-@pytest.mark.parametrize("mode", [ScreenEncodingMode.RAW, ScreenEncodingMode.PNG])
-def test_block_interaction_and_frame_orientation(mode):
+@pytest.mark.parametrize(
+    "mode",
+    [
+        ScreenEncodingMode.RAW,
+        ScreenEncodingMode.PNG,
+        pytest.param(
+            ScreenEncodingMode.ZEROCOPY_TORCH,
+            id="metal",
+            marks=pytest.mark.skipif(
+                sys.platform != "darwin" or os.environ.get("CRAFTGROUND_TEST_METAL") != "1",
+                reason="Opt-in live Metal test requires macOS task-port authorization",
+            ),
+        ),
+    ],
+)
+def test_block_interaction_and_frame_orientation(mode, monkeypatch):
+    metal = mode == ScreenEncodingMode.ZEROCOPY_TORCH
+    if metal:
+        monkeypatch.setenv("CRAFTGROUND_MC263_GRAPHICS_BACKEND", "VULKAN")
+        options = os.environ.get("JAVA_TOOL_OPTIONS", "")
+        monkeypatch.setenv(
+            "JAVA_TOOL_OPTIONS", f"{options} -Dcraftground.enableMetalObjects=true".strip()
+        )
+
     width, height = 319, 181
     config = craftground.InitialEnvironmentConfig(
         image_width=width,
@@ -136,6 +160,9 @@ def test_block_interaction_and_frame_orientation(mode):
         for _ in range(100):
             obs = env.step(no_op_v2())[0]
             rgb = obs["rgb"]
+            if metal:
+                assert rgb.device.type == "mps"
+                rgb = rgb.cpu().numpy()
             if mode == ScreenEncodingMode.PNG:
                 rgb = rgb.transpose(2, 1, 0)  # PNG is channels, width, height.
             assert rgb.shape == (height, width, 3)
@@ -154,5 +181,11 @@ def test_block_interaction_and_frame_orientation(mode):
                 break
         else:
             pytest.fail(f"Unexpected quadrant colors: {red}, {green}, {blue}, {yellow}")
+
+        if metal:
+            yaw = obs["full"].yaw
+            obs = env.step(dict(no_op_v2(), camera_yaw=30))[0]
+            assert (obs["full"].yaw - yaw + 180) % 360 - 180 == pytest.approx(30, abs=2)
+            assert np.mean(rgb != obs["rgb"].cpu().numpy()) > 0.005
     finally:
         env.close()

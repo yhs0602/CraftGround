@@ -5,12 +5,10 @@ import com.kyhsgeekcode.minecraftenv.mixin.VulkanCommandEncoderAccessor
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture
 import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.EXTExternalMemoryMetal
 import org.lwjgl.vulkan.EXTMetalObjects
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VK12
-import org.lwjgl.vulkan.VkExternalMemoryImageCreateInfo
-import org.lwjgl.vulkan.VkImageCopy
+import org.lwjgl.vulkan.VkImageBlit
 import org.lwjgl.vulkan.VkImageCreateInfo
 import org.lwjgl.vulkan.VkImportMetalIOSurfaceInfoEXT
 import org.lwjgl.vulkan.VkMemoryAllocateInfo
@@ -18,28 +16,9 @@ import org.lwjgl.vulkan.VkMemoryRequirements
 import org.lwjgl.vulkan.VkPhysicalDeviceMemoryProperties
 
 /**
- * Vulkan+Metal ZEROCOPY: imports an IOSurface directly as a `VkImage` via
- * `VK_EXT_metal_objects`/`VK_EXT_external_memory_metal` (both enabled by
- * [com.kyhsgeekcode.minecraftenv.mixin.VulkanBackendInteropExtensionMixin], opt-in behind
- * `-Dcraftground.enableMetalObjects=true`), and `vkCmdCopyImage`s MC's color target into it every
- * frame - the Vulkan equivalent of what [FramebufferCapturer]'s GL zerocopy path does with
- * `glBlitFramebuffer` into an IOSurface-backed GL texture. The same IOSurface's mach port is
- * handed to Python exactly the same way, so `observation_converter.py`'s
- * `initialize_from_mach_port` needs no changes.
- *
- * Kept separate from [Blaze3dCapture] (which owns the CPU-readback buffers/fences/RGBA->RGB
- * conversion for RAW/PNG) because this owns a wholly different resource - a foreign
- * `VkImage`/`VkDeviceMemory` plus a native IOSurface - with its own lifetime. It plugs into
- * `Blaze3dCapture`'s existing record-before-submit / `armFence()` / `awaitPendingFence()`
- * discipline (see that class' kdoc) rather than duplicating it: [recordCopy] must be called from
- * the same before-submit hook, before `Blaze3dCapture.armFence()`, and needs no CPU-side read
- * afterwards - Python reads the frame straight off the IOSurface once the fence completes.
- *
- * **Caveat**: the exact struct-chaining used in [initialize] (`VkExternalMemoryImageCreateInfo`
- * with `VK_EXTERNAL_MEMORY_HANDLE_TYPE_MTLTEXTURE_BIT_EXT`, `VkImportMetalIOSurfaceInfoEXT`
- * chained off `VkMemoryAllocateInfo`) is inferred from the `VK_EXT_metal_objects` spec, not
- * verified against a known-working sample - cross-check against MoltenVK's own use of the
- * extension if this doesn't produce a valid image on first try.
+ * Imports the IOSurface shared with Python when creating the Vulkan image. Blitting the
+ * RGBA render target to BGRA gives the Metal tensor reader its expected channel order.
+ * The frame fence in [Blaze3dCapture] completes before Python reads the surface.
  */
 object VulkanMetalZerocopy {
     init {
@@ -72,24 +51,21 @@ object VulkanMetalZerocopy {
         val vkPhysicalDevice = vkDevice.physicalDevice
 
         MemoryStack.stackPush().use { stack ->
-            val externalImageInfo =
-                VkExternalMemoryImageCreateInfo.calloc(stack).apply {
-                    `sType$Default`()
-                    handleTypes(EXTExternalMemoryMetal.VK_EXTERNAL_MEMORY_HANDLE_TYPE_MTLTEXTURE_BIT_EXT)
+            val importInfo =
+                VkImportMetalIOSurfaceInfoEXT.calloc(stack).apply {
+                    sType(EXTMetalObjects.VK_STRUCTURE_TYPE_IMPORT_METAL_IO_SURFACE_INFO_EXT)
+                    ioSurface(ioSurfacePtr)
                 }
             val imageCreateInfo =
                 VkImageCreateInfo
                     .calloc(stack)
                     .`sType$Default`()
-                    .pNext(externalImageInfo.address())
+                    .pNext(importInfo.address())
                     .imageType(VK10.VK_IMAGE_TYPE_2D)
-                    .format(VK10.VK_FORMAT_R8G8B8A8_UNORM)
+                    .format(VK10.VK_FORMAT_B8G8R8A8_UNORM)
                     .mipLevels(1)
                     .arrayLayers(1)
                     .samples(VK10.VK_SAMPLE_COUNT_1_BIT)
-                    // IOSurfaces are inherently linear (row-major host-visible) memory, unlike an
-                    // opaque GPU-optimal tiling - OPTIMAL here produced a SIGSEGV inside
-                    // libMoltenVK.dylib on vkCmdCopyImage (empirically confirmed on this hardware).
                     .tiling(VK10.VK_IMAGE_TILING_LINEAR)
                     .usage(VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT)
                     .sharingMode(VK10.VK_SHARING_MODE_EXCLUSIVE)
@@ -113,16 +89,10 @@ object VulkanMetalZerocopy {
                 "VulkanMetalZerocopy: no memory type matches requirements (bits=${requirements.memoryTypeBits()})"
             }
 
-            val importInfo =
-                VkImportMetalIOSurfaceInfoEXT.calloc(stack).apply {
-                    sType(EXTMetalObjects.VK_STRUCTURE_TYPE_IMPORT_METAL_IO_SURFACE_INFO_EXT)
-                    ioSurface(ioSurfacePtr)
-                }
             val allocateInfo =
                 VkMemoryAllocateInfo
                     .calloc(stack)
                     .`sType$Default`()
-                    .pNext(importInfo.address())
                     .allocationSize(requirements.size())
                     .memoryTypeIndex(memoryTypeIndex)
 
@@ -203,7 +173,7 @@ object VulkanMetalZerocopy {
     }
 
     /**
-     * Records this frame's `vkCmdCopyImage` into the same command buffer MC's frame is building.
+     * Records this frame's blit into the same command buffer MC's frame is building.
      * Must be called from the same before-submit hook as [Blaze3dCapture.recordColorReadback],
      * before [Blaze3dCapture.armFence]. No CPU-side read follows - Python reads via the mach port
      * once the fence completes, same as it does for GL zerocopy.
@@ -218,21 +188,21 @@ object VulkanMetalZerocopy {
 
         MemoryStack.stackPush().use { stack ->
             val region =
-                VkImageCopy
+                VkImageBlit
                     .calloc(1, stack)
             region[0].srcSubresource().set(VK10.VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1)
             region[0].dstSubresource().set(VK10.VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1)
-            region[0].srcOffset().set(0, 0, 0)
-            region[0].dstOffset().set(0, 0, 0)
-            region[0].extent().set(width, height, 1)
+            region.srcOffsets(1).set(width, height, 1)
+            region.dstOffsets(1).set(width, height, 1)
 
-            VK12.vkCmdCopyImage(
+            VK12.vkCmdBlitImage(
                 cmd,
                 colorTexture.vkImage(),
                 VK10.VK_IMAGE_LAYOUT_GENERAL,
                 dstImage,
                 VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 region,
+                VK10.VK_FILTER_NEAREST,
             )
             // Full pipeline barrier, same coverage as VulkanCommandEncoder.memoryBarrier's private
             // instance overload - makes the write visible before this submission's fence signals,
@@ -253,7 +223,7 @@ object VulkanMetalZerocopy {
                     .getDevice() as?
                     com.kyhsgeekcode.minecraftenv.mixin.GpuDeviceBackendAccessor
             )?.backend as? VulkanDevice
-        // See VulkanCudaZerocopy.close()'s comment: recordCopy's vkCmdCopyImage submission may
+        // See VulkanCudaZerocopy.close()'s comment: recordCopy's submission may
         // still be in flight, so wait for it before destroying the image/memory it targets.
         device?.graphicsQueue()?.waitIdle()
         if (device != null) {

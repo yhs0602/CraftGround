@@ -727,7 +727,7 @@ class MinecraftEnv :
         }
         if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
             // EnvironmentInitializer.checkRenderBackend already fails fast unless this is OpenGL,
-            // or Vulkan with VK_EXT_metal_objects/VK_EXT_external_memory_metal actually enabled.
+            // or Vulkan with a supported interop backend enabled.
             // On the BLAZE3D path, initialize() already ran from handleBeforeSubmitCapture() -
             // it has to happen before the first submit(), not here, after it - so there is
             // nothing to do for that case at this point.
