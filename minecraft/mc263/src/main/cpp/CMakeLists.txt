@@ -160,8 +160,15 @@ endif()
 
 if(CRAFTGROUND_NATIVE_PROFILE)
     message("CRAFTGROUND_NATIVE_PROFILE=${CRAFTGROUND_NATIVE_PROFILE}")
-    target_compile_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw -fcoverage-mapping) # Add profiling symbols
-    target_link_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw) # Add profiling symbols
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw -fcoverage-mapping)
+        target_link_options(native-lib PRIVATE -fprofile-instr-generate=foo.profraw)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(native-lib PRIVATE --coverage)
+        target_link_options(native-lib PRIVATE --coverage)
+    else()
+        message(FATAL_ERROR "JNI profiling is unsupported with ${CMAKE_CXX_COMPILER_ID}")
+    endif()
 endif()
 
 # Link with JNI and OpenGL libraries
