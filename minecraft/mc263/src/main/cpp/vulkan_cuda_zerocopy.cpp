@@ -17,9 +17,6 @@
 // exported Vulkan memory, mapping it as a cudaMipmappedArray, and the per-frame device-to-device
 // copy into the separate cudaMalloc'd buffer Python's cudaIpcMemHandle refers to (see
 // VulkanCudaZerocopy.kt's kdoc for why that extra buffer/copy is needed, unlike the Metal path).
-//
-// NOT verified on real hardware: written and built for syntax only, no CUDA toolkit or NVIDIA GPU
-// available in this development environment.
 
 namespace {
 

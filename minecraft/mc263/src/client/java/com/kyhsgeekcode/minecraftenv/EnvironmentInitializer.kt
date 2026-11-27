@@ -159,8 +159,7 @@ class EnvironmentInitializer(
     // actually got enabled at device-creation time (see VulkanBackendInteropExtensionMixin):
     // VK_EXT_metal_objects (-Dcraftground.enableMetalObjects=true,
     // verified on Apple Silicon), or VK_KHR_external_memory_fd/win32
-    // (-Dcraftground.enableCudaInterop=true, NOT verified - no CUDA/Linux hardware in this dev
-    // environment) - otherwise VulkanZerocopy has nothing to import a shared surface/buffer into.
+    // (-Dcraftground.enableCudaInterop=true, verified on Linux with an NVIDIA RTX 6000 Ada).
     private fun checkRenderBackend(client: Minecraft) {
         val backendName =
             com.mojang.blaze3d.systems.RenderSystem

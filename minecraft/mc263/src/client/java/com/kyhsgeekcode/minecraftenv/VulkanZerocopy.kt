@@ -7,7 +7,7 @@ import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture
 /**
  * Dispatches to whichever Vulkan cross-API ZEROCOPY backend [VulkanBackendInteropExtensionMixin]
  * actually enabled - [VulkanMetalZerocopy] on Apple (verified), [VulkanCudaZerocopy] on
- * Linux/Windows+NVIDIA (unverified, no hardware in this dev environment). The two flags are set by
+ * Linux/Windows+NVIDIA (verified on Linux). The two flags are set by
  * that single mixin from mutually exclusive device-extension support (a device won't report both
  * VK_EXT_metal_objects and VK_KHR_external_memory_fd/win32 as supported), so at most one backend
  * is ever active; callers ([MinecraftEnv]) don't need to know which.

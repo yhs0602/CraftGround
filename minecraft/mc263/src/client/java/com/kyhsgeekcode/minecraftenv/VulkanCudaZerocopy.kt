@@ -48,13 +48,8 @@ import java.util.Locale
  * `vkGetPhysicalDeviceProperties2`) against each CUDA device's `cudaDeviceProp.uuid` - so the
  * native side never guesses device 0.
  *
- * **NOT verified on real hardware.** This was written and built for syntax on a Mac with no CUDA
- * toolkit and no Vulkan `VK_KHR_external_memory_fd`/`_win32` support to test against - unlike
- * [VulkanMetalZerocopy], none of the `VkExternalMemoryImageCreateInfo`/`VkExportMemoryAllocateInfo`
- * struct chaining, the exported-handle-to-CUDA-import path, or the per-frame
- * `cudaMemcpy2DFromArray` has been exercised end to end. Treat every assumption here (tiling,
- * struct chaining, device matching, synchronization) as a first guess to be checked against a real
- * Linux+NVIDIA+Vulkan run.
+ * The mc263_smoke.py CUDA case exercises the Linux file-descriptor import on an NVIDIA GPU.
+ * The Windows handle path and multi-GPU device selection still need hardware coverage.
  */
 object VulkanCudaZerocopy {
     init {

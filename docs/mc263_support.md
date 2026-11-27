@@ -49,11 +49,15 @@ Use the default socket transport on macOS. With `use_shared_memory=True`, the na
 
 ## Capture modes
 
-The Apple Silicon integration test exercises single-eye RAW and stereo PNG with depth on both OpenGL and Vulkan. It checks player displacement, a camera turn and image change in the same step, distinct stereo images, and depth at the requested resolution. Select the backend when launching Python with `CRAFTGROUND_MC263_GRAPHICS_BACKEND=OPENGL` or `VULKAN`.
+On Apple Silicon and Linux with an NVIDIA RTX 6000 Ada, the integration test exercises single-eye RAW and stereo PNG with depth on both OpenGL and Vulkan. It checks player displacement, a camera turn and image change in the same step, distinct stereo images, and depth at the requested resolution. Select the backend when launching Python with `CRAFTGROUND_MC263_GRAPHICS_BACKEND=OPENGL` or `VULKAN`.
 
 The same suite targets a poplar plank, breaks it with a Python action, and confirms by raycast that the wall behind it is now visible. It checks the change in depth against the known distances to both surfaces and uses four colors on the wall to check RAW and PNG orientation at 319 × 181.
 
-Apple Silicon also supports `ScreenEncodingMode.ZEROCOPY_TORCH` on Vulkan. Set `CRAFTGROUND_MC263_GRAPHICS_BACKEND=VULKAN` and add `-Dcraftground.enableMetalObjects=true` to `JAVA_TOOL_OPTIONS`. macOS may ask for administrator authorization when Minecraft shares its IOSurface with Python. The live test checks colors, orientation, and a camera turn on the returned PyTorch MPS tensor. The CUDA path awaits verification on an NVIDIA system. [26.2 GPU interop design](26_2_vulkan_capture.md)
+Apple Silicon also supports `ScreenEncodingMode.ZEROCOPY_TORCH` on Vulkan. Set `CRAFTGROUND_MC263_GRAPHICS_BACKEND=VULKAN` and add `-Dcraftground.enableMetalObjects=true` to `JAVA_TOOL_OPTIONS`. macOS may ask for administrator authorization when Minecraft shares its IOSurface with Python. The live test checks colors, orientation, and a camera turn on the returned PyTorch MPS tensor.
+
+On Linux with NVIDIA, build the core Python extension and the 26.3 runtime with the CUDA toolkit available to CMake, and install a CUDA-enabled PyTorch. Select `ScreenEncodingMode.ZEROCOPY_TORCH`. OpenGL shares its color texture through CUDA. For Vulkan, add `-Dcraftground.enableCudaInterop=true` to `JAVA_TOOL_OPTIONS` before starting Python. [26.2 GPU interop design](26_2_vulkan_capture.md)
+
+On Ubuntu 24.04 with an RTX 6000 Ada and driver 580.196.07, both backends returned CUDA tensors with the expected colors, orientation, and response to a camera turn. The test checks depth before and after breaking a block, then repeats the scene after restarting Minecraft in the same Python environment.
 
 To run the installed-runtime checks from a checkout with pytest installed, use
 
@@ -66,4 +70,11 @@ To include the live Metal test on macOS, run
 
 ```sh
 CRAFTGROUND_TEST_METAL=1 python -m pytest tests/python/native_integration/mc263_smoke.py -k metal
+```
+
+To run the live CUDA test on a Linux NVIDIA host with a working graphics display, use
+
+```sh
+CRAFTGROUND_TEST_CUDA=1 CRAFTGROUND_MC263_GRAPHICS_BACKEND=OPENGL python -m pytest tests/python/native_integration/mc263_smoke.py -k cuda
+CRAFTGROUND_TEST_CUDA=1 CRAFTGROUND_MC263_GRAPHICS_BACKEND=VULKAN python -m pytest tests/python/native_integration/mc263_smoke.py -k cuda
 ```
