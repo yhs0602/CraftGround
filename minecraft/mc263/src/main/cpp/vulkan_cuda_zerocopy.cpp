@@ -82,7 +82,8 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
 #if defined(_WIN32)
             CloseHandle(reinterpret_cast<HANDLE>(value));
 #else
-            if (value >= 0) close(static_cast<int>(value));
+            if (value >= 0)
+                close(static_cast<int>(value));
 #endif
         }
     } handle{osHandle};
@@ -123,7 +124,8 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
     cudaExternalMemory_t extMem;
     err = cudaImportExternalMemory(&extMem, &memHandleDesc);
 #if !defined(_WIN32)
-    if (err == cudaSuccess) handle.value = -1;
+    if (err == cudaSuccess)
+        handle.value = -1;
 #endif
     if (err != cudaSuccess) {
         fprintf(
@@ -185,17 +187,28 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
         return nullptr;
     }
 
-    // Same wire format shared/native-ipc/ipc_cuda.cpp's mtl_tensor_from_cuda_ipc_handle already
-    // expects (reused verbatim by observation_converter.py's mtl_tensor_from_cuda_mem_handle for
-    // the existing GL+CUDA zerocopy path): sizeof(cudaIpcMemHandle_t) bytes, then the device id.
+    // Same wire format shared/native-ipc/ipc_cuda.cpp's
+    // mtl_tensor_from_cuda_ipc_handle already expects (reused verbatim by
+    // observation_converter.py's mtl_tensor_from_cuda_mem_handle for the
+    // existing GL+CUDA zerocopy path): sizeof(cudaIpcMemHandle_t) bytes, then
+    // the device id.
     const int handleSize = sizeof(cudaIpcMemHandle_t);
     jbyteArray byteArray = env->NewByteArray(handleSize + sizeof(int));
     jobject byteStringObject = nullptr;
     if (byteArray != nullptr) {
-        env->SetByteArrayRegion(byteArray, 0, handleSize, reinterpret_cast<jbyte *>(&ipcHandle));
-        env->SetByteArrayRegion(byteArray, handleSize, sizeof(int), reinterpret_cast<jbyte *>(&deviceId));
+        env->SetByteArrayRegion(
+            byteArray, 0, handleSize, reinterpret_cast<jbyte *>(&ipcHandle)
+        );
+        env->SetByteArrayRegion(
+            byteArray,
+            handleSize,
+            sizeof(int),
+            reinterpret_cast<jbyte *>(&deviceId)
+        );
         if (!env->ExceptionCheck())
-            byteStringObject = env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
+            byteStringObject = env->CallStaticObjectMethod(
+                byteStringClass, copyFromMethod, byteArray
+            );
         env->DeleteLocalRef(byteArray);
     }
     if (!byteStringObject || env->ExceptionCheck()) {
@@ -221,19 +234,33 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_copyImportedArrayToCudaSha
     JNIEnv *env, jobject thiz
 ) {
     if (!g_initialized) {
-        env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), "CUDA capture is not initialized");
+        env->ThrowNew(
+            env->FindClass("java/lang/IllegalStateException"),
+            "CUDA capture is not initialized"
+        );
         return;
     }
     cudaError_t err = cudaSetDevice(g_deviceId);
     if (err == cudaSuccess) {
         const size_t pitch = static_cast<size_t>(g_width) * 4;
         err = cudaMemcpy2DFromArrayAsync(
-            g_sharedBuffer, pitch, g_level0Array, 0, 0, pitch, g_height, cudaMemcpyDeviceToDevice, nullptr
+            g_sharedBuffer,
+            pitch,
+            g_level0Array,
+            0,
+            0,
+            pitch,
+            g_height,
+            cudaMemcpyDeviceToDevice,
+            nullptr
         );
     }
-    if (err == cudaSuccess) err = cudaStreamSynchronize(nullptr);
+    if (err == cudaSuccess)
+        err = cudaStreamSynchronize(nullptr);
     if (err != cudaSuccess)
-        env->ThrowNew(env->FindClass("java/io/IOException"), cudaGetErrorString(err));
+        env->ThrowNew(
+            env->FindClass("java/io/IOException"), cudaGetErrorString(err)
+        );
 }
 
 extern "C" JNIEXPORT void JNICALL

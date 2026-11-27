@@ -480,7 +480,8 @@ void write_to_shared_memory_impl(
 py::bytes read_from_shared_memory_impl(
     const std::string &p2j_memory_name,
     const std::string &j2p_memory_name,
-    py::object server_event, int timeout_ms
+    py::object server_event,
+    int timeout_ms
 ) {
 #ifndef _WIN32
     craftground::ShmMapping control(
@@ -491,7 +492,8 @@ py::bytes read_from_shared_memory_impl(
     auto *layout = reinterpret_cast<const SharedMemoryLayout *>(control.data());
     {
         py::gil_scoped_release release;
-        craftground::NamedSemaphore(layout->sem_obs_ready.name).waitFor(timeout_ms);
+        craftground::NamedSemaphore(layout->sem_obs_ready.name)
+            .waitFor(timeout_ms);
     }
     if (!server_event.is_none() && server_event.attr("is_set")().cast<bool>()) {
         throw std::runtime_error(
@@ -499,7 +501,9 @@ py::bytes read_from_shared_memory_impl(
         );
     }
     if (!layout->initial_environment_offset)
-        throw std::runtime_error("Minecraft failed to write the shared-memory frame");
+        throw std::runtime_error(
+            "Minecraft failed to write the shared-memory frame"
+        );
     craftground::ShmMapping head(
         j2p_memory_name.c_str(),
         sizeof(J2PSharedMemoryLayout),
@@ -512,7 +516,8 @@ py::bytes read_from_shared_memory_impl(
     }
     auto copy_frame = [&]() {
         craftground::ShmMapping frame(
-            j2p_memory_name.c_str(), sizeof(*header) + header->data_size,
+            j2p_memory_name.c_str(),
+            sizeof(*header) + header->data_size,
             craftground::ShmAccess::Read
         );
         return py::bytes(frame.data() + sizeof(*header), header->data_size);

@@ -111,7 +111,9 @@ class NamedSemaphore {
             if (errno != EAGAIN && errno != EINTR)
                 shm_error("sem_trywait");
             if (steady_clock::now() >= deadline)
-                throw std::runtime_error("Timed out waiting for the shared-memory handshake");
+                throw std::runtime_error(
+                    "Timed out waiting for the shared-memory handshake"
+                );
             std::this_thread::sleep_for(milliseconds(10));
         }
     }

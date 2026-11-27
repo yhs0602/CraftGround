@@ -47,7 +47,10 @@ void write_to_shared_memory_impl(
 );
 
 py::bytes read_from_shared_memory_impl(
-    const std::string &p2j_memory_name, const std::string &j2p_memory_name, py::object server_event, int timeout_ms
+    const std::string &p2j_memory_name,
+    const std::string &j2p_memory_name,
+    py::object server_event,
+    int timeout_ms
 );
 
 #ifndef _WIN32
