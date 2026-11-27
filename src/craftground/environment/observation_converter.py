@@ -68,7 +68,9 @@ class ObservationConverter:
         self.render_action = render_action
         self.render_mode = render_mode
         self.render_alternating_eyes = render_alternating_eyes
-        if is_binocular and output_type in (ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX):
+        if is_binocular and output_type in (
+            ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX
+        ):
             raise ValueError("Zero-copy capture does not support binocular vision")
         if output_type == ScreenEncodingMode.ZEROCOPY_TORCH:
             try:
@@ -112,7 +114,9 @@ class ObservationConverter:
                 obs_2 = self.convert_raw_observation(observation.image_2)
             self.last_observations[0], self.last_observations[1] = obs_1, obs_2
             return (obs_1, obs_2)
-        elif self.output_type in (ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX):
+        elif self.output_type in (
+            ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX
+        ):
             if self.internal_type == ObservationTensorType.NONE:
                 self.initialize_zerocopy(observation.ipc_handle)
             frame = self.last_observations[0].clone()
@@ -125,7 +129,7 @@ class ObservationConverter:
 
                 try:
                     rgb = jax.dlpack.from_dlpack(rgb.contiguous())
-                except (TypeError, BufferError):
+                except (TypeError, ValueError, BufferError):
                     if rgb.device.type != "mps":
                         raise
                     rgb = jax.dlpack.from_dlpack(rgb.cpu().contiguous())
@@ -272,3 +276,4 @@ class ObservationConverter:
             # drop alpha, flip y axis, and clone
             self.internal_type = ObservationTensorType.CUDA_DLPACK
 
+    initialize_jax_zerocopy = initialize_zerocopy

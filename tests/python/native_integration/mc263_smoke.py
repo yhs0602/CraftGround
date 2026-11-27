@@ -147,6 +147,15 @@ def test_installed_runtime(mode, stereo, shared_memory):
             ),
         ),
         pytest.param(
+            ScreenEncodingMode.ZEROCOPY_JAX,
+            "mps" if sys.platform == "darwin" else "cuda",
+            id="jax",
+            marks=pytest.mark.skipif(
+                os.environ.get("CRAFTGROUND_TEST_JAX") != "1",
+                reason="Opt-in JAX test requires native GPU capture",
+            ),
+        ),
+        pytest.param(
             ScreenEncodingMode.ZEROCOPY_TORCH,
             "cuda",
             id="cuda",
@@ -213,6 +222,18 @@ def test_block_interaction_and_frame_orientation(
         depth = np.asarray(obs["full"].depth).reshape(height, width)
         return np.median(depth[88:93, x - 2 : x + 3])
 
+    def rgb_pixels(obs):
+        frame = obs["rgb"]
+        if mode == ScreenEncodingMode.ZEROCOPY_JAX:
+            import jax
+
+            assert isinstance(frame, jax.Array)
+            return np.asarray(frame)
+        if tensor_device:
+            assert frame.device.type == tensor_device
+            return frame.cpu().numpy()
+        return frame.transpose(2, 1, 0) if mode == ScreenEncodingMode.PNG else frame
+
     def check_scene():
         plank = ("block.minecraft.poplar_planks", 0, 81, 3)
         # Facing +Z at z=0.5, the plank face is 2.5 blocks away and the wall is 4.5.
@@ -237,12 +258,7 @@ def test_block_interaction_and_frame_orientation(
         # The raycast can see the wall before the chunk mesh is ready.
         for _ in range(100):
             obs = env.step(no_op_v2())[0]
-            rgb = obs["rgb"]
-            if tensor_device:
-                assert rgb.device.type == tensor_device
-                rgb = rgb.cpu().numpy()
-            if mode == ScreenEncodingMode.PNG:
-                rgb = rgb.transpose(2, 1, 0)  # PNG is channels, width, height.
+            rgb = rgb_pixels(obs)
             assert rgb.shape == (height, width, 3)
             red, green, blue, yellow = [
                 np.median(rgb[y - 7 : y + 7, x - 7 : x + 7], axis=(0, 1))
@@ -264,7 +280,7 @@ def test_block_interaction_and_frame_orientation(
             yaw = obs["full"].yaw
             obs = env.step(dict(no_op_v2(), camera_yaw=30))[0]
             assert (obs["full"].yaw - yaw + 180) % 360 - 180 == pytest.approx(30, abs=2)
-            assert np.mean(rgb != obs["rgb"].cpu().numpy()) > 0.005
+            assert np.mean(rgb != rgb_pixels(obs)) > 0.005
 
     try:
         env.reset()
