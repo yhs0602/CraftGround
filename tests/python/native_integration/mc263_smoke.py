@@ -36,6 +36,8 @@ def test_installed_runtime(mode, stereo, shared_memory):
         world_type=WorldType.SUPERFLAT,
         difficulty=Difficulty.PEACEFUL,
         initial_extra_commands=["difficulty peaceful"],
+        mined_stat_keys=["stone", "minecraft:stone"],
+        misc_stat_keys=["jump", "minecraft:jump"],
         render_distance=3,
         hud_hidden=True,
         requires_depth=True,
@@ -50,6 +52,12 @@ def test_installed_runtime(mode, stereo, shared_memory):
     )
     try:
         obs, _ = env.reset()
+        for stats, key in (
+            (obs["full"].mined_statistics, "stone"),
+            (obs["full"].misc_statistics, "jump"),
+        ):
+            assert set(stats) == {key, f"minecraft:{key}"}
+            assert stats[key] == stats[f"minecraft:{key}"]
         # Let spawn chunks reach the renderer before checking scene geometry.
         for _ in range(100):
             obs = env.step(no_op_v2())[0]

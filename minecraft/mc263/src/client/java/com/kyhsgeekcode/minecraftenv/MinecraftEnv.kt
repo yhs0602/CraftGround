@@ -452,7 +452,7 @@ class MinecraftEnv :
         } else if (command.startsWith("fastreset")) {
             printWithTime("Fast resetting")
             csvLogger.log("Fast resetting")
-            val extraCommand = command.substringAfter("fastreset ").trim()
+            val extraCommand = command.substringAfter("fastreset ", "").trim()
             if (extraCommand.isNotEmpty()) {
                 val commands = extraCommand.split(";")
                 printWithTime("Extra commands: $commands")
@@ -895,12 +895,12 @@ class MinecraftEnv :
                         killedStatistics[killStatKey] = stat
                     }
                     for (mineStatKey in initialEnvironment.minedStatKeysList) {
-                        val key = BuiltInRegistries.BLOCK.getValue(Identifier.fromNamespaceAndPath("minecraft", mineStatKey))
+                        val key = BuiltInRegistries.BLOCK.getValue(Identifier.parse(mineStatKey))
                         val stat = player.stats.getValue(Stats.BLOCK_MINED.get(key))
                         minedStatistics[mineStatKey] = stat
                     }
                     for (miscStatKey in initialEnvironment.miscStatKeysList) {
-                        val key = BuiltInRegistries.CUSTOM_STAT.getValue(Identifier.fromNamespaceAndPath("minecraft", miscStatKey))!!
+                        val key = BuiltInRegistries.CUSTOM_STAT.getValue(Identifier.parse(miscStatKey))!!
                         miscStatistics[miscStatKey] =
                             player.stats.getValue(Stats.CUSTOM.get(key))
                     }
