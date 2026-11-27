@@ -166,6 +166,7 @@ if(BUILD_TESTS)
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
     target_include_directories(
         craftground PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/shared-native/gl-capture/include
         ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include
         ${Python3_INCLUDE_DIRS}
     )

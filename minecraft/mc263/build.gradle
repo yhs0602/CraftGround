@@ -63,7 +63,11 @@ tasks.register('configureCppProject', Exec) {
     }
 
     if (useConda) {
-        cmakeArgs += "-DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+        def condaPrefix = System.getenv('CONDA_PREFIX')
+        if (!condaPrefix) {
+            throw new GradleException('CRAFTGROUND_USE_CONDA requires an active Conda environment (CONDA_PREFIX).')
+        }
+        cmakeArgs += "-DCMAKE_PREFIX_PATH=$condaPrefix"
     }
 
     cmakeArgs += "-DGL_CAPTURE_DIR=${captureSources.absolutePath}"
@@ -94,9 +98,9 @@ tasks.register('compileCpp', Exec) {
     // Copy the built native library to the project root (Only for Windows)
     doLast {
         if (os.isWindows()) {
-            def debugOutput = new File("Debug/native-lib.dll")
-            def releaseOutput = new File("Release/native-lib.dll")
-            def targetDir = new File("./native-lib.dll") // Copy to the project root
+            def debugOutput = file("Debug/native-lib.dll")
+            def releaseOutput = file("Release/native-lib.dll")
+            def targetDir = file("native-lib.dll") // Copy to the project root
 
             if (releaseOutput.exists()) {
                 copy {
