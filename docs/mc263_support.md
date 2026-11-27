@@ -45,7 +45,7 @@ finally:
 
 Set `cleanup_world=False` when creating the environment to keep a generated world after closing it. Opening an existing world by display name preserves its save.
 
-Use the default socket transport on macOS. With `use_shared_memory=True`, the native observation writer crashed during the first reset on Apple Silicon.
+Sockets are the default transport. On macOS, pass `use_shared_memory=True` to `craftground.make` to exchange actions and observations through POSIX shared memory. Install both the core and the 26.3 runtime from this branch. On Apple Silicon, the integration tests cover RAW, stereo PNG with depth, Metal tensor capture, fast resets, and full Minecraft restarts over shared memory.
 
 ## Capture modes
 

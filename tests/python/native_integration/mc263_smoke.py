@@ -13,10 +13,21 @@ from craftground.initial_environment_config import Difficulty, WorldType
 from craftground.screen_encoding_modes import ScreenEncodingMode
 
 
+TRANSPORTS = [
+    pytest.param(False, id="socket"),
+    pytest.param(
+        True,
+        id="shmem",
+        marks=pytest.mark.skipif(os.name != "posix", reason="POSIX shared memory"),
+    ),
+]
+
+
 @pytest.mark.parametrize(
     "mode,stereo", [(ScreenEncodingMode.RAW, False), (ScreenEncodingMode.PNG, True)]
 )
-def test_installed_runtime(mode, stereo):
+@pytest.mark.parametrize("shared_memory", TRANSPORTS)
+def test_installed_runtime(mode, stereo, shared_memory):
     width, height = 320, 240
     config = craftground.InitialEnvironmentConfig(
         image_width=width,
@@ -33,6 +44,7 @@ def test_installed_runtime(mode, stereo):
     )
     env = craftground.make(
         mc_version="26.3",
+        use_shared_memory=shared_memory,
         initial_env_config=config,
         action_space_version=ActionSpaceVersion.V2_MINERL_HUMAN,
     )
@@ -67,6 +79,16 @@ def test_installed_runtime(mode, stereo):
         reset_obs, _ = env.reset()
         assert reset_obs["rgb"].shape == frame.shape
         assert env.step(no_op_v2())[0]["rgb"].shape == frame.shape
+        if shared_memory:
+            # A command batch can exceed the space used by the initial config.
+            env.add_commands(["time set noon"] * 128 + ["tp @p 10 80 10"])
+            for _ in range(12):
+                full = env.step(no_op_v2())[0]["full"]
+                if abs(full.x - 10) < 1 and abs(full.z - 10) < 1:
+                    break
+            assert abs(full.x - 10) < 1 and abs(full.z - 10) < 1
+            obs, _ = env.reset(options={"fast_reset": False})
+            assert obs["rgb"].shape == frame.shape
     finally:
         env.close()
 
@@ -96,7 +118,10 @@ def test_installed_runtime(mode, stereo):
         ),
     ],
 )
-def test_block_interaction_and_frame_orientation(mode, tensor_device, monkeypatch):
+@pytest.mark.parametrize("shared_memory", TRANSPORTS)
+def test_block_interaction_and_frame_orientation(
+    mode, tensor_device, shared_memory, monkeypatch
+):
     if tensor_device:
         backend = "VULKAN"
         if tensor_device == "cuda":
@@ -136,6 +161,7 @@ def test_block_interaction_and_frame_orientation(mode, tensor_device, monkeypatc
     )
     env = craftground.make(
         mc_version="26.3",
+        use_shared_memory=shared_memory,
         initial_env_config=config,
         action_space_version=ActionSpaceVersion.V2_MINERL_HUMAN,
     )
