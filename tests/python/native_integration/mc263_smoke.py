@@ -72,28 +72,42 @@ def test_installed_runtime(mode, stereo):
 
 
 @pytest.mark.parametrize(
-    "mode",
+    "mode,tensor_device",
     [
-        ScreenEncodingMode.RAW,
-        ScreenEncodingMode.PNG,
+        (ScreenEncodingMode.RAW, None),
+        (ScreenEncodingMode.PNG, None),
         pytest.param(
             ScreenEncodingMode.ZEROCOPY_TORCH,
+            "mps",
             id="metal",
             marks=pytest.mark.skipif(
                 sys.platform != "darwin" or os.environ.get("CRAFTGROUND_TEST_METAL") != "1",
                 reason="Opt-in live Metal test requires macOS task-port authorization",
             ),
         ),
+        pytest.param(
+            ScreenEncodingMode.ZEROCOPY_TORCH,
+            "cuda",
+            id="cuda",
+            marks=pytest.mark.skipif(
+                sys.platform != "linux" or os.environ.get("CRAFTGROUND_TEST_CUDA") != "1",
+                reason="Opt-in CUDA test requires a Linux NVIDIA GPU",
+            ),
+        ),
     ],
 )
-def test_block_interaction_and_frame_orientation(mode, monkeypatch):
-    metal = mode == ScreenEncodingMode.ZEROCOPY_TORCH
-    if metal:
-        monkeypatch.setenv("CRAFTGROUND_MC263_GRAPHICS_BACKEND", "VULKAN")
-        options = os.environ.get("JAVA_TOOL_OPTIONS", "")
-        monkeypatch.setenv(
-            "JAVA_TOOL_OPTIONS", f"{options} -Dcraftground.enableMetalObjects=true".strip()
-        )
+def test_block_interaction_and_frame_orientation(mode, tensor_device, monkeypatch):
+    if tensor_device:
+        backend = "VULKAN"
+        if tensor_device == "cuda":
+            backend = os.environ.get("CRAFTGROUND_MC263_GRAPHICS_BACKEND", backend).upper()
+        monkeypatch.setenv("CRAFTGROUND_MC263_GRAPHICS_BACKEND", backend)
+        if backend == "VULKAN":
+            flag = "enableMetalObjects" if tensor_device == "mps" else "enableCudaInterop"
+            options = os.environ.get("JAVA_TOOL_OPTIONS", "")
+            monkeypatch.setenv(
+                "JAVA_TOOL_OPTIONS", f"{options} -Dcraftground.{flag}=true".strip()
+            )
 
     width, height = 319, 181
     config = craftground.InitialEnvironmentConfig(
@@ -134,8 +148,7 @@ def test_block_interaction_and_frame_orientation(mode, monkeypatch):
         depth = np.asarray(obs["full"].depth).reshape(height, width)
         return np.median(depth[88:93, x - 2 : x + 3])
 
-    try:
-        obs, _ = env.reset()
+    def check_scene():
         plank = ("block.minecraft.poplar_planks", 0, 81, 3)
         # Facing +Z at z=0.5, the plank face is 2.5 blocks away and the wall is 4.5.
         distance_ratio = 4.5 / 2.5
@@ -160,8 +173,8 @@ def test_block_interaction_and_frame_orientation(mode, monkeypatch):
         for _ in range(100):
             obs = env.step(no_op_v2())[0]
             rgb = obs["rgb"]
-            if metal:
-                assert rgb.device.type == "mps"
+            if tensor_device:
+                assert rgb.device.type == tensor_device
                 rgb = rgb.cpu().numpy()
             if mode == ScreenEncodingMode.PNG:
                 rgb = rgb.transpose(2, 1, 0)  # PNG is channels, width, height.
@@ -182,10 +195,17 @@ def test_block_interaction_and_frame_orientation(mode, monkeypatch):
         else:
             pytest.fail(f"Unexpected quadrant colors: {red}, {green}, {blue}, {yellow}")
 
-        if metal:
+        if tensor_device:
             yaw = obs["full"].yaw
             obs = env.step(dict(no_op_v2(), camera_yaw=30))[0]
             assert (obs["full"].yaw - yaw + 180) % 360 - 180 == pytest.approx(30, abs=2)
             assert np.mean(rgb != obs["rgb"].cpu().numpy()) > 0.005
+
+    try:
+        env.reset()
+        check_scene()
+        if tensor_device == "cuda":
+            env.reset(options={"fast_reset": False})
+            check_scene()
     finally:
         env.close()
