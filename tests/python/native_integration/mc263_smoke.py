@@ -238,7 +238,7 @@ def test_block_interaction_and_frame_orientation(
     try:
         env.reset()
         check_scene()
-        if tensor_device == "cuda":
+        if tensor_device:
             env.reset(options={"fast_reset": False})
             check_scene()
     finally:
