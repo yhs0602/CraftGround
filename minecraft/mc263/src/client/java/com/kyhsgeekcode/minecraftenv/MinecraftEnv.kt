@@ -75,8 +75,7 @@ enum class IOPhase {
 }
 
 /** Drives one integrated-server tick per action and captures the resulting rendered frame. */
-class MinecraftEnv :
-    ClientModInitializer {
+class MinecraftEnv : ClientModInitializer {
     companion object {
         @Volatile
         private var instance: MinecraftEnv? = null
@@ -460,7 +459,13 @@ class MinecraftEnv :
                 variableCommandsAfterReset.addAll(commands)
             }
             resetPhase = ResetPhase.WAIT_PLAYER_DEATH
-            runCommand(player, "/kill @p") // kill player
+            // Respawn the controlled player even in a saved world with cheats disabled.
+            val server = checkNotNull(client.singleplayerServer)
+            val playerId = player.uuid
+            server.execute {
+                val serverPlayer = checkNotNull(server.playerList.getPlayer(playerId))
+                serverPlayer.kill(serverPlayer.level())
+            }
             runCommand(player, "/tp @e[type=!player] ~ -500 ~") // send to void
             return true
         } else if (command == "exit") {
