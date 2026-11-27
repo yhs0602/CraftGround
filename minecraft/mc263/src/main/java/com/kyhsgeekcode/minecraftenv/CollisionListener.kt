@@ -2,7 +2,6 @@ package com.kyhsgeekcode.minecraftenv
 
 import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.BlockCollisionInfo
 import com.kyhsgeekcode.minecraftenv.proto.ObservationSpace.EntityCollisionInfo
-
 import java.util.Collections
 
 class CollisionListener {

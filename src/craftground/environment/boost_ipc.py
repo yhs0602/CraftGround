@@ -108,7 +108,10 @@ class BoostIPC(IPCInterface):
         if self._server_event.is_set():
             raise RuntimeError("Minecraft exited while waiting for shared memory")
         return read_from_shared_memory(
-            self.p2j_shared_memory_name, self.j2p_shared_memory_name, self._server_event, timeout_ms
+            self.p2j_shared_memory_name,
+            self.j2p_shared_memory_name,
+            self._server_event,
+            timeout_ms,
         )
 
     def _read_handshake_ack(self) -> HandshakeAck:

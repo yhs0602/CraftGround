@@ -10,12 +10,12 @@ import org.lwjgl.vulkan.KHRExternalMemoryWin32
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VK11
 import org.lwjgl.vulkan.VK12
+import org.lwjgl.vulkan.VkCommandBuffer
 import org.lwjgl.vulkan.VkExportMemoryAllocateInfo
 import org.lwjgl.vulkan.VkExternalMemoryImageCreateInfo
 import org.lwjgl.vulkan.VkImageCopy
-import org.lwjgl.vulkan.VkCommandBuffer
-import org.lwjgl.vulkan.VkImageMemoryBarrier
 import org.lwjgl.vulkan.VkImageCreateInfo
+import org.lwjgl.vulkan.VkImageMemoryBarrier
 import org.lwjgl.vulkan.VkMemoryAllocateInfo
 import org.lwjgl.vulkan.VkMemoryGetFdInfoKHR
 import org.lwjgl.vulkan.VkMemoryGetWin32HandleInfoKHR

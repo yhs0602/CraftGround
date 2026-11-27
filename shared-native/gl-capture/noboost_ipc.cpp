@@ -462,7 +462,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
             static_cast<size_t>(observation_data_size)
         );
     } catch (const std::exception &e) {
-        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
+        env->ThrowNew(env->FindClass("java/io/IOException"), e.what());
     }
 
     env->ReleaseStringUTFChars(j2p_memory_name, j2p_memory_name_cstr);
