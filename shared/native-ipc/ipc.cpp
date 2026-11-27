@@ -93,10 +93,10 @@ void write_to_shared_memory(
 py::bytes read_from_shared_memory(
     const char *p2j_memory_name,
     const char *j2p_memory_name,
-    py::object server_event
+    py::object server_event, int timeout_ms
 ) {
     return read_from_shared_memory_impl(
-        p2j_memory_name, j2p_memory_name, server_event
+        p2j_memory_name, j2p_memory_name, server_event, timeout_ms
     );
 }
 
@@ -115,7 +115,8 @@ PYBIND11_MODULE(craftground_native, m) {
         &read_from_shared_memory,
         py::arg("p2j_memory_name"),
         py::arg("j2p_memory_name"),
-        py::arg("server_event") = py::none()
+        py::arg("server_event") = py::none(),
+        py::arg("timeout_ms") = -1
     );
 #ifndef _WIN32
     m.def("notify_shared_memory_exit", &notify_shared_memory_exit);

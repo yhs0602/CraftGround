@@ -350,24 +350,34 @@ void write_observation(
     const char *p2j_name, const char *j2p_name, const char *data, size_t size
 ) {
     craftground::ShmMapping control(
-        p2j_name, sizeof(SharedMemoryLayout), craftground::ShmAccess::Read
+        p2j_name, sizeof(SharedMemoryLayout), craftground::ShmAccess::Write
     );
-    auto *layout = reinterpret_cast<const SharedMemoryLayout *>(control.data());
+    auto *layout = reinterpret_cast<SharedMemoryLayout *>(control.data());
     craftground::NamedSemaphore ready(layout->sem_obs_ready.name);
     // layout_size is zero in older producers. Updated pairs also reserve the
     // slot until Python finishes reading (the handshake precedes frame one).
     if (layout->layout_size) {
         craftground::NamedSemaphore(std::string(j2p_name) + "f").wait();
     }
-    const size_t length = sizeof(J2PSharedMemoryLayout) + size;
-    craftground::ShmMapping frame(
-        j2p_name, length, craftground::ShmAccess::Grow
-    );
-    auto *header = reinterpret_cast<J2PSharedMemoryLayout *>(frame.data());
-    header->layout_size = layout->layout_size ? length : 0;
-    header->data_offset = sizeof(*header);
-    header->data_size = size;
-    std::memcpy(frame.data() + sizeof(*header), data, size);
+    try {
+        const size_t length = sizeof(J2PSharedMemoryLayout) + size;
+        craftground::ShmMapping frame(
+            j2p_name, length, craftground::ShmAccess::Grow
+        );
+        auto *header = reinterpret_cast<J2PSharedMemoryLayout *>(frame.data());
+        header->layout_size = layout->layout_size ? length : 0;
+        header->data_offset = sizeof(*header);
+        header->data_size = size;
+        std::memcpy(frame.data() + sizeof(*header), data, size);
+    } catch (...) {
+        // The initial config has been consumed. A zero offset now marks a
+        // terminal write failure even if growing the frame removed its name.
+        layout->initial_environment_offset = 0;
+        ready.post();
+        if (layout->layout_size)
+            craftground::NamedSemaphore(std::string(j2p_name) + "f").post();
+        throw;
+    }
     ready.post();
 }
 

@@ -3,6 +3,8 @@
 // the name after the ready semaphore is posted.
 #pragma once
 #include <cerrno>
+#include <chrono>
+#include <thread>
 #include <fcntl.h>
 #include <semaphore.h>
 #include <stdexcept>
@@ -95,6 +97,22 @@ class NamedSemaphore {
         while (sem_wait(sem) < 0) {
             if (errno != EINTR)
                 shm_error("sem_wait");
+        }
+    }
+    // macOS lacks sem_timedwait. Only startup uses the polling path.
+    void waitFor(int timeout_ms) {
+        if (timeout_ms < 0) {
+            wait();
+            return;
+        }
+        using namespace std::chrono;
+        const auto deadline = steady_clock::now() + milliseconds(timeout_ms);
+        while (sem_trywait(sem) < 0) {
+            if (errno != EAGAIN && errno != EINTR)
+                shm_error("sem_trywait");
+            if (steady_clock::now() >= deadline)
+                throw std::runtime_error("Timed out waiting for the shared-memory handshake");
+            std::this_thread::sleep_for(milliseconds(10));
         }
     }
     void post() {

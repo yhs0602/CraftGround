@@ -184,7 +184,6 @@ class SocketIPC(IPCInterface):
     # (see EnvironmentInitializer.checkRenderBackend) - that can take much longer than the 30s
     # timeout _connect_server sets for steady-state action/observation reads, so this read uses
     # its own generous timeout instead of inheriting the connect-time one.
-    HANDSHAKE_ACK_TIMEOUT_SECONDS = 300
 
     def _read_handshake_ack(self) -> HandshakeAck:
         previous_timeout = self.sock.gettimeout()

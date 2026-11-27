@@ -104,11 +104,11 @@ class BoostIPC(IPCInterface):
         self.logger.log(f"Sending action to shared memory: {len(v)} bytes")
         write_to_shared_memory(self.p2j_shared_memory_name, v, len(v))
 
-    def _read_message(self) -> bytes:
+    def _read_message(self, timeout_ms: int = -1) -> bytes:
         if self._server_event.is_set():
             raise RuntimeError("Minecraft exited while waiting for shared memory")
         return read_from_shared_memory(
-            self.p2j_shared_memory_name, self.j2p_shared_memory_name, self._server_event
+            self.p2j_shared_memory_name, self.j2p_shared_memory_name, self._server_event, timeout_ms
         )
 
     def _read_handshake_ack(self) -> HandshakeAck:
@@ -116,7 +116,7 @@ class BoostIPC(IPCInterface):
         # real observation (SharedMemoryMessageIO.writeHandshakeAck reuses writeObservationImpl),
         # so this consumes it with the same read_from_shared_memory call used by
         # read_observation(), before the caller starts treating j2p reads as observations.
-        data_bytes = self._read_message()
+        data_bytes = self._read_message(self.HANDSHAKE_ACK_TIMEOUT_SECONDS * 1000)
         ack = HandshakeAck()
         ack.ParseFromString(data_bytes)
         return ack

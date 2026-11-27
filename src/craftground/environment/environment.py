@@ -71,6 +71,8 @@ class CraftGroundEnvironment(gym.Env):
         profile: bool = False,
         profile_jni: bool = False,
     ):
+        if mc_version == "26.3" and use_shared_memory and sys.platform == "win32":
+            raise ValueError("Minecraft 26.3 on Windows requires socket transport (use_shared_memory=False)")
         self.action_space_version = action_space_version
         self.action_space = declare_action_space(action_space_version)
         self.observation_space = declare_observation_space(
@@ -122,6 +124,16 @@ class CraftGroundEnvironment(gym.Env):
             backend=LogBackend.BOTH if verbose_python else LogBackend.NONE,
         )
 
+        self.observation_converter = ObservationConverter(
+            self.initial_env.screen_encoding_mode,
+            self.initial_env.imageSizeX,
+            self.initial_env.imageSizeY,
+            self.logger,
+            self.initial_env.eye_distance > 0,
+            self.render_action,
+            self.render_mode,
+        )
+
         if self.use_shared_memory:
             from .boost_ipc import BoostIPC  # type: ignore
 
@@ -138,16 +150,6 @@ class CraftGroundEnvironment(gym.Env):
                 port,
                 find_free_port,
             )
-
-        self.observation_converter = ObservationConverter(
-            self.initial_env.screen_encoding_mode,
-            self.initial_env.imageSizeX,
-            self.initial_env.imageSizeY,
-            self.logger,
-            self.initial_env.eye_distance > 0,
-            self.render_action,
-            self.render_mode,
-        )
 
         weakref.finalize(self, self.close)
 
@@ -495,6 +497,7 @@ class CraftGroundEnvironment(gym.Env):
         return os.path.join(CraftGroundEnvironment.get_env_base_path(), "options.txt")
 
     def __del__(self):
-        self.close()
-        if self.logger:
+        if hasattr(self, "observation_converter") and hasattr(self, "ipc"):
+            self.close()
+        if getattr(self, "logger", None):
             self.logger.close()
