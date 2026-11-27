@@ -463,16 +463,6 @@ class MinecraftEnv :
             runCommand(player, "/kill @p") // kill player
             runCommand(player, "/tp @e[type=!player] ~ -500 ~") // send to void
             return true
-        } else if (command.startsWith("random-summon")) {
-            printWithTime("Random summon")
-            csvLogger.log("Random summon")
-            val arguments = command.substringAfter("random-summon ").trim()
-            val argumentsList = arguments.split(" ")
-            val entityName = argumentsList[0]
-            val x = argumentsList[1].toInt()
-            val y = argumentsList[2].toInt()
-            val z = argumentsList[3].toInt()
-            return false
         } else if (command == "exit") {
             printWithTime("Will terminate")
             csvLogger.log("Will terminate")
@@ -971,7 +961,7 @@ class MinecraftEnv :
                     // Populate biome info if needed
                     if (initialEnvironment.requiresBiomeInfo) {
                         println("Get world")
-                        val serverWorld = client.getSingleplayerServer()!!.overworld()
+                        val serverWorld = checkNotNull(client.singleplayerServer?.getLevel(world.dimension()))
                         println("End Get world")
                         val playerBlockPos = player.blockPosition()
                         val currentPlayerBiome =
@@ -1059,12 +1049,16 @@ class MinecraftEnv :
                         depth.addAll(depthBuffer?.asIterable() ?: emptyList())
                     }
                     if (initialEnvironment.blockCollisionKeysCount > 0) {
-                        blockCollisions.addAll(CollisionListener.blockCollisionInfo)
-                        CollisionListener.blockCollisionInfo.clear()
+                        synchronized(CollisionListener.blockCollisionInfo) {
+                            blockCollisions.addAll(CollisionListener.blockCollisionInfo)
+                            CollisionListener.blockCollisionInfo.clear()
+                        }
                     }
                     if (initialEnvironment.entityCollisionKeysCount > 0) {
-                        entityCollisions.addAll(CollisionListener.entityCollisionInfo)
-                        CollisionListener.entityCollisionInfo.clear()
+                        synchronized(CollisionListener.entityCollisionInfo) {
+                            entityCollisions.addAll(CollisionListener.entityCollisionInfo)
+                            CollisionListener.entityCollisionInfo.clear()
+                        }
                     }
 
                     val playerVelocity = player.deltaMovement

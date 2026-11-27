@@ -19,8 +19,8 @@ class HeightMapProvider {
                 val heightMap = world.getChunk(chunkPos.x, chunkPos.z).getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE)
                 for (x in 0..15) {
                     for (z in 0..15) {
-                        val blockPos = BlockPos(chunkPos.minBlockX + x, pos.y, chunkPos.minBlockZ + z)
                         val height = heightMap.getFirstAvailable(x, z)
+                        val blockPos = BlockPos(chunkPos.minBlockX + x, height - 1, chunkPos.minBlockZ + z)
                         val blockName = world.getBlockState(blockPos).block.descriptionId
                         heightMapInfoList.add(HeightMapInfo(blockPos.x, blockPos.z, height, blockName))
                     }
