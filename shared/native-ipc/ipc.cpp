@@ -93,7 +93,8 @@ void write_to_shared_memory(
 py::bytes read_from_shared_memory(
     const char *p2j_memory_name,
     const char *j2p_memory_name,
-    py::object server_event, int timeout_ms
+    py::object server_event,
+    int timeout_ms
 ) {
     return read_from_shared_memory_impl(
         p2j_memory_name, j2p_memory_name, server_event, timeout_ms
@@ -106,6 +107,9 @@ void destroy_shared_memory(const char *memory_name, bool release_semaphores) {
 
 PYBIND11_MODULE(craftground_native, m) {
     m.doc() = "Craftground Native Module";
+#ifdef __APPLE__
+    register_iosurface_receiver(m);
+#endif
     m.def("initialize_from_mach_port", &initialize_from_mach_port);
     m.def("mtl_tensor_from_cuda_mem_handle", &mtl_tensor_from_cuda_mem_handle);
     m.def("initialize_shared_memory", &initialize_shared_memory);

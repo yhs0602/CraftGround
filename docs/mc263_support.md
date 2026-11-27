@@ -53,7 +53,7 @@ On Apple Silicon and Linux with an NVIDIA RTX 6000 Ada, the integration test exe
 
 The same suite targets a poplar plank, breaks it with a Python action, and confirms by raycast that the wall behind it is now visible. It checks the change in depth against the known distances to both surfaces and uses four colors on the wall to check RAW and PNG orientation at 319 × 181.
 
-Apple Silicon also supports `ScreenEncodingMode.ZEROCOPY_TORCH` on Vulkan. Set `CRAFTGROUND_MC263_GRAPHICS_BACKEND=VULKAN` and add `-Dcraftground.enableMetalObjects=true` to `JAVA_TOOL_OPTIONS`. macOS may ask for administrator authorization when Minecraft shares its IOSurface with Python. The live test checks colors, orientation, and a camera turn on the returned PyTorch MPS tensor.
+Apple Silicon also supports `ScreenEncodingMode.ZEROCOPY_TORCH` on Vulkan. Set `CRAFTGROUND_MC263_GRAPHICS_BACKEND=VULKAN` and add `-Dcraftground.enableMetalObjects=true` to `JAVA_TOOL_OPTIONS`. macOS may ask for administrator authorization when Minecraft shares its IOSurface with Python. The live test checks colors, orientation, and a camera turn on the returned PyTorch MPS tensor. With JAX installed, select `ScreenEncodingMode.ZEROCOPY_JAX` to capture through the same IOSurface. Python copies the frame to CPU if JAX cannot import the MPS tensor.
 
 On Linux with NVIDIA, build the core Python extension and the 26.3 runtime with the CUDA toolkit available to CMake, and install a CUDA-enabled PyTorch. Select `ScreenEncodingMode.ZEROCOPY_TORCH`. OpenGL shares its color texture through CUDA. For Vulkan, add `-Dcraftground.enableCudaInterop=true` to `JAVA_TOOL_OPTIONS` before starting Python. [26.2 GPU interop design](26_2_vulkan_capture.md)
 
@@ -70,6 +70,7 @@ To include the live Metal test on macOS, run
 
 ```sh
 CRAFTGROUND_TEST_METAL=1 python -m pytest tests/python/native_integration/mc263_smoke.py -k metal
+CRAFTGROUND_TEST_JAX=1 python -m pytest tests/python/native_integration/mc263_smoke.py -k jax
 ```
 
 To run the live CUDA test on a Linux NVIDIA host with a working graphics display, use

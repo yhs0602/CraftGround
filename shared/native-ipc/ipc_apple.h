@@ -3,6 +3,8 @@
 
 #define USE_CUSTOM_DL_PACK_TENSOR 1
 
+void register_iosurface_receiver(py::module_ &module);
+
 py::object
 mtl_tensor_from_mach_port(unsigned int machPort, int width, int height);
 

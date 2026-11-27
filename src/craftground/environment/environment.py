@@ -14,6 +14,7 @@ import numpy as np
 from gymnasium.core import ActType, RenderFrame
 
 from ..proto.observation_space_pb2 import ObservationSpaceMessage
+from ..screen_encoding_modes import ScreenEncodingMode
 
 from .action_space import (
     ActionSpaceVersion,
@@ -238,6 +239,14 @@ class CraftGroundEnvironment(gym.Env):
         self.ipc.remove_orphan_java_processes()
         # Prepare command
         my_env = os.environ.copy()
+        if sys.platform == "darwin" and self.mc_version == "26.3" and self.encoding_mode in (
+            ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX
+        ):
+            from ..craftground_native import IOSurfaceReceiver
+
+            receiver = IOSurfaceReceiver()
+            self.observation_converter.surface_receiver = receiver
+            my_env["CRAFTGROUND_IOSURFACE_RECEIVER"] = str(receiver.name)
         my_env["PORT"] = str(self.ipc.port)
         my_env["CRAFTGROUND_CLEANUP_WORLD"] = str(int(self.cleanup_world))
         my_env["USE_SHARED_MEMORY"] = str(int(self.use_shared_memory))
@@ -281,7 +290,7 @@ class CraftGroundEnvironment(gym.Env):
 
         if hasattr(os, "setsid"):
             # Linux / Unix
-            kwargs["preexec_fn"] = os.setsid
+            kwargs["start_new_session"] = True
         elif sys.platform == "win32":
             # Windows
             kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP

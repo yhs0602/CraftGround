@@ -11,6 +11,7 @@
 #include "cross_gl.h"
 #include "cursor.h"
 #include "framebuffer_capturer_apple.h"
+#include "iosurface_message.h"
 
 IOSurfaceRef createSharedIOSurface(int width, int height) {
     NSDictionary *surfaceAttributes = @{
@@ -24,60 +25,63 @@ IOSurfaceRef createSharedIOSurface(int width, int height) {
 }
 
 mach_port_t createMachPortForIOSurface(IOSurfaceRef ioSurface, int python_pid) {
-    kern_return_t result;
-    mach_port_t machPort = MACH_PORT_NULL;
-    machPort = IOSurfaceCreateMachPort(ioSurface);
-    if (machPort == MACH_PORT_NULL) {
-        fprintf(stderr, "Failed to create Mach Port\n");
-        return -1;
-    }
-    // Check the Mach Port type for debugging
-    mach_port_type_t portType;
-    result = mach_port_type(mach_task_self(), machPort, &portType);
+    mach_port_t surface = IOSurfaceCreateMachPort(ioSurface);
+    if (!MACH_PORT_VALID(surface))
+        return MACH_PORT_NULL;
+    task_t pythonTask = MACH_PORT_NULL;
+    kern_return_t result =
+        task_for_pid(mach_task_self(), python_pid, &pythonTask);
+    mach_port_name_t name = surface;
     if (result == KERN_SUCCESS) {
-        printf("Mach Port type: 0x%x\n", portType);
-    } else {
-        fprintf(
-            stderr,
-            "Failed to get Mach Port type: %s\n",
-            mach_error_string(result)
-        );
-        return -1;
+        if (const char *receiver = getenv("CRAFTGROUND_IOSURFACE_RECEIVER")) {
+            name =
+                static_cast<mach_port_name_t>(strtoul(receiver, nullptr, 10));
+            mach_port_t destination;
+            mach_msg_type_name_t type;
+            result = mach_port_extract_right(
+                pythonTask, name, MACH_MSG_TYPE_MAKE_SEND, &destination, &type
+            );
+            if (result == KERN_SUCCESS) {
+                IOSurfaceMessage message{};
+                message.header.msgh_bits =
+                    MACH_MSGH_BITS_COMPLEX |
+                    MACH_MSGH_BITS(MACH_MSG_TYPE_COPY_SEND, 0);
+                message.header.msgh_size = sizeof(message);
+                message.header.msgh_remote_port = destination;
+                message.header.msgh_id = IOSurfaceMessageId;
+                message.body.msgh_descriptor_count = 1;
+                message.surface.name = surface;
+                message.surface.disposition = MACH_MSG_TYPE_COPY_SEND;
+                message.surface.type = MACH_MSG_PORT_DESCRIPTOR;
+                result = mach_msg(
+                    &message.header,
+                    MACH_SEND_MSG | MACH_SEND_TIMEOUT,
+                    sizeof(message),
+                    0,
+                    MACH_PORT_NULL,
+                    0,
+                    MACH_PORT_NULL
+                );
+                mach_port_deallocate(mach_task_self(), destination);
+            }
+        } else {
+            // Older Python packages expect a send right at the published name.
+            result = mach_port_insert_right(
+                pythonTask, name, surface, MACH_MSG_TYPE_COPY_SEND
+            );
+        }
+        mach_port_deallocate(mach_task_self(), pythonTask);
     }
-
-    // Insert the Mach Port right to the Python process
-    task_t python_task;
-    result = task_for_pid(mach_task_self(), python_pid, &python_task);
+    mach_port_deallocate(mach_task_self(), surface);
     if (result != KERN_SUCCESS) {
         fprintf(
             stderr,
-            "Failed to get task port for Python process: %s\n",
+            "Failed to share IOSurface with Python: %s\n",
             mach_error_string(result)
         );
-        return -1;
+        return MACH_PORT_NULL;
     }
-
-    result = mach_port_insert_right(
-        python_task, machPort, machPort, MACH_MSG_TYPE_COPY_SEND
-    );
-    if (result != KERN_SUCCESS) {
-        fprintf(
-            stderr,
-            "Failed to insert Mach Port right: %s\n",
-            mach_error_string(result)
-        );
-    } else {
-        printf("Successfully shared Mach Port with Python process\n");
-    }
-
-    // If we want it need not send mach port to another process. However this
-    // requires launchd result = bootstrap_check_in(machPort,
-    // "com.yhs0602.craftground.machport", &machPort); if (result !=
-    // KERN_SUCCESS) {
-    //     fprintf(stderr, "Failed to register Mach Port: %s\n",
-    //     mach_error_string(result));
-    // }
-    return machPort;
+    return name;
 }
 
 static IOSurfaceRef ioSurface;
@@ -109,10 +113,16 @@ int initializeIoSurface(
         return 0;
     }
 
-    // Generate a texture
-    glGenTextures(1, &textureID);
     ioSurface = createSharedIOSurface(width, height);
+    if (!ioSurface)
+        return -1;
     mach_port_t machPort = createMachPortForIOSurface(ioSurface, python_pid);
+    if (!MACH_PORT_VALID(machPort)) {
+        CFRelease(ioSurface);
+        ioSurface = nullptr;
+        return -1;
+    }
+    glGenTextures(1, &textureID);
     printf("\n\nmachPort: %u\n\n\n", machPort);
     fflush(stdout);
     glBindTexture(GL_TEXTURE_RECTANGLE, textureID);

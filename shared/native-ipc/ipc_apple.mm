@@ -6,6 +6,7 @@
 namespace py = pybind11;
 #include "dlpack.h"
 #include "ipc_apple.h"
+#include "iosurface_message.h"
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 #include <iostream>
@@ -34,7 +35,6 @@ IOSurfaceRef getIOSurfaceFromMachPort(mach_port_t machPort) {
     }
 
     IOSurfaceRef ioSurface = IOSurfaceLookupFromMachPort(machPort);
-    CFRetain(ioSurface);
     return ioSurface;
 }
 
@@ -117,6 +117,7 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
 
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     if (!device) {
+        CFRelease(ioSurface);
         throw std::runtime_error("Failed to create Metal device");
     }
 
@@ -136,16 +137,11 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
                          options:
                              MTLResourceStorageModeShared // MTLResourceStorageModePrivate
                      deallocator:^(void *_Nonnull pointer, NSUInteger length) {
-                       // deallocator can be used to free the memory
-                       NSLog(
-                           @"Deallocator called for buffer with pointer: %p, "
-                           @"length: %lu",
-                           pointer,
-                           (unsigned long)length
-                       );
+                       CFRelease(ioSurface);
                      }];
 
     if (!mtlBuffer) {
+        CFRelease(ioSurface);
         throw std::runtime_error(
             "Failed to create Metal buffer from IOSurface"
         );
@@ -176,4 +172,64 @@ mtl_tensor_from_mach_port(unsigned int machPort, int width, int height) {
         })
     );
 #endif
+}
+
+namespace {
+class IOSurfaceReceiver {
+  public:
+    IOSurfaceReceiver() {
+        auto result = mach_port_allocate(
+            mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &name
+        );
+        if (result != KERN_SUCCESS)
+            throw std::runtime_error(mach_error_string(result));
+    }
+    IOSurfaceReceiver(const IOSurfaceReceiver &) = delete;
+    ~IOSurfaceReceiver() { mach_port_destroy(mach_task_self(), name); }
+
+    py::object open(int width, int height) {
+        struct {
+            IOSurfaceMessage message;
+            mach_msg_trailer_t trailer;
+        } buffer{};
+        auto &message = buffer.message;
+        auto result = mach_msg(
+            &message.header,
+            MACH_RCV_MSG | MACH_RCV_TIMEOUT,
+            0,
+            sizeof(buffer),
+            name,
+            0,
+            MACH_PORT_NULL
+        );
+        if (result != MACH_MSG_SUCCESS)
+            throw std::runtime_error(mach_error_string(result));
+        if (message.header.msgh_id != IOSurfaceMessageId ||
+            !(message.header.msgh_bits & MACH_MSGH_BITS_COMPLEX) ||
+            message.header.msgh_size != sizeof(message) ||
+            message.body.msgh_descriptor_count != 1 ||
+            message.surface.type != MACH_MSG_PORT_DESCRIPTOR ||
+            message.surface.disposition != MACH_MSG_TYPE_PORT_SEND) {
+            mach_msg_destroy(&message.header);
+            throw std::runtime_error("Invalid IOSurface message");
+        }
+        try {
+            auto tensor =
+                mtl_tensor_from_mach_port(message.surface.name, width, height);
+            mach_port_deallocate(mach_task_self(), message.surface.name);
+            return tensor;
+        } catch (...) {
+            mach_port_deallocate(mach_task_self(), message.surface.name);
+            throw;
+        }
+    }
+    mach_port_name_t name;
+};
+} // namespace
+
+void register_iosurface_receiver(py::module_ &module) {
+    py::class_<IOSurfaceReceiver>(module, "IOSurfaceReceiver")
+        .def(py::init<>())
+        .def_readonly("name", &IOSurfaceReceiver::name)
+        .def("open", &IOSurfaceReceiver::open);
 }

@@ -57,6 +57,7 @@ class ObservationConverter:
     ) -> None:
         self.output_type = output_type
         self.internal_type = ObservationTensorType.NONE
+        self.surface_receiver = None
         self.image_width = image_width
         self.image_height = image_height
 
@@ -90,6 +91,7 @@ class ObservationConverter:
                 )
 
     def release_shared_frame(self) -> None:
+        self.surface_receiver = None
         if self.internal_type != ObservationTensorType.NONE:
             self.last_observations[0] = None
             self.internal_type = ObservationTensorType.NONE
@@ -244,9 +246,10 @@ class ObservationConverter:
         if len(ipc_handle) == 4:
             mach_port = int.from_bytes(ipc_handle, byteorder="little", signed=False)
             print_with_time(f"{mach_port=}")
-            apple_dl_tensor = initialize_from_mach_port(
-                mach_port, self.image_width, self.image_height
-            )
+            if self.surface_receiver is not None and self.surface_receiver.name == mach_port:
+                apple_dl_tensor = self.surface_receiver.open(self.image_width, self.image_height)
+            else:
+                apple_dl_tensor = initialize_from_mach_port(mach_port, self.image_width, self.image_height)
             if apple_dl_tensor is None:
                 raise ValueError(f"Failed to initialize from mach port {mach_port}.")
             # image_tensor = torch.utils.dlpack.from_dlpack(apple_dl_tensor)
