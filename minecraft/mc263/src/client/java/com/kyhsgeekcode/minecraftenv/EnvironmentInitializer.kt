@@ -4,6 +4,9 @@ import com.kyhsgeekcode.minecraftenv.mixin.ChatVisibleMessageAccessor
 import com.kyhsgeekcode.minecraftenv.mixin.WindowSizeAccessor
 import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment
 import com.kyhsgeekcode.minecraftenv.proto.InitialEnvironment.InitialEnvironmentMessage
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.client.Minecraft
 import net.minecraft.client.NarratorStatus
 import net.minecraft.client.gui.components.Button
@@ -20,8 +23,11 @@ import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList
 import net.minecraft.client.input.KeyEvent
-import net.minecraft.client.player.LocalPlayer
 import net.minecraft.client.tutorial.TutorialSteps
+import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.GameType
@@ -32,13 +38,6 @@ import java.util.concurrent.CompletableFuture
 import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 
-interface CommandExecutor {
-    fun runCommand(
-        server: LocalPlayer,
-        command: String,
-    )
-}
-
 // mc121's ButtonWidget.onPress() took no arguments; 26.2's AbstractButton.onPress() now takes
 // an InputWithModifiers (real presses come from a KeyEvent/MouseButtonEvent). For a synthetic
 // GUI-automation click we don't have a real input event, so we build a no-modifier KeyEvent -
@@ -46,10 +45,15 @@ interface CommandExecutor {
 // bearing here (keeps the forward-cycle-until-match loops below behaving as before).
 private val SYNTHETIC_PRESS = KeyEvent(0, 0, 0)
 
-// Referenced from EnvironmentInitializer.onWorldTick; declared here (rather than in
-// MinecraftEnv.kt, which doesn't exist yet in mc262 - see 26_2_phase2_plan.md task #4) since
-// it's conceptually part of chat-message bookkeeping for the init-done handshake.
 internal val chatList = mutableListOf<ChatMessageRecord>()
+
+// An ordered play packet after the initialization commands works even with hidden chat
+// or a non-operator player. Only one initialization is outstanding per client.
+private object InitializationMarker : CustomPacketPayload {
+    val packetType = CustomPacketPayload.Type<InitializationMarker>(Identifier.fromNamespaceAndPath("minecraftenv", "init_done"))
+
+    override fun type() = packetType
+}
 
 /**
  * Port of mc121's EnvironmentInitializer onto 26.2 (Mojmap). GUI class/method renames are
@@ -76,8 +80,6 @@ class EnvironmentInitializer(
     var initWorldFinished: Boolean = false
         private set
 
-    private lateinit var minecraftServer: MinecraftServer
-    private lateinit var player: LocalPlayer
     private var hasMinimizedWindow: Boolean = false
 
     private var initializedClient = false
@@ -85,6 +87,15 @@ class EnvironmentInitializer(
     private var shouldReloadResourcePack = false
     private var reloadResourcePackFuture: CompletableFuture<Void>? = null
     private var handshakeAckSent = false
+
+    private var receivedInitMarker = false
+
+    init {
+        val type = InitializationMarker.packetType
+        val codec = StreamCodec.unit<RegistryFriendlyByteBuf, InitializationMarker>(InitializationMarker)
+        PayloadTypeRegistry.clientboundPlay().register(type, codec)
+        ClientPlayNetworking.registerGlobalReceiver(type) { _, _ -> receivedInitMarker = true }
+    }
 
     fun onClientTick(client: Minecraft) {
         // SDL clamps the physical window to a minimum size. Minecraft uses these
@@ -563,33 +574,26 @@ class EnvironmentInitializer(
 
     fun reset(
         chatComponent: net.minecraft.client.gui.components.ChatComponent,
-        commandExecutor: CommandExecutor,
         variableCommandAfterReset: List<String>,
     ) {
         println("Resetting...")
         hasRunInitWorld = false
         initWorldFinished = false
         chatComponent.clearMessages(true)
-        onWorldTick(null, chatComponent, commandExecutor, variableCommandAfterReset)
+        onWorldTick(null, chatComponent, variableCommandAfterReset)
     }
 
     fun onWorldTick(
         minecraftServer: MinecraftServer?,
         chatComponent: net.minecraft.client.gui.components.ChatComponent,
-        commandExecutor: CommandExecutor,
         variableCommandsAfterReset: List<String>,
     ) {
-        player = Minecraft.getInstance().player ?: return
+        val client = Minecraft.getInstance()
+        val player = client.player ?: return
 
-        // Get the chat messages to check if the initialization is done, and clear the chat
+        // Collect chat messages for the next observation.
         val messages = ArrayList((chatComponent as ChatVisibleMessageAccessor).allMessages)
-        val hasInitFinishMessage =
-            messages.find {
-                it.content().string.contains("Initialization Done")
-            } != null
-        initWorldFinished = (initWorldFinished || hasInitFinishMessage) && reloadResourcePackFuture?.isDone != false
-        // TODO: Do not clear the chat, and delete only the message related to the initialization.
-        // Do not clear the chat related to the advancements
+        initWorldFinished = receivedInitMarker && reloadResourcePackFuture?.isDone != false
         messages.forEach { it ->
             val content = it.content().string
             chatList.add(
@@ -680,27 +684,19 @@ class EnvironmentInitializer(
             println("Root path not found; server: $minecraftServer")
         }
 
-        // NOTE: should be called only once when initial environment is set
-        val myCommandExecutor = { player: LocalPlayer, c: String ->
-            commandExecutor.runCommand(player, c)
-        }
-        setUnlimitedTPS(myCommandExecutor)
-        for (command in initialEnvironment.initialExtraCommandsList) {
-            commandExecutor.runCommand(this.player, "/$command")
-        }
-        for (command in variableCommandsAfterReset) {
-            commandExecutor.runCommand(this.player, "/$command")
-        }
-        commandExecutor.runCommand(this.player, "/say Initialization Done")
+        val server = checkNotNull(client.singleplayerServer)
+        val playerId = player.uuid
+        val commands = listOf("tick rate 10000") + initialEnvironment.initialExtraCommandsList + variableCommandsAfterReset
+        receivedInitMarker = false
         initWorldFinished = false
         hasRunInitWorld = true
-    }
-
-    // Set the TPS to virtually unlimited (26_2_phase2_plan.md W6 - the vanilla /tick rate
-    // command backs onto TickRateManager.setTickRate() in 26.2 same as it did in mc121, so
-    // this needs no version-specific change).
-    private fun setUnlimitedTPS(commandExecutor: (LocalPlayer, String) -> Unit) {
-        commandExecutor(player, "/tick rate 10000")
+        server.execute {
+            val serverPlayer = checkNotNull(server.playerList.getPlayer(playerId))
+            for (command in commands) {
+                server.commands.performPrefixedCommand(serverPlayer.createCommandSourceStack(), command.removePrefix("/"))
+            }
+            ServerPlayNetworking.send(serverPlayer, InitializationMarker)
+        }
     }
 
     private fun setupAllowCheats(
@@ -721,13 +717,6 @@ class EnvironmentInitializer(
         while (!gameModeButton.message.string.endsWith(testString)) {
             gameModeButton.onPress(SYNTHETIC_PRESS)
         }
-    }
-
-    private fun setupNoWeatherCycle(commandExecutor: (LocalPlayer, String) -> Unit) {
-        commandExecutor(
-            player,
-            "/gamerule doWeatherCycle false",
-        )
     }
 
     private fun disablePauseOnLostFocus(client: Minecraft) {

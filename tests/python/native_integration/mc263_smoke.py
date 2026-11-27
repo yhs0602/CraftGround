@@ -112,7 +112,10 @@ def test_installed_runtime(mode, stereo, shared_memory):
         assert depth.size == width * height
         assert np.isfinite(depth).all() and np.ptp(depth) > 0
 
-        reset_obs, _ = env.reset()
+        reset_obs, _ = env.reset(options={"extra_commands": ["tp @p 5.5 85 5.5 0 0"]})
+        assert (reset_obs["full"].x, reset_obs["full"].z) == pytest.approx((5.5, 5.5))
+        first = env.step(dict(no_op_v2(), camera_yaw=30))[0]["full"]
+        assert first.yaw == pytest.approx(30, abs=2)
         assert reset_obs["rgb"].shape == frame.shape
         assert env.step(no_op_v2())[0]["rgb"].shape == frame.shape
         if shared_memory:

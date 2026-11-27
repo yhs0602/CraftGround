@@ -76,8 +76,7 @@ enum class IOPhase {
 
 /** Drives one integrated-server tick per action and captures the resulting rendered frame. */
 class MinecraftEnv :
-    ClientModInitializer,
-    CommandExecutor {
+    ClientModInitializer {
     companion object {
         @Volatile
         private var instance: MinecraftEnv? = null
@@ -107,6 +106,7 @@ class MinecraftEnv :
     private var resetPhase: ResetPhase = ResetPhase.END_RESET
     private var deathMessageCollector: GetMessagesInterface? = null
 
+    @Volatile
     private var skipSync = false
 
     // W13 (26_2_phase2_plan.md Seam B): tick handlers call stepBarrier, not TickSynchronizer
@@ -294,7 +294,8 @@ class MinecraftEnv :
                 // should capture (same ioPhase check as before) and hand the world off to the
                 // present-redirect hook (handlePresentCapture), which fires later in this same
                 // runTick once the frame has actually been rendered (phase2_plan.md §2.2).
-                if (ioPhase ==
+                if (resetPhase != ResetPhase.END_RESET ||
+                    ioPhase ==
                     IOPhase.GOT_INITIAL_ENVIRONMENT_SENT_OBSERVATION_SKIP_SEND_OBSERVATION ||
                     ioPhase == IOPhase.SENT_OBSERVATION_SHOULD_READ_ACTION
                 ) {
@@ -357,7 +358,7 @@ class MinecraftEnv :
         if (!player.isDeadOrDying && client.gui.screen() is DeathScreen) {
             sendSetScreenNull(client)
         }
-        initializer.onWorldTick(client.getSingleplayerServer(), client.gui.hud.chat, this, emptyList())
+        initializer.onWorldTick(client.getSingleplayerServer(), client.gui.hud.chat, emptyList())
 
         when (resetPhase) {
             ResetPhase.WAIT_PLAYER_DEATH -> {
@@ -374,7 +375,7 @@ class MinecraftEnv :
                 printWithTime("Waiting for player respawn")
                 csvLogger.log("Waiting for player respawn")
                 if (!player.isDeadOrDying) {
-                    initializer.reset(client.gui.hud.chat, this, variableCommandsAfterReset)
+                    initializer.reset(client.gui.hud.chat, variableCommandsAfterReset)
                     variableCommandsAfterReset.clear()
                     resetPhase = ResetPhase.WAIT_INIT_ENDS
                 }
@@ -1166,7 +1167,7 @@ class MinecraftEnv :
         }
     }
 
-    override fun runCommand(
+    private fun runCommand(
         player: LocalPlayer,
         command: String,
     ) {

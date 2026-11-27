@@ -25,21 +25,28 @@ class LockStepBarrier(
 ) : StepBarrier {
     private val synchronizer = TickSynchronizer()
 
+    // Only the server thread reads and writes this flag. A tick that started in
+    // free-running mode must finish in that mode even if the client has since acted.
+    private var synchronizedServerTick = false
+
     override fun onClientTickEnd() {
-        synchronizer.notifyServerTickStart()
         if (!skipSync()) {
+            synchronizer.notifyServerTickStart()
             synchronizer.waitForServerTickCompletion()
         }
     }
 
     override fun onServerTickStart() {
-        if (!skipSync()) {
+        synchronizedServerTick = !skipSync()
+        if (synchronizedServerTick) {
             synchronizer.waitForClientAction()
         }
     }
 
     override fun onServerTickEnd() {
-        synchronizer.notifyClientSendObservation()
+        if (synchronizedServerTick) {
+            synchronizer.notifyClientSendObservation()
+        }
     }
 
     override fun terminate() {
