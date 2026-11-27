@@ -22,14 +22,16 @@ def mock_initial_env():
     )
 
 
-def test_mc263_windows_shared_memory_reports_socket_transport(mock_initial_env, monkeypatch):
+@pytest.mark.parametrize("version", ["1.21", "26.2", "26.3"])
+def test_windows_shared_memory_reports_socket_transport(mock_initial_env, monkeypatch, version):
     monkeypatch.setattr("craftground.environment.environment.sys.platform", "win32")
     with pytest.raises(ValueError, match="use_shared_memory=False"):
-        CraftGroundEnvironment(mock_initial_env, mc_version="26.3", use_shared_memory=True)
+        CraftGroundEnvironment(mock_initial_env, mc_version=version, use_shared_memory=True)
 
 
 @pytest.mark.parametrize("mode", [ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX])
-def test_binocular_zero_copy_fails_before_opening_ipc(mode):
+@patch("craftground.environment.environment.resolve_runtime_env_path", return_value="unused")
+def test_binocular_zero_copy_fails_before_opening_ipc(mock_runtime_path, mode):
     config = InitialEnvironmentConfig(screen_encoding_mode=mode, eye_distance=0.1)
     with patch("craftground.environment.environment.SocketIPC") as ipc:
         with pytest.raises(ValueError, match="binocular"):

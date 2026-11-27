@@ -72,8 +72,8 @@ class CraftGroundEnvironment(gym.Env):
         profile: bool = False,
         profile_jni: bool = False,
     ):
-        if mc_version == "26.3" and use_shared_memory and sys.platform == "win32":
-            raise ValueError("Minecraft 26.3 on Windows requires socket transport (use_shared_memory=False)")
+        if use_shared_memory and sys.platform == "win32":
+            raise ValueError("Windows requires socket transport (use_shared_memory=False)")
         self.action_space_version = action_space_version
         self.action_space = declare_action_space(action_space_version)
         self.observation_space = declare_observation_space(

@@ -45,7 +45,7 @@ finally:
 
 Set `cleanup_world=False` when creating the environment to keep a generated world after closing it. Opening an existing world by display name preserves its save.
 
-Sockets are the default transport and are required on Windows. On macOS, pass `use_shared_memory=True` to `craftground.make` to exchange actions and observations through POSIX shared memory. Install both the core and the 26.3 runtime from this branch. On Apple Silicon, the integration tests cover RAW, stereo PNG with depth, Metal tensor capture, fast resets, and full Minecraft restarts over shared memory.
+Sockets are the default transport and are required on Windows for all supported Minecraft versions. On macOS, pass `use_shared_memory=True` to `craftground.make` to exchange actions and observations through POSIX shared memory. Install both the core and the 26.3 runtime from this branch. On Apple Silicon, the integration tests cover RAW, stereo PNG with depth, Metal tensor capture, fast resets, and full Minecraft restarts over shared memory.
 
 ## Capture modes
 
