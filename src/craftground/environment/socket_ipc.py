@@ -98,9 +98,13 @@ class SocketIPC(IPCInterface):
     def is_alive(self) -> bool:
         return self.sock is not None
 
-    def destroy(self):
-        if self.sock:
-            self.send_exit()
+    def destroy(self, *, send_exit=True):
+        if self.sock is None:
+            return
+        try:
+            if send_exit:
+                self.send_exit()
+        finally:
             self.sock.close()
             self.sock = None
             socket_path = f"/tmp/minecraftrl_{self.port}.sock"
@@ -189,9 +193,9 @@ class SocketIPC(IPCInterface):
         previous_timeout = self.sock.gettimeout()
         self.sock.settimeout(self.HANDSHAKE_ACK_TIMEOUT_SECONDS)
         try:
-            data_len_bytes = self.buffered_socket.read(4, True)
+            data_len_bytes = self.buffered_socket.read(4)
             data_len = struct.unpack("<I", data_len_bytes)[0]
-            data_bytes = self.buffered_socket.read(data_len, True)
+            data_bytes = self.buffered_socket.read(data_len)
         finally:
             self.sock.settimeout(previous_timeout)
         ack = HandshakeAck()

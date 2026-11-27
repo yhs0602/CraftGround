@@ -1,4 +1,5 @@
 import signal
+import socket
 import threading
 from time import sleep
 import pytest
@@ -123,6 +124,20 @@ def test_start_communication(mock_socket, socket_ipc):
 
     mock_sock.send.assert_called()
     mock_sock.sendall.assert_called()
+
+
+def test_silent_handshake_propagates_timeout(socket_ipc):
+    socket_ipc.sock = MagicMock()
+    socket_ipc.sock.gettimeout.return_value = 30
+    socket_ipc.sock.recv.side_effect = [
+        socket.timeout("silent peer"),
+        AssertionError("handshake read retried after timeout"),
+    ]
+    socket_ipc.buffered_socket = BufferedSocket(socket_ipc.sock)
+    with pytest.raises(socket.timeout, match="silent peer"):
+        socket_ipc._read_handshake_ack()
+    socket_ipc.sock.recv.assert_called_once()
+    socket_ipc.sock.settimeout.assert_called_with(30)
 
 
 @patch("socket.socket")

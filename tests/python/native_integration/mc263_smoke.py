@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 import craftground
+from craftground import protocol_version
 from craftground.environment.action_space import ActionSpaceVersion, no_op_v2
 from craftground.initial_environment_config import Difficulty, WorldType
 from craftground.screen_encoding_modes import ScreenEncodingMode
@@ -21,6 +22,38 @@ TRANSPORTS = [
         marks=pytest.mark.skipif(os.name != "posix", reason="POSIX shared memory"),
     ),
 ]
+
+
+@pytest.mark.parametrize("shared_memory", TRANSPORTS)
+def test_retry_after_rejected_handshake(shared_memory, monkeypatch):
+    env = craftground.make(
+        mc_version="26.3",
+        use_shared_memory=shared_memory,
+        initial_env_config=craftground.InitialEnvironmentConfig(
+            image_width=160,
+            image_height=120,
+            world_type=WorldType.SUPERFLAT,
+            render_distance=3,
+        ),
+        action_space_version=ActionSpaceVersion.V2_MINERL_HUMAN,
+    )
+    port = env.ipc.port
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(
+                protocol_version,
+                "CRAFTGROUND_PROTOCOL_VERSION",
+                protocol_version.CRAFTGROUND_PROTOCOL_VERSION + 1,
+            )
+            with pytest.raises(protocol_version.ProtocolVersionMismatchError):
+                env.reset()
+        assert env.process is None and env.server_event is None
+        obs, _ = env.reset()
+        assert env.ipc.port == port
+        assert obs["rgb"].shape == (120, 160, 3)
+        assert env.step(no_op_v2())[0]["full"].health > 0
+    finally:
+        env.close()
 
 
 @pytest.mark.parametrize(

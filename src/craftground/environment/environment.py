@@ -295,15 +295,23 @@ class CraftGroundEnvironment(gym.Env):
             # Windows
             kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
 
-        self.process = subprocess.Popen(cmd, **kwargs)
-        self.server_event = threading.Event()
-        threading.Thread(
-            target=self.monitor_process,
-            args=(self.process, self.server_event, self.ipc),
-            daemon=True,
-        ).start()
+        try:
+            self.process = subprocess.Popen(cmd, **kwargs)
+            self.server_event = threading.Event()
+            threading.Thread(
+                target=self.monitor_process,
+                args=(self.process, self.server_event, self.ipc),
+                daemon=True,
+            ).start()
 
-        self.ipc.start_communication(self.server_event)
+            self.ipc.start_communication(self.server_event)
+        except BaseException:
+            # No action is valid until the runtime acknowledges the handshake.
+            try:
+                self.terminate(graceful=False)
+            except Exception as error:
+                self.logger.log(f"Failed to clean up after startup: {error}")
+            raise
 
     def monitor_process(self, process, server_event, ipc):
         process.wait()
@@ -406,15 +414,15 @@ class CraftGroundEnvironment(gym.Env):
     def add_commands(self, commands: List[str]):
         self.queued_commands.extend(commands)
 
-    def terminate(self):
+    def terminate(self, *, graceful=True):
         self.observation_converter.release_shared_frame()
         self.server_event = None
         try:
-            wait_for_exit = self.mc_version == "26.3" and self.ipc.is_alive()
+            wait_for_exit = graceful and self.mc_version == "26.3" and self.ipc.is_alive()
             if self.use_shared_memory and wait_for_exit and self.is_alive:
                 self.ipc.send_commands(["exit"])
             elif not self.use_shared_memory:
-                self.ipc.destroy()
+                self.ipc.destroy(send_exit=graceful)
         except Exception:
             wait_for_exit = False
 
@@ -427,6 +435,8 @@ class CraftGroundEnvironment(gym.Env):
 
         pid = p.pid
         try:
+            if p.poll() is not None:
+                return
             # The 26.3 exit handler stops the integrated server and finalizes the save.
             if wait_for_exit:
                 try:
@@ -484,9 +494,9 @@ class CraftGroundEnvironment(gym.Env):
             except Exception:
                 pass
         finally:
+            self.process = None
             if self.use_shared_memory:
                 self.ipc.destroy()
-            self.process = None
             self.logger.log("Terminated the java process")
 
     @staticmethod
