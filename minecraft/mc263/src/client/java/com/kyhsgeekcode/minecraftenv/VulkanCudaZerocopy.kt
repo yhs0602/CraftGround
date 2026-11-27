@@ -13,6 +13,8 @@ import org.lwjgl.vulkan.VK12
 import org.lwjgl.vulkan.VkExportMemoryAllocateInfo
 import org.lwjgl.vulkan.VkExternalMemoryImageCreateInfo
 import org.lwjgl.vulkan.VkImageCopy
+import org.lwjgl.vulkan.VkCommandBuffer
+import org.lwjgl.vulkan.VkImageMemoryBarrier
 import org.lwjgl.vulkan.VkImageCreateInfo
 import org.lwjgl.vulkan.VkMemoryAllocateInfo
 import org.lwjgl.vulkan.VkMemoryGetFdInfoKHR
@@ -62,6 +64,7 @@ object VulkanCudaZerocopy {
     private var dstImage: Long = 0L
     private var dstMemory: Long = 0L
     private var cudaImportDone = false
+    private var releasedToCuda = false
 
     private val isWindows: Boolean =
         System.getProperty("os.name", "").lowercase(Locale.ROOT).contains("win")
@@ -171,8 +174,6 @@ object VulkanCudaZerocopy {
                 "vkBindImageMemory (CUDA zerocopy destination)",
             )
 
-            transitionToTransferDst(device, stack)
-
             osHandle =
                 if (isWindows) {
                     val getInfo =
@@ -224,46 +225,44 @@ object VulkanCudaZerocopy {
         ipcHandle = result
     }
 
-    // One-time UNDEFINED -> TRANSFER_DST_OPTIMAL transition, off the frame-critical path: a
-    // transient command buffer submitted and waited on immediately, not the frame's own buffer.
-    private fun transitionToTransferDst(
-        device: VulkanDevice,
+    // The first copy starts with an unowned, undefined image. Subsequent copies
+    // reacquire the image after the previous CUDA read has completed on the host.
+    private fun transferOwnership(
+        cmd: VkCommandBuffer,
         stack: MemoryStack,
+        graphicsFamily: Int,
+        release: Boolean,
     ) {
-        val transientCmd = device.createCommandEncoder().allocateAndBeginTransientCommandBuffer()
-
-        val barrier =
-            org.lwjgl.vulkan.VkImageMemoryBarrier
-                .calloc(1, stack)
-                .`sType$Default`()
-                .srcAccessMask(0)
-                .dstAccessMask(VK10.VK_ACCESS_TRANSFER_WRITE_BIT)
-                .oldLayout(VK10.VK_IMAGE_LAYOUT_UNDEFINED)
-                .newLayout(VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-                .srcQueueFamilyIndex(VK10.VK_QUEUE_FAMILY_IGNORED)
-                .dstQueueFamilyIndex(VK10.VK_QUEUE_FAMILY_IGNORED)
-                .image(dstImage)
-        barrier[0].subresourceRange().apply {
-            aspectMask(VK10.VK_IMAGE_ASPECT_COLOR_BIT)
-            baseMipLevel(0)
-            levelCount(1)
-            baseArrayLayer(0)
-            layerCount(1)
+        val external = VK11.VK_QUEUE_FAMILY_EXTERNAL
+        val transfer = VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+        val barrier = VkImageMemoryBarrier.calloc(1, stack)
+        barrier[0].apply {
+            `sType$Default`()
+            image(dstImage)
+            subresourceRange().set(VK10.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+            if (release) {
+                srcQueueFamilyIndex(graphicsFamily)
+                dstQueueFamilyIndex(external)
+                srcAccessMask(VK10.VK_ACCESS_TRANSFER_WRITE_BIT)
+                oldLayout(transfer)
+                newLayout(VK10.VK_IMAGE_LAYOUT_GENERAL)
+            } else {
+                srcQueueFamilyIndex(if (releasedToCuda) external else VK10.VK_QUEUE_FAMILY_IGNORED)
+                dstQueueFamilyIndex(if (releasedToCuda) graphicsFamily else VK10.VK_QUEUE_FAMILY_IGNORED)
+                dstAccessMask(VK10.VK_ACCESS_TRANSFER_WRITE_BIT)
+                oldLayout(if (releasedToCuda) VK10.VK_IMAGE_LAYOUT_GENERAL else VK10.VK_IMAGE_LAYOUT_UNDEFINED)
+                newLayout(transfer)
+            }
         }
         VK10.vkCmdPipelineBarrier(
-            transientCmd,
-            VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+            cmd,
+            if (release) VK10.VK_PIPELINE_STAGE_TRANSFER_BIT else VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            if (release) VK10.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT else VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
             0,
             null,
             null,
             barrier,
         )
-
-        device.graphicsQueue().beginSubmit().use { submission ->
-            submission.executeCommands(transientCmd)
-        }
-        device.graphicsQueue().waitIdle()
     }
 
     // Unlike VulkanMetalZerocopy's IOSurface-backed destination (inherently host-visible, linear
@@ -308,6 +307,8 @@ object VulkanCudaZerocopy {
             region[0].dstOffset().set(0, 0, 0)
             region[0].extent().set(width, height, 1)
 
+            val graphicsFamily = device.graphicsQueue().queueFamilyIndex()
+            transferOwnership(cmd, stack, graphicsFamily, release = false)
             VK12.vkCmdCopyImage(
                 cmd,
                 colorTexture.vkImage(),
@@ -316,6 +317,8 @@ object VulkanCudaZerocopy {
                 VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 region,
             )
+            transferOwnership(cmd, stack, graphicsFamily, release = true)
+            releasedToCuda = true
             com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder
                 .memoryBarrier(cmd, stack)
         }
@@ -355,6 +358,7 @@ object VulkanCudaZerocopy {
         dstImage = 0L
         dstMemory = 0L
         cudaImportDone = false
+        releasedToCuda = false
         ipcHandle = ByteString.EMPTY
     }
 

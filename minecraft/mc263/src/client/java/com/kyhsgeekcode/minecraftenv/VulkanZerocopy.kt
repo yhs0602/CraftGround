@@ -39,9 +39,14 @@ object VulkanZerocopy {
         height: Int,
         pythonPid: Int,
     ) {
-        when (activeBackend()) {
-            Backend.METAL -> VulkanMetalZerocopy.initialize(device, width, height, pythonPid)
-            Backend.CUDA -> VulkanCudaZerocopy.initialize(device, width, height, pythonPid)
+        try {
+            when (activeBackend()) {
+                Backend.METAL -> VulkanMetalZerocopy.initialize(device, width, height, pythonPid)
+                Backend.CUDA -> VulkanCudaZerocopy.initialize(device, width, height, pythonPid)
+            }
+        } catch (e: Throwable) {
+            close()
+            throw e
         }
     }
 

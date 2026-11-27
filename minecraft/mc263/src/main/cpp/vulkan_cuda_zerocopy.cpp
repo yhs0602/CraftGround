@@ -74,6 +74,18 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
     jint height,
     jboolean isWin32
 ) {
+    // A successful POSIX import consumes the fd. All other paths retain
+    // ownership, including validation failures before the import is attempted.
+    struct ExportHandle {
+        jlong value;
+        ~ExportHandle() {
+#if defined(_WIN32)
+            CloseHandle(reinterpret_cast<HANDLE>(value));
+#else
+            if (value >= 0) close(static_cast<int>(value));
+#endif
+        }
+    } handle{osHandle};
     if (byteStringClass == nullptr || copyFromMethod == nullptr || env->ExceptionCheck()) {
         fprintf(stderr, "VulkanCudaZerocopy: ByteString class/method not initialized\n");
         return nullptr;
@@ -110,18 +122,8 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
 
     cudaExternalMemory_t extMem;
     err = cudaImportExternalMemory(&extMem, &memHandleDesc);
-    // Handle ownership per the CUDA runtime docs: an opaque POSIX fd is consumed by CUDA only on
-    // a *successful* import (the driver closes it internally) - on failure it's still ours to
-    // close. An opaque Win32 HANDLE is never taken over by CUDA (it duplicates internally), so we
-    // must always close our copy, success or failure.
-#if defined(_WIN32)
-    if (isWin32) {
-        CloseHandle(reinterpret_cast<HANDLE>(osHandle));
-    }
-#else
-    if (!isWin32 && err != cudaSuccess) {
-        close(static_cast<int>(osHandle));
-    }
+#if !defined(_WIN32)
+    if (err == cudaSuccess) handle.value = -1;
 #endif
     if (err != cudaSuccess) {
         fprintf(
@@ -183,6 +185,25 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
         return nullptr;
     }
 
+    // Same wire format shared/native-ipc/ipc_cuda.cpp's mtl_tensor_from_cuda_ipc_handle already
+    // expects (reused verbatim by observation_converter.py's mtl_tensor_from_cuda_mem_handle for
+    // the existing GL+CUDA zerocopy path): sizeof(cudaIpcMemHandle_t) bytes, then the device id.
+    const int handleSize = sizeof(cudaIpcMemHandle_t);
+    jbyteArray byteArray = env->NewByteArray(handleSize + sizeof(int));
+    jobject byteStringObject = nullptr;
+    if (byteArray != nullptr) {
+        env->SetByteArrayRegion(byteArray, 0, handleSize, reinterpret_cast<jbyte *>(&ipcHandle));
+        env->SetByteArrayRegion(byteArray, handleSize, sizeof(int), reinterpret_cast<jbyte *>(&deviceId));
+        if (!env->ExceptionCheck())
+            byteStringObject = env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
+        env->DeleteLocalRef(byteArray);
+    }
+    if (!byteStringObject || env->ExceptionCheck()) {
+        cudaFree(sharedBuffer);
+        cudaFreeMipmappedArray(mipmap);
+        cudaDestroyExternalMemory(extMem);
+        return nullptr;
+    }
     g_extMem = extMem;
     g_mipmap = mipmap;
     g_level0Array = level0Array;
@@ -192,26 +213,6 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
     g_height = height;
     g_initialized = true;
 
-    // Same wire format shared/native-ipc/ipc_cuda.cpp's mtl_tensor_from_cuda_ipc_handle already
-    // expects (reused verbatim by observation_converter.py's mtl_tensor_from_cuda_mem_handle for
-    // the existing GL+CUDA zerocopy path): sizeof(cudaIpcMemHandle_t) bytes, then the device id.
-    const int handleSize = sizeof(cudaIpcMemHandle_t);
-    jbyteArray byteArray = env->NewByteArray(handleSize + sizeof(int));
-    if (byteArray == nullptr || env->ExceptionCheck()) {
-        fprintf(stderr, "VulkanCudaZerocopy: failed to create byte array\n");
-        return nullptr;
-    }
-    env->SetByteArrayRegion(byteArray, 0, handleSize, reinterpret_cast<jbyte *>(&ipcHandle));
-    env->SetByteArrayRegion(
-        byteArray, handleSize, sizeof(int), reinterpret_cast<jbyte *>(&deviceId)
-    );
-    jobject byteStringObject =
-        env->CallStaticObjectMethod(byteStringClass, copyFromMethod, byteArray);
-    env->DeleteLocalRef(byteArray);
-    if (byteStringObject == nullptr || env->ExceptionCheck()) {
-        fprintf(stderr, "VulkanCudaZerocopy: failed to create ByteString object\n");
-        return nullptr;
-    }
     return byteStringObject;
 }
 
@@ -220,33 +221,19 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_copyImportedArrayToCudaSha
     JNIEnv *env, jobject thiz
 ) {
     if (!g_initialized) {
+        env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), "CUDA capture is not initialized");
         return;
     }
-    cudaSetDevice(g_deviceId);
-    // No stream argument -> the default (legacy) stream, which is synchronous with the host: this
-    // call blocks until the device-to-device copy completes, so by the time
-    // VulkanCudaZerocopy.syncAfterFence() (its only caller) returns, g_sharedBuffer is fully
-    // written and safe for Python to read via the cudaIpcMemHandle. The caller is required to only
-    // invoke this after Blaze3dCapture.awaitPendingFence() confirms the source vkCmdCopyImage
-    // finished (see syncAfterFence's kdoc) - Vulkan and CUDA have no shared queue/stream to order
-    // against otherwise.
-    cudaError_t err = cudaMemcpy2DFromArray(
-        g_sharedBuffer,
-        static_cast<size_t>(g_width) * 4,
-        g_level0Array,
-        0,
-        0,
-        static_cast<size_t>(g_width) * 4,
-        static_cast<size_t>(g_height),
-        cudaMemcpyDeviceToDevice
-    );
-    if (err != cudaSuccess) {
-        fprintf(
-            stderr,
-            "VulkanCudaZerocopy: cudaMemcpy2DFromArray failed: %s\n",
-            cudaGetErrorString(err)
+    cudaError_t err = cudaSetDevice(g_deviceId);
+    if (err == cudaSuccess) {
+        const size_t pitch = static_cast<size_t>(g_width) * 4;
+        err = cudaMemcpy2DFromArrayAsync(
+            g_sharedBuffer, pitch, g_level0Array, 0, 0, pitch, g_height, cudaMemcpyDeviceToDevice, nullptr
         );
     }
+    if (err == cudaSuccess) err = cudaStreamSynchronize(nullptr);
+    if (err != cudaSuccess)
+        env->ThrowNew(env->FindClass("java/io/IOException"), cudaGetErrorString(err));
 }
 
 extern "C" JNIEXPORT void JNICALL
