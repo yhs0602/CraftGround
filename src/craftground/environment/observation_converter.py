@@ -68,6 +68,8 @@ class ObservationConverter:
         self.render_action = render_action
         self.render_mode = render_mode
         self.render_alternating_eyes = render_alternating_eyes
+        if is_binocular and output_type in (ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX):
+            raise ValueError("Zero-copy capture does not support binocular vision")
         if output_type == ScreenEncodingMode.ZEROCOPY_TORCH:
             try:
                 from ..craftground_native import initialize_from_mach_port  # type: ignore
@@ -110,52 +112,24 @@ class ObservationConverter:
                 obs_2 = self.convert_raw_observation(observation.image_2)
             self.last_observations[0], self.last_observations[1] = obs_1, obs_2
             return (obs_1, obs_2)
-        elif self.output_type == ScreenEncodingMode.ZEROCOPY_TORCH:
-            if self.is_binocular:
-                raise ValueError("Zerocopy mode does not support binocular vision")
+        elif self.output_type in (ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX):
             if self.internal_type == ObservationTensorType.NONE:
                 self.initialize_zerocopy(observation.ipc_handle)
+            frame = self.last_observations[0].clone()
             if self.internal_type == ObservationTensorType.APPLE_TENSOR:
-                obs_1 = self.last_observations[0].clone()[:, :, [2, 1, 0]].flip(0)
-                return (obs_1, None)
-            elif self.internal_type == ObservationTensorType.CUDA_DLPACK:
-                obs_1 = self.last_observations[0].clone()[:, :, :3].flip(0)
-                return (obs_1, None)
+                rgb = frame[:, :, [2, 1, 0]].flip(0)
             else:
-                raise ValueError(
-                    f"Invalid internal type for output {self.output_type}: {self.internal_type}"
-                )
-
-        elif self.output_type == ScreenEncodingMode.ZEROCOPY_JAX:
-            if self.is_binocular:
-                raise ValueError("JAX mode does not support binocular vision")
-            if self.internal_type == ObservationTensorType.NONE:
-                self.initialize_jax_zerocopy(observation.ipc_handle)
-            if self.internal_type == ObservationTensorType.JAX_NP:
-                # self.last_observations[0] is a torch tensor that's a live view
-                # into the shared GPU buffer Java keeps rewriting every frame (same
-                # as ZEROCOPY mode) - it has to be freshly cloned and converted to
-                # a jax array on every call, not just once, or every frame after
-                # the first would return the same stale first-frame snapshot (jax
-                # arrays are immutable, so there's no in-place-updating jax array
-                # to just re-read the way ZEROCOPY re-reads its torch tensor).
+                rgb = frame[:, :, :3].flip(0)
+            if self.output_type == ScreenEncodingMode.ZEROCOPY_JAX:
                 import jax.dlpack
 
-                torch_frame = self.last_observations[0].clone()[:, :, [2, 1, 0]].flip(
-                    0
-                )
                 try:
-                    obs_1 = jax.dlpack.from_dlpack(torch_frame)
-                except TypeError:
-                    # No jax Metal/GPU backend installed (needs the separate
-                    # jax-metal plugin) - fall back to a CPU copy instead of
-                    # crashing.
-                    obs_1 = jax.dlpack.from_dlpack(torch_frame.cpu())
-                return (obs_1, None)
-            else:
-                raise ValueError(
-                    f"Invalid internal type for output {self.output_type}: {self.internal_type}"
-                )
+                    rgb = jax.dlpack.from_dlpack(rgb.contiguous())
+                except (TypeError, BufferError):
+                    if rgb.device.type != "mps":
+                        raise
+                    rgb = jax.dlpack.from_dlpack(rgb.cpu().contiguous())
+            return (rgb, None)
         else:
             raise ValueError(f"Unknown output type: {self.output_type}")
 
@@ -298,36 +272,3 @@ class ObservationConverter:
             # drop alpha, flip y axis, and clone
             self.internal_type = ObservationTensorType.CUDA_DLPACK
 
-    def initialize_jax_zerocopy(self, ipc_handle: bytes) -> None:
-        # There is no native mach-port -> DLPack export for JAX; the mach-port path
-        # instead reuses the same native call ZEROCOPY uses, which hands back a
-        # torch tensor that's a live view into the shared GPU buffer Java keeps
-        # rewriting every frame. That torch tensor (not a one-off jax conversion
-        # of it) is what gets cached - see the JAX branch of convert() for why.
-        import torch.utils.dlpack
-        from ..craftground_native import initialize_from_mach_port  # type: ignore
-        from ..craftground_native import mtl_tensor_from_cuda_mem_handle  # type: ignore
-
-        if len(ipc_handle) == 0:
-            raise ValueError("No ipc handle found.")
-        if len(ipc_handle) == 4:
-            mach_port = int.from_bytes(ipc_handle, byteorder="little", signed=False)
-            print_with_time(f"{mach_port=}")
-            apple_tensor = initialize_from_mach_port(
-                mach_port, self.image_width, self.image_height
-            )
-            if apple_tensor is None:
-                raise ValueError(f"Failed to initialize from mach port {mach_port}.")
-            self.last_observations[0] = apple_tensor
-        else:
-            cuda_dlpack = mtl_tensor_from_cuda_mem_handle(
-                ipc_handle,
-                self.image_width,
-                self.image_height,
-            )
-            if not cuda_dlpack:
-                raise ValueError("Invalid DLPack capsule: None")
-            self.last_observations[0] = torch.utils.dlpack.from_dlpack(cuda_dlpack)
-        print(self.last_observations[0].shape)
-        print(self.last_observations[0].dtype)
-        self.internal_type = ObservationTensorType.JAX_NP

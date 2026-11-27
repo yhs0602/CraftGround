@@ -196,11 +196,11 @@ class EnvironmentInitializer(
             handshakeAckSent = true
         }
         if (captureBackend != Blaze3dCapture.CaptureBackend.OPENGL &&
-            initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH
+            FramebufferCapturer.isZeroCopy(initialEnvironment.screenEncodingMode)
         ) {
             if (!vulkanZerocopySupported) {
                 throw IllegalStateException(
-                    "ZEROCOPY_TORCH capture requires the OpenGL rendering backend, or Vulkan with " +
+                    "Zero-copy capture requires the OpenGL rendering backend, or Vulkan with " +
                         "-Dcraftground.enableMetalObjects=true on a device supporting " +
                         "VK_EXT_metal_objects, or " +
                         "-Dcraftground.enableCudaInterop=true on a device supporting " +

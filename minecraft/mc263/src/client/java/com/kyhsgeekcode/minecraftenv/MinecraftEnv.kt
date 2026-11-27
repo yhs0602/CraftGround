@@ -568,7 +568,7 @@ class MinecraftEnv :
         if (Blaze3dCapture.backendFor(colorTexture) != Blaze3dCapture.CaptureBackend.BLAZE3D) {
             return
         }
-        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
+        if (FramebufferCapturer.isZeroCopy(initialEnvironment.screenEncodingMode)) {
             val device = vulkanDeviceFromRenderSystem()
             // Must run here, not in sendObservation(): this hook fires before submit(), while
             // sendObservation() (which used to own this call) only runs after it, in the same
@@ -726,7 +726,7 @@ class MinecraftEnv :
                 throw RuntimeException("GLEW not initialized")
             }
         }
-        if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
+        if (FramebufferCapturer.isZeroCopy(initialEnvironment.screenEncodingMode)) {
             // EnvironmentInitializer.checkRenderBackend already fails fast unless this is OpenGL,
             // or Vulkan with a supported interop backend enabled.
             // On the BLAZE3D path, initialize() already ran from handleBeforeSubmitCapture() -
@@ -801,7 +801,7 @@ class MinecraftEnv :
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/SingleEye/ByteString",
                 )
                 imageByteString1 =
-                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH &&
+                    if (FramebufferCapturer.isZeroCopy(initialEnvironment.screenEncodingMode) &&
                         captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D
                     ) {
                         // No CPU readback was recorded for this frame (handleBeforeSubmitCapture
@@ -1039,7 +1039,7 @@ class MinecraftEnv :
                     }
                     isOnGround = player.onGround()
                     isTouchingWater = player.isInWater
-                    if (initialEnvironment.screenEncodingMode == FramebufferCapturer.ZEROCOPY_TORCH) {
+                    if (FramebufferCapturer.isZeroCopy(initialEnvironment.screenEncodingMode)) {
                         ipcHandle =
                             if (captureBackend == Blaze3dCapture.CaptureBackend.BLAZE3D) {
                                 VulkanZerocopy.ipcHandle

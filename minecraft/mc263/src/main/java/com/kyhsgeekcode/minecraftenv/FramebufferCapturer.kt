@@ -48,7 +48,7 @@ object FramebufferCapturer {
         xPos: Int,
         yPos: Int,
     ): ByteString {
-        if (encodingMode == ZEROCOPY_TORCH) {
+        if (isZeroCopy(encodingMode)) {
             assert(textureWidth == targetSizeX && textureHeight == targetSizeY)
             return captureFramebufferZerocopyImpl(
                 textureId,
@@ -198,6 +198,9 @@ object FramebufferCapturer {
     const val RAW = 0
     const val PNG = 1
     const val ZEROCOPY_TORCH = 2
+    const val ZEROCOPY_JAX = 3
+
+    fun isZeroCopy(mode: Int) = mode == ZEROCOPY_TORCH || mode == ZEROCOPY_JAX
 
     var isExtensionAvailable: Boolean = false
     private var hasCheckedExtension: Boolean = false
