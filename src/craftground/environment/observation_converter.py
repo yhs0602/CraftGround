@@ -85,6 +85,11 @@ class ObservationConverter:
                     "To use JAX encoding mode, please install the craftground[jax] package."
                 )
 
+    def release_shared_frame(self) -> None:
+        if self.internal_type != ObservationTensorType.NONE:
+            self.last_observations[0] = None
+            self.internal_type = ObservationTensorType.NONE
+
     def convert(
         self, observation: ObservationSpaceMessage
     ) -> Tuple[Optional[ImageOutputType]]:

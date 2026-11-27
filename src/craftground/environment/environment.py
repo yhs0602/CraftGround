@@ -209,6 +209,9 @@ class CraftGroundEnvironment(gym.Env):
                 return
             else:
                 self.terminate()
+        else:
+            # The exporter may have exited between steps.
+            self.observation_converter.release_shared_frame()
 
         if self.use_shared_memory:
             from .boost_ipc import BoostIPC  # type: ignore
@@ -392,6 +395,7 @@ class CraftGroundEnvironment(gym.Env):
         self.queued_commands.extend(commands)
 
     def terminate(self):
+        self.observation_converter.release_shared_frame()
         self.server_event = None
         try:
             wait_for_exit = self.mc_version == "26.3" and self.ipc.is_alive()
