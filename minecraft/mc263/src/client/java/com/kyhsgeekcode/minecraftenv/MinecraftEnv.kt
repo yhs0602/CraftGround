@@ -782,10 +782,10 @@ class MinecraftEnv :
                 // each eye and captured, exactly as mc121 did.
                 val eyeWidth = initialEnvironment.eyeDistance
                 val yawRadians = Math.toRadians(observationSource.yaw.toDouble())
-                val left =
-                    pos.add(eyeWidth * -sin(yawRadians), 0.0, eyeWidth * cos(yawRadians))
-                val right =
-                    pos.add(eyeWidth * sin(yawRadians), 0.0, eyeWidth * -cos(yawRadians))
+                // At yaw zero Minecraft looks along +Z, with +X to the player's left.
+                val leftOffset = Vec3(eyeWidth * cos(yawRadians), 0.0, eyeWidth * sin(yawRadians))
+                val left = pos.add(leftOffset)
+                val right = pos.subtract(leftOffset)
 
                 csvLogger.profileStartPrint(
                     "Minecraft_env/onInitialize/EndWorldTick/SendObservation/Prepare/StereoEye/ByteString",

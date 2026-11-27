@@ -29,13 +29,24 @@ TRANSPORTS = [
 @pytest.mark.parametrize("shared_memory", TRANSPORTS)
 def test_installed_runtime(mode, stereo, shared_memory):
     width, height = 320, 240
+    commands = ["difficulty peaceful"]
+    if stereo:
+        commands.extend(
+            [
+                "time set noon",
+                "fill -6 79 -6 6 79 8 smooth_stone",
+                "tp @p 0.5 80 0.5 0 0",
+                "fill -6 80 6 6 85 6 white_concrete",
+                "setblock 0 81 3 red_concrete",
+            ]
+        )
     config = craftground.InitialEnvironmentConfig(
         image_width=width,
         image_height=height,
         seed="43",
         world_type=WorldType.SUPERFLAT,
         difficulty=Difficulty.PEACEFUL,
-        initial_extra_commands=["difficulty peaceful"],
+        initial_extra_commands=commands,
         mined_stat_keys=["stone", "minecraft:stone"],
         misc_stat_keys=["jump", "minecraft:jump"],
         render_distance=3,
@@ -63,6 +74,23 @@ def test_installed_runtime(mode, stereo, shared_memory):
             obs = env.step(no_op_v2())[0]
             if len(obs["full"].depth) and np.ptp(obs["full"].depth) > 0:
                 break
+
+        if stereo:
+            # At yaw zero the red block is centered ahead of the player. Both
+            # edges of its face should appear farther right in the left eye.
+            for _ in range(100):
+                obs = env.step(no_op_v2())[0]
+                edges = []
+                for image in (obs["rgb"], obs["rgb_2"]):
+                    red, green, blue = image[:, :, height // 2].astype(int)
+                    xs = np.flatnonzero((red > 2 * green) & (red > 2 * blue))
+                    if xs.size:
+                        edges.append((xs[0], xs[-1]))
+                if len(edges) == 2:
+                    break
+            assert len(edges) == 2, "Red block missing from stereo view"
+            left, right = edges
+            assert left[0] > right[0] and left[1] > right[1], (left, right)
 
         start = obs["full"]
         frame = obs["rgb"].copy()
