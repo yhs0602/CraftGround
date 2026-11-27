@@ -1,8 +1,11 @@
 import signal
 import subprocess
-import pytest
+import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import MagicMock, patch
 
+import pytest
 
 from craftground.environment.environment import CraftGroundEnvironment
 from craftground.environment.observation_converter import ObservationConverter
@@ -60,6 +63,7 @@ def test_initialize_socket_environment(mock_ipc_class, mock_initial_env):
     assert isinstance(env.ipc, SocketIPC)
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Shared memory requires POSIX")
 @patch("craftground.environment.boost_ipc.BoostIPC")
 def test_initialize_boost_environment(mock_ipc_class, mock_initial_env):
     mock_ipc_instance = MagicMock(spec=BoostIPC)
@@ -74,6 +78,45 @@ def test_initialize_boost_environment(mock_ipc_class, mock_initial_env):
     assert env.observation_space is not None
     assert isinstance(env.observation_converter, ObservationConverter)
     assert isinstance(env.ipc, BoostIPC)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Shared memory requires POSIX")
+def test_exit_notification_finishes_before_shared_memory_is_destroyed(mock_initial_env):
+    publishing, resume, destroying = (threading.Event() for _ in range(3))
+
+    def notify(_):
+        publishing.set()
+        assert resume.wait(5)
+
+    def destroy():
+        destroying.set()
+        ipc.destroy()
+
+    with patch(
+        "craftground.environment.boost_ipc.initialize_shared_memory", return_value=8000
+    ):
+        ipc = BoostIPC(
+            8000, False, mock_initial_env.to_initial_environment_message(), MagicMock()
+        )
+    with patch(
+        "craftground.craftground_native.notify_shared_memory_exit", side_effect=notify
+    ) as post:
+        with patch("craftground.environment.boost_ipc.destroy_shared_memory") as unlink:
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                notified = pool.submit(ipc.notify_process_exit)
+                try:
+                    assert publishing.wait(5)
+                    destroyed = pool.submit(destroy)
+                    assert destroying.wait(5)
+                    assert not ipc.closed
+                    unlink.assert_not_called()
+                finally:
+                    resume.set()
+                notified.result(timeout=5)
+                destroyed.result(timeout=5)
+            ipc.notify_process_exit()
+            post.assert_called_once()
+            assert unlink.call_count == 2
 
 
 @patch("socket.socket")
@@ -139,6 +182,7 @@ def test_close_environment(mock_close, environment):
 @patch("os.killpg")
 def test_terminate_environment(mock_kill, mock_getpgid, environment):
     environment.process = MagicMock()
+    environment.process.poll.return_value = None
     environment.process.pid = 1234
     environment.process.wait.side_effect = subprocess.TimeoutExpired("java", 10)
     mock_getpgid.return_value = -1234

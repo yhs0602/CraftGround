@@ -34,6 +34,7 @@ class BoostIPC(IPCInterface):
         initial_environment: InitialEnvironmentMessage,
         logger: CsvLogger,
     ):
+        self._lifecycle_lock = threading.Lock()
         self.closed = True
         self._connected = False
         self.port = port
@@ -78,11 +79,14 @@ class BoostIPC(IPCInterface):
         return observation_space
 
     def destroy(self):
-        if not self.closed:
-            self.closed = True
-            self._connected = False
-            destroy_shared_memory(self.j2p_shared_memory_name, False)
-            destroy_shared_memory(self.p2j_shared_memory_name, True)
+        with self._lifecycle_lock:
+            if not self.closed:
+                self.closed = True
+                self._connected = False
+                try:
+                    destroy_shared_memory(self.j2p_shared_memory_name, False)
+                finally:
+                    destroy_shared_memory(self.p2j_shared_memory_name, True)
 
     def is_alive(self) -> bool:
         return self._connected
@@ -137,10 +141,12 @@ class BoostIPC(IPCInterface):
         self._connected = True
 
     def notify_process_exit(self):
-        if not self.closed and platform.system() != "Windows":
-            from ..craftground_native import notify_shared_memory_exit
+        # A restarted JVM can reuse these names as soon as destroy() returns.
+        with self._lifecycle_lock:
+            if not self.closed and platform.system() != "Windows":
+                from ..craftground_native import notify_shared_memory_exit
 
-            notify_shared_memory_exit(self.p2j_shared_memory_name)
+                notify_shared_memory_exit(self.p2j_shared_memory_name)
 
     def __del__(self):
         self.destroy()
