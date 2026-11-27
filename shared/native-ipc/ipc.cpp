@@ -91,9 +91,13 @@ void write_to_shared_memory(
 }
 
 py::bytes read_from_shared_memory(
-    const char *p2j_memory_name, const char *j2p_memory_name
+    const char *p2j_memory_name,
+    const char *j2p_memory_name,
+    py::object server_event
 ) {
-    return read_from_shared_memory_impl(p2j_memory_name, j2p_memory_name);
+    return read_from_shared_memory_impl(
+        p2j_memory_name, j2p_memory_name, server_event
+    );
 }
 
 void destroy_shared_memory(const char *memory_name, bool release_semaphores) {
@@ -106,7 +110,16 @@ PYBIND11_MODULE(craftground_native, m) {
     m.def("mtl_tensor_from_cuda_mem_handle", &mtl_tensor_from_cuda_mem_handle);
     m.def("initialize_shared_memory", &initialize_shared_memory);
     m.def("write_to_shared_memory", &write_to_shared_memory);
-    m.def("read_from_shared_memory", &read_from_shared_memory);
+    m.def(
+        "read_from_shared_memory",
+        &read_from_shared_memory,
+        py::arg("p2j_memory_name"),
+        py::arg("j2p_memory_name"),
+        py::arg("server_event") = py::none()
+    );
+#ifndef _WIN32
+    m.def("notify_shared_memory_exit", &notify_shared_memory_exit);
+#endif
     m.def("destroy_shared_memory", &destroy_shared_memory);
     m.def("shared_memory_exists", &shared_memory_exists);
 

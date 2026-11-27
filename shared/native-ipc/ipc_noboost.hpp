@@ -47,10 +47,14 @@ void write_to_shared_memory_impl(
 );
 
 py::bytes read_from_shared_memory_impl(
-    const std::string &p2j_memory_name, const std::string &j2p_memory_name
+    const std::string &p2j_memory_name, const std::string &j2p_memory_name, py::object server_event
 );
 
-// remove shared memory노
+#ifndef _WIN32
+void notify_shared_memory_exit(const std::string &p2j_memory_name);
+#endif
+
+// remove shared memory
 void destroy_shared_memory_impl(const std::string &memory_name, bool release_semaphores);
 
 #endif // SHARED_MEMORY_UTILS_HPP

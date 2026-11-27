@@ -24,7 +24,9 @@ void write_to_shared_memory(
 );
 
 py::bytes read_from_shared_memory(
-    const char *p2j_memory_name, const char *j2p_memory_name
+    const char *p2j_memory_name,
+    const char *j2p_memory_name,
+    py::object server_event
 );
 
 void destroy_shared_memory(const char *memory_name, bool release_semaphores);
