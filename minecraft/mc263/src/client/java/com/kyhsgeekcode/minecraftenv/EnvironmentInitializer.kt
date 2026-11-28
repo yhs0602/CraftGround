@@ -146,7 +146,6 @@ class EnvironmentInitializer(
         setHudHidden(client, initialEnvironment.hudHidden)
         setRenderDistance(client, initialEnvironment.renderDistance)
         setSimulationDistance(client, initialEnvironment.simulationDistance)
-        disableVSync(client)
         disableSound(client)
         disableTutorial(client)
         setMaxFPSToUnlimited(client)
@@ -531,17 +530,6 @@ class EnvironmentInitializer(
 
     private fun disableTutorial(client: Minecraft) {
         client.tutorial?.setStep(TutorialSteps.NONE)
-    }
-
-    private fun disableVSync(client: Minecraft) {
-        val options = client.options
-        if (options != null) {
-            if (options.enableVsync().get()) {
-                options.enableVsync().set(false)
-                client.options.save()
-                println("Disabled VSync")
-            }
-        }
     }
 
     private fun setSimulationDistance(

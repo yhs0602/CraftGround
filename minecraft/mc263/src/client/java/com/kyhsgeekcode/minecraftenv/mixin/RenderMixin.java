@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -39,6 +40,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 // MinecraftEnv reads the color texture.
 @Mixin(Minecraft.class)
 public class RenderMixin {
+  @ModifyArg(
+      method = "renderFrame",
+      at =
+          @At(
+              value = "INVOKE",
+              target =
+                  "Lcom/mojang/renderpearl/api/device/GpuSurface$PresentMode;"
+                      + "getSupportedVsyncMode(Ljava/util/Collection;Z)"
+                      + "Lcom/mojang/renderpearl/api/device/GpuSurface$PresentMode;"),
+      index = 1)
+  private boolean disableVsync(boolean enabled) {
+    // The constructor renders before any client tick can change the options.
+    return false;
+  }
+
   @Redirect(
       method = "renderFrame",
       at =
