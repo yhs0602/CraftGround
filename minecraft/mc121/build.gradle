@@ -45,6 +45,10 @@ def findVcpkgRoot() {
     }
 }
 
+// Installed runtime packages carry the shared build inputs beside build.gradle.
+def sharedRoot = file('shared-java').isDirectory() ? projectDir : file('../..')
+def captureSources = new File(sharedRoot, 'shared-native/gl-capture')
+
 tasks.register('configureCppProject', Exec) {
     def useConda = System.getenv('CRAFTGROUND_USE_CONDA')?.toBoolean() ?: false
     def os = org.gradle.internal.os.OperatingSystem.current()
@@ -65,10 +69,12 @@ tasks.register('configureCppProject', Exec) {
         cmakeArgs += "-DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
     }
 
+    cmakeArgs += "-DGL_CAPTURE_DIR=${captureSources.absolutePath}"
     cmakeArgs += 'src/main/cpp'
     commandLine cmakeArgs
 
     inputs.dir("src/main/cpp")
+    inputs.dir(captureSources)
     outputs.files("MakeFile", "CMakeCache.txt", "cmake_install.cmake")
     outputs.dir("CMakeFiles")
 }
@@ -78,6 +84,7 @@ tasks.register('compileCpp', Exec) {
     def buildParallelism = System.getenv('CMAKE_BUILD_PARALLEL_LEVEL') ?: '8'
     commandLine 'cmake', '--build', '.', '--config', 'Release', '--parallel', buildParallelism
     inputs.dir("src/main/cpp")
+    inputs.dir(captureSources)
     def os = org.gradle.internal.os.OperatingSystem.current()
     if (os.isLinux()) {
         outputs.file("libnative-lib.so")
@@ -245,10 +252,10 @@ loom {
 sourceSets {
     main {
         java {
-            srcDir '../../shared-java/src/main/java'
+            srcDir new File(sharedRoot, 'shared-java/src/main/java')
         }
         kotlin {
-            srcDir '../../shared-java/src/main/kotlin'
+            srcDir new File(sharedRoot, 'shared-java/src/main/kotlin')
         }
     }
 }

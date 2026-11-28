@@ -17,7 +17,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # need a texture-based rewrite (docs/26_2_phase2_plan.md W3) that doesn't apply to mc121 - and the
 # depth path additionally has to account for 26.2's reverse-Z depth range. Local, mc262-only copies
 # of those three files (plus include/depth_capture.h) live in this directory instead.
-set(GL_CAPTURE_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../../../shared-native/gl-capture)
+set(GL_CAPTURE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../../shared-native/gl-capture" CACHE PATH "Shared frame capture sources")
 
 include(FetchContent)
 
