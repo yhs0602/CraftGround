@@ -66,8 +66,8 @@ static inline int rk_sema_wait(struct rk_sema *s) {
     DWORD r;
     do {
         r = WaitForSingleObject(s->sem_python, INFINITE);
-    } while (r == WAIT_FAILED &&
-             GetLastError() == ERROR_IO_PENDING); // 적절한 오류 코드로 변경
+    } while (r == WAIT_FAILED && GetLastError() == ERROR_IO_PENDING
+    ); // 적절한 오류 코드로 변경
     return r;
 #else
     int r;
@@ -90,10 +90,8 @@ static inline int rk_sema_post(struct rk_sema *s) {
 static inline void rk_sema_destroy(struct rk_sema *s) {
 #if IS_WINDOWS
     CloseHandle(s->sem_python);
-    CloseHandle(s->sem_java);
 #else
     sem_close(s->sem_python);
-    sem_close(s->sem_java);
     sem_unlink(s->name); // Named semaphores are removed after unlinking
 #endif
 }

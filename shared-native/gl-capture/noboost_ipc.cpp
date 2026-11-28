@@ -12,6 +12,7 @@
 #define SHMEM_PREFIX "Global\\"
 #include <windows.h>
 #else
+#include "posix_shm.h"
 #include <sys/mman.h>
 #include <unistd.h>
 #define SHMEM_PREFIX "/"
@@ -173,13 +174,13 @@ jobject read_initial_environment(
     return byteArray;
 }
 
+#ifdef _WIN32
 jbyteArray read_action(
     JNIEnv *env,
     jclass clazz,
     const std::string &p2j_memory_name,
     jbyteArray data
 ) {
-#ifdef _WIN32
     HANDLE hMapFile =
         OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, p2j_memory_name.c_str());
     if (!hMapFile) {
@@ -195,32 +196,10 @@ jbyteArray read_action(
         CloseHandle(hMapFile);
         return nullptr;
     }
-#else
-    int p2jFd = shm_open(p2j_memory_name.c_str(), O_RDWR, 0666);
-    if (p2jFd == -1) {
-        perror("shm_open p2j failed while reading from shared memory");
-        return nullptr;
-    }
-
-    void *p2jPtr = mmap(
-        0,
-        sizeof(SharedMemoryLayout),
-        PROT_READ | PROT_WRITE,
-        MAP_SHARED,
-        p2jFd,
-        0
-    );
-    if (p2jPtr == MAP_FAILED) {
-        perror("mmap p2j failed while reading from shared memory");
-        close(p2jFd);
-        return nullptr;
-    }
-#endif
 
     SharedMemoryLayout *p2jHeader = static_cast<SharedMemoryLayout *>(p2jPtr);
     size_t action_size = p2jHeader->action_size;
 
-#ifdef _WIN32
     UnmapViewOfFile(p2jPtr);
     p2jPtr = MapViewOfFile(
         hMapFile,
@@ -235,22 +214,6 @@ jbyteArray read_action(
         CloseHandle(hMapFile);
         return nullptr;
     }
-#else
-    munmap(p2jPtr, sizeof(SharedMemoryLayout));
-    p2jPtr = mmap(
-        0,
-        sizeof(SharedMemoryLayout) + action_size,
-        PROT_READ | PROT_WRITE,
-        MAP_SHARED,
-        p2jFd,
-        0
-    );
-    if (p2jPtr == MAP_FAILED) {
-        perror("mmap p2j failed while reading from shared memory");
-        close(p2jFd);
-        return nullptr;
-    }
-#endif
 
     p2jHeader = static_cast<SharedMemoryLayout *>(p2jPtr);
     char *data_start = static_cast<char *>(p2jPtr) + p2jHeader->action_offset;
@@ -267,13 +230,9 @@ jbyteArray read_action(
     }
 
     if (data == nullptr || env->ExceptionCheck()) {
-#ifdef _WIN32
         UnmapViewOfFile(p2jPtr);
         CloseHandle(hMapFile);
-#else
-        munmap(p2jPtr, sizeof(SharedMemoryLayout) + action_size);
-        close(p2jFd);
-#endif
+
         return nullptr;
     }
 
@@ -286,13 +245,9 @@ jbyteArray read_action(
         );
     }
 
-#ifdef _WIN32
     UnmapViewOfFile(p2jPtr);
     CloseHandle(hMapFile);
-#else
-    munmap(p2jPtr, sizeof(SharedMemoryLayout) + action_size);
-    close(p2jFd);
-#endif
+
     return data;
 }
 
@@ -302,7 +257,6 @@ void write_observation(
     const char *data,
     const size_t observation_size
 ) {
-#ifdef _WIN32
     HANDLE p2jFd =
         OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, p2j_memory_name);
     if (!p2jFd) {
@@ -319,29 +273,9 @@ void write_observation(
         CloseHandle(p2jFd);
         return;
     }
-#else
-    int p2jFd = shm_open(p2j_memory_name, O_RDWR, 0666);
-    if (p2jFd == -1) {
-        perror("shm_open p2j failed while writing to shared memory");
-        return;
-    }
-    void *p2jPtr = mmap(
-        0,
-        sizeof(SharedMemoryLayout),
-        PROT_READ | PROT_WRITE,
-        MAP_SHARED,
-        p2jFd,
-        0
-    );
-    if (p2jPtr == MAP_FAILED) {
-        perror("mmap p2j failed while writing to shared memory");
-        close(p2jFd);
-        return;
-    }
-#endif
+
     SharedMemoryLayout *p2jLayout = static_cast<SharedMemoryLayout *>(p2jPtr);
 
-#ifdef _WIN32
     HANDLE j2pFd =
         OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, j2p_memory_name);
     if (!j2pFd) {
@@ -352,7 +286,11 @@ void write_observation(
         return;
     }
     void *j2pPtr = MapViewOfFile(
-        j2pFd, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(J2PSharedMemoryLayout)
+        j2pFd,
+        FILE_MAP_ALL_ACCESS,
+        0,
+        0,
+        sizeof(J2PSharedMemoryLayout) + observation_size
     );
     if (!j2pPtr) {
         std::cerr << "MapViewOfFile failed for j2p: " << GetLastError()
@@ -362,30 +300,7 @@ void write_observation(
         CloseHandle(j2pFd);
         return;
     }
-#else
-    int j2pFd = shm_open(j2p_memory_name, O_RDWR, 0666);
-    if (j2pFd == -1) {
-        perror("shm_open j2p failed while writing to shared memory");
-        munmap(p2jPtr, sizeof(SharedMemoryLayout));
-        close(p2jFd);
-        return;
-    }
-    void *j2pPtr = mmap(
-        0,
-        sizeof(J2PSharedMemoryLayout),
-        PROT_READ | PROT_WRITE,
-        MAP_SHARED,
-        j2pFd,
-        0
-    );
-    if (j2pPtr == MAP_FAILED) {
-        perror("mmap j2p failed while writing to shared memory");
-        munmap(p2jPtr, sizeof(SharedMemoryLayout));
-        close(p2jFd);
-        close(j2pFd);
-        return;
-    }
-#endif
+
     J2PSharedMemoryLayout *j2pLayout =
         static_cast<J2PSharedMemoryLayout *>(j2pPtr);
     j2pLayout->data_offset = sizeof(J2PSharedMemoryLayout);
@@ -399,18 +314,74 @@ void write_observation(
         perror("rk_sema_post failed while notifying python");
     }
 
-#ifdef _WIN32
     UnmapViewOfFile(j2pPtr);
     UnmapViewOfFile(p2jPtr);
     CloseHandle(j2pFd);
     CloseHandle(p2jFd);
-#else
-    munmap(j2pPtr, sizeof(J2PSharedMemoryLayout));
-    munmap(p2jPtr, sizeof(SharedMemoryLayout));
-    close(j2pFd);
-    close(p2jFd);
-#endif
 }
+
+#else
+jbyteArray
+read_action(JNIEnv *env, jclass, const std::string &name, jbyteArray data) {
+    craftground::ShmMapping control(
+        name.c_str(), sizeof(SharedMemoryLayout), craftground::ShmAccess::Read
+    );
+    auto *layout = reinterpret_cast<const SharedMemoryLayout *>(control.data());
+    craftground::NamedSemaphore(layout->sem_action_ready.name).wait();
+    const size_t size = layout->action_size;
+    if (!data || static_cast<size_t>(env->GetArrayLength(data)) != size) {
+        data = env->NewByteArray(size);
+    }
+    if (!data || size == 0)
+        return data;
+    // Long command batches can exceed the inline space in the control object.
+    const size_t offset = layout->action_offset;
+    const std::string payload_name = offset ? name : name + "a";
+    craftground::ShmMapping payload(
+        payload_name.c_str(), offset + size, craftground::ShmAccess::Read
+    );
+    env->SetByteArrayRegion(
+        data, 0, size, reinterpret_cast<const jbyte *>(payload.data() + offset)
+    );
+    return data;
+}
+
+void write_observation(
+    const char *p2j_name, const char *j2p_name, const char *data, size_t size
+) {
+    craftground::ShmMapping control(
+        p2j_name, sizeof(SharedMemoryLayout), craftground::ShmAccess::Write
+    );
+    auto *layout = reinterpret_cast<SharedMemoryLayout *>(control.data());
+    craftground::NamedSemaphore ready(layout->sem_obs_ready.name);
+    // layout_size is zero in older producers. Updated pairs also reserve the
+    // slot until Python finishes reading (the handshake precedes frame one).
+    if (layout->layout_size) {
+        craftground::NamedSemaphore(std::string(j2p_name) + "f").wait();
+    }
+    try {
+        const size_t length = sizeof(J2PSharedMemoryLayout) + size;
+        craftground::ShmMapping frame(
+            j2p_name, length, craftground::ShmAccess::Grow
+        );
+        auto *header = reinterpret_cast<J2PSharedMemoryLayout *>(frame.data());
+        header->layout_size = layout->layout_size ? length : 0;
+        header->data_offset = sizeof(*header);
+        header->data_size = size;
+        std::memcpy(frame.data() + sizeof(*header), data, size);
+    } catch (...) {
+        // The initial config has been consumed. A zero offset now marks a
+        // terminal write failure even if growing the frame removed its name.
+        layout->initial_environment_offset = 0;
+        ready.post();
+        if (layout->layout_size)
+            craftground::NamedSemaphore(std::string(j2p_name) + "f").post();
+        throw;
+    }
+    ready.post();
+}
+
+#endif
 
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readInitialEnvironmentImpl(
@@ -439,13 +410,11 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_readActionImpl(
     const char *j2p_memory_name_cstr =
         env->GetStringUTFChars(p2j_memory_name, nullptr);
 
-    size_t data_size = 0;
-    jbyteArray data;
+    jbyteArray data = nullptr;
     try {
         data = read_action(env, clazz, j2p_memory_name_cstr, action_data);
     } catch (const std::exception &e) {
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
-        return nullptr;
     }
     env->ReleaseStringUTFChars(p2j_memory_name, j2p_memory_name_cstr);
     return data;
@@ -493,7 +462,7 @@ Java_com_kyhsgeekcode_minecraftenv_FramebufferCapturer_writeObservationImpl(
             static_cast<size_t>(observation_data_size)
         );
     } catch (const std::exception &e) {
-        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), e.what());
+        env->ThrowNew(env->FindClass("java/io/IOException"), e.what());
     }
 
     env->ReleaseStringUTFChars(j2p_memory_name, j2p_memory_name_cstr);

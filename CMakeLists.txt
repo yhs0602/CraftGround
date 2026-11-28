@@ -106,6 +106,7 @@ FetchContent_Declare(
 # message(STATUS "Boost is now available")
 # Add the module
 pybind11_add_module(craftground_native ${CRAFTGROUND_PY_SOURCES})
+target_include_directories(craftground_native PRIVATE shared-native/gl-capture/include)
 # target_link_libraries(craftground_native PRIVATE Boost::system Boost::thread Boost::interprocess)
 # target_include_directories(craftground_native PRIVATE ${Boost_INCLUDE_DIRS})
 if(APPLE)
@@ -165,6 +166,7 @@ if(BUILD_TESTS)
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
     target_include_directories(
         craftground PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/shared-native/gl-capture/include
         ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include
         ${Python3_INCLUDE_DIRS}
     )

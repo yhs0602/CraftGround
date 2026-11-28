@@ -14,6 +14,7 @@ import numpy as np
 from gymnasium.core import ActType, RenderFrame
 
 from ..proto.observation_space_pb2 import ObservationSpaceMessage
+from ..screen_encoding_modes import ScreenEncodingMode
 
 from .action_space import (
     ActionSpaceVersion,
@@ -52,7 +53,7 @@ class CraftGroundEnvironment(gym.Env):
         action_space_version: ActionSpaceVersion = ActionSpaceVersion.V1_MINEDOJO,
         verbose=False,
         env_path=None,
-        mc_version: str = "1.21",  # "26.2" builds but has no mixins/frame capture yet - non-functional
+        mc_version: str = "1.21",
         port=8000,
         find_free_port: bool = True,
         use_shared_memory: bool = False,
@@ -71,6 +72,8 @@ class CraftGroundEnvironment(gym.Env):
         profile: bool = False,
         profile_jni: bool = False,
     ):
+        if use_shared_memory and sys.platform == "win32":
+            raise ValueError("Windows requires socket transport (use_shared_memory=False)")
         self.action_space_version = action_space_version
         self.action_space = declare_action_space(action_space_version)
         self.observation_space = declare_observation_space(
@@ -80,6 +83,7 @@ class CraftGroundEnvironment(gym.Env):
         self.initial_env_message = initial_env.to_initial_environment_message()
 
         self.use_terminate = use_terminate
+        self.mc_version = mc_version
         self.cleanup_world = cleanup_world
         self.use_vglrun = use_vglrun
         self.no_threaded_optimizations = no_threaded_optimizations
@@ -121,6 +125,16 @@ class CraftGroundEnvironment(gym.Env):
             backend=LogBackend.BOTH if verbose_python else LogBackend.NONE,
         )
 
+        self.observation_converter = ObservationConverter(
+            self.initial_env.screen_encoding_mode,
+            self.initial_env.imageSizeX,
+            self.initial_env.imageSizeY,
+            self.logger,
+            self.initial_env.eye_distance > 0,
+            self.render_action,
+            self.render_mode,
+        )
+
         if self.use_shared_memory:
             from .boost_ipc import BoostIPC  # type: ignore
 
@@ -137,16 +151,6 @@ class CraftGroundEnvironment(gym.Env):
                 port,
                 find_free_port,
             )
-
-        self.observation_converter = ObservationConverter(
-            self.initial_env.screen_encoding_mode,
-            self.initial_env.imageSizeX,
-            self.initial_env.imageSizeY,
-            self.logger,
-            self.initial_env.eye_distance > 0,
-            self.render_action,
-            self.render_mode,
-        )
 
         weakref.finalize(self, self.close)
 
@@ -208,16 +212,18 @@ class CraftGroundEnvironment(gym.Env):
                 return
             else:
                 self.terminate()
+        else:
+            # The exporter may have exited between steps.
+            self.observation_converter.release_shared_frame()
 
         if self.use_shared_memory:
-            from .boost_ipc import BoostIPC  # type: ignore
+            if self.ipc.closed or self.process is not None:
+                from .boost_ipc import BoostIPC
 
-            self.ipc = BoostIPC(
-                self.ipc.port,
-                self.ipc.find_free_port,
-                self.initial_env_message,
-                self.logger,
-            )
+                self.ipc.destroy()
+                self.ipc = BoostIPC(
+                    self.ipc.port, self.ipc.find_free_port, self.initial_env_message, self.logger
+                )
         else:
             self.ipc = SocketIPC(
                 self.logger,
@@ -233,7 +239,16 @@ class CraftGroundEnvironment(gym.Env):
         self.ipc.remove_orphan_java_processes()
         # Prepare command
         my_env = os.environ.copy()
+        if sys.platform == "darwin" and self.mc_version == "26.3" and self.encoding_mode in (
+            ScreenEncodingMode.ZEROCOPY_TORCH, ScreenEncodingMode.ZEROCOPY_JAX
+        ):
+            from ..craftground_native import IOSurfaceReceiver
+
+            receiver = IOSurfaceReceiver()
+            self.observation_converter.surface_receiver = receiver
+            my_env["CRAFTGROUND_IOSURFACE_RECEIVER"] = str(receiver.name)
         my_env["PORT"] = str(self.ipc.port)
+        my_env["CRAFTGROUND_CLEANUP_WORLD"] = str(int(self.cleanup_world))
         my_env["USE_SHARED_MEMORY"] = str(int(self.use_shared_memory))
         my_env["VERBOSE"] = str(int(self.verbose_jvm))
         if self.track_native_memory:
@@ -275,25 +290,35 @@ class CraftGroundEnvironment(gym.Env):
 
         if hasattr(os, "setsid"):
             # Linux / Unix
-            kwargs["preexec_fn"] = os.setsid
+            kwargs["start_new_session"] = True
         elif sys.platform == "win32":
             # Windows
             kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
 
-        self.process = subprocess.Popen(cmd, **kwargs)
-        self.server_event = threading.Event()
-        threading.Thread(
-            target=self.monitor_process,
-            args=(self.process, self.server_event),
-            daemon=True,
-        ).start()
+        try:
+            self.process = subprocess.Popen(cmd, **kwargs)
+            self.server_event = threading.Event()
+            threading.Thread(
+                target=self.monitor_process,
+                args=(self.process, self.server_event, self.ipc),
+                daemon=True,
+            ).start()
 
-        self.ipc.start_communication(self.server_event)
+            self.ipc.start_communication(self.server_event)
+        except BaseException:
+            # No action is valid until the runtime acknowledges the handshake.
+            try:
+                self.terminate(graceful=False)
+            except Exception as error:
+                self.logger.log(f"Failed to clean up after startup: {error}")
+            raise
 
-    def monitor_process(self, process, server_event):
+    def monitor_process(self, process, server_event, ipc):
         process.wait()
         self.logger.log(f"Java process exited with code {process.returncode}")
         server_event.set()
+        if self.use_shared_memory:
+            ipc.notify_process_exit()
 
     def update_override_resolutions(self, options_txt_path):
         with open(options_txt_path, "r") as file:
@@ -389,20 +414,36 @@ class CraftGroundEnvironment(gym.Env):
     def add_commands(self, commands: List[str]):
         self.queued_commands.extend(commands)
 
-    def terminate(self):
+    def terminate(self, *, graceful=True):
+        self.observation_converter.release_shared_frame()
         self.server_event = None
         try:
-            self.ipc.destroy()
+            wait_for_exit = graceful and self.mc_version == "26.3" and self.ipc.is_alive()
+            if self.use_shared_memory and wait_for_exit and self.is_alive:
+                self.ipc.send_commands(["exit"])
+            elif not self.use_shared_memory:
+                self.ipc.destroy(send_exit=graceful)
         except Exception:
-            pass
+            wait_for_exit = False
 
         p = self.process
         if not p:
+            if self.use_shared_memory:
+                self.ipc.destroy()
             self.logger.log("No process to terminate")
             return
 
         pid = p.pid
         try:
+            if p.poll() is not None:
+                return
+            # The 26.3 exit handler stops the integrated server and finalizes the save.
+            if wait_for_exit:
+                try:
+                    p.wait(timeout=10)
+                    return
+                except subprocess.TimeoutExpired:
+                    pass
             if hasattr(os, "getpgid"):
                 # Unix: Process group kill
                 try:
@@ -454,6 +495,8 @@ class CraftGroundEnvironment(gym.Env):
                 pass
         finally:
             self.process = None
+            if self.use_shared_memory:
+                self.ipc.destroy()
             self.logger.log("Terminated the java process")
 
     @staticmethod
@@ -473,6 +516,7 @@ class CraftGroundEnvironment(gym.Env):
         return os.path.join(CraftGroundEnvironment.get_env_base_path(), "options.txt")
 
     def __del__(self):
-        self.close()
-        if self.logger:
+        if hasattr(self, "observation_converter") and hasattr(self, "ipc"):
+            self.close()
+        if getattr(self, "logger", None):
             self.logger.close()

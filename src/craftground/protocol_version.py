@@ -41,7 +41,7 @@ def validate_handshake_ack(
             f"{CRAFTGROUND_PROTOCOL_VERSION}, but the connected Java side (Minecraft "
             f"{ack.minecraft_version}, render backend '{ack.render_backend}') speaks protocol "
             f"{ack.protocol_version}. Reinstall matching craftground and "
-            "craftground-runtime-mc121/mc262 versions."
+            "Minecraft runtime package versions."
         )
     if (
         requested_screen_encoding_mode in _ZEROCOPY_MODES

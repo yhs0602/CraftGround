@@ -8,7 +8,7 @@ namespace py = pybind11;
 py::object
 initialize_from_mach_port(unsigned int machPort, int width, int height);
 py::capsule mtl_tensor_from_cuda_mem_handle(
-    const char *cuda_ipc_handle, int width, int height
+    const std::string &cuda_ipc_handle, int width, int height
 );
 
 int initialize_shared_memory(
@@ -24,7 +24,10 @@ void write_to_shared_memory(
 );
 
 py::bytes read_from_shared_memory(
-    const char *p2j_memory_name, const char *j2p_memory_name
+    const char *p2j_memory_name,
+    const char *j2p_memory_name,
+    py::object server_event,
+    int timeout_ms
 );
 
 void destroy_shared_memory(const char *memory_name, bool release_semaphores);

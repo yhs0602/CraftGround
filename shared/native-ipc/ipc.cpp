@@ -11,7 +11,7 @@ initialize_from_mach_port(unsigned int machPort, int width, int height) {
     return mtl_tensor_from_mach_port(machPort, width, height);
 }
 py::capsule mtl_tensor_from_cuda_mem_handle(
-    const char *cuda_ipc_handle, int width, int height
+    const std::string &cuda_ipc_handle, int width, int height
 ) {
     return py::none();
 }
@@ -24,13 +24,10 @@ initialize_from_mach_port(unsigned int machPort, int width, int height) {
 }
 
 py::capsule mtl_tensor_from_cuda_mem_handle(
-    const char *cuda_ipc_handle, int width, int height
+    const std::string &cuda_ipc_handle, int width, int height
 ) {
-    DLManagedTensor *tensor = mtl_tensor_from_cuda_ipc_handle(
-        reinterpret_cast<void *>(const_cast<char *>(cuda_ipc_handle)),
-        width,
-        height
-    );
+    DLManagedTensor *tensor =
+        mtl_tensor_from_cuda_ipc_handle(cuda_ipc_handle, width, height);
 
     if (!tensor) {
         throw std::runtime_error(
@@ -38,8 +35,14 @@ py::capsule mtl_tensor_from_cuda_mem_handle(
         );
     }
 
-    return py::capsule(tensor, "dltensor", [](void *ptr) {
-        DLManagedTensor *managed_tensor = static_cast<DLManagedTensor *>(ptr);
+    return py::capsule(tensor, "dltensor", [](PyObject *capsule) {
+        // A DLPack consumer renames the capsule when it takes ownership.
+        if (!PyCapsule_IsValid(capsule, "dltensor")) {
+            return;
+        }
+        auto *managed_tensor = static_cast<DLManagedTensor *>(
+            PyCapsule_GetPointer(capsule, "dltensor")
+        );
         if (managed_tensor && managed_tensor->deleter) {
             managed_tensor->deleter(managed_tensor);
         }
@@ -53,7 +56,7 @@ initialize_from_mach_port(unsigned int machPort, int width, int height) {
 }
 
 py::capsule mtl_tensor_from_cuda_mem_handle(
-    const char *cuda_ipc_handle, int width, int height
+    const std::string &cuda_ipc_handle, int width, int height
 ) {
     return py::none();
 }
@@ -88,9 +91,14 @@ void write_to_shared_memory(
 }
 
 py::bytes read_from_shared_memory(
-    const char *p2j_memory_name, const char *j2p_memory_name
+    const char *p2j_memory_name,
+    const char *j2p_memory_name,
+    py::object server_event,
+    int timeout_ms
 ) {
-    return read_from_shared_memory_impl(p2j_memory_name, j2p_memory_name);
+    return read_from_shared_memory_impl(
+        p2j_memory_name, j2p_memory_name, server_event, timeout_ms
+    );
 }
 
 void destroy_shared_memory(const char *memory_name, bool release_semaphores) {
@@ -99,11 +107,24 @@ void destroy_shared_memory(const char *memory_name, bool release_semaphores) {
 
 PYBIND11_MODULE(craftground_native, m) {
     m.doc() = "Craftground Native Module";
+#ifdef __APPLE__
+    register_iosurface_receiver(m);
+#endif
     m.def("initialize_from_mach_port", &initialize_from_mach_port);
     m.def("mtl_tensor_from_cuda_mem_handle", &mtl_tensor_from_cuda_mem_handle);
     m.def("initialize_shared_memory", &initialize_shared_memory);
     m.def("write_to_shared_memory", &write_to_shared_memory);
-    m.def("read_from_shared_memory", &read_from_shared_memory);
+    m.def(
+        "read_from_shared_memory",
+        &read_from_shared_memory,
+        py::arg("p2j_memory_name"),
+        py::arg("j2p_memory_name"),
+        py::arg("server_event") = py::none(),
+        py::arg("timeout_ms") = -1
+    );
+#ifndef _WIN32
+    m.def("notify_shared_memory_exit", &notify_shared_memory_exit);
+#endif
     m.def("destroy_shared_memory", &destroy_shared_memory);
     m.def("shared_memory_exists", &shared_memory_exists);
 

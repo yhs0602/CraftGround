@@ -20,7 +20,7 @@ keywords = ["minecraft", "reinforcement learning", "environment"]
 license = {file = "LICENSE"}
 name = "craftground"
 readme = "README.md"
-version = "2.7.8"
+version = "2.8.0"
 
 dependencies = [
   "gymnasium",
@@ -36,6 +36,10 @@ dependencies = [
 [project.optional-dependencies]
 mc262 = [
   "craftground-runtime-mc262",
+]
+
+mc263 = [
+  "craftground-runtime-mc263",
 ]
 
 test = [
@@ -63,7 +67,7 @@ repair-wheel-command = "" # Disable repair wheel command on macOS
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
-sdist.exclude = ["docs", "figures", "paper", "poster", "/tools", ".github", ".idea", ".vscode", "minecraft/mc121", "minecraft/mc262"]
+sdist.exclude = ["docs", "figures", "paper", "poster", "/tools", ".github", ".idea", ".vscode", "minecraft/mc121", "minecraft/mc262", "minecraft/mc263"]
 
 [tool.black]
 extend-exclude = '''

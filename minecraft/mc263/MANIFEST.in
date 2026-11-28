@@ -1,0 +1,3 @@
+include LICENSE gradlew gradlew.bat gradle.properties settings.gradle build.gradle
+graft gradle
+graft src

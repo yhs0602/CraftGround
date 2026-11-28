@@ -5,6 +5,7 @@ from ..proto.observation_space_pb2 import ObservationSpaceMessage
 
 
 class IPCInterface(ABC):
+    HANDSHAKE_ACK_TIMEOUT_SECONDS = 300
     port: int
 
     @abstractmethod

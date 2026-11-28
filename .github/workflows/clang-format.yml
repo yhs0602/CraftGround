@@ -8,6 +8,7 @@ on:
       - '**/*.h'
       - '**/*.mm'
       - '**/*.m'
+      - '.github/workflows/clang-format.yml'
 
 jobs:
   format-check:
@@ -15,10 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install clang-format 19
-        run: sudo wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 19
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-19
+          clang-format-19 --version
       - name: Find and Check All Files
         run: |
-          FILES=$(find . -type f \( -name '*.cpp' -o -name '*.c' -o -name '*.h' -o -name '*.mm' -o -name '*.m' \))
-          for file in $FILES; do
-            clang-format --dry-run -Werror -style=file $file || exit 1
-          done
+          git ls-files -z -- '*.cpp' '*.c' '*.h' '*.mm' '*.m' |
+            xargs -0 -r clang-format-19 --dry-run -Werror -style=file

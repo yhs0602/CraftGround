@@ -1,0 +1,27 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61"]
+
+[project]
+name = "craftground-runtime-mc263"
+version = "0.1.0"
+description = "CraftGround Fabric mod runtime assets for Minecraft 26.3"
+readme = {text = "Fabric mod sources, shared capture code, and Gradle wrapper for the Minecraft 26.3 runtime used by craftground.make(mc_version='26.3').", content-type = "text/plain"}
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+
+[project.urls]
+Source = "https://github.com/yhs0602/CraftGround"
+
+[tool.setuptools]
+packages = ["craftground_runtime_mc263"]
+include-package-data = false
+
+[tool.setuptools.package-dir]
+craftground_runtime_mc263 = "."
+
+[tool.setuptools.package-data]
+craftground_runtime_mc263 = [
+  "LICENSE", "gradlew", "gradlew.bat", "*.gradle", "gradle.properties",
+  "gradle/wrapper/*", "src/**/*",
+]

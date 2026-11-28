@@ -6,7 +6,8 @@
 #include <string>
 #include <pybind11/pybind11.h>
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#if defined(WIN32) || defined(_WIN32) ||                                       \
+    defined(__WIN32) && !defined(__CYGWIN__)
 #define IS_WINDOWS 1
 #define SHMEM_PREFIX "Global\\"
 #else
@@ -43,14 +44,23 @@ int create_shared_memory_impl(
 );
 
 void write_to_shared_memory_impl(
-    const std::string &p2j_memory_name, const char *data,  size_t action_size
+    const std::string &p2j_memory_name, const char *data, size_t action_size
 );
 
 py::bytes read_from_shared_memory_impl(
-    const std::string &p2j_memory_name, const std::string &j2p_memory_name
+    const std::string &p2j_memory_name,
+    const std::string &j2p_memory_name,
+    py::object server_event,
+    int timeout_ms
 );
 
-// remove shared memory노
-void destroy_shared_memory_impl(const std::string &memory_name, bool release_semaphores);
+#ifndef _WIN32
+void notify_shared_memory_exit(const std::string &p2j_memory_name);
+#endif
+
+// remove shared memory
+void destroy_shared_memory_impl(
+    const std::string &memory_name, bool release_semaphores
+);
 
 #endif // SHARED_MEMORY_UTILS_HPP

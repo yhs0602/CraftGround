@@ -135,6 +135,7 @@ int close_win(int fd) {
 
 #else
 // On POSIX systems use the normal headers.
+#include "posix_shm.h"
 #include <sys/mman.h>
 #include <unistd.h>
 #include <csignal>
@@ -241,11 +242,11 @@ int create_shared_memory_impl(
     bool find_free_port
 ) {
     std::string p2j_memory_name, j2p_memory_name;
-    bool found_free_port = false;
-    const int shared_memory_size =
+    int p2jFd;
+    const size_t shared_memory_size =
         sizeof(SharedMemoryLayout) + action_size + data_size;
 
-    do {
+    for (;;) {
         p2j_memory_name = make_shared_memory_name(port, "p2j");
         j2p_memory_name = make_shared_memory_name(port, "j2p");
         if (shared_memory_exists(p2j_memory_name) ||
@@ -260,14 +261,20 @@ int create_shared_memory_impl(
                 );
             }
         }
-        found_free_port = true;
-    } while (!found_free_port);
-
 #ifdef _WIN32
-    int p2jFd =
-        shm_open_create(p2j_memory_name.c_str(), 0666, shared_memory_size);
+        p2jFd =
+            shm_open_create(p2j_memory_name.c_str(), 0666, shared_memory_size);
 #else
-    int p2jFd = shm_open(p2j_memory_name.c_str(), O_CREAT | O_RDWR, 0666);
+        p2jFd =
+            shm_open(p2j_memory_name.c_str(), O_CREAT | O_EXCL | O_RDWR, 0600);
+        if (p2jFd < 0 && errno == EEXIST && find_free_port) {
+            ++port;
+            continue;
+        }
+#endif
+        break;
+    }
+#ifndef _WIN32
     if (p2jFd != -1 && ftruncate(p2jFd, shared_memory_size) == -1) {
         perror("ftruncate failed for p2jFd");
         close(p2jFd);
@@ -285,7 +292,8 @@ int create_shared_memory_impl(
         j2p_memory_name.c_str(), 0666, sizeof(J2PSharedMemoryLayout) + data_size
     );
 #else
-    int j2pFd = shm_open(j2p_memory_name.c_str(), O_CREAT | O_RDWR, 0666);
+    int j2pFd =
+        shm_open(j2p_memory_name.c_str(), O_CREAT | O_EXCL | O_RDWR, 0600);
     if (j2pFd != -1 &&
         ftruncate(j2pFd, sizeof(J2PSharedMemoryLayout) + data_size) == -1) {
         perror("ftruncate failed for j2pFd");
@@ -297,6 +305,11 @@ int create_shared_memory_impl(
     }
 #endif
 
+    if (j2pFd == -1) {
+        close(p2jFd);
+        shm_unlink(p2j_memory_name.c_str());
+        throw std::runtime_error("Could not create observation shared memory");
+    }
     std::lock_guard<std::mutex> lock(shm_map_mutex);
     shm_map[std::this_thread::get_id()] = {p2j_memory_name, j2p_memory_name};
 
@@ -307,7 +320,7 @@ int create_shared_memory_impl(
         perror("mmap failed while creating shared memory");
         close(j2pFd);
         close(p2jFd);
-        shm_unlink(j2p_memory_name.c_str());
+        shm_unlink(p2j_memory_name.c_str());
         shm_unlink(j2p_memory_name.c_str());
         return -1;
     }
@@ -315,6 +328,22 @@ int create_shared_memory_impl(
     SharedMemoryLayout *p2jLayout = static_cast<SharedMemoryLayout *>(ptr);
     new (p2jLayout) SharedMemoryLayout();
 
+#ifndef _WIN32
+    try {
+        // The exclusive control object reserves this port, including its
+        // semaphore names.
+        sem_unlink((j2p_memory_name + "f").c_str());
+        craftground::NamedSemaphore slot(j2p_memory_name + "f", true);
+    } catch (...) {
+        munmap(ptr, shared_memory_size);
+        close(p2jFd);
+        close(j2pFd);
+        shm_unlink(p2j_memory_name.c_str());
+        shm_unlink(j2p_memory_name.c_str());
+        throw;
+    }
+    p2jLayout->layout_size = shared_memory_size;
+#endif
     std::string sema_obs_ready_name =
         SHMEM_PREFIX "cg_sem_obs" + std::to_string(port);
     std::string sema_action_ready_name =
@@ -367,6 +396,51 @@ void write_to_shared_memory_impl(
     // here left later calls reusing a cached-but-already-closed fd number,
     // breaking action delivery after the first write (surfaced as spurious
     // EACCES/EBADF errors from mmap).
+#ifndef _WIN32
+    // The JVM has already consumed the initial configuration when actions
+    // begin. Reuse the inline payload space; larger actions get a separate
+    // named object.
+    craftground::ShmMapping control(
+        p2j_memory_name.c_str(),
+        sizeof(SharedMemoryLayout),
+        craftground::ShmAccess::Write
+    );
+    auto *header = reinterpret_cast<SharedMemoryLayout *>(control.data());
+    size_t offset = sizeof(*header);
+    if (header->layout_size < sizeof(*header))
+        throw std::runtime_error("Invalid shared-memory control header");
+    if (action_size > header->layout_size - sizeof(*header)) {
+        // Older runtime wheels only understand inline actions.
+        std::string j2p_name =
+            p2j_memory_name.substr(0, p2j_memory_name.size() - 3) + "j2p";
+        craftground::ShmMapping last_frame(
+            j2p_name.c_str(),
+            sizeof(J2PSharedMemoryLayout),
+            craftground::ShmAccess::Read
+        );
+        if (!reinterpret_cast<const J2PSharedMemoryLayout *>(last_frame.data())
+                 ->layout_size) {
+            throw std::runtime_error(
+                "This action requires an updated shared-memory runtime"
+            );
+        }
+        offset = 0;
+    }
+    if (action_size) {
+        const std::string name =
+            offset ? p2j_memory_name : p2j_memory_name + "a";
+        craftground::ShmMapping payload(
+            name.c_str(),
+            offset + action_size,
+            offset ? craftground::ShmAccess::Write
+                   : craftground::ShmAccess::Grow
+        );
+        std::memcpy(payload.data() + offset, data, action_size);
+    }
+    header->action_offset = offset;
+    header->action_size = action_size;
+    craftground::NamedSemaphore(header->sem_action_ready.name).post();
+#else
     int p2jFd = get_shared_memory_fd(p2j_memory_name.c_str());
     if (p2jFd == -1) {
         perror("shm_open failed while writing to shared memory");
@@ -400,11 +474,67 @@ void write_to_shared_memory_impl(
     }
     // std::cout << "Wrote action to shared memory" << std::endl;
     munmap(ptr, sizeof(SharedMemoryLayout) + action_size);
+#endif
 }
 
 py::bytes read_from_shared_memory_impl(
-    const std::string &p2j_memory_name, const std::string &j2p_memory_name
+    const std::string &p2j_memory_name,
+    const std::string &j2p_memory_name,
+    py::object server_event,
+    int timeout_ms
 ) {
+#ifndef _WIN32
+    craftground::ShmMapping control(
+        p2j_memory_name.c_str(),
+        sizeof(SharedMemoryLayout),
+        craftground::ShmAccess::Read
+    );
+    auto *layout = reinterpret_cast<const SharedMemoryLayout *>(control.data());
+    {
+        py::gil_scoped_release release;
+        craftground::NamedSemaphore(layout->sem_obs_ready.name)
+            .waitFor(timeout_ms);
+    }
+    if (!server_event.is_none() && server_event.attr("is_set")().cast<bool>()) {
+        throw std::runtime_error(
+            "Minecraft exited while waiting for shared memory"
+        );
+    }
+    if (!layout->initial_environment_offset)
+        throw std::runtime_error(
+            "Minecraft failed to write the shared-memory frame"
+        );
+    craftground::ShmMapping head(
+        j2p_memory_name.c_str(),
+        sizeof(J2PSharedMemoryLayout),
+        craftground::ShmAccess::Read
+    );
+    auto *header = reinterpret_cast<const J2PSharedMemoryLayout *>(head.data());
+    if (header->data_offset != sizeof(*header) ||
+        header->data_size > INT32_MAX) {
+        throw std::runtime_error("Invalid shared-memory message header");
+    }
+    auto copy_frame = [&]() {
+        craftground::ShmMapping frame(
+            j2p_memory_name.c_str(),
+            sizeof(*header) + header->data_size,
+            craftground::ShmAccess::Read
+        );
+        return py::bytes(frame.data() + sizeof(*header), header->data_size);
+    };
+    if (!header->layout_size)
+        return copy_frame();
+    craftground::NamedSemaphore slot(j2p_memory_name + "f");
+    py::bytes data;
+    try {
+        data = copy_frame();
+    } catch (...) {
+        slot.post();
+        throw;
+    }
+    slot.post();
+    return data;
+#else
     int p2jFd = get_shared_memory_fd(p2j_memory_name.c_str());
     if (p2jFd == -1) {
         perror("shm_open p2j failed while reading from shared memory");
@@ -433,14 +563,13 @@ py::bytes read_from_shared_memory_impl(
     rk_sema_open(&layout->sem_obs_ready);
     // rk_sema_open(&layout->sem_action_ready);
     // rk_sema_post(&layout->sem_action_ready);
-    rk_sema_wait(&layout->sem_obs_ready);
+    {
+        py::gil_scoped_release release;
+        rk_sema_wait(&layout->sem_obs_ready);
+    }
 
     int j2pFd;
-#ifdef _WIN32
     j2pFd = shm_open_existing(j2p_memory_name.c_str(), 0666);
-#else
-    j2pFd = shm_open(j2p_memory_name.c_str(), O_RDWR, 0666);
-#endif
     if (j2pFd == -1) {
         perror("shm_open j2p failed while reading from shared memory");
         munmap(p2jPtr, sizeof(SharedMemoryLayout));
@@ -498,7 +627,20 @@ py::bytes read_from_shared_memory_impl(
     munmap(p2jPtr, sizeof(SharedMemoryLayout));
     close(j2pFd);
     return data;
+#endif
 }
+
+#ifndef _WIN32
+void notify_shared_memory_exit(const std::string &p2j_memory_name) {
+    craftground::ShmMapping control(
+        p2j_memory_name.c_str(),
+        sizeof(SharedMemoryLayout),
+        craftground::ShmAccess::Read
+    );
+    auto *layout = reinterpret_cast<const SharedMemoryLayout *>(control.data());
+    craftground::NamedSemaphore(layout->sem_obs_ready.name).post();
+}
+#endif
 
 // remove shared memory
 void destroy_shared_memory_impl(
@@ -530,5 +672,11 @@ void destroy_shared_memory_impl(
             close_shared_memory_fd(memory_name);
         }
     }
+#ifndef _WIN32
+    if (release_semaphores)
+        shm_unlink((memory_name + "a").c_str());
+    else
+        sem_unlink((memory_name + "f").c_str());
+#endif
     shm_unlink(memory_name.c_str());
 }
