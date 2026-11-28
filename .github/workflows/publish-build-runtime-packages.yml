@@ -12,7 +12,7 @@ concurrency:
 jobs:
   build_runtime_packages:
     name: Build ${{ matrix.runtime }} runtime package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         runtime: [mc121, mc262, mc263]
