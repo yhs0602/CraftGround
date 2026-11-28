@@ -58,6 +58,7 @@ class ObservationConverter:
         self.output_type = output_type
         self.internal_type = ObservationTensorType.NONE
         self.surface_receiver = None
+        self._shared_frame = None
         self.image_width = image_width
         self.image_height = image_height
 
@@ -92,6 +93,7 @@ class ObservationConverter:
 
     def release_shared_frame(self) -> None:
         self.surface_receiver = None
+        self._shared_frame = None
         if self.internal_type != ObservationTensorType.NONE:
             self.last_observations[0] = None
             self.internal_type = ObservationTensorType.NONE
@@ -121,7 +123,7 @@ class ObservationConverter:
         ):
             if self.internal_type == ObservationTensorType.NONE:
                 self.initialize_zerocopy(observation.ipc_handle)
-            frame = self.last_observations[0].clone()
+            frame = self._shared_frame.clone()
             if self.internal_type == ObservationTensorType.APPLE_TENSOR:
                 rgb = frame[:, :, [2, 1, 0]].flip(0)
             else:
@@ -135,6 +137,7 @@ class ObservationConverter:
                     if rgb.device.type != "mps":
                         raise
                     rgb = jax.dlpack.from_dlpack(rgb.cpu().contiguous())
+            self.last_observations[0] = rgb
             return (rgb, None)
         else:
             raise ValueError(f"Unknown output type: {self.output_type}")
@@ -171,13 +174,12 @@ class ObservationConverter:
         if last_image is None and last_rgb_frame is None:
             return None
 
-        if isinstance(last_rgb_frame, TorchArrayType) and (
+        if TorchArrayType is not None and isinstance(last_rgb_frame, TorchArrayType) and (
             self.render_mode != "rgb_array_tensor" or self.render_action
         ):
-            # drop the alpha channel and convert to numpy array
             last_rgb_frame = last_rgb_frame.cpu().numpy()
-        if isinstance(last_rgb_frame, JaxArrayType):
-            last_rgb_frame = jax.device_get(last_rgb_frame)  # type: ignore
+        if JaxArrayType is not None and isinstance(last_rgb_frame, JaxArrayType):
+            last_rgb_frame = np.asarray(jax.device_get(last_rgb_frame))  # type: ignore
 
         # last_rgb_frame: np.ndarray or torch.Tensor
         # last_image: PIL.Image.Image or None
@@ -257,7 +259,7 @@ class ObservationConverter:
             print(rgb_array_or_tensor.shape)
             print(rgb_array_or_tensor.dtype)
             print(rgb_array_or_tensor.device)
-            self.last_observations[0] = rgb_array_or_tensor
+            self._shared_frame = rgb_array_or_tensor
             # drop alpha, flip y axis, and clone
             self.internal_type = ObservationTensorType.APPLE_TENSOR
         else:
@@ -275,7 +277,7 @@ class ObservationConverter:
             print(rgb_array_or_tensor.dtype)
             print(rgb_array_or_tensor.device)
             print(f"{rgb_array_or_tensor.data_ptr()=}\n\n")
-            self.last_observations[0] = rgb_array_or_tensor
+            self._shared_frame = rgb_array_or_tensor
             # drop alpha, flip y axis, and clone
             self.internal_type = ObservationTensorType.CUDA_DLPACK
 

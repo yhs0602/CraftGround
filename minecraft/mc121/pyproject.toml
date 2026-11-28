@@ -4,7 +4,7 @@ requires = ["setuptools>=61"]
 
 [project]
 name = "craftground-runtime-mc121"
-version = "0.1.0"
+version = "0.1.1"
 description = "CraftGround Fabric mod runtime assets for Minecraft 1.21"
 readme = "README.md"
 license = {file = "LICENSE"}

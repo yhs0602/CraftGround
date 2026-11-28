@@ -30,12 +30,12 @@ dependencies = [
   "typing_extensions",
   "psutil",
   "torch",
-  "craftground-runtime-mc121",
+  "craftground-runtime-mc121>=0.1.1",
 ]
 
 [project.optional-dependencies]
 mc262 = [
-  "craftground-runtime-mc262",
+  "craftground-runtime-mc262>=0.1.1",
 ]
 
 mc263 = [

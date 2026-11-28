@@ -35,6 +35,7 @@ class BoostIPC(IPCInterface):
         logger: CsvLogger,
     ):
         self._lifecycle_lock = threading.Lock()
+        self._shutdown_event = threading.Event()
         self.closed = True
         self._connected = False
         self.port = port
@@ -84,9 +85,12 @@ class BoostIPC(IPCInterface):
                 self.closed = True
                 self._connected = False
                 try:
-                    destroy_shared_memory(self.j2p_shared_memory_name, False)
+                    self._wake_reader()
                 finally:
-                    destroy_shared_memory(self.p2j_shared_memory_name, True)
+                    try:
+                        destroy_shared_memory(self.j2p_shared_memory_name, False)
+                    finally:
+                        destroy_shared_memory(self.p2j_shared_memory_name, True)
 
     def is_alive(self) -> bool:
         return self._connected
@@ -109,12 +113,12 @@ class BoostIPC(IPCInterface):
         write_to_shared_memory(self.p2j_shared_memory_name, v, len(v))
 
     def _read_message(self, timeout_ms: int = -1) -> bytes:
-        if self._server_event.is_set():
+        if self._shutdown_event.is_set():
             raise RuntimeError("Minecraft exited while waiting for shared memory")
         return read_from_shared_memory(
             self.p2j_shared_memory_name,
             self.j2p_shared_memory_name,
-            self._server_event,
+            self._shutdown_event,
             timeout_ms,
         )
 
@@ -129,7 +133,8 @@ class BoostIPC(IPCInterface):
         return ack
 
     def start_communication(self, server_event: threading.Event):
-        self._server_event = server_event
+        if server_event.is_set():
+            self.notify_process_exit()
         ack = self._read_handshake_ack()
         self.logger.log(
             f"Received handshake ack: protocol_version={ack.protocol_version} "
@@ -138,15 +143,27 @@ class BoostIPC(IPCInterface):
         )
         validate_handshake_ack(ack, self.initial_environment.screen_encoding_mode)
 
-        self._connected = True
+        with self._lifecycle_lock:
+            if self._shutdown_event.is_set():
+                raise RuntimeError("Minecraft exited while waiting for shared memory")
+            self._connected = True
+
+    def _wake_reader(self):
+        # The lifecycle lock keeps the semaphore linked until the notification.
+        if self._shutdown_event.is_set():
+            return
+        self._shutdown_event.set()
+        if platform.system() != "Windows":
+            from ..craftground_native import notify_shared_memory_exit
+
+            notify_shared_memory_exit(self.p2j_shared_memory_name)
 
     def notify_process_exit(self):
         # A restarted JVM can reuse these names as soon as destroy() returns.
         with self._lifecycle_lock:
-            if not self.closed and platform.system() != "Windows":
-                from ..craftground_native import notify_shared_memory_exit
-
-                notify_shared_memory_exit(self.p2j_shared_memory_name)
+            if not self.closed:
+                self._connected = False
+                self._wake_reader()
 
     def __del__(self):
         self.destroy()
