@@ -484,22 +484,27 @@ py::bytes read_from_shared_memory_impl(
     int timeout_ms
 ) {
 #ifndef _WIN32
+    const auto check_shutdown = [&] {
+        if (!server_event.is_none() &&
+            server_event.attr("is_set")().cast<bool>()) {
+            throw std::runtime_error(
+                "Minecraft exited while waiting for shared memory"
+            );
+        }
+    };
+    check_shutdown();
     craftground::ShmMapping control(
         p2j_memory_name.c_str(),
         sizeof(SharedMemoryLayout),
         craftground::ShmAccess::Read
     );
     auto *layout = reinterpret_cast<const SharedMemoryLayout *>(control.data());
+    craftground::NamedSemaphore ready(layout->sem_obs_ready.name);
     {
         py::gil_scoped_release release;
-        craftground::NamedSemaphore(layout->sem_obs_ready.name)
-            .waitFor(timeout_ms);
+        ready.waitFor(timeout_ms);
     }
-    if (!server_event.is_none() && server_event.attr("is_set")().cast<bool>()) {
-        throw std::runtime_error(
-            "Minecraft exited while waiting for shared memory"
-        );
-    }
+    check_shutdown();
     if (!layout->initial_environment_offset)
         throw std::runtime_error(
             "Minecraft failed to write the shared-memory frame"

@@ -119,6 +119,37 @@ def test_exit_notification_finishes_before_shared_memory_is_destroyed(mock_initi
             assert unlink.call_count == 2
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Shared memory requires POSIX")
+def test_shared_memory_destroy_wakes_an_observation_reader(mock_initial_env):
+    waiting = threading.Event()
+    with patch("craftground.environment.boost_ipc.initialize_shared_memory", return_value=8000):
+        ipc = BoostIPC(
+            8000, False, mock_initial_env.to_initial_environment_message(), MagicMock()
+        )
+
+    def read_message(_p2j, _j2p, shutdown, _timeout):
+        waiting.set()
+        assert shutdown.wait(5)
+        raise RuntimeError("Minecraft exited while waiting for shared memory")
+
+    with patch("craftground.environment.boost_ipc.read_from_shared_memory", side_effect=read_message):
+        with patch("craftground.craftground_native.notify_shared_memory_exit") as post:
+            with patch("craftground.environment.boost_ipc.destroy_shared_memory") as unlink:
+                def check_order(*_):
+                    assert ipc._shutdown_event.is_set()
+                    post.assert_called_once_with(ipc.p2j_shared_memory_name)
+
+                unlink.side_effect = check_order
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    observation = pool.submit(ipc.read_observation)
+                    assert waiting.wait(5)
+                    ipc.destroy()
+                    with pytest.raises(RuntimeError, match="Minecraft exited"):
+                        observation.result(timeout=5)
+                ipc.notify_process_exit()
+                post.assert_called_once()
+
+
 @patch("socket.socket")
 @patch("subprocess.Popen")
 def test_reset(mock_popen, mock_socket, environment):
