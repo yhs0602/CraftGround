@@ -11,12 +11,14 @@
 
 #include "framebuffer_capturer.h"
 
-// JNI glue for VulkanCudaZerocopy.kt's native calls. Mirrors vulkan_metal_zerocopy_apple.mm's
-// role for the Metal path: all the Vulkan-side work (creating/exporting the destination VkImage,
-// vkCmdCopyImage) happens in Kotlin; this file only owns the CUDA-side half - importing the
-// exported Vulkan memory, mapping it as a cudaMipmappedArray, and the per-frame device-to-device
-// copy into the separate cudaMalloc'd buffer Python's cudaIpcMemHandle refers to (see
-// VulkanCudaZerocopy.kt's kdoc for why that extra buffer/copy is needed, unlike the Metal path).
+// JNI glue for VulkanCudaZerocopy.kt's native calls. Mirrors
+// vulkan_metal_zerocopy_apple.mm's role for the Metal path: all the Vulkan-side
+// work (creating/exporting the destination VkImage, vkCmdCopyImage) happens in
+// Kotlin; this file only owns the CUDA-side half - importing the exported
+// Vulkan memory, mapping it as a cudaMipmappedArray, and the per-frame
+// device-to-device copy into the separate cudaMalloc'd buffer Python's
+// cudaIpcMemHandle refers to (see VulkanCudaZerocopy.kt's kdoc for why that
+// extra buffer/copy is needed, unlike the Metal path).
 
 namespace {
 
@@ -29,18 +31,23 @@ cudaMipmappedArray_t g_mipmap = nullptr;
 cudaArray_t g_level0Array = nullptr;
 void *g_sharedBuffer = nullptr;
 
-// Picks the CUDA device whose cudaDeviceProp.uuid matches the Vulkan physical device's
-// VkPhysicalDeviceIDProperties.deviceUUID - both are 16-byte identifiers for the same physical
-// GPU. Fails closed (-1) if nothing matches, rather than falling back to device 0: on a
-// multi-GPU machine, device 0 need not be the one Vulkan is rendering on nor own the exported
-// memory, and importing a mismatched device's memory can invalid-access or silently produce
-// garbage rather than a clean cudaImportExternalMemory failure. Callers must treat -1 as
-// initialization failure and not attempt the import.
+// Picks the CUDA device whose cudaDeviceProp.uuid matches the Vulkan physical
+// device's VkPhysicalDeviceIDProperties.deviceUUID - both are 16-byte
+// identifiers for the same physical GPU. Fails closed (-1) if nothing matches,
+// rather than falling back to device 0: on a multi-GPU machine, device 0 need
+// not be the one Vulkan is rendering on nor own the exported memory, and
+// importing a mismatched device's memory can invalid-access or silently produce
+// garbage rather than a clean cudaImportExternalMemory failure. Callers must
+// treat -1 as initialization failure and not attempt the import.
 int findMatchingCudaDevice(const jbyte *deviceUUID) {
     int deviceCount = 0;
     cudaError_t err = cudaGetDeviceCount(&deviceCount);
     if (err != cudaSuccess) {
-        fprintf(stderr, "VulkanCudaZerocopy: cudaGetDeviceCount failed: %s\n", cudaGetErrorString(err));
+        fprintf(
+            stderr,
+            "VulkanCudaZerocopy: cudaGetDeviceCount failed: %s\n",
+            cudaGetErrorString(err)
+        );
         return -1;
     }
     for (int i = 0; i < deviceCount; i++) {
@@ -55,7 +62,8 @@ int findMatchingCudaDevice(const jbyte *deviceUUID) {
     }
     fprintf(
         stderr,
-        "VulkanCudaZerocopy: no CUDA device UUID matched the Vulkan physical device; "
+        "VulkanCudaZerocopy: no CUDA device UUID matched the Vulkan physical "
+        "device; "
         "failing closed rather than guessing device 0\n"
     );
     return -1;
@@ -87,8 +95,12 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
 #endif
         }
     } handle{osHandle};
-    if (byteStringClass == nullptr || copyFromMethod == nullptr || env->ExceptionCheck()) {
-        fprintf(stderr, "VulkanCudaZerocopy: ByteString class/method not initialized\n");
+    if (byteStringClass == nullptr || copyFromMethod == nullptr ||
+        env->ExceptionCheck()) {
+        fprintf(
+            stderr,
+            "VulkanCudaZerocopy: ByteString class/method not initialized\n"
+        );
         return nullptr;
     }
     if (g_initialized) {
@@ -107,7 +119,11 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
 
     cudaError_t err = cudaSetDevice(deviceId);
     if (err != cudaSuccess) {
-        fprintf(stderr, "VulkanCudaZerocopy: cudaSetDevice failed: %s\n", cudaGetErrorString(err));
+        fprintf(
+            stderr,
+            "VulkanCudaZerocopy: cudaSetDevice failed: %s\n",
+            cudaGetErrorString(err)
+        );
         return nullptr;
     }
 
@@ -138,17 +154,22 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
 
     cudaExternalMemoryMipmappedArrayDesc mipmapDesc{};
     mipmapDesc.offset = 0;
-    mipmapDesc.formatDesc = cudaCreateChannelDesc(8, 8, 8, 8, cudaChannelFormatKindUnsigned);
-    mipmapDesc.extent = make_cudaExtent(static_cast<size_t>(width), static_cast<size_t>(height), 0);
+    mipmapDesc.formatDesc =
+        cudaCreateChannelDesc(8, 8, 8, 8, cudaChannelFormatKindUnsigned);
+    mipmapDesc.extent = make_cudaExtent(
+        static_cast<size_t>(width), static_cast<size_t>(height), 0
+    );
     mipmapDesc.flags = 0;
     mipmapDesc.numLevels = 1;
 
     cudaMipmappedArray_t mipmap;
-    err = cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &mipmapDesc);
+    err =
+        cudaExternalMemoryGetMappedMipmappedArray(&mipmap, extMem, &mipmapDesc);
     if (err != cudaSuccess) {
         fprintf(
             stderr,
-            "VulkanCudaZerocopy: cudaExternalMemoryGetMappedMipmappedArray failed: %s\n",
+            "VulkanCudaZerocopy: cudaExternalMemoryGetMappedMipmappedArray "
+            "failed: %s\n",
             cudaGetErrorString(err)
         );
         cudaDestroyExternalMemory(extMem);
@@ -159,19 +180,26 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
     err = cudaGetMipmappedArrayLevel(&level0Array, mipmap, 0);
     if (err != cudaSuccess) {
         fprintf(
-            stderr, "VulkanCudaZerocopy: cudaGetMipmappedArrayLevel failed: %s\n", cudaGetErrorString(err)
+            stderr,
+            "VulkanCudaZerocopy: cudaGetMipmappedArrayLevel failed: %s\n",
+            cudaGetErrorString(err)
         );
         cudaFreeMipmappedArray(mipmap);
         cudaDestroyExternalMemory(extMem);
         return nullptr;
     }
 
-    // Separate cudaMalloc'd buffer that cudaIpcGetMemHandle can actually target - it cannot be
-    // called on the memory imported above (see VulkanCudaZerocopy.kt's kdoc).
+    // Separate cudaMalloc'd buffer that cudaIpcGetMemHandle can actually target
+    // - it cannot be called on the memory imported above (see
+    // VulkanCudaZerocopy.kt's kdoc).
     void *sharedBuffer = nullptr;
     err = cudaMalloc(&sharedBuffer, static_cast<size_t>(width) * height * 4);
     if (err != cudaSuccess) {
-        fprintf(stderr, "VulkanCudaZerocopy: cudaMalloc failed: %s\n", cudaGetErrorString(err));
+        fprintf(
+            stderr,
+            "VulkanCudaZerocopy: cudaMalloc failed: %s\n",
+            cudaGetErrorString(err)
+        );
         cudaFreeMipmappedArray(mipmap);
         cudaDestroyExternalMemory(extMem);
         return nullptr;
@@ -180,7 +208,11 @@ Java_com_kyhsgeekcode_minecraftenv_VulkanCudaZerocopy_importVulkanMemoryAndInitC
     cudaIpcMemHandle_t ipcHandle;
     err = cudaIpcGetMemHandle(&ipcHandle, sharedBuffer);
     if (err != cudaSuccess) {
-        fprintf(stderr, "VulkanCudaZerocopy: cudaIpcGetMemHandle failed: %s\n", cudaGetErrorString(err));
+        fprintf(
+            stderr,
+            "VulkanCudaZerocopy: cudaIpcGetMemHandle failed: %s\n",
+            cudaGetErrorString(err)
+        );
         cudaFree(sharedBuffer);
         cudaFreeMipmappedArray(mipmap);
         cudaDestroyExternalMemory(extMem);
